@@ -44,7 +44,9 @@ def export_assets(app, destination):
                 output.write(file, file.relative_to(app).as_posix())
     digest = file_digest(archive)
     sums = destination / 'SHA256SUMS'
-    sums.write_text(f'{digest}  {archive.name}\n', encoding='utf-8')
+    # Bytes, not text: on Windows write_text turns the newline into CRLF, and then
+    # `sha256sum -c` looks for a file whose name ends in a carriage return.
+    sums.write_bytes(f'{digest}  {archive.name}\n'.encode('ascii'))
     return dict(archive=str(archive), checksum=str(sums), sha256=digest,
                 version=identity['version'], source_commit=info.get('source_commit'),
                 files=count, published=False)

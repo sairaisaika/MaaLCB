@@ -128,3 +128,16 @@ def test_the_published_self_test_carries_no_build_machine_path(tmp_path):
     assert public_privacy.text_findings('build-info.json', text.encode()) == []
     with pytest.raises(ValueError):
         package_tool().portable_self_test(dict(application_root=str(tmp_path / 'elsewhere')), app)
+
+
+def test_the_checksum_file_has_one_plain_line_that_sha256sum_reads(tmp_path):
+    """Written on Windows it used to end in CRLF, and `sha256sum -c` then failed to open the file."""
+    import hashlib
+    app = tmp_path / 'app'
+    candidate(app)
+    manifest(app)
+    exported = export_assets(app, tmp_path / 'assets')
+    archive = Path(exported['archive'])
+    data = (tmp_path / 'assets' / 'SHA256SUMS').read_bytes()
+    assert data == ('%s  %s\n' % (hashlib.sha256(archive.read_bytes()).hexdigest(), archive.name)).encode('ascii')
+    assert b'\r' not in data

@@ -8584,7 +8584,7 @@
           "path": "src/maalimbus/release_package.py",
           "symbol": "export_assets",
           "line": 11,
-          "sha256": "052fd783c8b4d2af35f9edbd4a19535754def5ec633e897b71336a06d6532b3a"
+          "sha256": "94b065ce914eda09f8d1a6fb8976606851a3749878a3df67cbee235a93b2faf5"
         }
       ]
     },

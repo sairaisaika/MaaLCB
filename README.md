@@ -9,7 +9,7 @@ MaaLimbus 是 Limbus Company 的 Windows 自动化开发项目。桌面端使用
 | 有 | 没有 |
 | --- | --- |
 | 源码、Pipeline、语言资源、设计文档与中英文 Wiki | 游戏素材：图标、识别模板和游戏截图一张都不带 |
-| OCR 模型（MaaCommonAssets，MIT；PaddleOCR，Apache-2.0） | 预构建的 Windows 桌面包 |
+| OCR 模型（MaaCommonAssets，MIT；PaddleOCR，Apache-2.0） | 正式版桌面包：目前只有一个预发布版，见下面「构建」 |
 | 只用合成素材的公开测试、[示例配置](docs/examples/config/README.md)、依赖锁文件 | 任何人的账号配置、运行截图和运行记录 |
 
 游戏美术归其权利方所有，本项目无法确认可以再分发。镜牢自动化要用的 360 张位图由你在自己的机器上提供，步骤见[本地游戏素材](docs/local-assets.md)。没有素材时可以安装、跑测试、构建源码包；镜牢任务会在发出任何输入之前停下并说明缺哪一组。
@@ -64,7 +64,9 @@ Python 源码包和 wheel：
 .venv\Scripts\python -m build --outdir build/python-package
 ```
 
-Windows 桌面应用由 `tools/build_windows_package.py` 用你自己下载的 MXU 与 MaaFramework 归档组装，工具按 [Windows 开发包](docs/windows-package.md)里登记的哈希核对输入，不联网下载。发行包只取已提交的文件，带着游戏素材就拒绝导出。这条路径在不含私有目录、不含游戏素材的全新克隆上构建通过过一次：包里没有游戏素材，清单校验一致，打包后的 Agent 自检按组写明缺哪些素材。本仓库不发布预构建的桌面包；构建目录要放在较短的路径下，否则打包后的 Agent 会因为套接字路径过长而停下。
+Windows 桌面应用由 `tools/build_windows_package.py` 用你自己下载的 MXU 与 MaaFramework 归档组装，工具按 [Windows 开发包](docs/windows-package.md)里登记的哈希核对输入，不联网下载。发行包只取已提交的文件，带着游戏素材就拒绝导出。这条路径在不含私有目录、不含游戏素材的全新克隆上构建通过过一次：包里没有游戏素材，清单校验一致，打包后的 Agent 自检按组写明缺哪些素材。构建目录要放在较短的路径下，否则打包后的 Agent 会因为套接字路径过长而停下。
+
+预构建的桌面包有一个预发布版 [v0.1.3](https://github.com/sairaisaika/MaaLCB/releases/tag/v0.1.3)：里面没有任何游戏素材，MXU 与 MaaFramework 的对应源码在包内 `sources/`，用 `SHA256SUMS` 核对下载。它从未登录的下载复验过：校验和、清单、打包 Agent 自检、缺素材报告和编队回放都通过。整局通关、领奖和从 MXU 窗口启动没有在这个包上验证，程序也没有签名，Windows 可能弹出安全提示。
 
 ## 运行镜牢
 

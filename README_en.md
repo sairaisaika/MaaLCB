@@ -9,7 +9,7 @@ MaaLimbus is a Windows automation project for Limbus Company. The desktop app us
 | It has | It does not have |
 | --- | --- |
 | Source code, pipelines, language resources, design documents and a bilingual wiki | Game assets: not one icon, recognition template or game screenshot |
-| OCR models (MaaCommonAssets, MIT; PaddleOCR, Apache-2.0) | A prebuilt Windows desktop package |
+| OCR models (MaaCommonAssets, MIT; PaddleOCR, Apache-2.0) | A stable desktop package: so far there is one pre-release, see Build below |
 | Public tests that use synthetic material only, [example configuration](docs/examples/config/README.md) and a dependency lock file | Anyone's account configuration, captures or run records |
 
 The game's artwork belongs to its rights holder and this project cannot establish that it may be redistributed. The 360 bitmaps Mirror Dungeon automation matches against are supplied by you on your own machine; see [local game assets](docs/local-assets.md). Without them you can install, run the tests and build the source package. A Mirror Dungeon task stops before it sends any input and names the missing group.
@@ -64,7 +64,9 @@ Python source package and wheel:
 .venv\Scripts\python -m build --outdir build/python-package
 ```
 
-The Windows desktop app is assembled by `tools/build_windows_package.py` from MXU and MaaFramework archives you download yourself; the tool checks its inputs against the hashes recorded in [Windows package](docs/windows-package.md) and downloads nothing. A release package takes committed files only and is refused when it carries game assets. This path has been built once from a fresh clone with no private directory and no game asset: the package carries no game asset, its manifest verifies, and the packaged Agent self-test names the missing asset groups. This repository publishes no prebuilt desktop package. Keep the build folder at a short path, or the packaged Agent stops because its socket path is too long.
+The Windows desktop app is assembled by `tools/build_windows_package.py` from MXU and MaaFramework archives you download yourself; the tool checks its inputs against the hashes recorded in [Windows package](docs/windows-package.md) and downloads nothing. A release package takes committed files only and is refused when it carries game assets. This path has been built once from a fresh clone with no private directory and no game asset: the package carries no game asset, its manifest verifies, and the packaged Agent self-test names the missing asset groups. Keep the build folder at a short path, or the packaged Agent stops because its socket path is too long.
+
+One prebuilt desktop package is published as the pre-release [v0.1.3](https://github.com/sairaisaika/MaaLCB/releases/tag/v0.1.3). It contains no game asset; the corresponding source of MXU and MaaFramework is inside it under `sources/`; check the download against `SHA256SUMS`. It was re-verified from an anonymous download: the checksum, the manifest, the packaged Agent self-test, the missing-asset report and the deployment replay all pass. A full run, the payout and a start from the MXU window were not verified on this package, and the programs are unsigned, so Windows may show a security prompt.
 
 ## Run Mirror Dungeon
 
