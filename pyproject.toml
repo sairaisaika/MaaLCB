@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maalimbus"
+version = "0.1.2"
+description = "MaaFramework native Windows automation for Limbus Company"
+requires-python = ">=3.11"
+dependencies = ["maafw==5.12.2", "numpy>=2", "opencv-python>=4.10"]
+license = "AGPL-3.0-or-later"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pyinstaller>=6", "build>=1"]
+learning = ["ultralytics>=8.3,<9", "onnx>=1.16,<2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -1,0 +1,254 @@
+"""A refused map click has to say what kind of box it was (D75).
+
+`map_clicks` returns nine kinds of detected box.  `gold_badge_node` and `lattice_step`
+arrive as 190x190 tiles whose centre is often empty space, while `lit_icon` arrives as
+the 40x40 glyph the game marks its accepted step with -- and until D75 the verdict named
+the refused box but not its kind, so "which kind lands" was unanswerable from the
+archive.  These tests pin the writer, the reader, and the run that fills them.
+"""
+
+import importlib.util
+import pathlib
+import types
+
+import pytest
+
+import maalimbus.run_metrics as run_metrics
+import maalimbus.runner as runner
+
+REPO = pathlib.Path(__file__).resolve().parents[1]
+PAST = '2026-10-23T10:00:00'
+
+
+def _row(event, kind=None, outcome=None, **extra):
+    row = {'event': event, 'utc': PAST}
+    if kind is not None:
+        row['kind'] = kind
+    if outcome is not None:
+        row['outcome'] = outcome
+    row.update(extra)
+    return row
+
+
+def _click(directory, *rows):
+    (directory / 'events.jsonl').write_text(
+        '\n'.join(__import__('json').dumps(row) for row in rows) + '\n', encoding='utf-8')
+    return directory
+
+
+def _states():
+    return [
+        _row('map_click_result', 'gold_badge_node', 'rejected'),
+        _row('map_click_result', 'gold_badge_node', 'rejected'),
+        _row('map_click_result', 'gold_badge_node', 'accepted'),
+        _row('map_click_result', 'lit_icon', 'accepted'),
+    ]
+
+
+def test_every_verdict_is_counted_under_the_kind_it_names(tmp_path):
+    _click(tmp_path, *_states())
+    kinds = run_metrics.click_kinds([tmp_path])
+    assert kinds['sent'] == 4 and kinds['declared'] == 4
+    # D76 made "the page stayed" provisional, so the table learned a fifth verdict:
+    # a click settled by the next read is `unjudged` here and accepted/rejected later.
+    assert kinds['by_kind']['gold_badge_node'] == {'sent': 3, 'accepted': 1, 'rejected': 2,
+                                                   'superseded': 0, 'unjudged': 0}
+    assert kinds['by_kind']['lit_icon']['accepted'] == 1
+
+
+def test_a_verdict_without_a_kind_is_not_dropped_it_is_unrecorded(tmp_path):
+    _click(tmp_path, _row('map_click_result', outcome='rejected'))
+    kinds = run_metrics.click_kinds([tmp_path])
+    assert kinds['sent'] == 1 and kinds['declared'] == 0
+    assert list(kinds['by_kind']) == ['unrecorded']
+
+
+def test_the_table_says_which_kind_lands(tmp_path):
+    _click(tmp_path, *_states())
+    report = run_metrics.click_kind_report(run_metrics.click_kinds([tmp_path]))
+    rows = {row['kind']: row for row in report['rows']}
+    assert report['measured'] is True
+    assert report['basis'] == '4 of 4 click verdicts name a candidate kind'
+    assert rows['gold_badge_node']['rate'] == 0.33
+    assert rows['lit_icon']['rate'] == 1.0
+    # The widest kind comes first, so a table scanned from the top reads the runs' habit.
+    assert report['rows'][0]['kind'] == 'gold_badge_node'
+
+
+def test_a_rate_needs_a_verdict_and_not_only_a_click(tmp_path):
+    _click(tmp_path, _row('map_click_result', 'lit_icon', 'superseded'))
+    report = run_metrics.click_kind_report(run_metrics.click_kinds([tmp_path]))
+    assert report['rows'][0]['rate'] is None
+
+
+def test_an_archive_that_never_named_a_kind_is_not_measured(tmp_path):
+    _click(tmp_path, _row('map_click_result', outcome='accepted'))
+    report = run_metrics.click_kind_report(run_metrics.click_kinds([tmp_path]))
+    assert report['measured'] is False
+    assert 'D75' in report['note']
+
+
+def test_candidates_of_keeps_the_kind_of_the_boxes_it_offers(tmp_path, monkeypatch):
+    # 合成帧 + monkeypatch 的 `adjacent_to` 与 D345 之后“框由 node_point 重算”的路径
+    # 冲突：`boxes[1]` 在这条 fixture 里没有稳定的几何含义，调用会越界。用真实 1080 帧
+    # 重写（`tools/collect_fixtures.py` 已能把帧攒进 `tests/fixtures/frames/`）。
+    pytest.skip("合成 fixture 与 D345 的框重算冲突，需要用真实帧重写")
+    import numpy as np
+    monkeypatch.setattr(runner, 'cyan_step_boxes', lambda image, party: [])
+    monkeypatch.setattr(runner, 'latest_frame', lambda directory: (np.zeros((10, 10, 3), np.uint8),
+                                                                  'frame-0001'))
+    monkeypatch.setattr(runner, 'map_clicks', lambda image, template=None, **kw: [
+        {'box': [10, 10, 190, 190], 'kind': 'gold_badge_node'},
+        {'box': [200, 200, 40, 40], 'kind': 'lit_icon'},
+    ])
+    monkeypatch.setattr(runner, 'header_chrome', lambda record: None)
+    monkeypatch.setattr(runner, 'party_point', lambda image: (100, 100))
+    # The adjacency filter is not what this test is about: it keeps one box and the
+    # kinds must still line up with the boxes that survived.
+    monkeypatch.setattr(runner, 'adjacent_to', lambda party, boxes: [boxes[1]])
+    record = {'scene': 'MAP'}
+    name, boxes = runner.candidates_of(tmp_path, record)
+    assert name == 'frame-0001' and boxes == [[200, 200, 40, 40]]
+    assert record['map_candidate_kinds']['200,200,40,40'] == 'lit_icon'
+    assert record['map_candidate_kinds']['10,10,190,190'] == 'gold_badge_node'
+    # The dict travels into the loop's state and the final result, so it has to be
+    # JSON-serializable -- a tuple key ended a live run with `callback_failed` (D75).
+    import json as _json
+    _json.dumps(record['map_candidate_kinds'])
+
+
+def test_the_verdict_names_the_kind_of_the_box_it_judged():
+    loop = runner.MirrorRunner.__new__(runner.MirrorRunner)
+    loop.state = {'map_candidate_kinds': {'678,353,40,40': 'lit_icon'}}
+    seen = []
+    loop.note = lambda name, **fields: seen.append((name, fields))
+    loop._map_verdict(target=[678, 353, 40, 40], page='MAP', outcome='rejected',
+                      reason='the_page_stayed_on_the_map_after_the_click')
+    assert seen[0][1]['kind'] == 'lit_icon'
+    assert seen[0][1]['outcome'] == 'rejected'
+
+
+def test_a_verdict_for_a_box_the_offer_never_named_stays_unknown():
+    loop = runner.MirrorRunner.__new__(runner.MirrorRunner)
+    loop.state = {}
+    seen = []
+    loop.note = lambda name, **fields: seen.append((name, fields))
+    loop._map_verdict(target=[1, 2, 3, 4], page='MAP', outcome='rejected',
+                      reason='a_new_target_replaced_this_one_before_the_page_settled')
+    assert 'kind' not in seen[0][1] or seen[0][1]['kind'] is None
+
+
+def test_the_audit_prints_the_table_and_refuses_an_empty_corpus(tmp_path, capsys):
+    spec = importlib.util.spec_from_file_location('audit_map_clicks',
+                                                  REPO / 'tools' / 'audit_map_clicks.py')
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    _click(tmp_path, *_states())
+    assert tool.main(['--root', str(tmp_path)]) == 0
+    out = capsys.readouterr().out
+    assert 'gold_badge_node' in out and 'lit_icon' in out
+    empty = tmp_path / 'empty'
+    empty.mkdir()
+    assert tool.main(['--root', str(empty)]) == 2
+
+
+def test_the_marked_step_is_tried_before_a_badge_tile(tmp_path, monkeypatch):
+    # 这条断言写于 D300 之前：那时 `gold_badge_node` 还没有固定权重，marked step 会排在
+    # 前面。D300 把排序变成显式权重表之后，gold_badge(=1) 有意排在 lit_icon(=4) 之前，
+    # 而 `candidates_of` 又会用 `node_point` 重算框（D345），所以这些写死的坐标和行为
+    # 都已经不是被测对象了。用一张真实 1080 帧重写它，别继续维护这份合成 fixture。
+    pytest.skip("写死的坐标早于 D300 的权重表和 D345 的框重算，需要真实帧重写")
+    """D75's live evidence: two `gold_badge_node` clicks were refused while the one
+    `bright_lit_icon` box sat fourth in the list and was never reached."""
+    import numpy as np
+    monkeypatch.setattr(runner, 'cyan_step_boxes', lambda image, party: [])
+    monkeypatch.setattr(runner, 'latest_frame', lambda directory: (np.zeros((10, 10, 3), np.uint8),
+                                                                  'frame-0001'))
+    monkeypatch.setattr(runner, 'map_clicks', lambda image, template=None, **kw: [
+        {'box': [755, 238, 190, 190], 'kind': 'gold_badge_node'},
+        {'box': [1002, 447, 40, 40], 'kind': 'lit_icon'},
+        {'box': [545, 239, 190, 190], 'kind': 'gold_badge_node'},
+    ])
+    monkeypatch.setattr(runner, 'header_chrome', lambda record: None)
+    # D280: the party must be standing on a node before any candidate is offered, so the
+    # fixture puts it on the lit_icon box this test is about (centre of 1002,447,40,40).
+    monkeypatch.setattr(runner, 'party_point', lambda image: (1022, 467))
+    # Adjacency is not the question here: the ordering is applied to whatever survived it.
+    monkeypatch.setattr(runner, 'adjacent_to', lambda party, boxes: list(boxes))
+    record = {'scene': 'MAP'}
+    _, boxes = runner.candidates_of(tmp_path, record)
+    assert boxes[0] == [1002, 447, 40, 40]
+    assert [record['map_candidate_kinds'][runner.box_key(box)] for box in boxes] == [
+        'lit_icon', 'gold_badge_node', 'gold_badge_node']
+
+
+def test_an_unknown_kind_is_kept_at_the_end_and_not_dropped(tmp_path, monkeypatch):
+    # 这条断言写于 D300 之前：那时 `gold_badge_node` 还没有固定权重，marked step 会排在
+    # 前面。D300 把排序变成显式权重表之后，gold_badge(=1) 有意排在 lit_icon(=4) 之前，
+    # 而 `candidates_of` 又会用 `node_point` 重算框（D345），所以这些写死的坐标和行为
+    # 都已经不是被测对象了。用一张真实 1080 帧重写它，别继续维护这份合成 fixture。
+    pytest.skip("写死的坐标早于 D300 的权重表和 D345 的框重算，需要真实帧重写")
+    import numpy as np
+    monkeypatch.setattr(runner, 'cyan_step_boxes', lambda image, party: [])
+    monkeypatch.setattr(runner, 'latest_frame', lambda directory: (np.zeros((10, 10, 3), np.uint8),
+                                                                  'frame-0001'))
+    monkeypatch.setattr(runner, 'map_clicks', lambda image, template=None, **kw: [
+        {'box': [1, 1, 40, 40], 'kind': 'something_new'},
+        {'box': [80, 80, 40, 40], 'kind': 'lit_node'},
+    ])
+    monkeypatch.setattr(runner, 'header_chrome', lambda record: None)
+    # D280: the party reads on a node, otherwise no candidate is offered at all.
+    monkeypatch.setattr(runner, 'party_point', lambda image: (21, 21))
+    monkeypatch.setattr(runner, 'adjacent_to', lambda party, boxes: list(boxes))
+    _, boxes = runner.candidates_of(tmp_path, {'scene': 'MAP'})
+    assert boxes == [[80, 80, 40, 40], [1, 1, 40, 40]]
+
+
+def test_the_kind_survives_a_click_the_loop_replaced(tmp_path):
+    loop = runner.MirrorRunner.__new__(runner.MirrorRunner)
+    loop.state = {'map_candidate_kinds': {}, 'map_pending': [678, 353, 40, 40],
+                  'map_pending_kind': 'bright_lit_icon'}
+    seen = []
+    loop.note = lambda name, **fields: seen.append((name, fields))
+    loop._map_verdict(target=[678, 353, 40, 40], page='MAP', outcome='rejected',
+                      reason='a_new_target_replaced_this_one_before_the_page_settled')
+    assert seen[0][1]['kind'] == 'bright_lit_icon'
+
+
+# 真实 1080 帧（`tests/fixtures/frames/map-20261031-154323`）取代上面三条合成 fixture：
+# 断言"这一帧真的能被读出候选，且记下的 kind 与框对得上"，而不是写死坐标。
+_FIXTURE = pathlib.Path(__file__).resolve().parent / 'fixtures' / 'frames' / 'map-20261031-154323'
+
+
+def _real_frame():
+    import json as _json
+    if not (_FIXTURE / 'frame-0001.png').is_file():
+        pytest.skip('真实地图帧 fixture 不在仓库里')
+    record = _json.loads((_FIXTURE / 'frame-0001.json').read_text(encoding='utf-8'))
+    return _FIXTURE, record
+
+
+def test_a_real_map_frame_offers_at_least_one_candidate():
+    directory, record = _real_frame()
+    _, boxes = runner.candidates_of(directory, dict(record))
+    assert boxes, '一张真实地图帧应该至少给出一个候选格'
+    for box in boxes:
+        assert len(box) == 4 and all(isinstance(v, (int, float)) for v in box)
+
+
+def test_the_kinds_recorded_line_up_with_the_boxes_offered():
+    directory, record = _real_frame()
+    # `candidates_of` 会自己写 record，这里拿它写的记录来对账
+    fresh = dict(record)
+    _, boxes = runner.candidates_of(directory, fresh)
+    recorded = fresh.get('map_candidate_kinds') or {}
+    assert boxes, recorded
+    for box in boxes:
+        assert runner.box_key(box) in recorded, (runner.box_key(box), recorded)
+
+
+def test_the_offered_box_has_the_size_of_a_node_on_a_1080_frame():
+    directory, record = _real_frame()
+    _, boxes = runner.candidates_of(directory, dict(record))
+    side = max(box[2] for box in boxes)
+    assert 120 <= side <= 240, side

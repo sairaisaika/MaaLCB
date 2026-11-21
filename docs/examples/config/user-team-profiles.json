@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "teams": [
+    {
+      "slot": 1,
+      "name": "Example Bleed team",
+      "keywords": ["Bleed"],
+      "formation_keywords": ["Bleed"],
+      "allow": [],
+      "block": [],
+      "deployment": ["Yi Sang", "Faust", "Don Quixote", "Ryoshu", "Meursault", "Hong Lu",
+                     "Heathcliff", "Ishmael", "Rodion", "Sinclair", "Outis", "Gregor"],
+      "pack_weights": [],
+      "graces": [],
+      "initial_gifts": [],
+      "auto_team": false,
+      "grace_budget": 0
+    },
+    {
+      "slot": 2,
+      "name": "Example Burn team",
+      "keywords": ["Burn"],
+      "formation_keywords": ["Burn"],
+      "allow": [],
+      "block": [],
+      "deployment": ["Gregor", "Outis", "Sinclair", "Rodion", "Ishmael", "Heathcliff",
+                     "Hong Lu", "Meursault", "Ryoshu", "Don Quixote", "Faust", "Yi Sang"],
+      "pack_weights": [],
+      "graces": [],
+      "initial_gifts": [],
+      "auto_team": false,
+      "grace_budget": 0
+    }
+  ]
+}

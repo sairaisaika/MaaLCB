@@ -1,0 +1,4107 @@
+{
+ "version": 1,
+ "note": "Game bitmaps this project matches against. None of them is in the repository: the game artwork belongs to its rights holder and redistribution is not established. Each row records the reference bitmap's SHA-256 and pixel size so a local copy can be checked. origin=lix files are copied unmodified from a LixAssistantLimbusCompany checkout the user supplies; origin=own-capture files are cropped from the user's own screenshots. See docs/local-assets.md.",
+ "lix": {
+  "repository": "https://github.com/HSLix/LixAssistantLimbusCompany",
+  "commit": "431b432e22f0b0da08b95d7c478fa213be20b3e8",
+  "local_checkout": "sources/upstream/LixAssistantLimbusCompany"
+ },
+ "root": "assets/resource/base",
+ "groups": {
+  "gifts": {
+   "feature": "EGO gift icon identification on gift choice, reward and shop pages",
+   "consumers": [
+    "src/maalimbus/gift_vision.py"
+   ],
+   "import_tool": "tools/import_lix_assets.py"
+  },
+  "themes": {
+   "feature": "theme pack page glyphs (difficulty mode, search, detail)",
+   "consumers": [
+    "src/maalimbus/theme_vision.py"
+   ],
+   "import_tool": "tools/import_lix_assets.py"
+  },
+  "battle": {
+   "feature": "battle HUD glyphs (win rate, skill damage types)",
+   "consumers": [
+    "src/maalimbus/battle_vision.py"
+   ],
+   "import_tool": "tools/import_lix_assets.py"
+  },
+  "navigation": {
+   "feature": "back arrows and checkbox states on team, identity, tutorial and star pages",
+   "consumers": [
+    "agent/recognition.py",
+    "src/maalimbus/overlay_dismissal.py",
+    "src/maalimbus/grace_vision.py"
+   ],
+   "import_tool": "tools/import_local_templates.py"
+  },
+  "reward": {
+   "feature": "paid Claim cost reading on the run reward page",
+   "consumers": [
+    "src/maalimbus/reward_cost.py"
+   ],
+   "import_tool": "tools/import_local_templates.py"
+  },
+  "event": {
+   "feature": "skill-check odds captions on event pages",
+   "consumers": [
+    "src/maalimbus/event_vision.py"
+   ],
+   "import_tool": "tools/import_local_templates.py"
+  },
+  "map": {
+   "feature": "node badge under each floor map node",
+   "consumers": [
+    "src/maalimbus/runner.py",
+    "src/maalimbus/map_vision.py"
+   ],
+   "import_tool": "tools/import_local_templates.py"
+  }
+ },
+ "files": [
+  {
+   "path": "image/battle/skill_blunt.png",
+   "sha256": "7c6b8eebb88f7ba8c5068de466e9cd41b609623d2e1dd9e964b96935b99c8299",
+   "size": [
+    17,
+    16
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/battle/skill_blunt.png",
+   "group": "battle"
+  },
+  {
+   "path": "image/battle/skill_pierce.png",
+   "sha256": "1c0b76c85751ec60106109efd7f84b977d4ac87e8b69046241f261c29dfa5f9d",
+   "size": [
+    22,
+    18
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/battle/skill_pierce.png",
+   "group": "battle"
+  },
+  {
+   "path": "image/battle/skill_slash.png",
+   "sha256": "6f740f0f69ec47a8ab6c8c5fc0122af21a3340532f56c2fa1337b2d3ab1e1d06",
+   "size": [
+    19,
+    16
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/battle/skill_slash.png",
+   "group": "battle"
+  },
+  {
+   "path": "image/battle/win_rate.png",
+   "sha256": "920516e0fb3d313c887a2b3059bc8cd0acfd4d0bee917616150986a64a6e4292",
+   "size": [
+    33,
+    27
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/en/battle/win_rate.png",
+   "group": "battle"
+  },
+  {
+   "path": "image/event/odds_high.png",
+   "sha256": "3a107193dac96f78ed2943a5557cd1b5cc196bb8ca62ea045605b978e9621e7b",
+   "size": [
+    100,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "event"
+  },
+  {
+   "path": "image/event/odds_normal.png",
+   "sha256": "a21df06f4686cf3179f83802568740fa6ddd846a54364518221b94656a47b5aa",
+   "size": [
+    100,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "event"
+  },
+  {
+   "path": "image/event/odds_very_high.png",
+   "sha256": "5c7254476af9d8bd49e63010428e4999cb34cb8ef30578d540e49d8598407144",
+   "size": [
+    100,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "event"
+  },
+  {
+   "path": "image/event/odds_very_low.png",
+   "sha256": "beacf997ebaf8f4eba9e00a37cf93a96553e65249fc0751073788740bbd64c4d",
+   "size": [
+    100,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "event"
+  },
+  {
+   "path": "image/gifts/00171b50375214f29e408c9a15a2f5a3e5959f2e4b1c47faea867c1ff5f4396a.png",
+   "sha256": "00171b50375214f29e408c9a15a2f5a3e5959f2e4b1c47faea867c1ff5f4396a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Carmilla.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0111acd0877fbbe79ac2114391e4d408e7bb8b113c7455c90f7af992f2b31a04.png",
+   "sha256": "0111acd0877fbbe79ac2114391e4d408e7bb8b113c7455c90f7af992f2b31a04",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Unmailed Letter.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/01a82b87840ad79b85d4d54b27278589714cfa98083626db8f43fd454ee1ed24.png",
+   "sha256": "01a82b87840ad79b85d4d54b27278589714cfa98083626db8f43fd454ee1ed24",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Crystallized Blood.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/01cb2b4c37cadd318554244aa66bb4a7c306b4f1a42559d57d9fedb3c26d88af.png",
+   "sha256": "01cb2b4c37cadd318554244aa66bb4a7c306b4f1a42559d57d9fedb3c26d88af",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Prestige Card.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/03ab212bd74a52172ba85efb28ddc09dcf06c1d7b0f86780dd35416fab086097.png",
+   "sha256": "03ab212bd74a52172ba85efb28ddc09dcf06c1d7b0f86780dd35416fab086097",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Contaminated Needle & Thread.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/03b34e6338f7f753e17d87df5eaac2920868fec8b38998b6c3456de38907bf6f.png",
+   "sha256": "03b34e6338f7f753e17d87df5eaac2920868fec8b38998b6c3456de38907bf6f",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Embers.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/03ea62d0a5545663c0fbb90dfda0ffefce7423c74d9640457be63fee9984f4bd.png",
+   "sha256": "03ea62d0a5545663c0fbb90dfda0ffefce7423c74d9640457be63fee9984f4bd",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Sour liguor Aroma.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/04b11cd0b86c69855ea824cc5f26fb49f27f69c9a3bf26c8ef7f67e2c3cfeeee.png",
+   "sha256": "04b11cd0b86c69855ea824cc5f26fb49f27f69c9a3bf26c8ef7f67e2c3cfeeee",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Combustion Gloves.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/053786f6c9a57919b7943afda2c809d68cdd7acab54e2f54c6e6f62cefbcc0b7.png",
+   "sha256": "053786f6c9a57919b7943afda2c809d68cdd7acab54e2f54c6e6f62cefbcc0b7",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Fractured Blade.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0569907e6a7561a9fce1f6f9f48f98125d591bb453914be2709a4676cb6a656e.png",
+   "sha256": "0569907e6a7561a9fce1f6f9f48f98125d591bb453914be2709a4676cb6a656e",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Black Ledger.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0619c4fbae52938b671ce3866218dccad19bee7d7af7c3367d576accb483593b.png",
+   "sha256": "0619c4fbae52938b671ce3866218dccad19bee7d7af7c3367d576accb483593b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/T-1 Perpetual Motion Machine.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0831e44bb6617f4aa34accbc486e7d7c97b1ea505a31e3db1c036a06a655c6f9.png",
+   "sha256": "0831e44bb6617f4aa34accbc486e7d7c97b1ea505a31e3db1c036a06a655c6f9",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Thorny Path.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/089b91a9752c2d88708f16213e7940fce9e19ccfd21c0d5257f4bc9101ffad04.png",
+   "sha256": "089b91a9752c2d88708f16213e7940fce9e19ccfd21c0d5257f4bc9101ffad04",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Patrolling Flashlight.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/09dd4d93f21d1c2f80d853e1cc59853f2fee1f9b7e7ecb0ade779c70ce2b72e7.png",
+   "sha256": "09dd4d93f21d1c2f80d853e1cc59853f2fee1f9b7e7ecb0ade779c70ce2b72e7",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Swishing Fuel Tank.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0aa6085670134a232def15e038bb0ae00b524227e7342eb4e8cb79c498aea4a0.png",
+   "sha256": "0aa6085670134a232def15e038bb0ae00b524227e7342eb4e8cb79c498aea4a0",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Clasped Sculpture.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0aeae29d06bf9a28932132c9a831c545becc844914299a75e4e778073fa5ad97.png",
+   "sha256": "0aeae29d06bf9a28932132c9a831c545becc844914299a75e4e778073fa5ad97",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Darkflame Smoking Pipe.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0c01a00eea813568f55d7bcd2f93bf76e0236c453d5f1779bc907fadfc1d16d0.png",
+   "sha256": "0c01a00eea813568f55d7bcd2f93bf76e0236c453d5f1779bc907fadfc1d16d0",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Skeletal Crumbs.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0c104c8cded34726d8674179874ec7a55a55b6e1783837b029520ab42859d37b.png",
+   "sha256": "0c104c8cded34726d8674179874ec7a55a55b6e1783837b029520ab42859d37b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Squalidity.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/0d595e345e13b0f506e33cd253bd52c21b84061bad6884a2077105b1bcfdaa3c.png",
+   "sha256": "0d595e345e13b0f506e33cd253bd52c21b84061bad6884a2077105b1bcfdaa3c",
+   "size": [
+    68,
+    66
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Voodoo Doll.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/112ed6ab9d95211ff04db77f4bab7abf1b03c8ca269d55a267ecc36577e7688b.png",
+   "sha256": "112ed6ab9d95211ff04db77f4bab7abf1b03c8ca269d55a267ecc36577e7688b",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Trauma Shield.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1252fe915dc157195eb057de0d741a02966ed5b24fdb2b11fe02a6fcae2a8fea.png",
+   "sha256": "1252fe915dc157195eb057de0d741a02966ed5b24fdb2b11fe02a6fcae2a8fea",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Unhatched Embers.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/133da5249bf77201a5b7f216d8329e602f592142c319a0c032c28ac7f9388a0a.png",
+   "sha256": "133da5249bf77201a5b7f216d8329e602f592142c319a0c032c28ac7f9388a0a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Grand Welcome.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1375fbd119168c2b699fbe7859e697058613ba503eae7fd68ec4dfdf8b52a1e9.png",
+   "sha256": "1375fbd119168c2b699fbe7859e697058613ba503eae7fd68ec4dfdf8b52a1e9",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Uncapped Defibrilator.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/139b39a4cad257bd2a522d7918df302685cabf2a0ac05278a11f6992a26bfe86.png",
+   "sha256": "139b39a4cad257bd2a522d7918df302685cabf2a0ac05278a11f6992a26bfe86",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Cantabile.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/14af85a1747c48156b97714b444567e2d0daa3f9111bf39e7b1f7acb9780a7ad.png",
+   "sha256": "14af85a1747c48156b97714b444567e2d0daa3f9111bf39e7b1f7acb9780a7ad",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Virtue - Zhi.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/15e8a5b5a3dbb22e17ea9474e091a8c1c1927942d0adfe3ff96891370c8b5b07.png",
+   "sha256": "15e8a5b5a3dbb22e17ea9474e091a8c1c1927942d0adfe3ff96891370c8b5b07",
+   "size": [
+    69,
+    70
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Dimensional Recycle Bi.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/16fdc82e7f3f2b156064dc13ccc3e5343a7883ac3dd15d5a69b6f81be47c2952.png",
+   "sha256": "16fdc82e7f3f2b156064dc13ccc3e5343a7883ac3dd15d5a69b6f81be47c2952",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Voracious Hammer.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/174b7154ad36feb52c0bf3081332145f8ccf31e0d3f254ed949f04b51eb2dae7.png",
+   "sha256": "174b7154ad36feb52c0bf3081332145f8ccf31e0d3f254ed949f04b51eb2dae7",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Midwinter Mightmare.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/17d063a45548a5b4f0e329232dcedf763b8cbb3a75c191465ed692d9d666f2f7.png",
+   "sha256": "17d063a45548a5b4f0e329232dcedf763b8cbb3a75c191465ed692d9d666f2f7",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Bone Stake.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/19054e196bbeee9981f23f06f1c6dacf490eacdb36c22d3f86ae4a7bdc3b4b49.png",
+   "sha256": "19054e196bbeee9981f23f06f1c6dacf490eacdb36c22d3f86ae4a7bdc3b4b49",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Charge-type Gloves.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/19135b84f7fda8ce31ce84cf3ce71180bb4011dbc03c0192f4297bef27c06841.png",
+   "sha256": "19135b84f7fda8ce31ce84cf3ce71180bb4011dbc03c0192f4297bef27c06841",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Rusted Cutting Knife.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1a9f3affef64e4d58ce35d2c36c7e6cabc72026b352e6f78bf69dc1c31755f7a.png",
+   "sha256": "1a9f3affef64e4d58ce35d2c36c7e6cabc72026b352e6f78bf69dc1c31755f7a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Phantom Pain.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1b2366b74bc8839c195ac9209a8a4ab7ffe0a4aff768b154a5b3715d3d513a80.png",
+   "sha256": "1b2366b74bc8839c195ac9209a8a4ab7ffe0a4aff768b154a5b3715d3d513a80",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Fragment of Desire.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1b6470e0e3b298392a6bd7491efaddb47eb6a20731f470b0af619baf82bab5e7.png",
+   "sha256": "1b6470e0e3b298392a6bd7491efaddb47eb6a20731f470b0af619baf82bab5e7",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Hot 'n Juicy Drumstick.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1cd6494ed0f135b5c8264791c318e8cf6942b72cf119e4220e2f392e2d50968a.png",
+   "sha256": "1cd6494ed0f135b5c8264791c318e8cf6942b72cf119e4220e2f392e2d50968a",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Respite.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1d1b9474c099cc95e2ea487cddc8ca7fc1881a5dcac90cdb0cc859a0a003e420.png",
+   "sha256": "1d1b9474c099cc95e2ea487cddc8ca7fc1881a5dcac90cdb0cc859a0a003e420",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Gardiovascular Reactive Moddle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/1eb1e9d4bcc1b8d99b83840617ec1dcefbcb1801881e5a077bf7d11f3b7de8f7.png",
+   "sha256": "1eb1e9d4bcc1b8d99b83840617ec1dcefbcb1801881e5a077bf7d11f3b7de8f7",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Employee Card.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2009f862b910c33308b34b18adc09d582ba6c0e7cfd520778fa64babbe88a6a9.png",
+   "sha256": "2009f862b910c33308b34b18adc09d582ba6c0e7cfd520778fa64babbe88a6a9",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Trial Plan Guide.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/20326ab9a22d7c368511495db5b07035a7aee406261174a73649c08a65148e90.png",
+   "sha256": "20326ab9a22d7c368511495db5b07035a7aee406261174a73649c08a65148e90",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Gift.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/20f09e4fb7e3ff6ab54dff806eed620d11a7f91668bc94c66973f692f8ec9454.png",
+   "sha256": "20f09e4fb7e3ff6ab54dff806eed620d11a7f91668bc94c66973f692f8ec9454",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Shaoking Wine.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2149ce52c919bce7c502b8c6f4117d4e97d570f9989732f49d9debc50469e1df.png",
+   "sha256": "2149ce52c919bce7c502b8c6f4117d4e97d570f9989732f49d9debc50469e1df",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Rest.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2197b88f2d51b2abbfa42d973e0d2a7a80795c5e2fc4741974a1ac77e3e3e809.png",
+   "sha256": "2197b88f2d51b2abbfa42d973e0d2a7a80795c5e2fc4741974a1ac77e3e3e809",
+   "size": [
+    68,
+    66
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Phlebotomy Pack.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2420f8fd4a59fae2b22d38cd4af03bea6e3ab71bc0d6e0480df0c9215c3e7a16.png",
+   "sha256": "2420f8fd4a59fae2b22d38cd4af03bea6e3ab71bc0d6e0480df0c9215c3e7a16",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Overused Whetstone.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2580ff06de87eddaaf3bfc1d32c1ce0ffa40e82b903113f755a472cc11a2cc99.png",
+   "sha256": "2580ff06de87eddaaf3bfc1d32c1ce0ffa40e82b903113f755a472cc11a2cc99",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Tailor's Scissors.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/25817fb24e85e87c233d0130134c75f1c6cc3c44ba84a7134848730072757eee.png",
+   "sha256": "25817fb24e85e87c233d0130134c75f1c6cc3c44ba84a7134848730072757eee",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/First-aid Kit.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/278ddad362c4e684d73b056d33c73883506eefdf880e999debaad4f6fee87626.png",
+   "sha256": "278ddad362c4e684d73b056d33c73883506eefdf880e999debaad4f6fee87626",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Spent Use, Forming Hhate.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/27bf2f2baee41033e8a6dfd73a73850c4a74df390c756cad758a3cd8f73e1097.png",
+   "sha256": "27bf2f2baee41033e8a6dfd73a73850c4a74df390c756cad758a3cd8f73e1097",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Downpour.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/27bf4d2e08bf58ad9956111190b2a4274ef8a1a80e3aad660ccc99c412f54c8a.png",
+   "sha256": "27bf4d2e08bf58ad9956111190b2a4274ef8a1a80e3aad660ccc99c412f54c8a",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Devil's Share.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/27e65d0277a0fa8f9c5cd5988244a6bb4ab4f614533319805858a420442013a9.png",
+   "sha256": "27e65d0277a0fa8f9c5cd5988244a6bb4ab4f614533319805858a420442013a9",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Nightoision Goggles.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/29381a6c1367327dfb199831aff1e3f2d71c1b426507b98a8eb3b291b853e6e0.png",
+   "sha256": "29381a6c1367327dfb199831aff1e3f2d71c1b426507b98a8eb3b291b853e6e0",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Homeward.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2989854efc28d3d5ef5aae5c659dbd5aafbf05992bd353b8982bac2e2078087d.png",
+   "sha256": "2989854efc28d3d5ef5aae5c659dbd5aafbf05992bd353b8982bac2e2078087d",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Grimy Iron Stake.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2e445192eee92a43d52141f72671c00084584534cc0361ce9c3124cc151c5b47.png",
+   "sha256": "2e445192eee92a43d52141f72671c00084584534cc0361ce9c3124cc151c5b47",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Impending Wave.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2f10cbf8dafc0054240835b9ffce6f7cac106ecaf3ebe0440e0a986aecd29e75.png",
+   "sha256": "2f10cbf8dafc0054240835b9ffce6f7cac106ecaf3ebe0440e0a986aecd29e75",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/White Gossypium.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2f906d7f74a58d274f059b5377933fbb9128c327cfd6b751b31d22d239db85eb.png",
+   "sha256": "2f906d7f74a58d274f059b5377933fbb9128c327cfd6b751b31d22d239db85eb",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Interlinked Time.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2f9ac86c07f51412d5bdfb1ffd3bbc751c6991474a61220d1d8c02817fec02f6.png",
+   "sha256": "2f9ac86c07f51412d5bdfb1ffd3bbc751c6991474a61220d1d8c02817fec02f6",
+   "size": [
+    69,
+    70
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Dimensional Perception Modifier.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/2ff56ca71b68031195fb06a34ca4d8e57685eb63e86123fea82f6529106296a0.png",
+   "sha256": "2ff56ca71b68031195fb06a34ca4d8e57685eb63e86123fea82f6529106296a0",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Non-disclosure Agreement.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/30e6bb716e4ac4b6d53574dc948008fb41d2db62d9f1d81829d6696ffee0e55e.png",
+   "sha256": "30e6bb716e4ac4b6d53574dc948008fb41d2db62d9f1d81829d6696ffee0e55e",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Interlocked Cogs.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/31bfae0ee221b4195cdccae2725e9ddcafccc853416fa60e84345bd96794979a.png",
+   "sha256": "31bfae0ee221b4195cdccae2725e9ddcafccc853416fa60e84345bd96794979a",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Soothe the Dead.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/31d049e9c15b86eb52cb2d823785eaadd40667eb93ca7849897f0e6cb6c18296.png",
+   "sha256": "31d049e9c15b86eb52cb2d823785eaadd40667eb93ca7849897f0e6cb6c18296",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Ornamental Horseshoe.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3257c0ed0ca2bc52aa532173259bdfc6013b9d894fa9c75d65bb64452398fe2e.png",
+   "sha256": "3257c0ed0ca2bc52aa532173259bdfc6013b9d894fa9c75d65bb64452398fe2e",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Milepost of Survival.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/33a3ab82ed3e23bde659259828e8083b1a9b743e91d216e81199eb6cc76b51b7.png",
+   "sha256": "33a3ab82ed3e23bde659259828e8083b1a9b743e91d216e81199eb6cc76b51b7",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Enrapturing Trance.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/34a1c0740e7b5d5391451561e7002b1b4bf284b2c96206cc97e5e0d019800e18.png",
+   "sha256": "34a1c0740e7b5d5391451561e7002b1b4bf284b2c96206cc97e5e0d019800e18",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Mirror Tactile Synaesthesia.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/35d0739da66d0b3b235c594b3a9014e9cbc8e480ccaf0ab0b77973dcac80dfa1.png",
+   "sha256": "35d0739da66d0b3b235c594b3a9014e9cbc8e480ccaf0ab0b77973dcac80dfa1",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Rusted Hilt.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/365def04408f827ce58214bf884f52e16072bacf9e21376521a04e71b563a491.png",
+   "sha256": "365def04408f827ce58214bf884f52e16072bacf9e21376521a04e71b563a491",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/WB Flask.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3757903437f390966b9f54c64be065b7349a78fcb167df3e93c8ab3dd59ebee8.png",
+   "sha256": "3757903437f390966b9f54c64be065b7349a78fcb167df3e93c8ab3dd59ebee8",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Harestride.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/394ea9fcbd036c48a2745d35c6079f10d6fa0d1313d693242b58886606fb3e8d.png",
+   "sha256": "394ea9fcbd036c48a2745d35c6079f10d6fa0d1313d693242b58886606fb3e8d",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Relationship Piece of.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3b7c5d0c70f5dfdcc8c7ace024c5c3e80ab0604bdb022132445eed3c92f26a08.png",
+   "sha256": "3b7c5d0c70f5dfdcc8c7ace024c5c3e80ab0604bdb022132445eed3c92f26a08",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Millarca.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3baedaa6398605fa1c6fcdc2863466b7bdc72f23b12bb39a3de64eb2a57473de.png",
+   "sha256": "3baedaa6398605fa1c6fcdc2863466b7bdc72f23b12bb39a3de64eb2a57473de",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Faded Overcoat.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3bc537139df9bf0a511d8e1d9076321b022412d8cf4dd1af2d34ffae4b2f2308.png",
+   "sha256": "3bc537139df9bf0a511d8e1d9076321b022412d8cf4dd1af2d34ffae4b2f2308",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Manor-shaped Music Box.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3c85148376c7532aa22213a84fb178e7c21b449cb4c568ab440b7dab9041815d.png",
+   "sha256": "3c85148376c7532aa22213a84fb178e7c21b449cb4c568ab440b7dab9041815d",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Lunar Memory.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3d1c0be4d5a3a4be03d01724fd162157704ad72e033cb4d96c9dafcb700e8667.png",
+   "sha256": "3d1c0be4d5a3a4be03d01724fd162157704ad72e033cb4d96c9dafcb700e8667",
+   "size": [
+    69,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Wealth.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3d253440eac02fd21b30725583e855dbae8d8bced3ccf8412d75f9ca5011d5e0.png",
+   "sha256": "3d253440eac02fd21b30725583e855dbae8d8bced3ccf8412d75f9ca5011d5e0",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Headless Portrait.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3d559c9eee152f36a9ced86759687dc4ee6631ea7c0b394222a3422ad516bd72.png",
+   "sha256": "3d559c9eee152f36a9ced86759687dc4ee6631ea7c0b394222a3422ad516bd72",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Entanglement Override Seguencer.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3ef44c24bc22bdb347e1f8671f68362180b93f61e4e7136bfff8ef5ee86b9d02.png",
+   "sha256": "3ef44c24bc22bdb347e1f8671f68362180b93f61e4e7136bfff8ef5ee86b9d02",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Fragment of Hellfire.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3f7a60125fa7f0c70762edfc4dcd7f3b0362fc4a651966a248057035a7cd0ec3.png",
+   "sha256": "3f7a60125fa7f0c70762edfc4dcd7f3b0362fc4a651966a248057035a7cd0ec3",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Bio-Venom Vial.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/3fee438339058f1187f8d835d21da6f92a7dfa8b612d58d4bf8a0c98c5cde541.png",
+   "sha256": "3fee438339058f1187f8d835d21da6f92a7dfa8b612d58d4bf8a0c98c5cde541",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Tangled Bones.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/40c0d20c9de23040123a3b6c552c65655a2d02d1677eae15a2f90b8f2a86238d.png",
+   "sha256": "40c0d20c9de23040123a3b6c552c65655a2d02d1677eae15a2f90b8f2a86238d",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/A Certain Philosophy.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/40fbf881a7d3ca505831a15ff95f9f2f4b90a885295dd39ff80b9b5472bab5cf.png",
+   "sha256": "40fbf881a7d3ca505831a15ff95f9f2f4b90a885295dd39ff80b9b5472bab5cf",
+   "size": [
+    62,
+    66
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Cultivation Cut, File, Carve, Polish.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/41b98fd8c305918221f27ffe21208fb191ed0e1be0af6a203f6c4a0151388091.png",
+   "sha256": "41b98fd8c305918221f27ffe21208fb191ed0e1be0af6a203f6c4a0151388091",
+   "size": [
+    60,
+    60
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Vestige/Faint Vestige.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/41ce0c4b6f27c68873aa6a5c566d82f967cfbd05861ae6b59afaf024d8951c0b.png",
+   "sha256": "41ce0c4b6f27c68873aa6a5c566d82f967cfbd05861ae6b59afaf024d8951c0b",
+   "size": [
+    69,
+    71
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/The Book of Vengeance.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/41f214431220f921705e55e54aada8e019bfdf3ee3195002bdc3581858594236.png",
+   "sha256": "41f214431220f921705e55e54aada8e019bfdf3ee3195002bdc3581858594236",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Cask Spirits.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/443465e036632d637fa37c597025f9655cb9e23bbabb6f33a43643f5f007b8f8.png",
+   "sha256": "443465e036632d637fa37c597025f9655cb9e23bbabb6f33a43643f5f007b8f8",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/High-tensility Shoes.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/444e6c6ceb0aedba68698bee72e2949e3ee75af2cc2b06d545accb9ada4057c6.png",
+   "sha256": "444e6c6ceb0aedba68698bee72e2949e3ee75af2cc2b06d545accb9ada4057c6",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Blue Starshard.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/451fa48ada5d2d3e379445a7f370e9b4c96fe336baafa2fed8407064b00fc621.png",
+   "sha256": "451fa48ada5d2d3e379445a7f370e9b4c96fe336baafa2fed8407064b00fc621",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Resolution.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/473bc405351dba9d00b19e9a6949189ac2683936e7f10cc087b3c91a0cb8dcaf.png",
+   "sha256": "473bc405351dba9d00b19e9a6949189ac2683936e7f10cc087b3c91a0cb8dcaf",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Artistic Sense.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/488cfe550dd56c01b174b9c30af03f79e7cc6deb4f33deb9cc495c14d6e32e95.png",
+   "sha256": "488cfe550dd56c01b174b9c30af03f79e7cc6deb4f33deb9cc495c14d6e32e95",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Short Cane Sword.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/49044e64356990c82333dd92fda91cd014478b7df830ac273c5df049af29d25c.png",
+   "sha256": "49044e64356990c82333dd92fda91cd014478b7df830ac273c5df049af29d25c",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Virtue - Yong.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4a2f110b65dbd0213751266b8a98101a7de0f9fff39ef9571f4cad2634ea085d.png",
+   "sha256": "4a2f110b65dbd0213751266b8a98101a7de0f9fff39ef9571f4cad2634ea085d",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Smoking Gunpowder.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4ac4fb46e53e57740930351f3bc48fa979e18ef8df052bb0f268377e01918039.png",
+   "sha256": "4ac4fb46e53e57740930351f3bc48fa979e18ef8df052bb0f268377e01918039",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Little and To-be- Naughty Plushie.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4b33710cdf3d35dc47063cb0a0f3e54237161037ffeea6aed55bcb17f51409ab.png",
+   "sha256": "4b33710cdf3d35dc47063cb0a0f3e54237161037ffeea6aed55bcb17f51409ab",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Glyph of Glass Shards.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4b83ba9ee9cef37b2364b5e116954a722663a9a377e73ffd07bbfffc8a9053df.png",
+   "sha256": "4b83ba9ee9cef37b2364b5e116954a722663a9a377e73ffd07bbfffc8a9053df",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Blackiron Barding.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4c14cd2bd2eaed56e73ce75b5ddfec43a3e5865d9d4bcfbc05e18537ecf3186f.png",
+   "sha256": "4c14cd2bd2eaed56e73ce75b5ddfec43a3e5865d9d4bcfbc05e18537ecf3186f",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Secret Cookbook.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4c9b4e9035b26b272a295caf5e76d53f53d47a8b234d3bce2243536f50ad755a.png",
+   "sha256": "4c9b4e9035b26b272a295caf5e76d53f53d47a8b234d3bce2243536f50ad755a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Hardship.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4d08c72229beeab11a6e59f1e7a847e7ebdc5d79cc18130dcfe99018fd6534f0.png",
+   "sha256": "4d08c72229beeab11a6e59f1e7a847e7ebdc5d79cc18130dcfe99018fd6534f0",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Pain of Stifled Rage.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4e147835b0fa3d02a870aa02ba7acc7337d4f0c68e609e647329b274946dffd8.png",
+   "sha256": "4e147835b0fa3d02a870aa02ba7acc7337d4f0c68e609e647329b274946dffd8",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Mental Corruption Boosting Gas.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4e873d9f14607b53548b82df50a9e04e9f37dc588db0ef4214367251c5fe9c20.png",
+   "sha256": "4e873d9f14607b53548b82df50a9e04e9f37dc588db0ef4214367251c5fe9c20",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Pinpoint Logic ircuit.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4f3ae80d94b995d1ed5c4089dc9690b1a1bfb345acb50e85a4abea0008ccad24.png",
+   "sha256": "4f3ae80d94b995d1ed5c4089dc9690b1a1bfb345acb50e85a4abea0008ccad24",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Flower in the Mifror.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4fdf2933b1114293c5dd2824b8db143c4b2507ee7d97f646b7a52d2a85bbbaf6.png",
+   "sha256": "4fdf2933b1114293c5dd2824b8db143c4b2507ee7d97f646b7a52d2a85bbbaf6",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Fluorescent Lamp.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4ff85c77481a7b3472050572feec9b2432f5737f78027c168694fcbaced81710.png",
+   "sha256": "4ff85c77481a7b3472050572feec9b2432f5737f78027c168694fcbaced81710",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Hardwood Liguor Cup.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/4fffdd8ed596a69e0aaa4a91fcd3fedc5bbae3bbfda2ec5b48a8b4a10ee30c51.png",
+   "sha256": "4fffdd8ed596a69e0aaa4a91fcd3fedc5bbae3bbfda2ec5b48a8b4a10ee30c51",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Warning Notice.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/507903fbd4c24074c544759083d0adc0765fd34131d5257444c1a6e96a6c5364.png",
+   "sha256": "507903fbd4c24074c544759083d0adc0765fd34131d5257444c1a6e96a6c5364",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Fragment of Decay.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/50c4f374edad9b7ffe9552cfca2d8df09221f225c68d30956ae037e40c24ca16.png",
+   "sha256": "50c4f374edad9b7ffe9552cfca2d8df09221f225c68d30956ae037e40c24ca16",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Rags.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/510ffd073b403b2320384e0add1dd90386dc7171fc97078e5dda567eb0dd864a.png",
+   "sha256": "510ffd073b403b2320384e0add1dd90386dc7171fc97078e5dda567eb0dd864a",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Joily Plushie.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5135f8e61e0030f039749f0681e103180c1b4e0ef6e0a103e32bf70636c1342b.png",
+   "sha256": "5135f8e61e0030f039749f0681e103180c1b4e0ef6e0a103e32bf70636c1342b",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Broken Glasses.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/516bc7df861f8a1eb332cd6a75972e2356cc83b6a44c73b4f9911dc46914469b.png",
+   "sha256": "516bc7df861f8a1eb332cd6a75972e2356cc83b6a44c73b4f9911dc46914469b",
+   "size": [
+    68,
+    66
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Blue Zippo Lighter.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/51b16e15049518d4317943687ab6e6009020f08d23f90bffe6a37eab2b8ed729.png",
+   "sha256": "51b16e15049518d4317943687ab6e6009020f08d23f90bffe6a37eab2b8ed729",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Crown of Roses.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/537532dabca78a6324ad67760183a389bac760ab0d1cafc475184143cadb51b5.png",
+   "sha256": "537532dabca78a6324ad67760183a389bac760ab0d1cafc475184143cadb51b5",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Charred Disk.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/542f7f9b087e41cc131c6b0841765c206c7bf7d2d665a44918990d8b804df229.png",
+   "sha256": "542f7f9b087e41cc131c6b0841765c206c7bf7d2d665a44918990d8b804df229",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Sad Plushie.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5484b8ff8b4669f6d4c8bcac4422c6be2d61ed4a133d9d55ffaab93bcc74ac3e.png",
+   "sha256": "5484b8ff8b4669f6d4c8bcac4422c6be2d61ed4a133d9d55ffaab93bcc74ac3e",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Faith.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/55404965a0e5ce9b4e6cb77ac577f0c164c9ea1875abaa54c3643d6cc553be87.png",
+   "sha256": "55404965a0e5ce9b4e6cb77ac577f0c164c9ea1875abaa54c3643d6cc553be87",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Trash Crab Brain Wine.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/573963dda67176b1a75158d0a86c604c020c495514c668330995cd4aa4fb5f51.png",
+   "sha256": "573963dda67176b1a75158d0a86c604c020c495514c668330995cd4aa4fb5f51",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Ebony Brooch.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/577482a547a4b0314d91ebd7dd86483c2f09752bb506a7fdd34cf87267c303cf.png",
+   "sha256": "577482a547a4b0314d91ebd7dd86483c2f09752bb506a7fdd34cf87267c303cf",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Melted Paraffin.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/57b772480549d1b4c3409358433b536e28e94b87a5104b82bb7562149b20bdb1.png",
+   "sha256": "57b772480549d1b4c3409358433b536e28e94b87a5104b82bb7562149b20bdb1",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Chalice of Trickle- down.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/58755427d61689d5b492ce5d9bbfaf9492cf4194c260fa8f9b3fd292e477dcef.png",
+   "sha256": "58755427d61689d5b492ce5d9bbfaf9492cf4194c260fa8f9b3fd292e477dcef",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Illusory Hunt.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5a876aea782c6467ecf73b6aa3f54ea6e281e7d6135b0f0bce2fcc1536956bc0.png",
+   "sha256": "5a876aea782c6467ecf73b6aa3f54ea6e281e7d6135b0f0bce2fcc1536956bc0",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Value Disposal.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5af5c76f55b26a09439d54a84593ea3a1bd0a038247854327cb27d12a33f4574.png",
+   "sha256": "5af5c76f55b26a09439d54a84593ea3a1bd0a038247854327cb27d12a33f4574",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Lightning Rod.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5b279ca4f67fe3e588ce2f5ce2d48fe9171f60a16aceee3cb6e3440d470e179f.png",
+   "sha256": "5b279ca4f67fe3e588ce2f5ce2d48fe9171f60a16aceee3cb6e3440d470e179f",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Bloody Gadget.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5b74742586f3fde295853c5c0e22644853a0665c8353dad3ca91b51655e96fbe.png",
+   "sha256": "5b74742586f3fde295853c5c0e22644853a0665c8353dad3ca91b51655e96fbe",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Ruptured Blood Sac.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5c8dbeecd043fea77b831a5c3260b577370db958d3ad2c24dfff54f5d3412cc4.png",
+   "sha256": "5c8dbeecd043fea77b831a5c3260b577370db958d3ad2c24dfff54f5d3412cc4",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Lithograph.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5dc5318b30d61844aa9249aca1da62793898c38d45da897ae9d60910c73012f9.png",
+   "sha256": "5dc5318b30d61844aa9249aca1da62793898c38d45da897ae9d60910c73012f9",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Faded Watch Case.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5e20686f16713f8d45cf901fb5d9a73ba10d3f3e3696adc3a4709cd24836f054.png",
+   "sha256": "5e20686f16713f8d45cf901fb5d9a73ba10d3f3e3696adc3a4709cd24836f054",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Ragged Bamboo Hat.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5e375abfa54d46bb5f9b1736722168457dfe175278b846586884f024cc2e2357.png",
+   "sha256": "5e375abfa54d46bb5f9b1736722168457dfe175278b846586884f024cc2e2357",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Melted Spring.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/5efd0bec189540ceb97bc914457524bebc9a53b506b4c0cf8228a3c2cb1a8ae9.png",
+   "sha256": "5efd0bec189540ceb97bc914457524bebc9a53b506b4c0cf8228a3c2cb1a8ae9",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Coupled Oscillation.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/60d183975100244919368fc0ce0afee5c1f8abbdcd86399838f143a8da87772e.png",
+   "sha256": "60d183975100244919368fc0ce0afee5c1f8abbdcd86399838f143a8da87772e",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Prosthetic Joint Servos.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/60f23c9619ef8a23a66b70850233c339853076c6ae6fdf99ec39a4f310477634.png",
+   "sha256": "60f23c9619ef8a23a66b70850233c339853076c6ae6fdf99ec39a4f310477634",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Recollection of a Certain Day.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/621205d2f1efedcc8974cd001aec58f607cf8388d51591e395861de17fc2d466.png",
+   "sha256": "621205d2f1efedcc8974cd001aec58f607cf8388d51591e395861de17fc2d466",
+   "size": [
+    60,
+    63
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Vestige/Dark Vestige.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/624b5c8594c7e21bec105097607365cdad185ff74a5e8e1b706342e4ba26b709.png",
+   "sha256": "624b5c8594c7e21bec105097607365cdad185ff74a5e8e1b706342e4ba26b709",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Run.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6254cac47fb96675cb8735a5778afe429c0e763a83dba4955ed25b7159eea7b8.png",
+   "sha256": "6254cac47fb96675cb8735a5778afe429c0e763a83dba4955ed25b7159eea7b8",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Rusted Muzzle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/631d754a98718e8c25f7a8bec8e9530c5f20a07bcdd2a378dc732c98cfcc5521.png",
+   "sha256": "631d754a98718e8c25f7a8bec8e9530c5f20a07bcdd2a378dc732c98cfcc5521",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Late-bloomer's Tattoo.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/634c81dd99eed973e2fbef969e1d0f52bdbe5d2e4231ccaf2f495c948d8a315d.png",
+   "sha256": "634c81dd99eed973e2fbef969e1d0f52bdbe5d2e4231ccaf2f495c948d8a315d",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Standard-duty BBattery.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6522aff68c92d084d4afe58ebfb60cf381e1905c9493da7b35c94bd6ff780813.png",
+   "sha256": "6522aff68c92d084d4afe58ebfb60cf381e1905c9493da7b35c94bd6ff780813",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Nixie Divergence.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/65379ab0da84e59bf5a4bbc64b1261eade572c57909160650868cba5570f5528.png",
+   "sha256": "65379ab0da84e59bf5a4bbc64b1261eade572c57909160650868cba5570f5528",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Green Spirit.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/65428f13144c3628524b90ceeaac9dd20e356de973b5c1869af9a090114a5633.png",
+   "sha256": "65428f13144c3628524b90ceeaac9dd20e356de973b5c1869af9a090114a5633",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Red Tassel.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/65a764573d524fedfc94dda158c037bbe9fe01db882b8d69c97e6d5c7601f89c.png",
+   "sha256": "65a764573d524fedfc94dda158c037bbe9fe01db882b8d69c97e6d5c7601f89c",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Dueling Manual Book.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6655a7011605bfe51d9920a8da97599012e2ea5874ece36922978917b4b7507f.png",
+   "sha256": "6655a7011605bfe51d9920a8da97599012e2ea5874ece36922978917b4b7507f",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Grandeur.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/674298ada43157e8993a39b6a79c1b807063fcc170b519343151a63b0c022322.png",
+   "sha256": "674298ada43157e8993a39b6a79c1b807063fcc170b519343151a63b0c022322",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/E-Type Dimensional Dagger.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/69d0d5a4954a892e71e4d1fbfc4810ebdba92d6baf6cd3804342b95303c60c42.png",
+   "sha256": "69d0d5a4954a892e71e4d1fbfc4810ebdba92d6baf6cd3804342b95303c60c42",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Oracle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6acd09e92cf9e2e4df1afb9b9d5cf9bec6a441bfbcac311dcd8e64bdecc35d6e.png",
+   "sha256": "6acd09e92cf9e2e4df1afb9b9d5cf9bec6a441bfbcac311dcd8e64bdecc35d6e",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Crown of Thorns.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6b2091c0eeeaf9489759571d407da022f5d5b77378258a7a0d3aa4e521963c8e.png",
+   "sha256": "6b2091c0eeeaf9489759571d407da022f5d5b77378258a7a0d3aa4e521963c8e",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Anti-Ovine Grounding Plug.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6bfbb8b241057412819a62abbbc6c923c0e13209ae7b0bfca0b3d303916fb4f2.png",
+   "sha256": "6bfbb8b241057412819a62abbbc6c923c0e13209ae7b0bfca0b3d303916fb4f2",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Reverberation.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6d4640bc6a36cfa00427484909f11ade90c12b527f82708ac2f72531a53846b0.png",
+   "sha256": "6d4640bc6a36cfa00427484909f11ade90c12b527f82708ac2f72531a53846b0",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Cigarette Holder.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6d5550281b320451c6c66fa6f0abe415e9c4c39af63f615a4b0de82145ea764f.png",
+   "sha256": "6d5550281b320451c6c66fa6f0abe415e9c4c39af63f615a4b0de82145ea764f",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/False Halo.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6dcd563480e0a9157121367840b19caa3b2ad7cb43791aed2ff52a687782e96e.png",
+   "sha256": "6dcd563480e0a9157121367840b19caa3b2ad7cb43791aed2ff52a687782e96e",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Shard of Apocalypse.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6e65c6ccf0493db75e9b2dd6de9fcea7aa70a65b570b3e31111f05ce7f313ce0.png",
+   "sha256": "6e65c6ccf0493db75e9b2dd6de9fcea7aa70a65b570b3e31111f05ce7f313ce0",
+   "size": [
+    69,
+    70
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Compression Bandage.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6ec95ca4319f5895446090049137fbba6874f13aafbb93592e76f9cc5d11eec5.png",
+   "sha256": "6ec95ca4319f5895446090049137fbba6874f13aafbb93592e76f9cc5d11eec5",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Sundered Memory.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/6f040166d3b5814e1c3d989c3fdb79d2e27daff0090a4c11dbb84bd63372c8f0.png",
+   "sha256": "6f040166d3b5814e1c3d989c3fdb79d2e27daff0090a4c11dbb84bd63372c8f0",
+   "size": [
+    69,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Dreaming Electric SSheep.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/703d5cfa728a55c1d08b33270c9021482aa6dfcdaa97ce8bb3c8268b6aa5bb53.png",
+   "sha256": "703d5cfa728a55c1d08b33270c9021482aa6dfcdaa97ce8bb3c8268b6aa5bb53",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Strange Glyph Talisman.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/70bed0f73d51d3869f86dc82a2e506b7bffdd42deb01459eef4e4612b59f2e85.png",
+   "sha256": "70bed0f73d51d3869f86dc82a2e506b7bffdd42deb01459eef4e4612b59f2e85",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Punctured Memory.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/70e52f8e552de1284f6a0488a0476a5a7a2b3f719eaa155ef6e768ec7f90b39b.png",
+   "sha256": "70e52f8e552de1284f6a0488a0476a5a7a2b3f719eaa155ef6e768ec7f90b39b",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Bridle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/715e4b0ad464c029a255ae54a118fe23e28d8492eef7fd5284e01e6492208c9d.png",
+   "sha256": "715e4b0ad464c029a255ae54a118fe23e28d8492eef7fd5284e01e6492208c9d",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Wrist Guards.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/71ca3c2aa797f361d4fac315ddce476b934c11a83bd708215da0c905faf14124.png",
+   "sha256": "71ca3c2aa797f361d4fac315ddce476b934c11a83bd708215da0c905faf14124",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Ancient Effigy.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/725627ddbbc8d1d950268eaca24186166d7fec7642120bdcb1f259d0d867d79b.png",
+   "sha256": "725627ddbbc8d1d950268eaca24186166d7fec7642120bdcb1f259d0d867d79b",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Bloody Mist.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/73a842c274c0691a5d5fb3bf1c9d006486e47ae5f10f89917f2e7e3d5a6f4bba.png",
+   "sha256": "73a842c274c0691a5d5fb3bf1c9d006486e47ae5f10f89917f2e7e3d5a6f4bba",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Pom-pom Hat.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/74cd1a0185df8cd0236aca53274dc94a05c765a93ba89495490a263b09465478.png",
+   "sha256": "74cd1a0185df8cd0236aca53274dc94a05c765a93ba89495490a263b09465478",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Sunshower.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/77a4a61434a88bf2aa540e293ddd120b0b434c5cee5feb04bcdf2d3b8a45042b.png",
+   "sha256": "77a4a61434a88bf2aa540e293ddd120b0b434c5cee5feb04bcdf2d3b8a45042b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Automated Joints.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7894794a805886c1c35c3358ddff400b0c8fff2d4798d6e224377e6df741a091.png",
+   "sha256": "7894794a805886c1c35c3358ddff400b0c8fff2d4798d6e224377e6df741a091",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Four-Jeaf Clover.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/791abc0855852f1c1547632192382cd280f2b110d1c142d5e8584265b839909f.png",
+   "sha256": "791abc0855852f1c1547632192382cd280f2b110d1c142d5e8584265b839909f",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Sworg Sharpened with Tears.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/799fc8078a2619e4d51aba2cc2f12ecad0d9097d605620c2798888bd2ed2acd9.png",
+   "sha256": "799fc8078a2619e4d51aba2cc2f12ecad0d9097d605620c2798888bd2ed2acd9",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Packaging Ribbon.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/79a788220a561fb2e648b8bb9612eae0737f26b6b08dcff5d584dc8c78853c76.png",
+   "sha256": "79a788220a561fb2e648b8bb9612eae0737f26b6b08dcff5d584dc8c78853c76",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Sticky Muck.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7aab394f5dd292012708745026aa5720ed2212336360cd2499a0a3ba7a0f3d87.png",
+   "sha256": "7aab394f5dd292012708745026aa5720ed2212336360cd2499a0a3ba7a0f3d87",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Bell of Truth.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7af9736dece381c695abeb58053c687d4b1462f6030917d14a7c0774b51b86e3.png",
+   "sha256": "7af9736dece381c695abeb58053c687d4b1462f6030917d14a7c0774b51b86e3",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Economy Class Discount Voucher.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7ccf776b0927c27f430dc3131faa97383ecfb6cc2a8733eae9743e0a94697c49.png",
+   "sha256": "7ccf776b0927c27f430dc3131faa97383ecfb6cc2a8733eae9743e0a94697c49",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Moment of Sentencing.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7cd12841254bde9c3a40ec14327047f476f90c04a9f953fb5d6311c092fdc55e.png",
+   "sha256": "7cd12841254bde9c3a40ec14327047f476f90c04a9f953fb5d6311c092fdc55e",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Decamillenpial Stewpot.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7d3ccce4a4cfc5c95b0eb9227f6a4e4fb8ff3252f09e46e5cea5775774f8afbc.png",
+   "sha256": "7d3ccce4a4cfc5c95b0eb9227f6a4e4fb8ff3252f09e46e5cea5775774f8afbc",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Old Dopo Robe.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7da78fd67863f31bf3aae0a032c652f263896808b1d001028c67e0e837e66439.png",
+   "sha256": "7da78fd67863f31bf3aae0a032c652f263896808b1d001028c67e0e837e66439",
+   "size": [
+    69,
+    70
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Temporal Bridle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7e3bc12dbc44e69e5f5752332362d72ecece0e3afb049e48443ffeb6de4b0a3f.png",
+   "sha256": "7e3bc12dbc44e69e5f5752332362d72ecece0e3afb049e48443ffeb6de4b0a3f",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Golden Urn.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7f03531994c4f67ef07fedec6dbc9637ed986b69de3f0f1b8362f1a9503c2211.png",
+   "sha256": "7f03531994c4f67ef07fedec6dbc9637ed986b69de3f0f1b8362f1a9503c2211",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Rusty Commemorative Coin.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/7f97687af0f3fd8ee30ad79ea2e6f3344dd96bbd073c8cd992d45c3346acdf5b.png",
+   "sha256": "7f97687af0f3fd8ee30ad79ea2e6f3344dd96bbd073c8cd992d45c3346acdf5b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Tangled Bundle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/800fa3f49d56d47437183bbe12df359420c29633e8f02eb75f951eb78ae7d1ec.png",
+   "sha256": "800fa3f49d56d47437183bbe12df359420c29633e8f02eb75f951eb78ae7d1ec",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/T-B Octagonal Bolt.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/822fc2345f999039c332170c45a379155c2826e239ef467f9473f5a23146b35a.png",
+   "sha256": "822fc2345f999039c332170c45a379155c2826e239ef467f9473f5a23146b35a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Painkiller.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8267268da0a9bd0162b6f9182691d3d414fbf19884051760b4aa8835d0d26672.png",
+   "sha256": "8267268da0a9bd0162b6f9182691d3d414fbf19884051760b4aa8835d0d26672",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Huge Gift Sack.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8382c57e61d17d68bc749d8582712fad76784bf84cf1f61bf68645815e0f9a46.png",
+   "sha256": "8382c57e61d17d68bc749d8582712fad76784bf84cf1f61bf68645815e0f9a46",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Talisman Bundle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/84a74bed27c59ab8c028e673df6ee99fa140335eecc573239cb1542d2e776d16.png",
+   "sha256": "84a74bed27c59ab8c028e673df6ee99fa140335eecc573239cb1542d2e776d16",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Tango Marinade.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/85844b7bd5cd1653c80e5a89db7296c49534bb6eecfa53ed0de53987abaf5b13.png",
+   "sha256": "85844b7bd5cd1653c80e5a89db7296c49534bb6eecfa53ed0de53987abaf5b13",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Regular Operational Gear.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/85dac2865532187d4b2681f4495e7b96ced2178fb6a90d8338479308edcd595c.png",
+   "sha256": "85dac2865532187d4b2681f4495e7b96ced2178fb6a90d8338479308edcd595c",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Eclipse of Scarlet Moths.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/85fabbd829e39425a9ff43840ead4a84895017c030bed6466c0fe5b84d5377c6.png",
+   "sha256": "85fabbd829e39425a9ff43840ead4a84895017c030bed6466c0fe5b84d5377c6",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Devotion.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/86b7b0cc8210142bf662e97a280aa861be30d29014a03a74dbc6067a4a176bb3.png",
+   "sha256": "86b7b0cc8210142bf662e97a280aa861be30d29014a03a74dbc6067a4a176bb3",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Perpetyal Generator Servos.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/87395cfcce9f9b22b2e0177a2c1b90da39d8a69fe6bb9dbf4f8fe973bbe11b28.png",
+   "sha256": "87395cfcce9f9b22b2e0177a2c1b90da39d8a69fe6bb9dbf4f8fe973bbe11b28",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Broken Revolver.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/883091adae4d412e124b12e790a9e7fc27293bf62e4c71d8e9acd3d808e7177d.png",
+   "sha256": "883091adae4d412e124b12e790a9e7fc27293bf62e4c71d8e9acd3d808e7177d",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Lucky Pouch.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/889e1a66fa9d71f5b50c45f248667af84d8550afd3cc88860ccbc8ed253619af.png",
+   "sha256": "889e1a66fa9d71f5b50c45f248667af84d8550afd3cc88860ccbc8ed253619af",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Venomous Skin.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/88a162ec2d0b08ac4008c538ae0bfbc81fce646e4b32ed84583e08032aeef5fa.png",
+   "sha256": "88a162ec2d0b08ac4008c538ae0bfbc81fce646e4b32ed84583e08032aeef5fa",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Portable Battery Socket.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/88b2447b9c1d7426de7831ee49ec793158a7fd4eef2f985f834e7951cd573683.png",
+   "sha256": "88b2447b9c1d7426de7831ee49ec793158a7fd4eef2f985f834e7951cd573683",
+   "size": [
+    69,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Worn Hilt.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8a8106a624d4fa8ed3ebe6f7a38b6100084b3bc6f389929ffcf74e578978cc1b.png",
+   "sha256": "8a8106a624d4fa8ed3ebe6f7a38b6100084b3bc6f389929ffcf74e578978cc1b",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Silver Watch Case.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8b07a735f470b13a9e352cbee478e8d81ccad9b44972375cbdf630da34e6693e.png",
+   "sha256": "8b07a735f470b13a9e352cbee478e8d81ccad9b44972375cbdf630da34e6693e",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Pendant of Nostalgia.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8b34a6803319968c355242db949827a096266763b0d75e3af14e7eb5ff798c36.png",
+   "sha256": "8b34a6803319968c355242db949827a096266763b0d75e3af14e7eb5ff798c36",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Once, A Blessing.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8c1356e0bcbed21c6d7263e4a88870c2df4f9e25fb521f0d3d481b652fd6be18.png",
+   "sha256": "8c1356e0bcbed21c6d7263e4a88870c2df4f9e25fb521f0d3d481b652fd6be18",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Spiked Combat Boots.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8c5f694d712ff319e98fdaf943aa3170ec5256d86eeec75a5d9da9f2fc3a7835.png",
+   "sha256": "8c5f694d712ff319e98fdaf943aa3170ec5256d86eeec75a5d9da9f2fc3a7835",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Cammed Ice Cream.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8d8ff425e13444701a3b74bc77567afe1c49ff02353e860e8f6e82031c36b7ea.png",
+   "sha256": "8d8ff425e13444701a3b74bc77567afe1c49ff02353e860e8f6e82031c36b7ea",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Microprecision Time Accelerator.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8da1a422e31ceba483c89a38088390f8713f4a16b937edd75189e82389c52370.png",
+   "sha256": "8da1a422e31ceba483c89a38088390f8713f4a16b937edd75189e82389c52370",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Eerie Elfigy.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8db34d46b9f5b6e9e9e2114291a81083ed142887604a206e8a131f5b74fbac54.png",
+   "sha256": "8db34d46b9f5b6e9e9e2114291a81083ed142887604a206e8a131f5b74fbac54",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Magical Girl's Lovely Gift.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8db4cb712087af36a7ccb18b48b3f9113a9f34baa33df4a914d60121c7ef86d0.png",
+   "sha256": "8db4cb712087af36a7ccb18b48b3f9113a9f34baa33df4a914d60121c7ef86d0",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Coveting Thorn.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/8e4cff5dd4d725b2ea9da2998d289b707372b0e0bae1fa0d1d0fc910d2fb295b.png",
+   "sha256": "8e4cff5dd4d725b2ea9da2998d289b707372b0e0bae1fa0d1d0fc910d2fb295b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Shuffed lantern.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/908dfb4ee7d7ca45c89232f4635316b5493c8d21977e12524428410b3379d6a6.png",
+   "sha256": "908dfb4ee7d7ca45c89232f4635316b5493c8d21977e12524428410b3379d6a6",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Equalizer.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/911bfb42487b0562d62ae13247fdd8d2cdfc88b6849da7b7f8a264b70b00d4a9.png",
+   "sha256": "911bfb42487b0562d62ae13247fdd8d2cdfc88b6849da7b7f8a264b70b00d4a9",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Glimpse of Flames.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/924af7e732e1420f330d6219e4d54193ea54b88646cf7392b0dab14b2d176151.png",
+   "sha256": "924af7e732e1420f330d6219e4d54193ea54b88646cf7392b0dab14b2d176151",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Sanguine Fragrance Descends.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9437b88e175b7679c865ef72258a0c4f02a71e1332fdbd5a63e5fde85d2ccc87.png",
+   "sha256": "9437b88e175b7679c865ef72258a0c4f02a71e1332fdbd5a63e5fde85d2ccc87",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Plume of Proof.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/949683c3bd59e8ad2ccd88d38f2239b4b2381512c1e80d24d781d38b4825748c.png",
+   "sha256": "949683c3bd59e8ad2ccd88d38f2239b4b2381512c1e80d24d781d38b4825748c",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Enhancer Mk.4.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/94dc09000a9ffb600ef004c45a6528af221c7fd5b1722e9decb47c1355c83721.png",
+   "sha256": "94dc09000a9ffb600ef004c45a6528af221c7fd5b1722e9decb47c1355c83721",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Fragment of Friction.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/951eda359677352b5924740ebbb42ce88c69305bcd6c9294fb332284b70a1553.png",
+   "sha256": "951eda359677352b5924740ebbb42ce88c69305bcd6c9294fb332284b70a1553",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Clockwork Spring.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/95ced25a029f9dcd19b623345f34a52cec6f9316a81c0a479baad85416fec109.png",
+   "sha256": "95ced25a029f9dcd19b623345f34a52cec6f9316a81c0a479baad85416fec109",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/The Unchosen.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/96010284c835b5d24be8e28237b07e24772e33a11e7bb95693d4d4a5073c8891.png",
+   "sha256": "96010284c835b5d24be8e28237b07e24772e33a11e7bb95693d4d4a5073c8891",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Broken Blade.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/963cacb390eb499c949a84f0058bfaff18659dfacded180f35374a20bfa12799.png",
+   "sha256": "963cacb390eb499c949a84f0058bfaff18659dfacded180f35374a20bfa12799",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Melted Eyeball.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/96652a04eb901e031398d7e93cd50e87de26639bc37db3049898bf21176cc5b2.png",
+   "sha256": "96652a04eb901e031398d7e93cd50e87de26639bc37db3049898bf21176cc5b2",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Fragment of Inertia.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/96d0480a357cd10e98eae7850b58d659e3c797526b61dea6c9e36bff0b25dc7e.png",
+   "sha256": "96d0480a357cd10e98eae7850b58d659e3c797526b61dea6c9e36bff0b25dc7e",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Imitative Generator.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/96dd2fc80699677800a20d40a5aec1c949d0a1d25858556ed81fbf200b213c81.png",
+   "sha256": "96dd2fc80699677800a20d40a5aec1c949d0a1d25858556ed81fbf200b213c81",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Imposed Weight.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/972deebef50a642e473671358a9734334f9a12412b1eb31c7878cecc39fa4f96.png",
+   "sha256": "972deebef50a642e473671358a9734334f9a12412b1eb31c7878cecc39fa4f96",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Unbending.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/97a0ac736732ba778fbf91d1c29ecd62331b9222ab43a13f82281c481f33d764.png",
+   "sha256": "97a0ac736732ba778fbf91d1c29ecd62331b9222ab43a13f82281c481f33d764",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Renewed Merch.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9903c8d974a7e7fdded3efd968994660c636d7d76aa03c32da7560c5099669da.png",
+   "sha256": "9903c8d974a7e7fdded3efd968994660c636d7d76aa03c32da7560c5099669da",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Prejudice.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9976a8e1a4b8ebca8a3af30877bfe8ca87321e9990ff4d17c1195a8a546486a7.png",
+   "sha256": "9976a8e1a4b8ebca8a3af30877bfe8ca87321e9990ff4d17c1195a8a546486a7",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Deathseeker.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9a742dce8d24842b4b5322acf0d7c29a5db324b63d996bba548b2c469c724111.png",
+   "sha256": "9a742dce8d24842b4b5322acf0d7c29a5db324b63d996bba548b2c469c724111",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Shake Slough.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9aafe38777f2387c86e85156088fe00f160713a04738adddd0e6196a0654cecf.png",
+   "sha256": "9aafe38777f2387c86e85156088fe00f160713a04738adddd0e6196a0654cecf",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Tomorrow's Fortune.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9b19e7681827df744f7467ca690a6125e727d35e7795e4dfc370cff8350ae6d8.png",
+   "sha256": "9b19e7681827df744f7467ca690a6125e727d35e7795e4dfc370cff8350ae6d8",
+   "size": [
+    67,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Frozen Cries.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9b9428a7993b432fe41e105ac780ece5dbec3d583c84692e03fa4981cd487ef6.png",
+   "sha256": "9b9428a7993b432fe41e105ac780ece5dbec3d583c84692e03fa4981cd487ef6",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/cQc Manual.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9c0e7afd002c981e181026e11bf94be1db13ef294f5f0486520cad253def4096.png",
+   "sha256": "9c0e7afd002c981e181026e11bf94be1db13ef294f5f0486520cad253def4096",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Coffee and Cranes.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9f03a4ab235ae00a986a2862c9018f7314c6856f3a6d1cc1e59902b487738d9b.png",
+   "sha256": "9f03a4ab235ae00a986a2862c9018f7314c6856f3a6d1cc1e59902b487738d9b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Miniature Telepole.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/9ff49c19bc248b88192fd0094dd02a17a3f94ee4f09d249839d7edf286ffa7fc.png",
+   "sha256": "9ff49c19bc248b88192fd0094dd02a17a3f94ee4f09d249839d7edf286ffa7fc",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Angel's Cut.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a073cbc9371285c6eab135b3721dab70c8a8bf5a409bd9edb8093cbd3d94297f.png",
+   "sha256": "a073cbc9371285c6eab135b3721dab70c8a8bf5a409bd9edb8093cbd3d94297f",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Twigs.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a204572f07226374f3af62f11d217ab40eb4e554622b55be7b9813fce9846cd2.png",
+   "sha256": "a204572f07226374f3af62f11d217ab40eb4e554622b55be7b9813fce9846cd2",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Biogenerative Battery.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a3e7293e69b1bccd1609ff7fcb3fe7e46142d835b6323ef2c45ba623b9fbc0ad.png",
+   "sha256": "a3e7293e69b1bccd1609ff7fcb3fe7e46142d835b6323ef2c45ba623b9fbc0ad",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Wobbling Keg.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a40698b7dc7f59c2caf1b7b67638665fbef4b78aaf75cb4de9dfc4263b21b097.png",
+   "sha256": "a40698b7dc7f59c2caf1b7b67638665fbef4b78aaf75cb4de9dfc4263b21b097",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Torn Bandolier.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a57667de5d6c0cb89a3936fac0b3f3dc43ebdece6d12a4657509b01fd4811b0a.png",
+   "sha256": "a57667de5d6c0cb89a3936fac0b3f3dc43ebdece6d12a4657509b01fd4811b0a",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Blood, Sweat, and Tears.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a5f38c34a3ccfed39c9196eaeef2d24961ed1d5dd44c0ea111c5a7058d0cf1ec.png",
+   "sha256": "a5f38c34a3ccfed39c9196eaeef2d24961ed1d5dd44c0ea111c5a7058d0cf1ec",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Filial Love.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a74220d19b3e87e5b2b55645ba33376e7db80a4f40ae71c56aa80a92b542dfbe.png",
+   "sha256": "a74220d19b3e87e5b2b55645ba33376e7db80a4f40ae71c56aa80a92b542dfbe",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Eldtree Share.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a7445e2a13180b3b89c6487ca12bcacbc081b5a8b3734adf638014cae7ce4e37.png",
+   "sha256": "a7445e2a13180b3b89c6487ca12bcacbc081b5a8b3734adf638014cae7ce4e37",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Barbed Lasso.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a7c148bb9f0a499ededccddee07f16528f50a54a73da5dc5bd40e9139d4c3cc9.png",
+   "sha256": "a7c148bb9f0a499ededccddee07f16528f50a54a73da5dc5bd40e9139d4c3cc9",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Thorny Rope Cuffs.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a84181a37549aab1a80f14e2bec66fcef105e50b6202734b29a1b601b0897230.png",
+   "sha256": "a84181a37549aab1a80f14e2bec66fcef105e50b6202734b29a1b601b0897230",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Surging Globe.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/a97d10d94f189055a89edfada6c582ae2390e54c7e067bbdba0b630180e413a5.png",
+   "sha256": "a97d10d94f189055a89edfada6c582ae2390e54c7e067bbdba0b630180e413a5",
+   "size": [
+    69,
+    70
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Today's Expression.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/aba37f4373e2f4c5b84c3af7090a68e63e3867ac121915ef380970e3cf5478d4.png",
+   "sha256": "aba37f4373e2f4c5b84c3af7090a68e63e3867ac121915ef380970e3cf5478d4",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Prepaid Time Receipt.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ac59b3a2730fcb67c6bcf34ae8fb3bbbbaa056d86861e777924ba172ae27ba50.png",
+   "sha256": "ac59b3a2730fcb67c6bcf34ae8fb3bbbbaa056d86861e777924ba172ae27ba50",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Thunderbranch.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/acde816309005e6d0e4b78fdf0c0f34bc14c325e74c952a3f1da92e86fd75fdd.png",
+   "sha256": "acde816309005e6d0e4b78fdf0c0f34bc14c325e74c952a3f1da92e86fd75fdd",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/T-5 Perpetual Motion Machine.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/acf666927aae4a95f4d2ed15c168916cca2eb1e0915efb6aae11a623bec91703.png",
+   "sha256": "acf666927aae4a95f4d2ed15c168916cca2eb1e0915efb6aae11a623bec91703",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Finifugality.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ad7e516f611fd1cdc6a2cb5ea567a5471f1ea7f6360268fcf6e1cd655082865a.png",
+   "sha256": "ad7e516f611fd1cdc6a2cb5ea567a5471f1ea7f6360268fcf6e1cd655082865a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Operation Authorization Card.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ae68cae5ea50d98762b6939cc70daa38ed00bbe30bfad4e89e9ce737b4f7bf2d.png",
+   "sha256": "ae68cae5ea50d98762b6939cc70daa38ed00bbe30bfad4e89e9ce737b4f7bf2d",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Emerald Elytra.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ae7c1decd1644375c770234515935202af77f34c4f40d404765a5a691ff0b18b.png",
+   "sha256": "ae7c1decd1644375c770234515935202af77f34c4f40d404765a5a691ff0b18b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Nagel und Hammer Sc criptures.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/af203d7fb556643f81bc099fa6c81d4af174e41196e79134cb2f54902ab712fa.png",
+   "sha256": "af203d7fb556643f81bc099fa6c81d4af174e41196e79134cb2f54902ab712fa",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Leaked Enkephalin.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b12a528fae4333809ec80128d9f6da6f27de5701931eb69491291f4626ea5f83.png",
+   "sha256": "b12a528fae4333809ec80128d9f6da6f27de5701931eb69491291f4626ea5f83",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Broken Greatsword.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b166b04ed9ac140e6073b074b47e3049bd6a5a5375b4303bf2a57e384602945c.png",
+   "sha256": "b166b04ed9ac140e6073b074b47e3049bd6a5a5375b4303bf2a57e384602945c",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Special Catalogue.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b25e140d2edb1c8cb098f05c811068afa6a9151736a528d66c9ab4dfcc7efd7a.png",
+   "sha256": "b25e140d2edb1c8cb098f05c811068afa6a9151736a528d66c9ab4dfcc7efd7a",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Chains of Loyalty.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b35914a3aaf87987fc5e23f6911b3c95a51b00091ce4e0a2dbad837bd5b29563.png",
+   "sha256": "b35914a3aaf87987fc5e23f6911b3c95a51b00091ce4e0a2dbad837bd5b29563",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Wound Clerid.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b4786d19663e00740d59ecab1e921f8e97b740df422e2065e46b771e8969dac2.png",
+   "sha256": "b4786d19663e00740d59ecab1e921f8e97b740df422e2065e46b771e8969dac2",
+   "size": [
+    69,
+    70
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Burial Curse.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b538e22d180f93d88c45160a66e7e938b5babe3a9d42039cfac703a9285de4ec.png",
+   "sha256": "b538e22d180f93d88c45160a66e7e938b5babe3a9d42039cfac703a9285de4ec",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Polarization.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b570848b54727116a5cbddb2b6f8d51f21c0d4051930e6b15496df8c3efb1fb9.png",
+   "sha256": "b570848b54727116a5cbddb2b6f8d51f21c0d4051930e6b15496df8c3efb1fb9",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Grey Coat.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b5be472057f16396c6635c68f8005da1c19dec53b905cd464ebba32697029915.png",
+   "sha256": "b5be472057f16396c6635c68f8005da1c19dec53b905cd464ebba32697029915",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Rusted Clock Hands.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b70370696ba76d84b15a76678d5e5622a0845606d92ef7e9cd46ef4c23a09ab3.png",
+   "sha256": "b70370696ba76d84b15a76678d5e5622a0845606d92ef7e9cd46ef4c23a09ab3",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Shatterbound Cannon.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/b990f831c8164f3f1cfbcb33e468ddd9ad23b414dd2bde7355cc7ee99b7644a8.png",
+   "sha256": "b990f831c8164f3f1cfbcb33e468ddd9ad23b414dd2bde7355cc7ee99b7644a8",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Misaligned Transistor.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/bb4c32dc2b94a3242d170a21eb78786f90eb3bf3ec381a2926cc12edbd75cad9.png",
+   "sha256": "bb4c32dc2b94a3242d170a21eb78786f90eb3bf3ec381a2926cc12edbd75cad9",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Gemstone Oscillator.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/bc65195027022b01c1c109c3bcfb694067cffac5f5c5180a426db6500d8c729f.png",
+   "sha256": "bc65195027022b01c1c109c3bcfb694067cffac5f5c5180a426db6500d8c729f",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Strange Glyph Inscriptions.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/bc99879f801f7fea25f37305e69ad5ae62bc07f906a973cd9712d18db1379de4.png",
+   "sha256": "bc99879f801f7fea25f37305e69ad5ae62bc07f906a973cd9712d18db1379de4",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Broken Compass.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/bd0958805090b93634352186f4fefb66fb8b8788f6c46a71056ff7d624fdfd22.png",
+   "sha256": "bd0958805090b93634352186f4fefb66fb8b8788f6c46a71056ff7d624fdfd22",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Distant Star.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/bdda18d4f7c9835fcd3d7f9291563e6eb7a5322e46db0d570a0dabd71d685408.png",
+   "sha256": "bdda18d4f7c9835fcd3d7f9291563e6eb7a5322e46db0d570a0dabd71d685408",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Red Order.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/be8e58f1fdf9d8eb433387c03fcfa7f955757f91e1e17ad2d1e35989077b45d2.png",
+   "sha256": "be8e58f1fdf9d8eb433387c03fcfa7f955757f91e1e17ad2d1e35989077b45d2",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Red Cloth that Closes the Heart.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/befcc11c83d3658b56c82d09f14396eb992d1c8634c5e9d67b3dbff06ebfb186.png",
+   "sha256": "befcc11c83d3658b56c82d09f14396eb992d1c8634c5e9d67b3dbff06ebfb186",
+   "size": [
+    68,
+    66
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Perversion.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c13dfb34b1fcb731a46481edb2abd41a5fa6196ab4e6eca1b60407d512c6617a.png",
+   "sha256": "c13dfb34b1fcb731a46481edb2abd41a5fa6196ab4e6eca1b60407d512c6617a",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Gathering Skulls.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c195d0e2615060e971678ade400d02a6e6ee230cbbbf58099a104bea7a1cb375.png",
+   "sha256": "c195d0e2615060e971678ade400d02a6e6ee230cbbbf58099a104bea7a1cb375",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Crushed Memory.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c1f624e20f21e2c3fe416269c60be103d7600cf5a0dda5f3b083efadd081cdb1.png",
+   "sha256": "c1f624e20f21e2c3fe416269c60be103d7600cf5a0dda5f3b083efadd081cdb1",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Black Sheet Music.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c218eafb774ad3f2f975ab124cb22143066d89b2356c90d8fe741980ad1e7279.png",
+   "sha256": "c218eafb774ad3f2f975ab124cb22143066d89b2356c90d8fe741980ad1e7279",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Epicenter.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c289856bc7f5f17587b776077aee6d01b2ebe330fc296ee73b50af7750cfd207.png",
+   "sha256": "c289856bc7f5f17587b776077aee6d01b2ebe330fc296ee73b50af7750cfd207",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Swift Command.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c2c38bd2153bcaf303fe1e590cda6cf7186d78f08f151f35e715c67e678d938a.png",
+   "sha256": "c2c38bd2153bcaf303fe1e590cda6cf7186d78f08f151f35e715c67e678d938a",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Dust to Dust.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c2cbc020e170cb2c70c71577c24e49446e13b98e41ba5cdb730753163c264af6.png",
+   "sha256": "c2cbc020e170cb2c70c71577c24e49446e13b98e41ba5cdb730753163c264af6",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Disk Fragment.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c3a6a6e50e7bfd2bc679768385812694c6585ca7fe3c6baf8d1d8d1aa7836135.png",
+   "sha256": "c3a6a6e50e7bfd2bc679768385812694c6585ca7fe3c6baf8d1d8d1aa7836135",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Thrill.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c3aaebdea089880f0b29136ece8b9b7c18c278f72e7ea43be9e58ff5bcd3d2b5.png",
+   "sha256": "c3aaebdea089880f0b29136ece8b9b7c18c278f72e7ea43be9e58ff5bcd3d2b5",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Smokes and Wires.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c6a8f843483c65b77acfa064d1db94c65125d3aed9c8263039bd673ded172c1f.png",
+   "sha256": "c6a8f843483c65b77acfa064d1db94c65125d3aed9c8263039bd673ded172c1f",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Twinking Scrap.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c6f7cb979ba9cd77cc6a5ce25345fc09e5f5d92702a329163b177212b3d54202.png",
+   "sha256": "c6f7cb979ba9cd77cc6a5ce25345fc09e5f5d92702a329163b177212b3d54202",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Metronome.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/c71accf7a0feba2bad61801f198e7a9e3a96f30f27cb0389fc20f6a449415051.png",
+   "sha256": "c71accf7a0feba2bad61801f198e7a9e3a96f30f27cb0389fc20f6a449415051",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Re-ignition Plug.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/cb41331712e57f0b39a8f6599907e5ef71447c9d8364da4ffc628a91eaf7f285.png",
+   "sha256": "cb41331712e57f0b39a8f6599907e5ef71447c9d8364da4ffc628a91eaf7f285",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Implicit Contract Renewal.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/cc1d675fbc9615bcb9fc0b4bbf205ca866afa6eabd215c57b939750e407e92ae.png",
+   "sha256": "cc1d675fbc9615bcb9fc0b4bbf205ca866afa6eabd215c57b939750e407e92ae",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Fragment of Conceit.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/cc46648174bef3efb20e11fc500ccbce6808f36eda676414a5a569843484cec6.png",
+   "sha256": "cc46648174bef3efb20e11fc500ccbce6808f36eda676414a5a569843484cec6",
+   "size": [
+    67,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Hellterfly's Dream.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ccfbf010bba8edc98148f611e3fbb101b102ec0d0d54937d20f16ca5c1e0adc7.png",
+   "sha256": "ccfbf010bba8edc98148f611e3fbb101b102ec0d0d54937d20f16ca5c1e0adc7",
+   "size": [
+    67,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Hoarfrost Footprint.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ce77b0e91508b49183a54ec05016635ec1410748e8e7cfd96985b927fe73dc98.png",
+   "sha256": "ce77b0e91508b49183a54ec05016635ec1410748e8e7cfd96985b927fe73dc98",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Reenbranch.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ce9782a9566bc9eb7305070d22102bca3f70a4f18ba47129f3380847632d3880.png",
+   "sha256": "ce9782a9566bc9eb7305070d22102bca3f70a4f18ba47129f3380847632d3880",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Contained Maggots.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/cea0c8a1d161b56e0ec155521ffa60df273819ad73f2a8b21988cd7cc38e78ae.png",
+   "sha256": "cea0c8a1d161b56e0ec155521ffa60df273819ad73f2a8b21988cd7cc38e78ae",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Nebulizer.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/cea68d3375a4c95aa0bbaabcb4928c3bca357544d20dcb548b3f88f6c63f8f49.png",
+   "sha256": "cea68d3375a4c95aa0bbaabcb4928c3bca357544d20dcb548b3f88f6c63f8f49",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Emergency Investigator Badge.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d0b9b96af1f2b0ccd6e9629da27fdc5d06c6e5bd74486825521264b3321c3a84.png",
+   "sha256": "d0b9b96af1f2b0ccd6e9629da27fdc5d06c6e5bd74486825521264b3321c3a84",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Blood-red Mane.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d21740462dbaa42532ce9709c0c3a0a826586d488b9c73fa613cc3b6d4afd687.png",
+   "sha256": "d21740462dbaa42532ce9709c0c3a0a826586d488b9c73fa613cc3b6d4afd687",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Rebate Token.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d2cc2d594889c37bc2c95397c61f47279f30fa2dae85d799065b37078deccf4f.png",
+   "sha256": "d2cc2d594889c37bc2c95397c61f47279f30fa2dae85d799065b37078deccf4f",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Endorphin Kit.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d368a4cdd06fb331dc22f6013370a24e4420accfee951e9d19b2a31039d9c3b8.png",
+   "sha256": "d368a4cdd06fb331dc22f6013370a24e4420accfee951e9d19b2a31039d9c3b8",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Old Wooden Doll.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d39f0eb6b95df402d13e89aac72cf03f6dd8330d28802e7f5e2cb9f87fe7b8c2.png",
+   "sha256": "d39f0eb6b95df402d13e89aac72cf03f6dd8330d28802e7f5e2cb9f87fe7b8c2",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Broken Violin.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d40956ecb01b26abbf1393eeb8526d36be8f835d717f986b353647d90a37ec30.png",
+   "sha256": "d40956ecb01b26abbf1393eeb8526d36be8f835d717f986b353647d90a37ec30",
+   "size": [
+    69,
+    71
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Pocket Flashcards.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d5790a245ead27ec7d9e6037fbc763ac0fc0058d9ebe93cfcc87987c47c3a804.png",
+   "sha256": "d5790a245ead27ec7d9e6037fbc763ac0fc0058d9ebe93cfcc87987c47c3a804",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Piece of Relationship.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d5a93b4080a64f8db09a18c1e5492c6525a7e1d5a69529276fb16965d90c04b3.png",
+   "sha256": "d5a93b4080a64f8db09a18c1e5492c6525a7e1d5a69529276fb16965d90c04b3",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Burning Intellect.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d6646c2f9f09526f8e2e750da9e0f6e15044f34d826923d63ec8c52ea55f8c76.png",
+   "sha256": "d6646c2f9f09526f8e2e750da9e0f6e15044f34d826923d63ec8c52ea55f8c76",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Layered Bandages.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d7962d61e962d9a34079cad3e3e11aeafe55380f1dfb5881baff99af5c7306cf.png",
+   "sha256": "d7962d61e962d9a34079cad3e3e11aeafe55380f1dfb5881baff99af5c7306cf",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Cloudpattern Gourd Bottle.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d8024ec98b13ed001859c63fd88e41fc876811f7fb14dbc34633bee9568f7a69.png",
+   "sha256": "d8024ec98b13ed001859c63fd88e41fc876811f7fb14dbc34633bee9568f7a69",
+   "size": [
+    67,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/New Release Pamphlet.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/d92a2532a59547959218752932e89f85bf111e2021509dcf26361ea307e9913c.png",
+   "sha256": "d92a2532a59547959218752932e89f85bf111e2021509dcf26361ea307e9913c",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Etched Clock Hands.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/da3c5ff9fe2dcfadf66b3366949f0513560e5f5eb13eaf1beef6c719a8e5210d.png",
+   "sha256": "da3c5ff9fe2dcfadf66b3366949f0513560e5f5eb13eaf1beef6c719a8e5210d",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Reminiscence.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/da4098023cbdefd69f769e04ad2a85743789d3b15b7a54cb05d1d0b911e93721.png",
+   "sha256": "da4098023cbdefd69f769e04ad2a85743789d3b15b7a54cb05d1d0b911e93721",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Purloined Flame.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/dac257c2df130fa53c053f6839d136f222983503440a1ddc340dd1d400302da6.png",
+   "sha256": "dac257c2df130fa53c053f6839d136f222983503440a1ddc340dd1d400302da6",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Fragment of Allurement.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/daecc20cc5d5eba8534d8ae46e9a2626725d2e059c432ab6d0b6def009a3e0ea.png",
+   "sha256": "daecc20cc5d5eba8534d8ae46e9a2626725d2e059c432ab6d0b6def009a3e0ea",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Torn Hems.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ddb463ee9e6ffe7a23849bbc563ac4dc48a04376a9f0a243dd2c8779d0a17d34.png",
+   "sha256": "ddb463ee9e6ffe7a23849bbc563ac4dc48a04376a9f0a243dd2c8779d0a17d34",
+   "size": [
+    61,
+    65
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Vestige/Twinkling Vestige.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e03482c5dec2514be0906429047938a96f6cbbfacea05363aade63654873766a.png",
+   "sha256": "e03482c5dec2514be0906429047938a96f6cbbfacea05363aade63654873766a",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Tenacity Bolus.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e1138d7a5ac63fd80cf064c38cd1ee444a96d19512d35a02e3b1bc7171cb00e1.png",
+   "sha256": "e1138d7a5ac63fd80cf064c38cd1ee444a96d19512d35a02e3b1bc7171cb00e1",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Ashes to Ashes.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e14fab3290a03fe961ff47c1d76f79ca69e8934b3e6e49ae8c0611d187816872.png",
+   "sha256": "e14fab3290a03fe961ff47c1d76f79ca69e8934b3e6e49ae8c0611d187816872",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Hemorrhagic Shock.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e287cf881f08d37f628c35f0018057734d941bd5bc6d25dbdca7f0761ccfa036.png",
+   "sha256": "e287cf881f08d37f628c35f0018057734d941bd5bc6d25dbdca7f0761ccfa036",
+   "size": [
+    69,
+    71
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Lowest Star.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e3580814343a761f362d6c02a8d18d7d2c31a93aa29ce4f8ae5d254701219d89.png",
+   "sha256": "e3580814343a761f362d6c02a8d18d7d2c31a93aa29ce4f8ae5d254701219d89",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Kaleidoscope.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e437ac5d7fd1b058eb15a567438b92166fff29fa5c791b15d3d3365582a8ad8f.png",
+   "sha256": "e437ac5d7fd1b058eb15a567438b92166fff29fa5c791b15d3d3365582a8ad8f",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Bloodflame Sword.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e4756dc27be06995dc5c6420ce67bfcc68a94c9e0a2936ad711c249f740b99b0.png",
+   "sha256": "e4756dc27be06995dc5c6420ce67bfcc68a94c9e0a2936ad711c249f740b99b0",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Harpoon Prosthetic Leg.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e50cb71cb189af74c5fac644cc73184dd6ae42c0c5c46d859df711d2ca2caa5e.png",
+   "sha256": "e50cb71cb189af74c5fac644cc73184dd6ae42c0c5c46d859df711d2ca2caa5e",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Ashen Constellation's Bleessing.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e51ec2dc454d2f857ea433cebf9584f8af884caeea130f231836b49abf4e81a2.png",
+   "sha256": "e51ec2dc454d2f857ea433cebf9584f8af884caeea130f231836b49abf4e81a2",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Red-stained Gossypium.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e863c0ef19d63dc8b707dd4d94f8de4851efaab93ca89ece5b51c42af5dc9ebf.png",
+   "sha256": "e863c0ef19d63dc8b707dd4d94f8de4851efaab93ca89ece5b51c42af5dc9ebf",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Ommivibro- octovecti-bell.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/e91d6beb4e631f5ac9c0f1c1fd1405587dee9275348aa560ebca72e1a46ff896.png",
+   "sha256": "e91d6beb4e631f5ac9c0f1c1fd1405587dee9275348aa560ebca72e1a46ff896",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Dry-to-the-Bone Breast.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/eaacc8940104e678c0e16936374d6579ac83473f7832ca028e1eb068d2d0dccd.png",
+   "sha256": "eaacc8940104e678c0e16936374d6579ac83473f7832ca028e1eb068d2d0dccd",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Pre-order Discount.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/eae42b2fe9d5af280a46abe2803420c782d3b4ec9df3d5d919cdbf2d77d1f505.png",
+   "sha256": "eae42b2fe9d5af280a46abe2803420c782d3b4ec9df3d5d919cdbf2d77d1f505",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Ardent Flower.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ed8efdef15537c3acedb1e58e6aa498c952c89ca838c213d60be121755bc806c.png",
+   "sha256": "ed8efdef15537c3acedb1e58e6aa498c952c89ca838c213d60be121755bc806c",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Stone Tomb.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/edebc2d02bd1c8de8be3f9e35b83eb5d0f9dc73230a531fea173d4106bff4c51.png",
+   "sha256": "edebc2d02bd1c8de8be3f9e35b83eb5d0f9dc73230a531fea173d4106bff4c51",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Arrested Hymm.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ee56765c2aab09f403fb65b1eb4888df3a4eb96f09e67fb697a4504fcd05a85d.png",
+   "sha256": "ee56765c2aab09f403fb65b1eb4888df3a4eb96f09e67fb697a4504fcd05a85d",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Insulator.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/eebffc2ded5be791023944301ae932041c788dd63ef63e71cf57a3c6051d4d54.png",
+   "sha256": "eebffc2ded5be791023944301ae932041c788dd63ef63e71cf57a3c6051d4d54",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Portable Barrier Battery.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ef8c473701d6d33f2be889c524177d2594d3b11a70450f7aba7e18dae55feaca.png",
+   "sha256": "ef8c473701d6d33f2be889c524177d2594d3b11a70450f7aba7e18dae55feaca",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Pierce/Carpenter's Nail.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f0cb0c6dad1aabfe2e5da9d5c389411d55670909607cb70e292d83e4b69f1282.png",
+   "sha256": "f0cb0c6dad1aabfe2e5da9d5c389411d55670909607cb70e292d83e4b69f1282",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Deceptive Accord.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f1131ae6138b6f3f1d5d74de48fedbcde497603f84ff6542329088a508d1be30.png",
+   "sha256": "f1131ae6138b6f3f1d5d74de48fedbcde497603f84ff6542329088a508d1be30",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Virtue - Ren.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f12406c388d6d41708bbb9b5f3c29ed9f248698ca42259f1726893320ec6fe21.png",
+   "sha256": "f12406c388d6d41708bbb9b5f3c29ed9f248698ca42259f1726893320ec6fe21",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Materjal Interference Force Field.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f1b3a9b0c9e6d6eabc58c28f59e459ff24a614ef8ee53aa7997515b5bc4290ec.png",
+   "sha256": "f1b3a9b0c9e6d6eabc58c28f59e459ff24a614ef8ee53aa7997515b5bc4290ec",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/W Corp. Standard Issue Cap.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f23da357361cc980e693f2b2c58824616942d63bbf2a0aa42f4304fe4383d8d4.png",
+   "sha256": "f23da357361cc980e693f2b2c58824616942d63bbf2a0aa42f4304fe4383d8d4",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Oscillating Bracelet.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f2a29b998dbba44f629a2d380ba958978c39006b181d6e056fd2b6943e7fcc9d.png",
+   "sha256": "f2a29b998dbba44f629a2d380ba958978c39006b181d6e056fd2b6943e7fcc9d",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Rupture/Ragged Umbrella.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f2f5cbc78980216e745f6b8490c0bd8809de14ec721a3dbb4d3e189c1213f82b.png",
+   "sha256": "f2f5cbc78980216e745f6b8490c0bd8809de14ec721a3dbb4d3e189c1213f82b",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Clear Mirror, Calm Water.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f43b857f5d941cdabea08497f106c3aa99b54082c75d319d66b1e9300dd1cef7.png",
+   "sha256": "f43b857f5d941cdabea08497f106c3aa99b54082c75d319d66b1e9300dd1cef7",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Packaging Box.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f570020e067f3c58f2820d8b5633a71b9367bd825fda8eaf3a05b66930904022.png",
+   "sha256": "f570020e067f3c58f2820d8b5633a71b9367bd825fda8eaf3a05b66930904022",
+   "size": [
+    69,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Blunt/Enh. Tattoos - The Midl.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f686f2eee0209c9169409239b76eb8b0a3268d098613d0c34b4a923db0240f36.png",
+   "sha256": "f686f2eee0209c9169409239b76eb8b0a3268d098613d0c34b4a923db0240f36",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/UPS System.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f71b8a7c92bb8767b929acc94044a2fb704d12c7b2df10ef3e4ee94b542d367c.png",
+   "sha256": "f71b8a7c92bb8767b929acc94044a2fb704d12c7b2df10ef3e4ee94b542d367c",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Sinking/Haunted Shoes.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f76b6634454c20c5425ab8079d7b109f3a5668ba02331305de25b6af124cea82.png",
+   "sha256": "f76b6634454c20c5425ab8079d7b109f3a5668ba02331305de25b6af124cea82",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Decamillennial Hearthflame.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f7f319d083b21d767d60863a42ac1969ed744966d0668fd98dfce345818b40a6.png",
+   "sha256": "f7f319d083b21d767d60863a42ac1969ed744966d0668fd98dfce345818b40a6",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Burn/Fiery Down.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f806cfe7f180012b12187517f3bfd153376037aeedf40d0a5a12e3b04818c6fe.png",
+   "sha256": "f806cfe7f180012b12187517f3bfd153376037aeedf40d0a5a12e3b04818c6fe",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Resplendence.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f9c5231949e74b2078f356de0184adf3c4c4731a09253592c9bac782706cb935.png",
+   "sha256": "f9c5231949e74b2078f356de0184adf3c4c4731a09253592c9bac782706cb935",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Tremor/Made-to-Order.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/f9f063f7dd8387674a67c4c9ad82de281c10296ce13b09847d7ade707f5de758.png",
+   "sha256": "f9f063f7dd8387674a67c4c9ad82de281c10296ce13b09847d7ade707f5de758",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Poise/Gear Shrapnel.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fb15a8996671d95d4a8aab67865317cb72dc3ddc3c38d6020a67d0527c67a372.png",
+   "sha256": "fb15a8996671d95d4a8aab67865317cb72dc3ddc3c38d6020a67d0527c67a372",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Snuffed Candlestick.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fb32e1a9a50e987155a7e2094f16d9d89d4cd2e27a1776ea6da4240ac8d3fda6.png",
+   "sha256": "fb32e1a9a50e987155a7e2094f16d9d89d4cd2e27a1776ea6da4240ac8d3fda6",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Child within a Flask.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fb9aaa6cd441b62e9c22d80bc688146616b746e533c93660400283b1561a2b72.png",
+   "sha256": "fb9aaa6cd441b62e9c22d80bc688146616b746e533c93660400283b1561a2b72",
+   "size": [
+    68,
+    69
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Bleed/Awe.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fbe3160b6c67a6d519ecbb7ec1694d03a1d9ce46ac54c9f0c96226d49b0996cf.png",
+   "sha256": "fbe3160b6c67a6d519ecbb7ec1694d03a1d9ce46ac54c9f0c96226d49b0996cf",
+   "size": [
+    68,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Charge/Curriculum Vitae.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fc6f22e5e73eb60a09c03fa9869df120597d905528aeb6c6f35d1f7911df238b.png",
+   "sha256": "fc6f22e5e73eb60a09c03fa9869df120597d905528aeb6c6f35d1f7911df238b",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Spicebush Branch.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fe39bfcd8adb0d4c0995d27c0d727aa34fd247e17db22e9e9f3b044ced4a108b.png",
+   "sha256": "fe39bfcd8adb0d4c0995d27c0d727aa34fd247e17db22e9e9f3b044ced4a108b",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Chief Butler's Secret Arts.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/fef497198e8a100eae150b7947bca1eebb1828c85fcfbbc9d1d13da602c31813.png",
+   "sha256": "fef497198e8a100eae150b7947bca1eebb1828c85fcfbbc9d1d13da602c31813",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Sharp Needle & Thread.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ff1d41a56417e6741577c046aa253e7d7608b6c0a90f0eb3a0a23b2ad345ce3a.png",
+   "sha256": "ff1d41a56417e6741577c046aa253e7d7608b6c0a90f0eb3a0a23b2ad345ce3a",
+   "size": [
+    69,
+    68
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Slash/Scalpel.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/gifts/ff3441a4224a99b41025274245505e6fa8b60d0cc39bf9d03af50b4b493d3339.png",
+   "sha256": "ff3441a4224a99b41025274245505e6fa8b60d0cc39bf9d03af50b4b493d3339",
+   "size": [
+    68,
+    67
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/ego_gifts/Keywordless/Special Contract.png",
+   "group": "gifts"
+  },
+  {
+   "path": "image/map/node_badge.png",
+   "sha256": "94d2c57fc75458caddfe2819c233dc387b5232268ed4b78175578c9d6be3948b",
+   "size": [
+    23,
+    19
+   ],
+   "origin": "own-capture",
+   "group": "map"
+  },
+  {
+   "path": "image/navigation/all-filter-unchecked.png",
+   "sha256": "76cea6408a98bf7b0e512104bde5852630eb2dc1fde562614d893f3357f9edde",
+   "size": [
+    29,
+    29
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1777,
+    78,
+    29,
+    29
+   ],
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/identity-details-back.png",
+   "sha256": "b832c913c089b562e6fc1cc6d3f69c5656bdf466a3621e66041c2bfaa75a8e7d",
+   "size": [
+    68,
+    43
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    98,
+    53,
+    68,
+    43
+   ],
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/owned-filter-checked.png",
+   "sha256": "3e591d3a7369cc0c9ee08601ba467af4f0ba197f285db3824a66e2967f0de337",
+   "size": [
+    29,
+    29
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1697,
+    78,
+    29,
+    29
+   ],
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/star-convert-checked.png",
+   "sha256": "2a2cb930353ca5a10943d5db15f9fe65cd9476eb4398cdccba769526734ef60b",
+   "size": [
+    36,
+    36
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1071,
+    529,
+    36,
+    36
+   ],
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/star-convert-unchecked-current.png",
+   "sha256": "6cc79a560919f5ebe0915d8d6215dcbe3b6645e36343b2e57424af0ebc178ea4",
+   "size": [
+    35,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/star-convert-unchecked.png",
+   "sha256": "c8868edeae979130615502c624f5444965268f40f9ce4ae18ca06c67ebd1cf9f",
+   "size": [
+    36,
+    36
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1071,
+    529,
+    36,
+    36
+   ],
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/team-library-back.png",
+   "sha256": "ebf66d8d6660a38b46bb24b7d0d2258b727e9ffecc1ab41c8c6eddbcc91ffa2d",
+   "size": [
+    75,
+    38
+   ],
+   "origin": "own-capture",
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/theme-card-clip.png",
+   "sha256": "81a0857535f19e74e95be58fb599bbd119948109ae48944435ee249dddbdbc0b",
+   "size": [
+    15,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/tutorial-back.png",
+   "sha256": "688e7531b856bc6882b522a1a1f2cf3ea463b1deae6a9f216b914f2fa3c1f86b",
+   "size": [
+    64,
+    42
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    111,
+    50,
+    64,
+    42
+   ],
+   "group": "navigation"
+  },
+  {
+   "path": "image/navigation/tutorial_next.png",
+   "sha256": "c6bf0b19e1e5e44d0597cf9309842d59395d6b95a2b9a6cfb4fda5daca820e0a",
+   "size": [
+    51,
+    35
+   ],
+   "origin": "own-capture",
+   "group": "navigation"
+  },
+  {
+   "path": "image/reward/deduction-sign-two-digit.png",
+   "sha256": "27f191f25b099b35af5015c48a3f97f9928a04f782f6e82bf071a9caebf5b0ad",
+   "size": [
+    17,
+    26
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1425,
+    807,
+    17,
+    26
+   ],
+   "group": "reward"
+  },
+  {
+   "path": "image/reward/deduction-sign.png",
+   "sha256": "4724ab3a2781d6eb73f5bbb5660ecef8c86e6e207cd895675c0d99782f962d1d",
+   "size": [
+    17,
+    26
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1431,
+    807,
+    17,
+    26
+   ],
+   "group": "reward"
+  },
+  {
+   "path": "image/reward/module-currency-two-digit.png",
+   "sha256": "63914aeb337541c6d3f4f268dbbed1bca791ba53339e61fc8c32b4a6991db1fa",
+   "size": [
+    57,
+    55
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1368,
+    790,
+    57,
+    55
+   ],
+   "group": "reward"
+  },
+  {
+   "path": "image/reward/module-currency.png",
+   "sha256": "863cca9d59a49c881cd47b3ac3bddd6577a9e07d6c33c77988b51c1cdf73bf15",
+   "size": [
+    57,
+    55
+   ],
+   "origin": "own-capture",
+   "frame_size": [
+    1920,
+    1080
+   ],
+   "crop": [
+    1374,
+    790,
+    57,
+    55
+   ],
+   "group": "reward"
+  },
+  {
+   "path": "image/themes/hard_mode.png",
+   "sha256": "02278d164ec52630cbad7a589a0cdc5ecf01b790045fddf2ef498c5869f8b25c",
+   "size": [
+    162,
+    53
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/mirror/hard_mode.png",
+   "group": "themes"
+  },
+  {
+   "path": "image/themes/mirror_theme_pack_new.png",
+   "sha256": "5b5ba688309432258b57f33b041c0e3dfb089f53367c1f0b485928f79a50aa48",
+   "size": [
+    35,
+    21
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/mirror/mirror_theme_pack_new.png",
+   "group": "themes"
+  },
+  {
+   "path": "image/themes/normal_mode.png",
+   "sha256": "f970447ae35a601fdfdce3b36b7ae434dbf33fab01ef0abc2fbeac214428fdf7",
+   "size": [
+    141,
+    34
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/mirror/normal_mode.png",
+   "group": "themes"
+  },
+  {
+   "path": "image/themes/pack_search.png",
+   "sha256": "319e44705c91b552a02a005b4990b160164070e075e161b9252b00193abeba0c",
+   "size": [
+    38,
+    21
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/mirror/pack_search.png",
+   "group": "themes"
+  },
+  {
+   "path": "image/themes/theme_pack_detail.png",
+   "sha256": "d91a20a4363b00f29608789afe570983991f269965706bbde6bbc8ebf35fc0b4",
+   "size": [
+    35,
+    34
+   ],
+   "origin": "lix",
+   "source": "lalc_backend/img/general/mirror/theme_pack_detail.png",
+   "group": "themes"
+  }
+ ]
+}

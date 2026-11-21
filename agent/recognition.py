@@ -1,0 +1,2331 @@
+import hashlib
+import json
+import os
+import random
+import re
+import time
+import traceback
+from datetime import datetime, timezone
+from dataclasses import replace
+from functools import wraps
+from pathlib import Path
+from types import SimpleNamespace
+
+import cv2
+from maa.custom_action import CustomAction
+from maa.custom_recognition import CustomRecognition
+from maa.pipeline import JOCR, JRecognitionType, JTemplateMatch
+from maa.toolkit import Toolkit
+
+from maalimbus.vision import Text, classify, find, inset_box
+from maalimbus.policies import Team
+from maalimbus.team_vision import CARD_COUNT, assignment_box, team_row, team_header
+from maalimbus.windows_preflight import check_window, InputPermissionError
+from maalimbus.adb_preflight import controller_foreground
+from maalimbus.storage import ProfileStore
+from maalimbus.controller_lease import ControllerLease
+from maalimbus.gift_vision import GiftCatalog, floor_candidates, recommend,search_owned_names
+from maalimbus.jobs import screencap, wait_job
+from maalimbus import runner
+from maalimbus import event_log, input_helpers, workspace
+from maalimbus.runtime_paths import ROOT, data_directory, ledger_path
+from maalimbus.theme_vision import ThemeCatalog, theme_page, pack_candidates, recommend_pack
+from maalimbus.deployment import deployment_page,observe_deployment,next_sinner,target_box,badge_rois,DeploymentDraft
+from maalimbus.storage import KEYWORDS, SINNERS
+from maalimbus.battle_vision import BattleCatalog,planning_anchors,preview_labels,battle_hud,detail_back_box,auto_assign_plan,auto_assign_buttons,begin_turn_plan,start_button,turn_signature
+from maalimbus import star_vision
+from maalimbus import initial_gifts
+from maalimbus.grace_vision import AVAILABLE_LABEL, AVAILABLE_PATTERN
+from maalimbus.map_vision import (map_header, node_panel, party_point, pre_battle_team_page,
+                                     route_decision)
+from maalimbus.storage import read_json, write_json
+from maalimbus.storage import RunStore
+from maalimbus.global_settings import apply_builds, collect_builds
+from maalimbus.task_preferences import TaskPreferences, collect_mirror_queue
+
+
+def guarded_callback(failed_result):
+    """Never let Python exceptions become undefined Maa C callback returns.
+
+    A fault latches this Agent instance closed, including recognition alternatives.
+    Journal failures cannot undo the latch or escape the callback boundary.
+    """
+    def decorate(callback):
+        @wraps(callback)
+        def guarded(self, context, argv):
+            recognition = self if callback.__name__ == 'analyze' else self.recognition
+            if getattr(recognition, 'callback_failure', None) is not None:
+                return failed_result
+            try:
+                return callback(self, context, argv)
+            except Exception as error:
+                failure = dict(callback=type(self).__name__,
+                    node=getattr(argv, 'node_name', ''), error_type=type(error).__name__,
+                    error=str(error), traceback=traceback.format_exc(),
+                    verified_clear=False)
+                recognition.callback_failure = failure
+                try:
+                    recognition.journal.record('callback_failed', **failure)
+                except Exception:
+                    # Retain the failure in memory even when the evidence disk fails.
+                    failure['journal_failed'] = True
+                return failed_result
+        return guarded
+    return decorate
+
+
+def _json_or_named(data):
+    """JSON that always writes, naming a field it could not represent (D194/D195).
+
+    A frame row is a diagnostic answer about one frame: a cycle or a framework object in
+    `extra` may not cost the whole answer, and a cycle defeats `default=str` as well, so a
+    value that cannot be represented becomes its own `repr`.
+    """
+    try:
+        return json.dumps(data, ensure_ascii=False, indent=2, default=str)
+    except (TypeError, ValueError):
+        safe, dropped = {}, []
+        for key, value in data.items():
+            try:
+                json.dumps(value, ensure_ascii=False, default=str)
+            except (TypeError, ValueError):
+                safe[key] = repr(value)[:400]
+                dropped.append(key)
+            else:
+                safe[key] = value
+        if dropped:
+            safe['journal_fields_dropped'] = dropped
+        return json.dumps(safe, ensure_ascii=False, indent=2, default=str)
+
+
+class Journal:
+    def __init__(self, directory, *, history_maintenance=False):
+        self.directory = Path(directory)
+        self.history_maintenance = history_maintenance
+        self.directory.mkdir(parents=True, exist_ok=True)
+        # Explicit evidence directories can be reused after a bounded stop. Never
+        # overwrite a frame already referenced by a transaction or run ledger.
+        self.index = max((int(p.stem.split('-')[-1]) for p in self.directory.glob('frame-*')
+                          if p.suffix in ('.json','.png') and p.stem.split('-')[-1].isdigit()),default=0)
+        self.capacity_scope = None
+        self.capacity_scope_provider = None
+        self.capacity_successor_size = None
+        self.capacity_progress = None
+        self._step_attempt = 0
+        self._step_active = False
+        self._step_first_index = self.index
+        self._input_check_started = False
+        self._last_diagnostic_step = 0
+        self._diagnostic_samples = []
+
+    def begin_step(self):
+        self._step_attempt += 1
+        self._step_active = True
+        self._step_first_index = self.index
+        self._input_check_started = False
+
+    def finish_diagnostic_sample(self, sample):
+        """Keep the first and latest originals from the owner's passive wait."""
+        samples = self._diagnostic_samples
+        if sample is None or not self._step_active or self._input_check_started:
+            samples.clear()
+            return
+        if self._last_diagnostic_step + 1 != self._step_attempt:
+            samples.clear()
+        self._last_diagnostic_step = self._step_attempt
+        owner, scene, name, image_hash = sample
+        phase = (owner, scene)
+        if samples and phase != samples[-1][0]:
+            samples.clear()
+        if samples and name == samples[-1][1] and self.index == self._step_first_index:
+            return  # Recognition reused the last observation; no new payload.
+        if self.index != self._step_first_index + 1 or name != f'frame-{self.index:04d}':
+            samples.clear()
+            return
+        path = self.directory / (name + '.json')
+        try:
+            body = path.read_bytes()
+            row = json.loads(body)
+        except (OSError, ValueError):
+            samples.clear()
+            return
+        if (not isinstance(row, dict) or row.get('scene') != scene
+                or not image_hash or row.get('image_sha256') != image_hash):
+            samples.clear()
+            return
+        samples.append((phase, name, image_hash, hashlib.sha256(body).hexdigest()))
+        if len(samples) < 3:
+            return
+        first, middle, last = samples
+        samples[:] = [last] if first[2] == last[2] != middle[2] else [first, last]
+        # An intervening visual change bracketed by two identical frames may
+        # be a transient dialog. Keep its PNG even during the loading wait.
+        if len(samples) == 1:
+            return
+        old_image = self.directory / (middle[1] + '.png')
+        old_record = old_image.with_suffix('.json')
+        details = dict(owner=owner, scene=scene, frame=middle[1], image_sha256=middle[2],
+                       record_sha256=middle[3], input_sent=False, reason='superseded_passive_poll')
+        try:
+            pixels = old_image.read_bytes()
+            if (hashlib.sha256(pixels).hexdigest() != middle[2]
+                    or hashlib.sha256(old_record.read_bytes()).hexdigest() != middle[3]):
+                return
+            from maalimbus import capture_retention, workspace
+            root, _ = capture_retention.roots(ROOT)
+            if old_image.resolve().is_relative_to(root):
+                capture_retention._plain(old_image, root)
+                capture_retention._plain(old_record, root)
+                protected = workspace.protected_evidence(root)
+                if old_image.resolve() in protected or old_record.resolve() in protected:
+                    return
+            self.record('diagnostic_sample_release_intent', durable=True, **details)
+            old_image.unlink()
+        except (OSError, ValueError):
+            return  # A locked image stays available for later maintenance.
+        self.record('diagnostic_sample_released', bytes=len(pixels), **details)
+
+    def end_step(self):
+        self._step_active = False
+
+    def before_input(self, kind, payload):
+        self._input_check_started = True
+        self._diagnostic_samples.clear()
+        from maalimbus.evidence_capacity import EvidenceCapacity, EvidenceCapacityUnavailable, FreshPlanningRequired
+        before = self.directory / ('frame-%04d.json' % self.index)
+        scope = (self.capacity_scope_provider() if self.capacity_scope_provider is not None
+                 else self.capacity_scope)
+        try:
+            options=({'successor_size':self.capacity_successor_size}
+                     if self.capacity_successor_size is not None else {})
+            from maalimbus.native_image_archive import verified_reads
+            with verified_reads(on_progress=self.capacity_progress):
+                admission = EvidenceCapacity(ROOT, live=not self.history_maintenance).admit(
+                    before, kind=kind, payload=payload,
+                                                        scope=scope,**options)
+        except (ValueError, OSError) as error:
+            raise EvidenceCapacityUnavailable(str(error)) from error
+        self.record('evidence_capacity_admitted', kind=kind, **admission)
+        if kind!='plan' and admission.get('storage_maintenance'):
+            self.record('evidence_capacity_refresh_required',kind=kind,input_sent=False)
+            raise FreshPlanningRequired('Fresh planning required after pre-dispatch storage maintenance')
+        return admission
+
+    def record(self, event, *, durable=False, **details):
+        data = {'event': event, 'utc': datetime.now(timezone.utc).isoformat(), **details}
+        if self._step_active:
+            data['step_attempt'] = self._step_attempt
+        with (self.directory / 'events.jsonl').open('a', encoding='utf-8') as file:
+            # A journal write is a diagnostic: a field that will not serialise (a cycle,
+            # a framework object) is dropped by name instead of ending a healthy run (D194).
+            try:
+                line = json.dumps(data, ensure_ascii=False)
+            except (TypeError, ValueError):
+                kept, dropped = {}, []
+                for key, value in data.items():
+                    try:
+                        json.dumps(value, ensure_ascii=False)
+                    except (TypeError, ValueError):
+                        dropped.append(key)
+                    else:
+                        kept[key] = value
+                kept['journal_fields_dropped'] = dropped
+                line = json.dumps(kept, ensure_ascii=False, default=str)
+            file.write(line + chr(10))
+            if durable:
+                file.flush()
+                os.fsync(file.fileno())
+
+    def needs_fresh_capture(self, name):
+        """An unchanged picture may still need a newly published native record."""
+        from maalimbus.evidence_capacity import EvidenceCapacity,refresh_required
+        pool=EvidenceCapacity(ROOT)
+        path=(self.directory/(str(name)+'.json')).resolve()
+        if not path.is_relative_to(pool.root):return False
+        owner=pool.load().get('owner') or {}
+        return bool(refresh_required(owner)
+                    and owner.get('frame')==str(path.relative_to(pool.root)))
+
+    def frame(self, frame, records, scene, **extra):
+        from maalimbus.evidence_capacity import (EvidenceCapacity,validate_capture_image,
+                                                validate_capture_metadata)
+        # New native provenance is plain data. Do not let logging's default=str
+        # hide an internal OCR object as a string that downstream readers expect
+        # to be a record. Older raw evidence remains byte-for-byte unchanged.
+        local=extra.get('local_ocr',[])
+        if not isinstance(local,list) or any(not isinstance(row,dict) for row in local):
+            raise ValueError('Native local OCR provenance must be a list of records')
+        try:json.dumps(local,allow_nan=False)
+        except (TypeError,ValueError) as error:
+            raise ValueError('Native local OCR provenance must contain plain finite JSON data') from error
+        validate_capture_image(frame)
+        name = f'frame-{self.index + 1:04d}'
+        ok, encoded = cv2.imencode('.png', frame, [cv2.IMWRITE_PNG_COMPRESSION, 6])
+        if not ok:
+            raise OSError('Evidence screenshot could not be saved')
+        pixels = encoded.tobytes()
+        data = {'frame': name, 'scene': scene, 'size': [frame.shape[1], frame.shape[0]],
+                'utc': datetime.now(timezone.utc).isoformat(),
+                'image_sha256': hashlib.sha256(pixels).hexdigest(),
+                'ocr': [{'text': t.text, 'score': t.score, 'box': t.box} for t in records],**extra}
+        metadata = _json_or_named(data).encode('utf-8')
+        validate_capture_metadata(metadata)
+        # Reserve the pair and stop-report room before creating either file.
+        # Review-bundle copies reserve their additional space separately.
+        from maalimbus.native_image_archive import verified_reads
+        from maalimbus.evidence_capacity import EvidenceCapacityUnavailable
+        try:
+            with verified_reads(on_progress=self.capacity_progress):
+                capacity = EvidenceCapacity(ROOT, live=not self.history_maintenance)
+                if not capacity.consume_capture(self.directory, len(pixels)+len(metadata)):
+                    if self.directory.resolve().is_relative_to(capacity.root):
+                        capacity.reserve_space(self.directory, len(pixels)+len(metadata)+2_000_000)
+        except (OSError, ValueError) as error:
+            raise EvidenceCapacityUnavailable(str(error)) from error
+        (self.directory / (name + '.png')).write_bytes(pixels)
+        (self.directory / (name + '.json')).write_bytes(metadata)
+        self.index += 1
+        return name
+
+
+
+def frame_identity(directory, name):
+    """The picture's own name, read from the frame record the recorder just wrote (D105).
+
+    The journal row used to carry `frame` (a fresh file name per read, so it names the
+    *file*, not the picture) and no hash, which is why D104's frozen-screen rule could
+    never fire: over `packaged-mirror-20261024-072236` all 97 `map_observed` rows had
+    `image_sha256` absent. The frame JSON already holds the hash, so the row copies it.
+    """
+    if not name:
+        return None
+    path = Path(directory) / (str(name) + '.json')
+    try:
+        return json.loads(path.read_text(encoding='utf-8')).get('image_sha256')
+    except (OSError, ValueError):
+        return None
+
+
+def in_roi(record, roi, size):
+    """Whether a record's centre sits inside ``roi`` (normalised 0..1 corners)."""
+    x, y, w, h = record.box
+    cx, cy = (x + w / 2) / size[0], (y + h / 2) / size[1]
+    return roi[0] <= cx <= roi[2] and roi[1] <= cy <= roi[3]
+
+
+class LimbusRecognition(CustomRecognition):
+    @staticmethod
+    def card_box(rows, band=200):
+        """Join the rows one card label was read as into a single click box.
+
+        A label is sometimes OCR'd as two stacked rows ('Mirror' / 'Dungeons'),
+        which used to answer "not exactly one match" and leave the node without a
+        click box -- the DRIVE page then repeated its plan until the loop stopped
+        on `the_same_plan_repeated` (live
+        evidence/runtime/packaged-mirror-20261021-210039). Rows whose centres sit
+        within ``band`` pixels of the first row belong to the same card; a row from
+        another card is left out rather than swallowed.
+        """
+        first = rows[0]
+        same = [b for b in rows
+                if abs((b[1] + b[3] / 2) - (first[1] + first[3] / 2)) <= band]
+        x0 = min(b[0] for b in same); y0 = min(b[1] for b in same)
+        x1 = max(b[0] + b[2] for b in same); y1 = max(b[1] + b[3] for b in same)
+        return (x0, y0, x1 - x0, y1 - y0)
+
+    def __init__(self, locale='en', journal=None):
+        super().__init__()
+        self.locale = json.loads((ROOT / f'assets/resource/{locale}/locale.json').read_text(encoding='utf-8'))
+        # The verified anchor boxes (the same registry the driver plans with) so a page
+        # can ask for a narrow read of its own cards, not just the whole screen.
+        self.control_registry=json.loads(runner.REGISTRY.read_text(encoding='utf-8'))
+        self.controls = runner.controls_by_id(self.control_registry)
+        self.journal = journal or Journal(os.environ.get('MAALIMBUS_EVIDENCE', ROOT / 'evidence/runtime/agent'))
+        self.cache = None
+        self.last_frame = None
+        self.last_scene = None
+        self.team = None
+        self.locale_name = locale
+        self.scroll_count = 0
+        self.scroll_hash = None
+        self.gifts = None
+        self.themes = None
+        self.pending_pack = ''
+        self.deployment_pending = None
+        self.deployment_draft = None
+        self.battle = None
+        self.battle_before = None
+        self.callback_failure = None
+        self.input_validator = None
+        self.star_pending = None
+        self.last_timing = None
+        self.last_battle_detail = None
+
+    def theme_catalog(self):
+        if self.themes is None:
+            self.themes=ThemeCatalog(ROOT/'assets/resource/base')
+        return self.themes
+
+    def gift_catalog(self):
+        if self.gifts is None:self.gifts=GiftCatalog(ROOT/'assets/resource/base')
+        return self.gifts
+
+    def battle_catalog(self):
+        if self.battle is None:self.battle=BattleCatalog(ROOT/'assets/resource/base')
+        return self.battle
+
+    def timing_fields(self):
+        """How long the last read spent on each phase, or nothing when it was cached.
+
+        D68 made every observation row say how long the read took, which could not say
+        which half spent it; D69 then priced the capture at 0.05 s of 1.44 s, leaving
+        ~1.39 s of recognition in a single unexplained number. These are the three parts
+        of that number (D70). A cached read reports nothing, because nothing was spent.
+        """
+        record = getattr(self, 'last_timing', None) or {}
+        if record.get('cached') or record.get('total_seconds') in (None, 0.0):
+            return {}
+        return dict(ocr_seconds=record.get('frame_seconds'),
+                    roi_seconds=record.get('roi_seconds'),
+                    classify_seconds=record.get('classify_seconds'),
+                    roi_reads=record.get('roi_calls'))
+
+    def observe(self, context, image):
+        digest = hashlib.sha256(image.tobytes()).hexdigest()
+        refresh=getattr(self.journal,'needs_fresh_capture',None)
+        if (self.cache and self.cache[0] == digest
+                and not (refresh and refresh(self.cache[3]))):
+            # A cached read is the same frame again: it says so and claims no phase time,
+            # because nothing was spent on it (D70).
+            self.last_timing = dict(cached=True, frame_seconds=None, roi_seconds=None,
+                                    roi_calls=0, classify_seconds=None, total_seconds=0.0)
+            return self.cache[1:]
+        # A read that says how long it took, and not which half spent it, cannot be
+        # optimised: D68 put one read at 1.08-1.44 s and D69 priced the capture at 0.05 s,
+        # so the remaining ~1.39 s is recognition. These counters split it into the
+        # full-frame OCR, the narrow ROI re-reads and everything else in this method,
+        # and every observation writer puts the three on its own row (D70).
+        started = time.monotonic()
+        costs = {"frame_seconds": 0.0, "roi_seconds": 0.0, "roi_calls": 0}
+
+        def frame_direct(kind=None, param=None, image=None):
+            began = time.monotonic()
+            try:
+                return context.run_recognition_direct(kind, param, image)
+            finally:
+                costs["frame_seconds"] += time.monotonic() - began
+
+        def roi_direct(kind=None, param=None, image=None):
+            began = time.monotonic()
+            try:
+                return context.run_recognition_direct(kind, param, image)
+            finally:
+                costs["roi_calls"] += 1
+                costs["roi_seconds"] += time.monotonic() - began
+
+        detail = frame_direct(JRecognitionType.OCR, JOCR(threshold=.2), image)
+        if detail is None:
+            raise RuntimeError('Maa OCR did not return evidence')
+        records = []
+        for result in detail.all_results:
+            if hasattr(result, 'text'):
+                b = result.box
+                box = (b.x, b.y, b.w, b.h) if hasattr(b, 'x') else tuple(b)
+                records.append(Text(result.text, box, result.score))
+        size = (image.shape[1], image.shape[0])
+        self.controls=runner.controls_by_id(self.control_registry,size)
+        # Mode-specific anchors request bounded same-image caption reads. Shared
+        # bottom navigation never proves HOME when the mode content is unread.
+        from maalimbus.drive_menu_native import repair as repair_drive_menu
+        records,map_local=repair_drive_menu(roi_direct,image,records,self.locale)
+        scene = classify(records, self.locale, size)
+        if scene in ('MAP','UNKNOWN'):
+            header=map_header(records,size)
+            labels=find(records,r'^Exploring$',(.02,.10,.14,.17),size,.9)
+            floors=find(records,r'^Floor$',(.12,.10,.20,.17),size,.9)
+            joined=find(records,r'^Exploring\s*Floor$',(.02,.10,.20,.17),size,.9)
+            label_gate=(len(labels)==len(floors)==1 and not joined) or (len(joined)==1 and not labels and not floors)
+            # Full-frame detection can read 'ExploringeFlapr' during the map's
+            # glow. A unique known pack line is an independent gate for the same
+            # exact caption/digit pair; neither a pending drag nor artwork is used.
+            from maalimbus.theme_vision import ThemeCatalog
+            pack_rows=find(records,r'^.{4,80}$',(.02,.17,.29,.215),size,.9)
+            pack_gate=(len(pack_rows)==1 and ThemeCatalog(ROOT/'assets/resource/base').identity(pack_rows[0].text) is not None)
+            if ((header and header.floor is None and label_gate) or (header is None and pack_gate)):
+                w,h=size
+                readings=[]
+                from maalimbus.map_vision import HEADER_PATTERN
+                for source_roi,expected in (((364,134,36,40),r'^[1-5]$'),
+                                           ((370,136,25,37),r'^[1-5]$'),
+                                           ((55,120,370,65),HEADER_PATTERN)):
+                    roi=tuple(round(v*(w/1920 if i%2==0 else h/1080)) for i,v in enumerate(source_roi))
+                    detail=roi_direct(JRecognitionType.OCR,
+                        JOCR(roi=roi,only_rec=True,expected=[expected],threshold=.9),image)
+                    found=detail.filtered_results if detail is not None and detail.hit else []
+                    readings.append((roi,found))
+                    map_local.append(dict(purpose='map_floor_header',roi=list(roi),
+                        results=[dict(text=r.text,score=r.score) for r in found]))
+                digit,second,caption=(reading[1] for reading in readings)
+                match=re.fullmatch(HEADER_PATTERN,caption[0].text.strip(),re.I) if len(caption)==1 else None
+                if (len(digit)==len(second)==len(caption)==1 and match and match.group(1)
+                        and digit[0].text.strip()==second[0].text.strip()==match.group(1)):
+                    label_records=labels+floors+joined
+                    records=[t for t in records if all(t is not label for label in label_records)]
+                    records.append(Text(caption[0].text,readings[2][0],min(digit[0].score,second[0].score,caption[0].score)))
+        if scene in ('UNKNOWN','BATTLE_HUD') and len(find(records,r'^TURN$',(.0,.06,.06,.13),size,.9))==1 and auto_assign_buttons(records,size) is not None:
+            w,h=size;roi=(round(68*w/1920),round(90*h/1080),round(82*w/1920),round(40*h/1080))
+            detail=roi_direct(JRecognitionType.OCR,
+                JOCR(roi=roi,only_rec=True,expected=[r'^\d{1,3}$'],threshold=.9),image)
+            if detail is not None and detail.hit:
+                x,y,rw,rh=roi
+                records=[t for t in records if not (x<=t.box[0]+t.box[2]/2<=x+rw and y<=t.box[1]+t.box[3]/2<=y+rh)]
+                for result in detail.filtered_results:records.append(Text(result.text,roi,result.score))
+        from maalimbus.theme_vision import selection_floor,selection_header
+        if (scene=='UNKNOWN' and selection_header(records,size) is not None
+                and not find(records,r'^Pack\s*Search$',(.10,0,.21,.10),size,.9)):
+            w,h=size
+            for crop in ((174,31,69,25),(176,32,66,22),(178,35,60,17)):
+                roi=tuple(round(v*s) for v,s in zip(crop,(w/1280,h/720,w/1280,h/720)))
+                detail=roi_direct(JRecognitionType.OCR,
+                    JOCR(roi=roi,only_rec=True,expected=[r'^Pack\s*Search$'],threshold=.9),image)
+                found=detail.filtered_results if detail is not None and detail.hit else []
+                map_local.append(dict(purpose='theme_pack_search',roi=list(roi),
+                    results=[dict(text=r.text,score=r.score) for r in found],
+                    readings=[dict(text=r.text,score=r.score) for r in detail.all_results] if detail else []))
+                if len(found)==1:
+                    records.append(Text(found[0].text,roi,found[0].score));break
+        if scene=='UNKNOWN' and selection_floor(records,size) is not None:
+            # Decorations beside HARD confuse the detector. Independent page
+            # controls gate a narrow recognizer; unchanged .9 confidence gate.
+            w,h=size;roi=(round(1372*w/1920),round(48*h/1080),round(64*w/1920),round(38*h/1080))
+            detail=roi_direct(JRecognitionType.OCR,
+                JOCR(roi=roi,only_rec=True,expected=[r'^HARD$'],threshold=.9),image)
+            if detail is not None and detail.hit:
+                records=[t for t in records if not (t.text.strip()=='HARD'
+                         and .61<=(t.box[0]+t.box[2]/2)/w<=.83
+                         and 0<=(t.box[1]+t.box[3]/2)/h<=.13)]
+                for result in detail.filtered_results:
+                    records.append(Text(result.text,roi,result.score))
+        if scene=='UNKNOWN' and initial_gifts.page(records,size,self.locale):
+            scene='INITIAL_GIFTS'
+        if scene=='UNKNOWN' and star_vision.page(records,size,self.locale) and star_vision.grid(image):
+            scene='STAR_GRACES'
+        if scene=='UNKNOWN' and deployment_page(records,self.locale,(image.shape[1],image.shape[0])):
+            scene='DEPLOYMENT'
+        local=map_local
+        if scene in ('UNKNOWN','BATTLE_HUD'):
+            from maalimbus.battle_counter_native import repair_turn
+            records,turn_local=repair_turn(roi_direct,image,records)
+            local.extend(turn_local)
+        if scene=='DEPLOYMENT':
+            # Isolated ordinal digits are often absent from the full-frame text
+            # detector. Recognize only the small badge strips, retaining ROIs.
+            for sinner,roi in badge_rois((image.shape[1],image.shape[0])).items():
+                detail=roi_direct(JRecognitionType.OCR,
+                    JOCR(roi=roi,only_rec=True,expected=[r'^\s*(?:[1-9]|1[0-2])\s*$'],threshold=.85),image)
+                if detail is None:raise RuntimeError('Maa local deployment OCR did not return evidence')
+                x,y,w,h=roi
+                records=[t for t in records if not (x<=t.box[0]+t.box[2]/2<=x+w and y<=t.box[1]+t.box[3]/2<=y+h)]
+                found=[]
+                if detail.hit:
+                    for result in detail.all_results:
+                        if hasattr(result,'text'):
+                            b=result.box;box=(b.x,b.y,b.w,b.h) if hasattr(b,'x') else tuple(b)
+                            records.append(Text(result.text,box,result.score))
+                            found.append(dict(text=result.text,score=result.score,box=box))
+                local.append(dict(sinner=sinner,roi=roi,only_rec=True,results=found))
+        if scene=='UNKNOWN' and theme_page(image,self.theme_catalog(),records,self.locale):
+            scene='THEME_PACKS'
+        if scene=='UNKNOWN':
+            if selection_floor(records,size) is not None:
+                scene='THEME_PACKS' # Page identity only; mode/action gates remain.
+        if scene=='UNKNOWN' and node_panel(records,size) is not None:
+            # A click on the map opens this node info panel. It is judged before the
+            # map on purpose: the panel leaves the floor header readable behind it, so
+            # MAP would otherwise swallow the panel and the click that opened it would
+            # look like a no-op (evidence/runtime/window-20261006-041345/frame-0002.json).
+            scene='NODE_PANEL'
+        if scene=='UNKNOWN' and map_header(records,size) is not None:
+            # The floor header plus its pack line is the only map identity anchor;
+            # artwork, currency and season icons are never consulted.
+            scene='MAP'
+        if scene=='UNKNOWN':
+            # One map variant prints its pack line in a faint small face the full-frame
+            # pass never emits: six consecutive frames of
+            # evidence/runtime/packaged-mirror-20261025-044012 carry the caption but no pack
+            # row at all, so the identity above never fires and every later rule (floor
+            # gate, candidates, walk) is unreachable.  One narrow low-threshold read
+            # recovers 'SunkClom' at 0.551; space-and-case proximity resolves it to the
+            # catalogue's 'Sunk Gloom', which is handed over as an identity rather than
+            # smuggled in as a high-score OCR row.
+            import difflib
+            w,h=size
+            roi=[round(.010*w),round(.160*h),round(.105*w),round(.055*h)]
+            faint=roi_direct(JRecognitionType.OCR,
+                JOCR(roi=roi,only_rec=True,threshold=.1),image)
+            faint_rows=[]
+            if faint is not None:
+                for result in faint.all_results:
+                    if hasattr(result,'text') and result.text.strip():
+                        b=result.box
+                        box=(b.x,b.y,b.w,b.h) if hasattr(b,'x') else tuple(b)
+                        # Maa reports roi reads in the 1280x720 reference space while the
+                        # frame is 1920x1080; unscaled the row misses the pack band.
+                        scaled=(box[0]*w/1280,box[1]*h/720,box[2]*w/1280,box[3]*h/720)
+                        faint_rows.append([result.text,list(box),result.score])
+                        records.append(Text(result.text,scaled,result.score))
+            resolved=None
+            if faint_rows:
+                catalogue=ThemeCatalog(ROOT/'assets/resource/base')
+                squash=lambda text: ''.join(str(text).split()).lower()
+                by_squashed={squash(name): name for name in catalogue.names}
+                hit=difflib.get_close_matches(squash(faint_rows[0][0]),list(by_squashed),
+                                              n=1,cutoff=.82)
+                resolved=by_squashed[hit[0]] if hit else None
+            if resolved is not None:
+                resolved_header=map_header(records,size,pack_name=resolved)
+                if resolved_header is not None:
+                    scene='MAP'
+                    header=resolved_header
+                    map_local.append(dict(floor=resolved_header.floor,pack=resolved,
+                                          faint=True))
+        if scene in ('UNKNOWN','TEAM_LIBRARY','DEPLOYMENT') and pre_battle_team_page(records,size) is not None:
+            # Reached from the node panel's Enter: the pre-battle team/identity page
+            # carries its own `Clear Selection` and `Battle!` actions, so the generic
+            # team-library judgement above is corrected only with both captions.
+            scene='PRE_BATTLE_TEAM'
+        if scene=='PRE_BATTLE_TEAM':
+            # Full-screen detection dropped the numerator in actual 1/12, and the fixed
+            # crop then clipped the digits themselves: live window-20261012-023229
+            # frames 0066-0068 read '8 / 12' off the pixels while (1700,754,128,58)
+            # recognized nothing at all, so the run spent both re-reads and stopped on a
+            # deployment it had already made. The crop keeps a margin and the OCR detects
+            # inside it, accepting only the counter's own shape. The redesigned pre-battle
+            # page moves the same row down and left: the old crop (1680,738,180,92) cut the
+            # numerator off '2 / 12', which sits at x1662-1773 y762-792 in build/live-now2.png
+            # (2026-10-15, 1920x1080 game frame), so the entry observation died on
+            # 'Maa local participant OCR returned no evidence'
+            # (dist/MaaLimbus/evidence/runtime/pi-20261015-130115). The crop now covers the
+            # whole row with margin on both sides.
+            # This calibration is in 1920x1080 frame coordinates, whereas native
+            # recognition receives the current capture size. Maa converts input
+            # coordinates later; only this crop is converted here.
+            roi=tuple(round(v*scale) for v,scale in zip((1610,745,250,80),
+                      (size[0]/1920,size[1]/1080,size[0]/1920,size[1]/1080)))
+            detail=roi_direct(JRecognitionType.OCR,
+                JOCR(roi=roi,expected=[r'\d{1,2}\s*/\s*\d{1,2}'],threshold=.8),image)
+            if detail is None:
+                # A frame whose counter has not settled is still a frame, not a page: the
+                # run's own deployment step re-reads a missing counter a bounded number of
+                # times and stops honestly when it never arrives. Raising here took the whole
+                # start-up down with it -- the app's own Start died on this line before it
+                # could reach the loop (dist/MaaLimbus/evidence/runtime/pi-20261015-130827)
+                # -- so the absence is recorded and let through.
+                pass
+            x,y,w,h=roi
+            records=[t for t in records if not (x<=t.box[0]+t.box[2]/2<=x+w and y<=t.box[1]+t.box[3]/2<=y+h)]
+            found=[]
+            if detail is not None and detail.hit:
+                for result in detail.filtered_results:
+                    records.append(Text(result.text,roi,result.score))
+                    found.append(dict(text=result.text,score=result.score,box=list(roi)))
+            local.append(dict(purpose='deployment_participants',roi=list(roi),only_rec=False,results=found))
+            # Every card in the team prints its place in the deployment order, and the page
+            # keeps the previous encounter's order, so reading those glyphs is what lets the
+            # driver accept an inherited order instead of clearing and re-picking it. The
+            # full-frame detector finds only some of them (window-20261012-023229/frame-0068
+            # reads card 7's '6' at .79 and card 10's '8' at .99), so each card gets its own
+            # narrow crop.
+            from maalimbus.deployment_numbers_native import read_assignments
+            records,assignment_proof=read_assignments(roi_direct,image,records,
+                [self.controls.get('pre_battle.card_%02d' % i) for i in range(1,CARD_COUNT+1)])
+            local.extend(assignment_proof)
+            from maalimbus.deployment_availability_native import read_availability
+            local.extend(read_availability(roi_direct,image,records,
+                [self.controls.get('pre_battle.card_%02d' % i) for i in range(1,CARD_COUNT+1)]))
+        hud = battle_hud(records, size) if (records and size) else None
+        # live `packaged-mirror-20261031-125442/frame-0007.png`: Resume 之后进到一场还在打的
+        # 战斗，敌人详情页把整个 HUD 盖住 —— 34 条 OCR 里没有 WAVE/TURN/START。详情页自己
+        # 就是战斗证据（D339），而它唯一的控件是左上角的返回键；这里只记位置，不规划输入。
+        self.last_battle_detail = ({'back': detail_back_box(size)}
+                                   if hud and hud.get('detail_panel') else None)
+        if scene=='UNKNOWN' and hud is not None:
+            # The combat HUD's own WAVE/TURN captions; a battle is never inferred
+            # from artwork, and this identifies the page only.
+            scene='BATTLE_HUD'
+        if scene=='UNKNOWN' and planning_anchors(image,self.battle_catalog(),self.locale_name):
+            scene='BATTLE_PLANNING'
+        if scene in ('STAR_GRACES','STAR_CONFIRM'):
+            from maalimbus.grace_balance_native import repair as repair_grace_balance
+            records, balance_proof=repair_grace_balance(roi_direct,image,records)
+            local.extend(balance_proof)
+        if scene=='STAR_CONFIRM':
+            from maalimbus.native_gestures import frame_coordinates
+            roi=frame_coordinates((1318,459,66,45),size)
+            detail=roi_direct(JRecognitionType.OCR,
+                JOCR(roi=roi,only_rec=True,expected=[r'^\d{1,4}$'],threshold=.85),image)
+            if detail is None:raise RuntimeError('Maa local conversion cost OCR returned no evidence')
+            x,y,w,h=roi
+            records=[t for t in records if not (x<=t.box[0]+t.box[2]/2<=x+w and y<=t.box[1]+t.box[3]/2<=y+h)]
+            found=[]
+            if detail.hit:
+                for result in detail.filtered_results:
+                    records.append(Text(result.text,roi,result.score))
+                    found.append(dict(text=result.text,score=result.score,box=list(roi)))
+            local.append(dict(purpose='star_conversion_cost',roi=list(roi),only_rec=True,results=found))
+        if scene=='STAR_GRACES':
+            boxes=star_vision.grid(image)
+            if boxes is not None:
+                for box in boxes:
+                    roi=star_vision.cost_roi(box)
+                    # The badge may put the starlight glyph in the same crop the digits
+                    # are read from (2026-10 client); the digits are the cost.
+                    detail=roi_direct(JRecognitionType.OCR,
+                        JOCR(roi=roi,only_rec=True,expected=[r'^\D{0,2}\s*\d{1,3}\s*$'],threshold=.85),image)
+                    if detail is None:raise RuntimeError('Maa local grace cost OCR returned no evidence')
+                    found=[]
+                    if detail.hit:
+                        for result in detail.filtered_results:
+                            if hasattr(result,'text'):
+                                # This box is the requested crop, not an invented
+                                # character box; retain native confidence and ROI.
+                                records.append(Text(result.text,tuple(roi),result.score))
+                                found.append(dict(text=result.text,score=result.score,box=list(roi)))
+                    local.append(dict(purpose='grace_cost',roi=list(roi),only_rec=True,results=found))
+        if scene=='GIFT_PICK':
+            from maalimbus.floor_trial_vision import repair_levels
+            records, trial_local=repair_levels(roi_direct,image,records)
+            local.extend(trial_local)
+        if scene=='SHOP':
+            from maalimbus.shop_native import repair_refresh_cost,repair_purchased_badges
+            records,shop_local=repair_refresh_cost(roi_direct,image,records)
+            local.extend(shop_local)
+            records,shop_local=repair_purchased_badges(roi_direct,image,records)
+            local.extend(shop_local)
+        if scene=='SHOP_PURCHASE':
+            from maalimbus.shop_native import repair_purchase_balances
+            records,shop_local=repair_purchase_balances(roi_direct,image,records)
+            local.extend(shop_local)
+        if scene == 'UNKNOWN_DIALOG':
+            from maalimbus.shop_native import repair_replacement_evidence
+            records, shop_local = repair_replacement_evidence(roi_direct, image, records)
+            local.extend(shop_local)
+        if scene in ('PRE_BATTLE_TEAM','DEPLOYMENT','TEAM_LIBRARY'):
+            # The participant counter is fine print on a textured plate, so the
+            # whole-frame pass misses it (D25).  Read that panel on its own and fold
+            # the results into this frame's records, in frame coordinates.
+            from maalimbus.party_vision import counter_reads, participants,counter_crop,COUNTER_SCALE
+            if participants(records,(image.shape[1],image.shape[0])) is None:
+                extra=counter_reads(lambda crop: roi_direct(
+                    JRecognitionType.OCR, JOCR(threshold=.2), crop), image)
+                if extra:
+                    records=list(records)+[Text(row['text'],tuple(row['box']),row['score']) for row in extra]
+                    local.append(dict(purpose='deployment_participants_fallback',
+                        roi=list(counter_crop(size)),scale=COUNTER_SCALE,
+                        only_rec=False,source_ocr_threshold=.2,results=extra))
+        from maalimbus.reward_cost import observe_native as observe_reward_cost
+        reward_cost,reward_cost_provenance=observe_reward_cost(context,image,records)
+        from maalimbus.overlay_dismissal import recognize as recognize_overlay
+        overlay_dismissal=recognize_overlay(roi_direct,image,
+            dict(scene=scene,size=[image.shape[1],image.shape[0]],
+                ocr=[dict(text=t.text,box=list(t.box),score=t.score) for t in records]))
+        from maalimbus.neural_shadow import observe as observe_neural_shadow
+        try:
+            neural_sinners=observe_neural_shadow(context,image,ROOT/'assets/resource/base',
+                record=dict(scene=scene,size=[image.shape[1],image.shape[0]],
+                    ocr=[dict(text=t.text,box=list(t.box),score=t.score) for t in records]))
+        except (ValueError,OSError,RuntimeError,KeyError) as error:
+            # Optional shadow cannot change recognition, intents or device input.
+            neural_sinners=dict(status='unavailable',error_type=type(error).__name__,
+                                input_authorized=False,training_eligible=False)
+        name = self.journal.frame(image, records, scene,local_ocr=local,
+            reward_cost=reward_cost,reward_cost_provenance=reward_cost_provenance,
+            neural_sinners=neural_sinners,overlay_dismissal=overlay_dismissal)
+        if scene in ('PRE_BATTLE_TEAM','DEPLOYMENT','TEAM_LIBRARY') or neural_sinners.get('status')=='shadow':
+            try:
+                from maalimbus.semantic_labels import persist_frame_proposals
+                frame_path=self.journal.directory/(name+'.json')
+                state_root=data_directory(ROOT).parent
+                proposal_root=ROOT if frame_path.resolve().is_relative_to(ROOT.resolve()) else state_root
+                ledger=data_directory(ROOT)/'user-run-ledger.json'
+                active=read_json(ledger).get('active') if ledger.exists() else None
+                episode=(active or {}).get('id') or 'capture:'+self.journal.directory.name
+                queued=persist_frame_proposals(proposal_root,frame_path,episode,self.locale_name,
+                    state_root/'build/learning-review/frames',sample_limit=32)
+                self.journal.record('semantic_frame_proposal',**queued,episode=episode)
+            except (ValueError,OSError,KeyError) as error:
+                self.journal.record('semantic_frame_proposal_refused',reason=str(error),input_sent=False)
+        self.last_frame, self.last_scene = image.copy(), scene
+        self.cache = (digest, records, scene, name)
+        total = time.monotonic() - started
+        self.last_timing = dict(cached=False,
+            frame_seconds=round(costs["frame_seconds"], 2),
+            roi_seconds=round(costs["roi_seconds"], 2),
+            roi_calls=costs["roi_calls"],
+            classify_seconds=round(max(0.0, total - costs["frame_seconds"] - costs["roi_seconds"]), 2),
+            total_seconds=round(total, 2))
+        return records, scene, name
+
+    @guarded_callback(None)
+    def analyze(self, context, argv):
+        params = json.loads(argv.custom_recognition_param or '{}')
+        records, scene, frame = self.observe(context, argv.image)
+        expected = params['scene']
+        if scene != expected:
+            # A node that is asked for a page the agent did not name returns nothing,
+            # and the window answers that by repeating the same plan until
+            # `the_same_plan_repeated` stops the run (live
+            # evidence/runtime/packaged-mirror-20261021-210712: page DRIVE, three
+            # identical intents, no click box). Record the disagreement once so the
+            # frame says which name was wrong instead of only that a box was missing.
+            self.journal.record('scene_mismatch', expected=expected, scene=scene,
+                                frame=frame, node=argv.node_name)
+            return None
+        mode = params.get('team_mode')
+        if params.get('initial_mode')=='confirm_forgo':
+            data=data_directory(ROOT)
+            path=data/'initial-gift-progress.json';progress=read_json(path)
+            if (not progress.get('search_refuse_pending') or progress.get('search_confirm_pending')
+                or progress['search_refuse_pending'].get('extra_starlight_spent')!=0
+                or progress.get('receipt_pending') or progress.get('acknowledged')!=progress['selected']):return None
+            matches=find(records,self.locale['gift_confirm'],(.53,.65,.68,.73),
+                         (argv.image.shape[1],argv.image.shape[0]),.85)
+            if len(matches)!=1:return None
+            progress['search_confirm_pending']=dict(frame=str(self.journal.directory/(frame+'.png')),
+                                                    extra_starlight_spent=0)
+            write_json(path,progress)
+            self.journal.record('extra_gift_forgo_intent',**progress['search_confirm_pending'],verified_clear=False)
+            box,delay=inset_box(matches[0].box),random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('initial_mode')=='refuse_search':
+            data=data_directory(ROOT)
+            path=data/'initial-gift-progress.json';progress=read_json(path)
+            size=(argv.image.shape[1],argv.image.shape[0])
+            if (progress.get('receipt_pending') or progress.get('search_refuse_pending')
+                or progress.get('acknowledged')!=progress['selected']
+                or initial_gifts.counter(records,size)!=(0,3)):return None
+            if not find(records,r'^Owned$',(.64,.02,.73,.09),size,.9):return None
+            matches=find(records,self.locale['initial_refuse'],(.65,.76,.78,.86),size,.85)
+            if len(matches)!=1:return None
+            progress['search_refuse_pending']=dict(frame=str(self.journal.directory/(frame+'.png')),
+                                                   extra_starlight_spent=0)
+            write_json(path,progress)
+            self.journal.record('extra_gift_refuse_intent',**progress['search_refuse_pending'],verified_clear=False)
+            box,delay=inset_box(matches[0].box),random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('initial_mode')=='receipt':
+            data=data_directory(ROOT)
+            path=data/'initial-gift-progress.json';progress=read_json(path)
+            if progress.get('receipt_pending'):raise ValueError('Unverified gift acknowledgement pending')
+            if not progress.get('commit_pending') or progress.get('pending') is not None:return None
+            titles=initial_gifts.proven_titles(progress,ROOT/'evidence/runtime')
+            acknowledged=progress.get('acknowledged',[])
+            if acknowledged!=progress['selected'][:len(acknowledged)] or len(acknowledged)>=len(titles):return None
+            current=initial_gifts.receipt_name(records,(argv.image.shape[1],argv.image.shape[0]))
+            index=len(acknowledged)
+            if not initial_gifts.same_name(current,titles[index]):return None
+            matches=find(records,self.locale['gift_confirm'],(.44,.70,.58,.78),
+                         (argv.image.shape[1],argv.image.shape[0]),.85)
+            if len(matches)!=1:return None
+            progress['receipt_pending']=dict(choice=progress['selected'][index],title=titles[index],
+                frame=str(self.journal.directory/(frame+'.png')))
+            write_json(path,progress)
+            self.journal.record('initial_receipt_ack_intent',**progress['receipt_pending'],verified_clear=False)
+            box,delay=inset_box(matches[0].box),random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('initial_mode')=='commit':
+            data=data_directory(ROOT)
+            path=data/'initial-gift-progress.json';progress=read_json(path)
+            teams=ProfileStore(data/'user-team-profiles.json').load()
+            team=next((t for t in teams if t.slot==params.get('slot')),None)
+            size=(argv.image.shape[1],argv.image.shape[0]);count=initial_gifts.counter(records,size)
+            if (team is None or count is None or count[0]!=count[1] or progress.get('pending') is not None
+                or progress.get('commit_pending') or progress['selected']!=list(team.initial_gifts[:count[1]])
+                or initial_gifts.selected_rows(argv.image)!=sorted(progress['selected'])):return None
+            matches=find(records,r'^Select$',(.78,.76,.86,.86),size,.85)
+            if len(matches)!=1:return None
+            progress['commit_pending']=dict(frame=frame,selected=progress['selected'],count=count)
+            write_json(path,progress)
+            self.journal.record('initial_gift_commit_intent',**progress['commit_pending'],verified_clear=False)
+            box,delay=inset_box(matches[0].box),random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('initial_mode')=='pick':
+            data=data_directory(ROOT)
+            progress_path=data/'initial-gift-progress.json'
+            progress=read_json(progress_path) if progress_path.exists() else {'selected':[],'pending':None}
+            if progress['pending'] is not None:raise ValueError('Unverified initial gift input pending')
+            teams=ProfileStore(data/'user-team-profiles.json').load()
+            team=next((t for t in teams if t.slot==params.get('slot')),None)
+            count=initial_gifts.counter(records,(argv.image.shape[1],argv.image.shape[0]))
+            if team is None or count is None or count[0]!=len(progress['selected']) or count[0]>=count[1]:return None
+            if len(team.formation_keywords)!=1:return None
+            keyword=next(iter(team.formation_keywords))
+            if not find(records,r'\b'+keyword+r'\b',(.675,.34,.92,.59),
+                        (argv.image.shape[1],argv.image.shape[0]),.75):return None
+            remaining=[g for g in team.initial_gifts if g not in progress['selected']]
+            if not remaining:return None
+            targets=[initial_gifts.row_target(records,(argv.image.shape[1],argv.image.shape[0]),g) for g in (1,2,3)]
+            if any(t is None for t in targets):return None
+            choice=remaining[0];box,title=targets[choice-1]
+            progress['pending']=dict(choice=choice,title=title,count_before=count[0],capacity=count[1],frame=frame)
+            write_json(progress_path,progress)
+            self.journal.record('initial_gift_pick_intent',**progress['pending'],verified_clear=False)
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('initial_mode')=='group':
+            if initial_gifts.counter(records,(argv.image.shape[1],argv.image.shape[0]))!=(0,2):return None
+            teams=ProfileStore(data_directory(ROOT)/'user-team-profiles.json').load()
+            team=next((t for t in teams if t.slot==params.get('slot')),None)
+            if team is None or len(team.formation_keywords)!=1:return None
+            keyword=next(iter(team.formation_keywords))
+            box=initial_gifts.group_target(records,(argv.image.shape[1],argv.image.shape[0]),keyword)
+            if box is None:return None
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            self.journal.record('initial_gift_group_intent',frame=frame,slot=team.slot,keyword=keyword,
+                                selected_count=0,verified_clear=False)
+        elif params.get('star_mode')=='select_once':
+            settings=read_json(data_directory(ROOT)/'user-mirror-settings.json')
+            selected=settings.get('graces')
+            if (settings.get('enhance') is not False or not isinstance(selected,list)
+                or not selected or any(not isinstance(g,str) or len(g)!=1 or g not in '0123456789' for g in selected)
+                or len(set(selected))!=len(selected) or type(settings.get('max_starlight'))is not int):
+                raise ValueError('Explicit base grace choices and budget required')
+            progress_path=data_directory(ROOT)/'star-selection-progress.json'
+            progress=read_json(progress_path) if progress_path.exists() else {'selected':[],'pending':None}
+            if progress['pending'] is not None:raise ValueError('Unverified star input remains pending; do not repeat it')
+            if any(g not in selected for g in progress['selected']):raise ValueError('Star configuration changed during selection')
+            remaining=[g for g in selected if g not in progress['selected']]
+            if not remaining:return None
+            boxes=star_vision.grid(argv.image)
+            if boxes is None:return None
+            costs={g:self.read_number(context,argv.image,star_vision.cost_roi(boxes[int(g)])) for g in selected}
+            available=self.read_number(context,argv.image,(1515,45,54,40))
+            if any(c is None or c<=0 for c in costs.values()) or available is None:return None
+            total=sum(costs.values())
+            if total>settings['max_starlight'] or sum(costs[g] for g in remaining)>available:return None
+            if progress.get('available_after',available)!=available:raise ValueError('Observed star balance changed outside verified selection')
+            choice=remaining[0]
+            pending=dict(choice=choice,cost=costs[choice],available_before=available,
+                budget=settings['max_starlight'],all_costs=costs,frame=frame)
+            progress['pending']=pending
+            write_json(progress_path,progress)
+            self.star_pending=(progress_path,pending)
+            self.journal.record('star_selection_intent',**pending,enhance=False)
+            box=star_vision.target_box(boxes[int(choice)])
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('star_mode')=='enter':
+            data=data_directory(ROOT)
+            settings=read_json(data/'user-mirror-settings.json')
+            progress_path=data/'star-selection-progress.json'
+            progress=read_json(progress_path)
+            graces=settings.get('graces')
+            if (not isinstance(graces,list) or not graces
+                or any(not isinstance(g,str) or len(g)!=1 or g not in '0123456789' for g in graces)
+                or len(set(graces))!=len(graces)
+                or settings.get('enhance') is not False or progress.get('pending') is not None
+                or progress.get('entry_pending') or progress.get('selected')!=settings.get('graces')):
+                return None
+            boxes=star_vision.grid(argv.image)
+            if boxes is None:return None
+            costs=[self.read_number(context,argv.image,star_vision.cost_roi(boxes[int(g)]))
+                   for g in settings['graces']]
+            available=self.read_number(context,argv.image,(1515,45,54,40))
+            if (any(c is None or c<=0 for c in costs) or type(settings.get('max_starlight')) is not int
+                or sum(costs)>settings['max_starlight'] or available!=progress.get('available_after')):
+                return None
+            matches=find(records,self.locale['enter'],(.88,.89,.99,.98),
+                         (argv.image.shape[1],argv.image.shape[0]),.85)
+            if len(matches)!=1:return None
+            progress['entry_pending']=dict(frame=frame,choices=settings['graces'],cost=sum(costs))
+            write_json(progress_path,progress)
+            self.journal.record('star_entry_intent',**progress['entry_pending'],enhance=False,
+                                verified_clear=False)
+            box,delay=inset_box(matches[0].box),random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('star_mode') in ('disable_conversion','confirm'):
+            data=data_directory(ROOT)
+            settings=read_json(data/'user-mirror-settings.json')
+            progress=read_json(data/'star-selection-progress.json')
+            if (settings.get('convert_remaining_starlight') is not False
+                or progress.get('pending') is not None or not progress.get('entry_pending')
+                or progress.get('selected')!=settings.get('graces')
+                or progress.get('confirmation_pending')):return None
+            confirming=params['star_mode']=='confirm'
+            template='navigation/star-convert-unchecked.png' if confirming else 'navigation/star-convert-checked.png'
+            detail=context.run_recognition_direct(JRecognitionType.TemplateMatch,
+                JTemplateMatch(template=[template],roi=(1065,523,49,49),
+                               threshold=[.95]),argv.image)
+            if detail is None or not detail.hit or len(detail.filtered_results)!=1:return None
+            b=detail.filtered_results[0].box
+            box=inset_box((b.x,b.y,b.w,b.h) if hasattr(b,'x') else tuple(b))
+            if confirming:
+                remaining=self.read_number(context,argv.image,(1063,459,46,45))
+                converted=self.read_number(context,argv.image,(1318,459,66,45))
+                if remaining!=progress.get('available_after') or converted!=0:return None
+                matches=find(records,self.locale['gift_confirm'],(.51,.71,.65,.77),
+                    (argv.image.shape[1],argv.image.shape[0]),.85)
+                if len(matches)!=1:return None
+                if progress['entry_pending']['cost']>settings['max_starlight']:return None
+                box=inset_box(matches[0].box)
+                progress['confirmation_pending']=dict(frame=frame,remaining=remaining,converted=converted)
+                write_json(data/'star-selection-progress.json',progress)
+                self.journal.record('star_confirmation_intent',**progress['confirmation_pending'],
+                    choices=progress['selected'],cost=progress['entry_pending']['cost'],verified_clear=False)
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            if not confirming:self.journal.record('star_conversion_disable_intent',frame=frame,verified_clear=False)
+        elif params.get('tutorial_back') or params.get('team_library_back'):
+            if params.get('team_library_back') and scene!='TEAM_LIBRARY':
+                return None
+            if argv.image.shape[1:] != (1920,3):
+                return None
+            template=('navigation/team-library-back.png' if params.get('team_library_back')
+                      else 'navigation/tutorial-back.png')
+            detail=context.run_recognition_direct(JRecognitionType.TemplateMatch,
+                JTemplateMatch(template=[template],roi=(75,25,135,95),
+                               threshold=[.92]),argv.image)
+            if detail is None or not detail.hit or len(detail.filtered_results)!=1:
+                return None
+            b=detail.filtered_results[0].box
+            box=inset_box((b.x,b.y,b.w,b.h) if hasattr(b,'x') else tuple(b))
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif params.get('battle_mode')=='plan_once':
+            if context.tasker.controller.info.get('type')=='adb':
+                self.journal.record('battle_planning_blocked',frame=frame,
+                    reason='Windows P key is not an Android keycode; verified touch control required',verified_clear=False)
+                return None
+            if self.battle_before is not None:return None
+            self.battle_before=hashlib.sha256(argv.image.tobytes()).hexdigest()
+            box,delay=(0,0,1,1),random.randint(180,480)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            self.journal.record('battle_plan_requested',frame=frame,key=80,
+                scope='Lix P selection through Maa ClickKey; no Enter or EGO input',verified_clear=False)
+        elif params.get('deployment_mode'):
+            if self.team is None:return None
+            size=(argv.image.shape[1],argv.image.shape[0])
+            state=observe_deployment(records,size)
+            if self.deployment_pending:
+                previous,target=self.deployment_pending
+                if state is None or state.selected!=previous.selected+1 or state.capacity!=previous.capacity or state.order!=previous.order+(target,):
+                    self.journal.record('deployment_transition_unconfirmed',frame=frame,
+                        expected_sinner=target,expected_count=previous.selected+1,verified_clear=False)
+                    return None
+                self.deployment_pending=None
+                self.journal.record('deployment_click_verified',frame=frame,sinner=target,
+                    count=state.selected,order=state.order,scope='count and local OCR ordinal badges; not live identity proof')
+            decision,sinner=next_sinner(state,self.team)
+            if decision=='stop':
+                self.journal.record('deployment_blocked',frame=frame,
+                    reason='missing_or_mismatched_counter_badges_saved_order',verified_clear=False)
+            mode=params['deployment_mode']
+            if mode=='complete':
+                if decision!='complete':return None
+                box,delay=(0,0,1,1),0
+            elif mode=='next':
+                if decision!='select':return None
+                self.deployment_pending=(state,sinner)
+                box,delay=target_box(sinner,size),random.randint(180,480)
+                context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+                self.journal.record('deployment_click_planned',frame=frame,sinner=sinner,
+                    count=state.selected,capacity=state.capacity,target=box,verified_clear=False)
+            else:raise ValueError('Unknown deployment mode')
+        elif params.get('theme_mode'):
+            catalog=self.theme_catalog()
+            difficulty=theme_page(argv.image,catalog,records,self.locale)
+            if params['theme_mode']=='enable_hard':
+                if difficulty!='normal':return None
+                size=(argv.image.shape[1],argv.image.shape[0])
+                if not find(records,r'^SELECT\s*FLOOR\s*1\s*THEME\s*PACK$',(.38,.13,.63,.20),size,.85):return None
+                matches=catalog.matches(argv.image,'normal_mode',(.61,0,.83,.13))
+                if len(matches)!=1:return None
+                path=data_directory(ROOT)/'difficulty-switch-progress.json'
+                progress=read_json(path) if path.exists() else {}
+                if progress.get('pending'):raise ValueError('Difficulty switch result unverified; do not repeat')
+                progress['pending']=dict(before='normal',requested='hard',frame=str(self.journal.directory/(frame+'.png')))
+                write_json(path,progress)
+                self.journal.record('difficulty_switch_intent',**progress['pending'],verified_clear=False)
+                x,y,w,h=matches[0];scale=argv.image.shape[1]/1920
+                box=(x+round(110*scale),y+round(13*scale),round(40*scale),round(24*scale))
+                delay=random.randint(350,750)
+                context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            elif params['theme_mode']=='normal':
+                if difficulty!='normal':return None
+                box,delay=(0,0,1,1),0
+            elif params['theme_mode']=='recommend':
+                if difficulty!='hard' or self.team is None:return None
+                candidates=pack_candidates(argv.image,records,catalog)
+                target,ranking=recommend_pack(candidates,self.team)
+                self.journal.record('theme_pack_ranking',frame=frame,team_slot=self.team.slot,
+                    difficulty=difficulty,ranking=ranking,candidates=[dict(name=c.name,box=c.box,new=c.new) for c in candidates],
+                    selected=False,refreshed=False,verified_clear=False)
+                if target is None:return None
+                x,y,w,h=target['box'];scale=argv.image.shape[1]/1280
+                # Start inside the card away from the magnifier; never click details.
+                begin=[x+round(.42*w),y+round(75*scale),max(1,round(.16*w)),max(1,round(12*scale))]
+                end=[begin[0],begin[1]+round(400*scale),begin[2],begin[3]]
+                if end[1]+end[3]>argv.image.shape[0]:return None
+                context.override_pipeline({argv.node_name:dict(begin=begin,end=end,duration=random.randint(480,680))})
+                box,delay=tuple(begin),random.randint(180,480)
+                context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            else:raise ValueError('Unknown theme recognition mode')
+        elif params.get('gift_mode') == 'recommend':
+            if scene != 'FLOOR_GIFTS' or self.team is None:
+                return None
+            if self.gifts is None:
+                self.gifts = GiftCatalog(ROOT/'assets/resource/base')
+            candidates = floor_candidates(argv.image,records,self.locale,self.gifts)
+            target,ranking = recommend(candidates,self.team)
+            self.journal.record('floor_gift_ranking',frame=frame,team_slot=self.team.slot,
+                ranking=ranking,candidates=[{'name':c.gift.name,'owned':c.gift.owned,
+                    'box':c.box,'evidence':c.evidence} for c in candidates],
+                selected=False,reward_received=False)
+            if target is None:
+                return None
+            box,delay = target.box,random.randint(180,480)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+        elif mode:
+            if self.team is None:
+                return None
+            size = (argv.image.shape[1], argv.image.shape[0])
+            row = team_row(records, self.team, self.locale_name, size)
+            header = team_header(records, self.team, self.locale_name, size)
+            if mode == 'verified':
+                if header is None or row is None:
+                    return None
+                box = inset_box(header.box)
+            elif mode == 'confirm':
+                if scene!='DUNGEON_TEAM' or header is None or row is None:
+                    return None
+                matches=find(records,self.locale['gift_confirm'],(.82,.76,.96,.88),size,.85)
+                if len(matches)!=1:return None
+                box=inset_box(matches[0].box)
+            elif mode == 'level_warning':
+                if scene!='LEVEL_WARNING' or header is None or row is None:return None
+                matches=find(records,self.locale['gift_confirm'],(.53,.64,.68,.72),size,.85)
+                if len(matches)!=1:return None
+                box=inset_box(matches[0].box)
+            elif mode == 'row':
+                if row is None or header is not None:
+                    return None
+                box = inset_box(row.box)
+            elif mode == 'scroll':
+                if row is not None or self.scroll_count >= 8:
+                    return None
+                # Stop a stuck/bottom-of-list scrollbar after one unchanged page.
+                digest = hashlib.sha256(json.dumps([(r.text,r.box) for r in records
+                    if r.box[0] < .19*size[0]], sort_keys=True).encode()).hexdigest()
+                if digest == self.scroll_hash:
+                    return None
+                self.scroll_hash = digest
+                self.scroll_count += 1
+                w,h = size
+                start = [round(.10*w), round(.70*h), 4, 4]
+                end = [round(.10*w), round(.34*h), 4, 4]
+                context.override_pipeline({argv.node_name: {'begin': start, 'end': end,
+                                                            'duration': random.randint(420,620)}})
+                box = tuple(start)
+            else:
+                raise ValueError('Unknown saved-team recognition mode')
+            delay = random.randint(180,480)
+            context.override_pipeline({argv.node_name: {'pre_delay': delay}})
+        elif params.get('battle_mode')=='start_turn':
+            # Submit the assigned turn: the battle's own `START` action. No skill or
+            # target is chosen here; the page must already be an assigned battle.
+            if scene!='BATTLE_HUD':return None
+            size=(argv.image.shape[1],argv.image.shape[0])
+            plan=begin_turn_plan(records,size,argv.image)
+            if plan['target'] is None:
+                self.journal.record('battle_turn_blocked',frame=frame,scene=scene,
+                                    reason=plan['reason'],verified_clear=False)
+                return None
+            box=inset_box(plan['target'],.2)
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            self.journal.record('battle_turn_intent',frame=frame,scene=scene,
+                                wave=plan['wave'],turn=plan['turn'],box=box,
+                                delay_ms=delay,victory_verified=False,verified_clear=False)
+        elif params.get('battle_mode')=='win_rate':
+            # Android touch equivalent of the upstream win-rate step: one bounded
+            # tap on the battle's own Win Rate button. Skill slots, targets and the
+            # turn are not touched here.
+            if scene!='BATTLE_HUD':return None
+            size=(argv.image.shape[1],argv.image.shape[0])
+            plan=auto_assign_plan(records,size)
+            if plan['target'] is None:
+                self.journal.record('battle_auto_assign_blocked',frame=frame,scene=scene,
+                                    reason=plan['reason'],verified_clear=False)
+                return None
+            box=inset_box(plan['target'],.2)
+            delay=random.randint(350,750)
+            context.override_pipeline({argv.node_name:{'pre_delay':delay}})
+            self.journal.record('battle_auto_assign_intent',frame=frame,scene=scene,
+                                wave=plan['wave'],turn=plan['turn'],box=box,
+                                damage_box=plan['damage'],delay_ms=delay,
+                                verified_clear=False)
+        elif 'token' in params:
+            matches = find(records, self.locale[params['token']], params['roi'],
+                           (argv.image.shape[1], argv.image.shape[0]))
+            if not matches:
+                # A token miss used to be silent, and the window answered it by
+                # repeating the same plan until `the_same_plan_repeated` stopped the
+                # run (live evidence/runtime/packaged-mirror-20261021-210328: the page
+                # was DRIVE, the OCR read the card as "Dungeons", and this branch
+                # returned nothing). Record what the ROI did contain, so the next
+                # frame says which word the reader missed instead of only that it did.
+                self.journal.record('mirror_menu_token_miss', token=params['token'],
+                                    roi=params['roi'],
+                                    seen=[t.text for t in records
+                                          if in_roi(t, params['roi'],
+                                                          (argv.image.shape[1],
+                                                           argv.image.shape[0]))][:8])
+                return None
+            # A card label is sometimes read as two stacked rows ('Mirror' /
+            # 'Dungeons'), which used to read as "not one match" and leave the node
+            # with no click box at all -- the DRIVE page then repeated the same
+            # plan until the loop gave up (`the_same_plan_repeated`, live
+            # evidence/runtime/packaged-mirror-20261021-210039). Rows that sit
+            # within one card band are joined instead; anything further away is a
+            # different card and is left alone.
+            box = inset_box(self.card_box([m.box for m in matches]))
+            # Maa performs the click; random delay is an explicit bounded node override.
+            delay = random.randint(180, 480)
+            context.override_pipeline({argv.node_name: {'pre_delay': delay}})
+        else:
+            box, delay = (0, 0, 1, 1), 0
+        if delay and self.input_validator is not None:
+            self.input_validator()
+        result = {'scene': scene, 'frame': frame, 'target': box, 'pre_delay_ms': delay}
+        self.journal.record('recognized', node=argv.node_name, **result)
+        return CustomRecognition.AnalyzeResult(box, result)
+
+    def read_number(self,context,image,roi):
+        # A crop may carry up to two leading glyphs beside the digits (the 2026-10
+        # starlight badge draws its icon inside the box); the digits are the number.
+        detail=context.run_recognition_direct(JRecognitionType.OCR,
+            JOCR(roi=roi,only_rec=True,expected=[r'^\D{0,2}\s*\d{1,4}\s*$'],threshold=.85),image)
+        if detail is None or not detail.hit:return None
+        results=[r for r in detail.filtered_results if hasattr(r,'text')]
+        if len(results)!=1:return None
+        digits=re.sub(r'\D','',results[0].text)
+        return int(digits) if digits else None
+
+
+class DifficultyProof(CustomAction):
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        path=data_directory(ROOT)/'difficulty-switch-progress.json'
+        progress=read_json(path)
+        if not progress.get('pending'):return False
+        screencap(context.tasker.controller,timeout=5)
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        difficulty=theme_page(image,self.recognition.theme_catalog(),records,self.recognition.locale)
+        verified=scene=='THEME_PACKS' and difficulty=='hard'
+        self.recognition.journal.record('difficulty_switch_observation',frame=frame,
+            difficulty=difficulty,verified=verified,verified_clear=False)
+        if not verified:return False
+        progress['pending']=None;progress['confirmed']='hard'
+        progress['proof']=str(self.recognition.journal.directory/(frame+'.png'))
+        write_json(path,progress)
+        return True
+
+
+class InitialReceiptProof(CustomAction):
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        path=data_directory(ROOT)/'initial-gift-progress.json'
+        progress=read_json(path);pending=progress.get('receipt_pending')
+        if not pending:return False
+        titles=initial_gifts.proven_titles(progress,ROOT/'evidence/runtime')
+        index=len(progress.get('acknowledged',[]))
+        screencap(context.tasker.controller,timeout=5)
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        name=initial_gifts.receipt_name(records,(image.shape[1],image.shape[0]))
+        verified=(index+1<len(titles) and scene=='GIFT_GET'
+                  and initial_gifts.same_name(name,titles[index+1]))
+        owned=[]
+        if index+1==len(titles) and scene=='GIFT_SEARCH':
+            catalog=self.recognition.gift_catalog()
+            owned=search_owned_names(image,records,catalog)
+            expected=[catalog.text_identity(t) for t in titles]
+            verified=(None not in expected and len(set(expected))==len(titles)
+                      and set(expected)<={g['name'] for g in owned})
+        self.recognition.journal.record('initial_receipt_ack_observation',frame=frame,title=name,
+            previous=pending['title'],owned=owned,verified=verified,verified_clear=False)
+        if not verified:return False
+        progress.setdefault('acknowledged',[]).append(pending['choice'])
+        progress.setdefault('receipt_evidence',[]).append(dict(before=pending['frame'],
+            after=str(self.recognition.journal.directory/(frame+'.png')),title=pending['title']))
+        progress['receipt_pending']=None
+        write_json(path,progress)
+        return True
+
+
+class InitialGiftProof(CustomAction):
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        data=data_directory(ROOT)
+        path=data/'initial-gift-progress.json';progress=read_json(path)
+        pending=progress.get('pending')
+        if pending is None:return False
+        screencap(context.tasker.controller,timeout=5)
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        size=(image.shape[1],image.shape[0])
+        count=initial_gifts.counter(records,size)
+        rows=initial_gifts.selected_rows(image)
+        target=initial_gifts.row_target(records,size,pending['choice'])
+        expected=sorted(progress['selected']+[pending['choice']])
+        verified=(scene=='INITIAL_GIFTS' and count==(pending['count_before']+1,pending['capacity'])
+                  and rows==expected and target is not None and target[1]==pending['title'])
+        self.recognition.journal.record('initial_gift_selection_observation',frame=frame,count=count,
+            rows=rows,title=target[1] if target else None,verified=verified,verified_clear=False)
+        if not verified:return False
+        progress['selected'].append(pending['choice']);progress['pending']=None
+        progress['proof']=str(self.recognition.journal.directory/(frame+'.png'))
+        write_json(path,progress)
+        return True
+
+
+class StarProof(CustomAction):
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        if self.recognition.star_pending is None:return False
+        path,pending=self.recognition.star_pending
+        screencap(context.tasker.controller,timeout=5)
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        available=self.recognition.read_number(context,image,(1515,45,54,40))
+        verified=scene=='STAR_GRACES' and available==pending['available_before']-pending['cost']
+        self.recognition.journal.record('star_selection_observation',choice=pending['choice'],
+            frame=frame,available=available,verified=verified,enhance=False,verified_clear=False)
+        if not verified:return False
+        progress=read_json(path)
+        if progress['pending']!=pending:return False
+        progress['selected'].append(pending['choice'])
+        progress['available_after']=available
+        progress['pending']=None
+        write_json(path,progress)
+        self.recognition.star_pending=None
+        return True
+
+
+class TeamAction(CustomAction):
+    """Configuration/evidence only. Native Pipeline owns every click/swipe."""
+    def __init__(self, recognition):
+        super().__init__()
+        self.recognition = recognition
+
+    def build(self, params, mode):
+        """Set, extend, or file a saved team's keyword build.
+
+        The team-build entry runs without a preceding loadout page, so the slot
+        comes from the node parameter when no team has been selected yet; every
+        mode writes the same profile file as the other preferences. The extra
+        keywords arrive as free text from a ProjectInterface input, so an unknown
+        name is journalled and skipped instead of raised: a typo must not latch
+        the callback closed.
+        """
+        store=ProfileStore(data_directory(ROOT)/'user-team-profiles.json')
+        teams=list(store.load()) if store.path.exists() else []
+        team=self.recognition.team
+        if team is None:
+            slot=int(params.get('slot',1))
+            team=next((t for t in teams if t.slot==slot),Team(slot,frozenset()))
+        index=next((i for i,t in enumerate(teams) if t.slot==team.slot),None)
+        if mode=='save':
+            configured=replace(team,name=str(params.get('name') or team.name))
+        else:
+            wanted=[str(k) for k in params.get('keywords') or [] if str(k)]
+            known=[k for k in wanted if k in KEYWORDS]
+            if len(known)!=len(wanted):
+                self.recognition.journal.record('team_keywords_rejected',slot=team.slot,
+                                                rejected=sorted(set(wanted)-set(known)))
+            keywords=set(known) if mode=='keywords' else set(team.keywords)|set(known)
+            configured=replace(team,keywords=frozenset(keywords))
+        if index is None:teams.append(configured)
+        else:teams[index]=configured
+        store.save(teams)
+        self.recognition.team=configured
+        self.recognition.journal.record('team_build_saved' if mode=='save' else 'team_preferences_saved',
+            slot=configured.slot,name=configured.name,keywords=sorted(configured.keywords),field=mode)
+        return True
+
+    @guarded_callback(False)
+    def run(self, context, argv):
+        params = json.loads(argv.custom_action_param or '{}')
+        mode=params.get('mode')
+        if mode in ('keywords','keywords_add','save'):
+            return self.build(params,mode)
+        if mode in ('name','pack','weight','deployment','deployment_slot','deployment_commit'):
+            team=self.recognition.team
+            if team is None:return False
+            if mode=='pack':
+                pack=params.get('name','')
+                if pack and pack not in self.recognition.theme_catalog().names:
+                    raise ValueError('Unknown theme preference')
+                self.recognition.pending_pack=pack
+                return True
+            if mode=='name':configured=replace(team,name=str(params.get('name',team.name)))
+            elif mode in ('deployment_slot','deployment_commit'):
+                if self.recognition.deployment_draft is None:return True
+                if mode=='deployment_slot':
+                    self.recognition.deployment_draft.choose(params.get('position'),params.get('sinner'))
+                    return True
+                configured=replace(team,deployment=self.recognition.deployment_draft.finish())
+            elif mode=='deployment':
+                preset=params.get('preset','saved')
+                self.recognition.deployment_draft=None
+                if preset=='custom':
+                    self.recognition.deployment_draft=DeploymentDraft()
+                    return True
+                if preset=='saved':
+                    if not team.deployment:
+                        self.recognition.journal.record('deployment_blocked',reason='saved_order_not_configured',verified_clear=False)
+                    return bool(team.deployment)
+                if preset!='natural':raise ValueError('Unknown deployment preset')
+                configured=replace(team,deployment=SINNERS)
+            else:
+                if not self.recognition.pending_pack:return True
+                weights=dict(team.pack_weights);weights[self.recognition.pending_pack]=params['weight']
+                configured=replace(team,pack_weights=tuple(weights.items()))
+            store=ProfileStore(data_directory(ROOT)/'user-team-profiles.json')
+            teams=list(store.load())
+            index=next(i for i,t in enumerate(teams) if t.slot==team.slot)
+            teams[index]=configured;store.save(teams)
+            self.recognition.team=configured
+            if mode=='deployment_commit':self.recognition.deployment_draft=None
+            self.recognition.journal.record('team_preferences_saved',slot=team.slot,field=mode)
+            return True
+        if params.get('mode') == 'configure':
+            slot = int(params.get('slot',1))
+            store=ProfileStore(data_directory(ROOT)/'user-team-profiles.json')
+            teams=list(store.load()) if store.path.exists() else []
+            existing=next((t for t in teams if t.slot==slot),Team(slot,frozenset()))
+            configured=replace(existing,name=str(params.get('name',existing.name)))
+            index=next((i for i,t in enumerate(teams) if t.slot==slot),None)
+            if index is None: teams.append(configured)
+            else: teams[index]=configured
+            store.save(teams)
+            self.recognition.team = configured
+            self.recognition.scroll_count, self.recognition.scroll_hash = 0, None
+            self.recognition.pending_pack=''
+            self.recognition.deployment_pending=None
+            self.recognition.deployment_draft=None
+            self.recognition.journal.record('team_target', slot=slot, name=self.recognition.team.name)
+            return True
+        if mode!='verified':
+            raise ValueError('Unknown saved-team action mode')
+        # Take a new observation after selection, rather than trusting an old OCR box.
+        try:
+            screencap(context.tasker.controller,timeout=5)
+        except (TimeoutError,RuntimeError):
+            return False
+        image = context.tasker.controller.cached_image
+        records, scene, frame = self.recognition.observe(context,image)
+        team = self.recognition.team
+        if (scene != params.get('scene','TEAM_LIBRARY') or team is None
+            or team_header(records,team,self.recognition.locale_name,(image.shape[1],image.shape[0])) is None
+            or team_row(records,team,self.recognition.locale_name,(image.shape[1],image.shape[0])) is None):
+            return False
+        self.recognition.journal.record('team_selected', slot=team.slot, name=team.name,
+            frame=frame, scene=scene, scope='Saved team header and row verified; no battle deployment or clear assertion')
+        return True
+
+
+class ThemeObservation(CustomAction):
+    """Retain a fresh post-drag frame; no speculative map/selection success."""
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        # A read that does not say how long it took cannot be decomposed.  D66 measured
+        # 2.45 s per read from the journal's gaps, which cannot say whether that is the
+        # node's screencap+OCR or the wrapper around it, so every observation writer now
+        # carries its own elapsed seconds (D68; the fields are compared by
+        # tests/test_read_cost.py::test_every_observation_writer_times_itself).
+        started=time.monotonic()
+        try:
+            screencap(context.tasker.controller,timeout=5)
+        except (TimeoutError,RuntimeError):return False
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        size=(image.shape[1],image.shape[0])
+        # Read where the party stands with every map frame.  Until this existed the
+        # journal never carried a position, so the click verdict could only compare
+        # against a value written *after* a click and `the_party_moved_after_the_click`
+        # could not fire in 5384 recorded observations.
+        party=None
+        if scene=='MAP':
+            # A reader that throws must leave a name behind.  Returning None silently made
+            # "no party on this board" and "the reader crashed" the same observation, and
+            # three rounds of diagnosis were spent on the wrong layer because of it
+            # (goal mandate: a failure may never be silently absorbed).
+            try:
+                party=party_point(image)
+            except Exception as error:
+                self.recognition.journal.record('map_party_failed',
+                    error_type=type(error).__name__, error=str(error)[:200],
+                    shape=list(getattr(image,'shape',())))
+                party=None
+        header=map_header(records,size) if scene=='MAP' else None
+        # The pack line must equal the pack this run planned; any other name keeps
+        # the selection unproven instead of borrowing an unrelated page as proof.
+        status='not_applicable'
+        if header is not None:
+            status=('verified' if header.pack==self.recognition.pending_pack
+                    else 'header_pack_differs_from_pending')
+        self.recognition.journal.record('theme_map_postcondition',frame=frame,scene=scene,
+            floor=None if header is None else header.floor,
+            pack=None if header is None else header.pack,
+            pending_pack=self.recognition.pending_pack,status=status,
+            selected=status=='verified',verified_clear=False,
+            reason=('pack_drag_selection_substantiated_by_fresh_floor_header'
+                    if status=='verified' else
+                    ('fresh_map_header_names_a_different_pack' if header is not None else
+                     'fresh_post_drag_frame_is_not_an_identified_map_page')))
+        if header is not None:
+            self.recognition.journal.record('map_observed',frame=frame,floor=header.floor,
+                pack=header.pack,route=route_decision(header,size),
+                image_sha256=frame_identity(getattr(self.recognition.journal,'directory',None),frame),
+                **self.recognition.timing_fields(),
+                # This writer sees a fresh map page before the main observation does. It used
+                # to hard-code None, and because it is the writer that actually runs on a map
+                # page, every one of 235 events in
+                # evidence/runtime/packaged-mirror-20261023-161759 carried None even though the
+                # same frames read (702,316) and then (828,440) offline -- i.e. the party had
+                # moved and the field said nothing. Read it here instead of assuming.
+                map_player=(party_point(image) if scene == 'MAP' else None),
+                seconds=round(time.monotonic()-started,2),
+                scope='header identity and bounded route refusal; no node identity or input')
+        return True
+
+
+class DeploymentProof(CustomAction):
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        try:screencap(context.tasker.controller,timeout=5)
+        except (TimeoutError,RuntimeError):return False
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        team=self.recognition.team
+        state=observe_deployment(records,(image.shape[1],image.shape[0]))
+        if scene!='DEPLOYMENT' or team is None or self.recognition.deployment_pending or next_sinner(state,team)[0]!='complete':return False
+        self.recognition.journal.record('deployment_order_observed',frame=frame,team_slot=team.slot,
+            order=state.order,count=state.selected,capacity=state.capacity,
+            battle_started=False,verified_clear=False,scope='local OCR order badges and count; experimental grid geometry, no live proof')
+        return True
+
+
+class BattlePlanObservation(CustomAction):
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        try:screencap(context.tasker.controller,timeout=5)
+        except (TimeoutError,RuntimeError):return False
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        changed=hashlib.sha256(image.tobytes()).hexdigest()!=self.recognition.battle_before
+        self.recognition.journal.record('battle_plan_observed',frame=frame,scene=scene,
+            frame_changed=changed,labels=preview_labels(records,(image.shape[1],image.shape[0])),
+            plan_verified=False,clash_coverage_verified=False,            victory_verified=False,verified_clear=False,
+            reason='fresh_frame_only_clash_assignment_EGO_survival_and_turn_submission_pending')
+        return True
+
+
+class MapObservation(CustomAction):
+    """Read-only map identity check: records the page and sends no input."""
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        started=time.monotonic()
+        try:
+            controller=context.tasker.controller
+            screencap(controller,timeout=5)
+        except (TimeoutError,RuntimeError):return False
+        image=controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        size=(image.shape[1],image.shape[0])
+        party=party_point(image) if scene=='MAP' else None
+        header=map_header(records,size) if scene=='MAP' else None
+        panel=node_panel(records,size) if scene=='NODE_PANEL' else None
+        team=pre_battle_team_page(records,size) if scene=='PRE_BATTLE_TEAM' else None
+        self.recognition.journal.record('map_observed',frame=frame,scene=scene,
+            seconds=round(time.monotonic()-started,2),
+            image_sha256=frame_identity(getattr(self.recognition.journal,'directory',None),frame),
+            **self.recognition.timing_fields(),
+            floor=None if header is None else header.floor,
+            pack=None if header is None else header.pack,
+            header_box=None if header is None else header.exploring_text.box,
+            pack_box=None if header is None else header.pack_text.box,
+            panel_title=None if panel is None else panel.title,
+            panel_enter_box=None if panel is None else panel.enter.box,
+            panel_clear_rewards=None if panel is None or panel.clear_rewards is None
+            else panel.clear_rewards.box,
+            panel_cost_texts=None if panel is None else list(panel.cost_texts),
+            # Own the value from this callback's actual image. A locals guard
+            # without any assignment silently serialized None on every MAP.
+            map_player=None if party is None else list(party),
+            battle_box=None if team is None else team.battle.box,
+            clear_selection_box=None if team is None else team.clear_selection.box,
+            participant_texts=None if team is None else list(team.participants),
+            route=route_decision(header,size),
+            input_sent=False,verified_clear=False,
+            scope='fresh page identity and bounded route refusal; no node input')
+        return header is not None or panel is not None or team is not None
+
+
+class BattleObservation(CustomAction):
+    """Read-only battle page recorder: identity, controls and frame change only."""
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        started=time.monotonic()
+        try:
+            screencap(context.tasker.controller,timeout=5)
+        except (TimeoutError,RuntimeError):return False
+        image=context.tasker.controller.cached_image
+        records,scene,frame=self.recognition.observe(context,image)
+        size=(image.shape[1],image.shape[0])
+        digest=hashlib.sha256(image.tobytes()).hexdigest()
+        changed=digest!=self.recognition.battle_before
+        self.recognition.battle_before=digest
+        hud=battle_hud(records,size)
+        buttons=auto_assign_buttons(records,size)
+        begin=start_button(records,size,image)
+        self.recognition.journal.record('battle_observed',frame=frame,scene=scene,
+            **({'battle_detail': self.recognition.last_battle_detail}
+               if getattr(self.recognition, 'last_battle_detail', None) else {}),
+            seconds=round(time.monotonic()-started,2),
+            turn_signature=turn_signature(image) if hud is not None else None,
+            **self.recognition.timing_fields(),
+            frame_changed=changed,wave=None if hud is None else hud['wave'],
+            turn=None if hud is None else hud['turn'],
+            diagnostics=[] if hud is None else hud['diagnostics'],
+            auto_assign_buttons=None if buttons is None else
+                {'win_rate':list(buttons['win_rate']),'damage':list(buttons['damage'])},
+            start_box=None if begin is None else list(begin),
+            verified_clear=False,
+            scope='page identity, HUD counters and battle controls; no input')
+        return hud is not None
+
+
+class InputPreflight(CustomAction):
+    def __init__(self,recognition):
+        super().__init__(); self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        # Game bitmaps are supplied locally, never shipped. A recogniser whose templates
+        # are absent matches nothing and the run would stall on the first page that needs
+        # one, so name the missing groups before any input is sent.
+        from maalimbus import local_assets
+        absent=local_assets.describe(local_assets.inventory(ROOT))
+        if absent:
+            self.recognition.journal.record('preflight_failed',reason='local_game_assets_missing',
+                groups=absent,guide=local_assets.GUIDE)
+            print('MaaLimbus: local game assets are not installed: '+'; '.join(absent)
+                  +'. See '+local_assets.GUIDE,flush=True)
+            return False
+        try:
+            lease=ControllerLease.acquire(ROOT/'build/controller.lock')
+        except OSError:
+            self.recognition.journal.record('preflight_failed',reason='another_controller_owns_game')
+            return False
+        info=dict(context.tasker.controller.info)
+        helpers=input_helpers.report(ROOT)
+        self.recognition.journal.record('input_helpers', **helpers)
+        missing=input_helpers.warning(helpers)
+        if missing:
+            # The fallback is otherwise silent: MaaFramework reports the click as
+            # succeeded while the game ignores it, so the run looks healthy and stops on
+            # the first page that does not move. Name it once, before any input is sent.
+            self.recognition.journal.record('input_helpers_missing', reason=missing)
+            print('MaaLimbus: '+missing, flush=True)
+        if info.get('type')=='adb':
+            try:
+                # Retain device identity, not the callback Context or a borrowed
+                # native handle. Every call still checks the actual foreground.
+                self.recognition.input_validator=lambda:controller_foreground(info)
+                identity=self.recognition.input_validator()
+            except Exception as error:
+                self.recognition.journal.record('preflight_failed',reason=str(error))
+                lease.close();return False
+            self.recognition.journal.record('preflight_passed',controller='adb',foreground=identity,
+                address=info['adb_serial'])
+            return True
+        if info.get('type')!='win32':
+            self.recognition.journal.record('preflight_failed',reason='unsupported_actual_controller_binding')
+            lease.close();return False
+        windows=[w for w in Toolkit.find_desktop_windows()
+                 if w.window_name=='LimbusCompany' and w.class_name=='UnityWndClass']
+        if len(windows)!=1:
+            self.recognition.journal.record('preflight_failed',reason='game_window_not_unique')
+            lease.close()
+            return False
+        try:
+            identity=check_window(windows[0].hwnd)
+        except InputPermissionError as error:
+            self.recognition.journal.record('preflight_failed',reason='windows_integrity_mismatch',**error.identity)
+            lease.close()
+            return False
+        self.recognition.input_validator=lambda:check_window(windows[0].hwnd)
+        self.recognition.journal.record('preflight_passed',**identity)
+        return True
+
+
+class LimbusTerminal(CustomAction):
+    def __init__(self, recognition):
+        super().__init__()
+        self.recognition = recognition
+
+    @guarded_callback(False)
+    def run(self, context, argv):
+        params = json.loads(argv.custom_action_param or '{}')
+        self.recognition.journal.record('terminal', reason=params['reason'],
+                                       last_scene=self.recognition.last_scene,
+                                       verified_clear=False)
+        return False
+
+
+# ------------------------------------------------------------------ the whole run
+
+
+#: The environment variable that aims one run's evidence at a known directory.
+LOOP_DIR_ENV = 'MAALIMBUS_RUN_DIR'
+#: Every runner setting can also be overridden as ``MAALIMBUS_LOOP_<SETTING>``.
+LOOP_ENV_PREFIX = 'MAALIMBUS_LOOP_'
+#: A whole run's own wall clock. A node's ``timeout`` is the timeout of its ``next``
+#: list, not of a custom action, so the run has to bound itself.
+LOOP_BUDGET_SECONDS = 5400.0
+#: This action's defaults on top of the runner's: the CLI defaults describe one
+#: one-shot window, while this node drives the whole dungeon and its run ledger.
+LOOP_DEFAULTS = {'steps': 400, 'run_store': 'config/user-run-ledger.json', 'grace_budget': 0}
+#: Node parameters that are not runner settings.
+LOOP_EXTRA_PARAMS = ('directory', 'budget')
+
+
+def loop_flag(raw):
+    """An environment string as the boolean it means."""
+    return str(raw).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def loop_environment():
+    """Read every ``MAALIMBUS_LOOP_<SETTING>`` override, typed like its default.
+
+    The CLI cannot pass a node's ``custom_action_param``, so the environment is how a
+    live run is aimed without a second controller or an edit to the pipeline.
+    """
+    chosen = {}
+    for name, default in runner.settings().as_dict().items():
+        raw = os.environ.get(LOOP_ENV_PREFIX + name.upper())
+        if raw is None:
+            continue
+        if isinstance(default, bool):
+            chosen[name] = loop_flag(raw)
+        elif isinstance(default, int):
+            chosen[name] = int(raw)
+        elif isinstance(default, float):
+            chosen[name] = float(raw)
+        else:
+            chosen[name] = raw or None
+    return chosen
+
+
+def loop_parameters(params):
+    """One run's settings, and the parameters that were not settings.
+
+    Precedence: the CLI defaults, this action's whole-run defaults, the environment,
+    then the node's own ``custom_action_param``. A parameter the runner does not know
+    is reported rather than silently kept, so a typo shows up in the run journal.
+    """
+    known = set(runner.settings().as_dict())
+    chosen = dict(LOOP_DEFAULTS)
+    launch_path = data_directory(ROOT)/'user-launch.json'
+    if launch_path.exists():
+        saved_launch = read_json(launch_path)
+        chosen.update({key: saved_launch[key] for key in
+                       ('graces','grace_budget','gift_keyword','gift_search','battle_assignment',
+                        'shop_policy','shop_refreshes','shop_reserve_coins','shop_skill_mode') if key in saved_launch})
+    chosen.update(loop_environment())
+    chosen.update({key: value for key, value in params.items() if key in known})
+    from maalimbus.shop_settings import resolve_shop_settings,FIELDS
+    shops=resolve_shop_settings({key:chosen[key] for key in FIELDS if key in chosen},{})
+    chosen.update({key:shops[key] for key in FIELDS})
+    ignored = sorted(set(params) - known - set(LOOP_EXTRA_PARAMS))
+    return runner.settings(chosen), ignored
+
+
+def loop_budget(params):
+    """How long the run may take, in seconds."""
+    raw = params.get('budget')
+    if raw is None:
+        raw = os.environ.get(LOOP_ENV_PREFIX + 'BUDGET')
+    return LOOP_BUDGET_SECONDS if raw is None else max(1.0, float(raw))
+
+
+def loop_directory(params):
+    """Where one run's evidence goes: the node, the environment, then a fresh stamp."""
+    chosen = params.get('directory') or os.environ.get(LOOP_DIR_ENV)
+    if chosen:
+        directory = Path(chosen)
+        if not directory.is_absolute():
+            directory = ROOT / directory
+    else:
+        stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+        directory = ROOT / 'evidence/runtime' / ('pi-' + stamp)
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
+
+
+def loop_store(settings, journal):
+    """Open the evidence ledger or stop before any game input on invalid state."""
+    path = settings.run_store
+    if not path or settings.observe_only:
+        return None, None
+    ledger = ledger_path(path, ROOT)
+    try:
+        existing = read_json(ledger) if ledger.exists() else None
+        slots = existing['team_slots'] if existing else [settings.team]
+        preferences = TaskPreferences(ledger.parent)
+        if preferences.path.exists() and not (existing or {}).get('active'):
+            # A run the game is still holding keeps the team it was started with: a new
+            # preference applies to the next start, never to this one. Reading it anyway
+            # aborted the resume with 'Existing run uses another rotation; do not overwrite
+            # it' -- the ledger's active run is rotation team 1 while
+            # config/user-task-settings.json now asks for single team 2
+            # (dist/MaaLimbus/evidence/runtime/pi-20261015-171658, 0 inputs).
+            slots = preferences.load()['mirror']['teams']
+        store = RunStore(ledger, [SimpleNamespace(slot=slot) for slot in slots])
+        run_id = store.start()
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        journal.record('mirror_loop_store_rejected', path=str(path), error=str(error))
+        raise ValueError('Cannot safely resume the saved run ledger') from error
+    settings.team = store.team_slot
+    return store, run_id
+
+
+def write_loop_result(directory, result):
+    """Write one run's summary next to its evidence and return the path."""
+    path = Path(directory) / 'agent-result.json'
+    from maalimbus.evidence_capacity import EvidenceCapacity
+    capacity = EvidenceCapacity(ROOT)
+    try:
+        capacity.release_for_result(directory)
+    except (ValueError, OSError) as error:
+        # Unverified credit must remain untouched, but must not hide the original
+        # stop reason when the already-budgeted diagnostic headroom can save it.
+        result = dict(result, evidence_capacity_release_error=str(error))
+    if result.get('reason') in (
+            'evidence_capacity_unavailable_before_input', 'native_input_completion_unproven',
+            'reward_module_budget_pending', 'completed_mirror_run_required',
+            'reward_receipt_without_current_confirmation', 'reward_claim_over_budget'):
+        result = dict(result, user_message=event_log.explain(result['reason']))
+    if path.resolve().is_relative_to(capacity.root):
+        used = workspace.size(capacity.root)
+        result = dict(result, workspace_retention=dict(
+            used_bytes=used, target_bytes=workspace.BUDGET_BYTES,
+            over_target=used > workspace.BUDGET_BYTES))
+        if used > workspace.BUDGET_BYTES:
+            print(f'MaaLimbus 证据维护提醒：项目占用 {used / 1e9:.3f} GB，目标 3 GB。', flush=True)
+    # The same writer the journal and the frame document use (D196): a run's summary is
+    # evidence too, and a field it cannot represent must not cost the file.
+    from maalimbus.documents import write_document
+    write_document(path, result, application_root=ROOT)
+    try:
+        counts='inputs='+str(result.get('clicks_sent',0))
+        if result.get('dispatch_status')=='uncertain':
+            counts=('已记录点击='+str(result.get('clicks_sent',0))+
+                    '; 原生请求尝试='+str(result.get('native_input_attempts'))+'; 状态=未确认')
+        context = event_log.stop_context(result) if not result.get('passed') else ''
+        print('MaaLimbus '+('进度已验证' if result.get('passed') else '已停止')+
+              ': '+str(result.get('user_message') or result.get('reason') or result.get('error') or '原因未记录')+
+              ('；'+context if context else '')+
+              '; '+str(result.get('error') or '')+
+              '; '+counts+'; 证据='+str(path)+'。',flush=True)
+    except (OSError,UnicodeError):
+        # A closed GUI log pipe must not turn recorded gameplay into a failed action.
+        pass
+    return path
+
+
+def write_run_log(directory, result):
+    """Write the human-readable trace of the run beside its machine evidence.
+
+    `agent-result.json` and `events.jsonl` stay the machine record; this file is the
+    one a person reads when the task goes red, so it carries one line per step, the
+    installation's input-helper posture, and the stop reason spelled out. Writing it
+    must never turn a finished run into a failure.
+    """
+    try:
+        helpers = input_helpers.report(ROOT)
+        text = event_log.report(result, extra=[input_helpers.line(helpers),
+                                               input_helpers.warning(helpers),
+                                               event_log.stop_context(result)])
+        path = Path(directory) / 'run.log'
+        path.write_text(text, encoding='utf-8')
+        return path
+    except OSError as error:
+        print('MaaLimbus: run log could not be written: ' + str(error), flush=True)
+        return None
+
+
+class AgentJob:
+    """The job surface ``run_node`` reads, for a node already run to its end.
+
+    ``Context.run_task`` is synchronous, so the job standing for it is never pending:
+    a caller that polls ``done`` sees it finished without waiting for anything.
+    """
+
+    def __init__(self, detail):
+        self.detail = detail
+        self.native_task_id = getattr(detail, 'task_id', None)
+        self.done = True
+        self.succeeded = bool(detail is not None and detail.status.succeeded)
+
+
+class AgentTasker:
+    """A tasker that runs pipeline nodes through ``Context.run_task``.
+
+    ``context.tasker.post_task`` cannot be used from inside a custom action: the
+    framework's task runner is a single worker, so a node posted here queues behind the
+    very task that is waiting for it, and the wait ends in a stop that kills this run.
+    ``Context.run_task`` is the framework's own way to run a node from a callback -- it
+    runs the sub-task synchronously on this thread.
+
+    ``MaaObserver`` reads ``context.tasker`` and calls ``post_task`` on what it finds,
+    so this proxy is both the context the observer is handed and the tasker it drives.
+    """
+
+    input_route = 'context'
+
+    def __init__(self, context, *, journal=None, trace=None):
+        self.context = context
+        self.tasker = self
+        self.entries = []
+        self.journal = journal
+        self.trace = trace
+
+    def post_task(self, entry, pipeline_override=None):
+        # Context.run_task shares node hit counts with its enclosing MirrorTask.
+        # These read-only nodes have max_hit=1 for a single observation; without
+        # resetting only that counter the next observation is skipped forever.
+        owned_drive=(entry=='MirrorDrive' and pipeline_override==
+                     {'MirrorDrive':{'next':[],'on_error':[]}})
+        # Runner's fresh one-action dispatch owns this one hit, not the whole
+        # enclosing MirrorTask. Other input nodes and standalone graphs retain
+        # their hit counts. Scene/intent/pending/successor guards remain upstream.
+        if entry in ('WindowMapObserve', 'WindowBattleObserve') or owned_drive:
+            if not self.context.clear_hit_count(entry):
+                purpose='owned one-action' if owned_drive else 'read-only observation'
+                raise RuntimeError('Maa could not reset the '+purpose+' hit count: '+entry)
+        self.entries.append(entry)
+        from pipeline_trace import TRACKED_NODES
+        started = time.monotonic()
+        job = AgentJob(self.context.run_task(entry, pipeline_override))
+        if self.trace is not None and self.journal is not None and entry in TRACKED_NODES:
+            outcome = self.trace.finish(entry, started, job)
+            try:
+                self.journal.record('native_pipeline_task', **outcome)
+                if not job.succeeded and entry not in ('WindowMapObserve', 'WindowBattleObserve'):
+                    print(f"MaaLimbus 原生动作失败 {entry}，任务 {outcome['task_id']}，"
+                          f"耗时 {outcome['elapsed_ms']} ms。", flush=True)
+            except (OSError, UnicodeError):
+                pass  # Tracing cannot change the framework verdict after dispatch.
+        return job
+
+    def post_stop(self):
+        """Nothing to stop: every node this proxy posts has already finished."""
+        return AgentJob(None)
+
+
+class CaptureProfileProbeAction(CustomAction):
+    """Explicit diagnostic mode: real observer/remote options, never a planner."""
+    def __init__(self,recognition):
+        super().__init__();self.recognition=recognition
+
+    @guarded_callback(False)
+    def run(self,context,argv):
+        from maalimbus.capture_profiles import BattleCaptureObserver
+        params=json.loads(argv.custom_action_param or '{}')
+        count=int(params.get('reads',3))
+        if not 1<=count<=8:raise ValueError('Bounded diagnostic read count required')
+        end=time.monotonic()+min(120,max(1,float(params.get('budget',90))))
+        journal=self.recognition.journal
+        raw=runner.MaaObserver(AgentTasker(context),journal.directory,
+                              failure_provider=lambda:self.recognition.callback_failure)
+        observer=BattleCaptureObserver(raw,context.tasker.controller,note=journal.record)
+        for index in range(count):
+            event=runner.observe(observer,deadline=end)
+            journal.record('capture_profile_probe_read',index=index,
+                           result_record=str(journal.directory/(event['frame']+'.json')),
+                           scene=event['scene'],size=event['size'],image_sha256=event['image_sha256'],
+                           frame_ref=event.get('frame_ref'),
+                           input_sent=False)
+        return True
+
+
+class GlobalSettingsAction(CustomAction):
+    """Persist explicitly edited MXU builds before the loop can send input."""
+    def __init__(self, recognition):
+        super().__init__()
+        self.recognition = recognition
+
+    @guarded_callback(False)
+    def run(self, context, argv):
+        try:
+            return self.apply(context)
+        except (ValueError,KeyError,OSError) as error:
+            result=dict(passed=False,reason='mirror_settings_rejected',error=str(error),
+                        input_sent=False,clicks_sent=0,verified_clear=False)
+            directory=self.recognition.journal.directory
+            self.recognition.journal.record('mirror_settings_rejected',**result)
+            write_loop_result(directory,result)
+            write_run_log(directory,result)
+            return False
+
+    def apply(self, context):
+        """Let MainTask handle expected preparation failures without poisoning callbacks."""
+        directory = data_directory(ROOT)
+        changed = apply_builds(directory, collect_builds(context.get_node_data))
+        choice = collect_mirror_queue(context.get_node_data)
+        if choice is not None:
+            TaskPreferences(directory).set_mirror_queue(*choice)
+            mode,queue=choice
+            print('MaaLimbus 本轮队伍设置：'+('单队 ' if mode=='single' else '依次轮换 ')+
+                  ', '.join('Team'+str(slot) for slot in queue)+'。',flush=True)
+        self.recognition.journal.record('global_build_settings_applied', slots=changed,
+                                        mirror_queue=choice,device_input=False)
+        return True
+
+
+class MirrorLoopAction(CustomAction):
+    """Drive a whole Mirror Dungeon run from inside the task the agent already owns.
+
+    The loop is :mod:`maalimbus.runner` -- the same one ``tools/window_step.py`` drives
+    from the command line -- and this action only supplies the Maa instances the PI
+    gave the agent: the controller as the device, ``context.run_task`` as the tasker the
+    observation nodes run through, and the run directory as the evidence journal. Input
+    leaves through the controller's own ``post_click``/``post_swipe``, because that
+    controller is the process that owns the device.
+
+    The run always reports through the journal: ``mirror_loop_start`` once,
+    ``mirror_loop_stopped`` when the loop returns, whatever its reason, and
+    ``mirror_loop_error`` with a traceback when the wiring or the device failed. The
+    summary the runner returns is written to ``agent-result.json`` in the run directory.
+    """
+
+    def __init__(self, recognition):
+        super().__init__()
+        self.recognition = recognition
+
+    @guarded_callback(False)
+    @workspace.live_writes()
+    def run(self, context, argv):
+        params = json.loads(argv.custom_action_param or '{}')
+        directory = loop_directory(params)
+        settings, ignored = loop_parameters(params)
+        budget = loop_budget(params)
+        deadline = time.monotonic() + budget
+        # The observation nodes journal through the recognition and the loop reads the
+        # run directory, so both halves of one run share one journal.
+        existing=self.recognition.journal
+        journal=(existing if existing is not None and existing.directory.resolve()==directory.resolve()
+                 else Journal(directory))
+        self.recognition.journal = journal
+        result = dict(pid=os.getpid(), address=settings.address, controller='Maa AgentServer',
+                      observe_only=bool(settings.observe_only), steps=[], clicks_sent=0,
+                      verified_clear=False, foreground_before=None)
+        loop = None
+        try:
+            subtasks=AgentTasker(context,journal=journal,
+                                 trace=getattr(self.recognition,'pipeline_trace',None))
+            # Maa5.12.2 RemoteTasker::controller replaces its unique_ptr on
+            # every lookup. Re-reading it invalidates earlier borrowed handles.
+            # Resolve once in this callback, never cache across callbacks.
+            controller = context.tasker.controller
+            device = runner.MaaDevice(controller, deadline=deadline,tasker=subtasks,
+                target_long_side=runner._TARGET_LONG_SIDE, before_input=journal.before_input)
+            observer = runner.MaaObserver(subtasks, directory,
+                failure_provider=lambda:self.recognition.callback_failure)
+            journal.capacity_successor_size=None
+            if 'MAALIMBUS_TARGET_LONG_SIDE' not in os.environ:
+                from maalimbus.capture_profiles import BattleCaptureObserver
+                observer=BattleCaptureObserver(observer,controller,note=journal.record)
+                journal.capacity_successor_size=observer.successor_size
+                result['capture_policy']=dict(mode='qualified_battle_1280_full_fallback',
+                                              full_successor_size=list(observer.successor_size))
+            store, run_id = loop_store(settings, journal)
+            journal.capacity_scope = run_id
+            if store is not None:
+                result['run_ledger'] = dict(path=str(store.path), run=run_id,
+                                            team=store.team_slot,
+                                            rotation=store.data['rotation'])
+            from maalimbus.runtime_paths import data_directory as _data_directory
+            # Which preferences this run actually loaded, so "I changed the config"
+            # and "the run saw it" stop being the same sentence (D282).  The installed
+            # tree resolves its own config/ and never inherits the checkout's.
+            journal.record('mirror_loop_start', directory=str(directory), budget=budget,
+                           deadline=deadline, ignored_params=ignored, run_scope=run_id,
+                           data_directory=str(_data_directory()),
+                           team_profiles=str(getattr(store, 'path', None)),
+                           **settings.as_dict())
+            loop = runner.MirrorRunner(device, settings=settings,
+                locale=self.recognition.locale_name,
+                registry=json.loads(runner.REGISTRY.read_text(encoding='utf-8')),
+                store=store, directory=directory, journal=journal, observer=observer,
+                run_id=run_id, result=result)
+            startup=getattr(self.recognition,'startup_window',None)
+            if (startup and startup['serial']==controller.info.get('adb_serial')):
+                loop.startup_deadline=min(deadline,startup['until'])
+            # A single continuous loop can finish, rotate and enter another scope.
+            # Bind each capacity trace to the current run, not the launch's first.
+            journal.capacity_scope_provider = lambda: loop.run_id
+            # The deployment counter is printed on a small panel that a whole-frame OCR
+            # pass drops (D25); the loop needs the framework's own OCR entry to read the
+            # enlarged crop when that happens.
+            loop.run_recognition_direct=getattr(context,'run_recognition_direct',None)
+            loop.configure(deadline=deadline)
+            # The player counts complete runs, not steps: the loop already stops on its own
+            # completed-run condition (`runner.py:2846`), so a named run count turns the step
+            # window into a safety net -- a five-floor dungeon must not be cut halfway by a
+            # window number the user picked to mean 'three dungeons'.
+            window = 1 if settings.observe_only else int(settings.steps)
+            if not settings.observe_only and int(getattr(settings, 'run_count', 0) or 0) > 0:
+                window = max(window, 4000)
+            result = loop.run(steps=window,
+                              interval=float(settings.interval),
+                              round_limit=1 if settings.observe_only else window,
+                              deadline=deadline)
+        except TimeoutError as error:
+            # This run's own budget, or a device job that outlived its own timeout: a
+            # bounded stop, reported with the record of what already happened.
+            result = loop.summary() if loop is not None else result
+            result['reason'] = 'loop_deadline_exceeded'
+            result['error'] = str(error)
+        except Exception as error:
+            failure=self.recognition.callback_failure
+            error_text=(str(failure.get('error_type'))+': '+str(failure.get('error'))
+                        if failure else str(error))
+            journal.record('mirror_loop_error', error=str(error),
+                           error_type=type(error).__name__,
+                           stop_path='agent_loop',   # D50: an error is an ending too
+                           traceback=traceback.format_exc(),
+                           verified_clear=False)
+            result = loop.summary() if loop is not None else result
+            result.update(passed=False, reason='mirror_loop_failed', error=error_text,
+                          error_type=type(error).__name__)
+            write_loop_result(directory, result)
+            write_run_log(directory, result)
+            return False
+        write_loop_result(directory, result)
+        write_run_log(directory, result)
+        journal.record('mirror_loop_stopped', reason=result.get('reason'),
+                       stop_path='agent_loop',   # D50: the ending names its writer
+                       steps=len(result.get('steps') or []),
+                       clicks_sent=result.get('clicks_sent', 0),
+                       passed=result.get('passed'), directory=str(directory))
+        return bool(result.get('passed'))
+
+
+def _mirror_preflight_stop_detail(config, active):
+    """Report durable intent without assuming that an unstored frame was read."""
+    from maalimbus.shop_transaction import ShopTransaction
+
+    detail = dict(page='镜牢恢复预检', input_status='not_sent')
+    scope = active.get('id')
+    if not isinstance(scope, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,128}',scope):
+        return detail
+    try:
+        shop = ShopTransaction(config/f'user-shop-{scope}.json')
+    except (ValueError,OSError):
+        return detail
+    pending = (shop.data or {}).get('pending') or {}
+    if pending.get('scope')==scope:
+        detail.update(floor=(pending.get('decision_context') or {}).get('floor'),
+                      pending_kind=pending.get('kind'), pending_stage=pending.get('stage'),
+                      item=pending.get('name'), price=pending.get('price'), expected_page='SHOP')
+    return detail
+
+
+class MainTaskAction(CustomAction):
+    """Six task entries, one controller owner and explicit task evidence."""
+    def __init__(self, recognition):
+        super().__init__()
+        self.recognition=recognition
+
+    @guarded_callback(False)
+    @workspace.live_writes()
+    def run(self,context,argv):
+        params=json.loads(argv.custom_action_param or '{}')
+        task=params['task']
+        from maalimbus.task_preferences import TASKS
+        if task not in TASKS:raise ValueError('Unknown main task')
+        directory=loop_directory(params)
+        journal=Journal(directory)
+        self.recognition.journal=journal
+        def reject(reason, error=None, stop_detail=None):
+            result=dict(passed=False,reason=reason,task=task,input_sent=False,clicks_sent=0,verified_clear=False)
+            if error is not None:result['error']=str(error)
+            if stop_detail is not None:result['stop_detail']=stop_detail
+            if reason=='mirror_settings_rejected':
+                result['user_message']=event_log.explain(reason)
+            journal.record('main_task_stopped',**result)
+            write_loop_result(directory,result)
+            write_run_log(directory,result)
+            return False
+        try:
+            lease=ControllerLease.acquire(ROOT/'build/controller.lock')
+        except OSError as error:
+            return reject('another_controller_owns_game',error)
+        try:
+            if task=='open_game':
+                if context.tasker.controller.info.get('type')=='win32':
+                    if not InputPreflight(self.recognition).run(context,argv):
+                        return reject('Actual Windows game identity failed')
+                    result=dict(passed=True,reason='existing_windows_game_verified',input_sent=False)
+                else:
+                    from maalimbus.game_launch import open_game
+                    result=open_game(context.tasker.controller,data_directory(ROOT),journal)
+                    if (result.get('passed') and result.get('input_sent') is True
+                            and result.get('reason')=='game_foreground_after_native_launch'):
+                        self.recognition.startup_window=dict(until=time.monotonic()+180,
+                            serial=context.tasker.controller.info['adb_serial'])
+            else:
+                if not InputPreflight(self.recognition).run(context,argv):
+                    return reject('Actual controller identity failed')
+                if task=='mirror':
+                    try:
+                        config=data_directory(ROOT)
+                        ledger=config/'user-run-ledger.json'
+                        if ledger.exists():
+                            value=read_json(ledger)
+                            if not isinstance(value,dict) or 'active' not in value:
+                                raise ValueError('Invalid saved Mirror ledger')
+                            if value['active'] is not None:
+                                # Queue application used to fail before the runner could
+                                # observe that the user had ended the previous dungeon.
+                                # A run that is still playing answers with a page the entry
+                                # observation does not know (a battle, a floor node); that is
+                                # not proof the game dropped the run, so the ledger keeps it
+                                # and the loop reads the page itself. Only a freshly proven
+                                # idle entry or picker may retire the old run.
+                                print('MaaLimbus 当前阶段：启动前核对旧局与队伍设置。',flush=True)
+                                observer=runner.MaaObserver(AgentTasker(context),directory,
+                                    failure_provider=lambda:self.recognition.callback_failure,identity_only=True)
+                                try:
+                                    runner.observe(observer,time.monotonic()+30)
+                                except runner.ObservationCallbackFailed as error:
+                                    if error.failure.get('error_type')!='EvidenceCapacityUnavailable':
+                                        raise
+                                    return reject('evidence_capacity_unavailable_before_input',
+                                                  error.failure.get('error'),
+                                                  _mirror_preflight_stop_detail(config,value['active']))
+                                except (RuntimeError,OSError,TimeoutError) as error:
+                                    journal.record('mirror_entry_preparation',retired=False,
+                                        reason='active_run_page_unreadable',error=str(error),
+                                        game_input=False)
+                                else:
+                                    from maalimbus.run_wiring import reconcile_idle_entry
+                                    store=RunStore(ledger,[SimpleNamespace(slot=s) for s in value['team_slots']])
+                                    outcome=reconcile_idle_entry(store,runner.frame_file(directory))
+                                    journal.record('mirror_entry_preparation',**outcome)
+                        active=read_json(ledger).get('active') if ledger.exists() else None
+                        if active is None:
+                            GlobalSettingsAction(self.recognition).apply(context)
+                        else:
+                            # Queue and team options only steer a run that is about to start;
+                            # one already in progress keeps the loadout it entered with, so the
+                            # saved settings wait for the next entry instead of refusing.
+                            print('MaaLimbus 当前阶段：旧局仍在进行，跳过开新局的设置应用。',flush=True)
+                            journal.record('mirror_entry_preparation',retired=False,
+                                reason='a_run_is_still_in_progress',game_input=False)
+                    except (ValueError,KeyError,OSError,RuntimeError,TimeoutError,TypeError) as error:
+                        return reject('mirror_settings_rejected',error)
+                    try:
+                        from maalimbus.mirror_preferences import collect as collect_preferences, apply as apply_preferences
+                        preference_edit=collect_preferences(context.get_node_data)
+                        if preference_edit is not None:
+                            apply_preferences(data_directory(ROOT),preference_edit,
+                                gifts=self.recognition.gift_catalog().entries,
+                                packs=self.recognition.theme_catalog().names)
+                        from maalimbus.mirror_starlight import collect,apply
+                        source,star_task,star_edit=collect(context.get_node_data)
+                        apply(data_directory(ROOT),source,star_task,star_edit)
+                        node=context.get_node_data('MirrorLoop')
+                        from maalimbus.mirror_task_options import collect as collect_task_options
+                        loop_params=dict(node['action']['param']['custom_action_param'])
+                        loop_params['directory']=str(directory)
+                        loop_params.update(collect_task_options(context.get_node_data))
+                        if 'gift_keyword' not in loop_params:
+                            # D32: the gift target belongs to the saved team's own
+                            # systems.  Without this the run falls back to the constant
+                            # `bleed`, which is the wrong build for a charge/tremor team.
+                            from maalimbus.team_gift_keyword import systems
+                            names=systems(data_directory(ROOT))
+                            if names:loop_params['gift_keyword']='+'.join(names)
+                        from maalimbus.shop_settings import FIELDS
+                        for name,field in zip(('MirrorShopPolicy','MirrorShopRefreshLimit','MirrorShopCoinReserve'),FIELDS):
+                            choice=context.get_node_data(name)['attach'][field]
+                            if choice!='saved':loop_params[field]=choice
+                        selected=SimpleNamespace(custom_action_param=json.dumps(loop_params),node_name='MirrorLoop')
+                        return MirrorLoopAction(self.recognition).run(context,selected)
+                    except (ValueError,KeyError,OSError,TypeError) as error:
+                        return reject('mirror_settings_rejected',error)
+                observer=runner.MaaObserver(AgentTasker(context),directory,
+                                    failure_provider=lambda:self.recognition.callback_failure)
+                if task=='rewards':
+                    from maalimbus.reward_task_budget import apply as apply_reward_budget
+                    apply_reward_budget(data_directory(ROOT),context.get_node_data('RewardModuleBudget')['attach']['maximum'])
+                    from maalimbus.reward_task import execute
+                    device=runner.local_device(context.tasker.controller,tasker=AgentTasker(context),
+                                               deadline=time.monotonic()+90)
+                    result=execute(data_directory(ROOT),directory,observer,device,journal)
+                    write_loop_result(directory,result)
+                    return bool(result.get('passed'))
+                if task in ('experience','thread'):
+                    from maalimbus.lux_task import prepare, execute as execute_lux
+                    try:
+                        choice=context.get_node_data('Lux'+task.title()+'Team')['attach']['slot']
+                        build=prepare(data_directory(ROOT),task,choice)
+                    except (ValueError,KeyError,OSError) as error:
+                        return reject(str(error))
+                    device=runner.local_device(context.tasker.controller,tasker=AgentTasker(context),
+                                               deadline=time.monotonic()+45)
+                    result=execute_lux(data_directory(ROOT),directory,observer,device,journal,task,build)
+                    result['saved_team']=dict(slot=build.slot,keywords=sorted(build.keywords),deployment=list(build.deployment))
+                else:
+                    record=runner.observe(observer,time.monotonic()+30)
+                    result=dict(passed=False,reason='task_page_policy_not_implemented',task=task,
+                                observation=record,input_sent=False,verified_clear=False)
+                journal.record('main_task_stopped',**result)
+            write_loop_result(directory,result)
+            return bool(result.get('passed'))
+        finally:
+            lease.close()

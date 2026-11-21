@@ -1,0 +1,99 @@
+"""Initial gift page recognition from controls and keyword headers."""
+import re
+import hashlib
+from pathlib import Path
+import cv2
+from .vision import Text, find, inset_box
+from .storage import read_json
+
+
+def counter(records,size):
+    matches=find(records,r'^\s*(?:Select\s*)?\d\s*/\s*[1-3]\s*$',(.85,.76,.93,.86),size,.85)
+    if len(matches)!=1:return None
+    numbers=tuple(map(int,re.findall(r'\d',matches[0].text)))
+    return numbers if numbers[0]<=numbers[1] else None
+
+
+def page(records,size,locale):
+    # Scrolling this catalogue moves its Sinking/Poise/Charge header row from
+    # y~550 to y~275. Keep its three independent captions
+    # and same-row geometry, rather than assuming the catalogue never scrolls.
+    headers=[find(records,'^'+k+'$',(.12,.21,.57,.54),size,.85)
+             for k in ('Sinking','Poise','Charge')]
+    if any(len(matches)!=1 for matches in headers):return False
+    centers=[matches[0].box[1]+matches[0].box[3]/2 for matches in headers]
+    return (counter(records,size) is not None
+        and len(find(records,locale.get('initial_selected',r'(?!)'),(.60,.19,.80,.26),size,.85))==1
+        and len(find(records,locale.get('initial_refuse',r'(?!)'),(.61,.76,.77,.86),size,.85))==1
+        and max(centers)-min(centers)<=.025*size[1])
+
+
+SYSTEMS=('Burn','Bleed','Tremor','Rupture','Sinking','Poise','Charge','Slash')
+
+
+def group_target(records,size,keyword):
+    """The gift under `keyword`'s column, or None.
+
+    A team can be built around several systems (charge+tremor is), and this page has one
+    column per system, so a compound keyword walks its systems in the order the profile
+    named them and takes the first column the page actually offers.  A single keyword
+    behaves exactly as before.
+    """
+    for name in [part.strip() for chunk in str(keyword or '').split('+') for part in [chunk]]:
+        if name.title() not in SYSTEMS:continue
+        matches=find(records,'^'+re.escape(name.title())+'$',(.12,.21,.57,.54),size,.85)
+        if len(matches)==1:return inset_box(matches[0].box)
+    return None
+
+
+def row_target(records,size,ordinal):
+    if ordinal not in (1,2,3):return None
+    top=(322+160*(ordinal-1))/1080
+    titles=find(records,r'.+',(.675,top+.015,.92,top+.046),size,.85)
+    if not titles:return None
+    # Maa can split a blue title into adjacent words after another row is
+    # selected. Only fragments on the same measured baseline inside this row's
+    # existing title band may join; body text and a second line still refuse.
+    centers=[t.box[1]+t.box[3]/2 for t in titles]
+    if max(centers)-min(centers)>12*size[1]/1080:return None
+    titles.sort(key=lambda t:t.box[0])
+    x=min(t.box[0] for t in titles);y=min(t.box[1] for t in titles)
+    right=max(t.box[0]+t.box[2] for t in titles);bottom=max(t.box[1]+t.box[3] for t in titles)
+    return inset_box((x,y,right-x,bottom-y)),' '.join(t.text.strip() for t in titles)
+
+
+def selected_rows(image):
+    if image.shape[:2]!=(1080,1920):return None
+    gray=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    selected=[]
+    for ordinal in (1,2,3):
+        top=322+160*(ordinal-1)
+        fraction=float((gray[top:top+11,1185:1728]>140).mean())
+        if fraction>=.25:selected.append(ordinal)
+        elif fraction>.10:return None
+    return selected
+
+
+def receipt_name(records,size):
+    names=find(records,r'.+',(.255,.55,.39,.70),size,.85)
+    names.sort(key=lambda r:(r.box[1],r.box[0]))
+    return ' '.join(r.text for r in names) if names else None
+
+
+def same_name(first,second):
+    def normalized(value):return ''.join(c.casefold() for c in value if c.isalnum())
+    return bool(first and second and normalized(first)==normalized(second))
+
+
+def proven_titles(progress,evidence_root):
+    frame=Path(progress['proof']).resolve()
+    if not frame.is_relative_to(Path(evidence_root).resolve()):
+        raise ValueError('Initial gift proof must be retained application evidence')
+    source=read_json(frame.with_suffix('.json'))
+    if source['image_sha256']!=hashlib.sha256(frame.read_bytes()).hexdigest():
+        raise ValueError('Initial gift proof image changed')
+    if source['scene']!='INITIAL_GIFTS':raise ValueError('Wrong proof scene')
+    records=[Text(r['text'],tuple(r['box']),r['score']) for r in source['ocr']]
+    titles=[row_target(records,source['size'],i) for i in progress['selected']]
+    if any(t is None for t in titles):raise ValueError('Initial gift proof titles incomplete')
+    return [t[1] for t in titles]

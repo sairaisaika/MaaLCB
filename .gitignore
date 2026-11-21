@@ -1,0 +1,78 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.cache/
+sources/upstream/
+/evidence/
+build/
+dist/
+config/user*.json
+config/*-progress.json
+config/*.tmp
+config/*.json.*.tmp
+# All local state, including backups without a .json suffix, is private.
+/config/
+/.scratch/
+.env
+.env.*
+!.env.example
+*.local.json
+*.pem
+*.key
+*.pfx
+*.p12
+*.ppk
+*.log
+
+# Agent skills 配置（本地记录：issue tracker / triage 标签词汇 / 域文档布局）
+docs/agents/*
+AGENTS.md
+CONTEXT.md
+CONTEXT-MAP.md
+
+# Canonical public domain contexts; local agent-generated contexts stay ignored.
+!/CONTEXT-MAP.md
+!/src/maalimbus/CONTEXT.md
+!/agent/CONTEXT.md
+!/desktop/mxu/CONTEXT.md
+
+# read-only upstream reference clones fetched by research subagents
+.research/deps/
+build/
+
+# 例外：记忆沉淀纪律这两份要随仓库走（只放行这两份，其余 agent 文档保持本地）
+# 父目录本身被忽略时，针对其中文件的否定行不生效 —— 所以上面写 docs/agents/* 而不是 docs/agents/
+!docs/agents/memory.md
+!AGENTS.md
+# AGENTS.md 与 Wiki 入口都链接下面三份约定；它们不含本机信息，随仓库走，公开 checkout 的链接才可达。
+!docs/agents/domain.md
+!docs/agents/issue-tracker.md
+!docs/agents/triage-labels.md
+
+
+# Local development handoff and Codex session configuration.
+/PROJECT.md
+/.codex/
+
+# Workstation-only diagnostic code and generated runs.
+/tests/local/
+/tools/local/
+/.research/
+/runs/
+/logs/
+/.ruff_cache/
+
+# Local game assets: supplied by each user on their own machine, never tracked.
+# The manifest assets/resource/base/local-assets.json lists them; see docs/local-assets.md.
+/assets/resource/base/image/**/*.png
+/tests/fixtures/frames/**/*.png
+/tests/fixtures/floor-gift-ocr-drift/*.png
+/yolo11n.pt
+
+# Packaging metadata that `pip install -e .` and `python -m build` regenerate.
+*.egg-info/
+
+# The MXU team editor artwork is 22 game images encoded into source. It is generated
+# locally by tools/export_team_editor_artwork.py from the reference checkout.
+/desktop/mxu/teamArtwork.ts

@@ -1,0 +1,197 @@
+"""Bounded Mirror payout execution under an explicit current-run budget."""
+import time
+from pathlib import Path
+
+from . import pages, runner
+from .paid_reward_action import prepare
+from .reward_receipt_audit import verify
+from .storage import read_json, write_json, RunStore, ProfileStore
+
+#: pause between reads of the loader that follows the last acknowledged receipt
+LOADER_POLL_SECONDS=1.0
+
+ACTIONS={'RUN_REWARD_DIALOG':'claim','RUN_REWARD_CONFIRM':'confirm',
+         'RUN_REWARD_BONUS':'confirm','RUN_REWARD_RECEIPT':'receipt',
+         'RUN_REWARD_PASS':'pass'}
+
+
+def _note(journal, event, **fields):
+    """Write one decision to the run's journal, when there is a journal to write to.
+
+    Every other task action ends with `main_task_stopped` (`agent/recognition.py`), but the
+    reward branch returns before that line: the payout -- the reason a run exists at all --
+    was the one outcome the journal never held, which is why `clear_rate` could only ever
+    measure the exploration half.  The journal is optional here because several callers
+    (and the offline audits) pass a stand-in or nothing at all.
+    """
+    if journal is None or not hasattr(journal, 'record'):
+        return
+    journal.record(event, **fields)
+
+
+def action_for(record):
+    # Receipt recognizers differ from page registry names; independent captions
+    # are still required by prepare(), never inferred from this dispatch alone.
+    from .vision import Text, find
+    texts=[Text(t['text'],tuple(t['box']),t['score']) for t in record.get('ocr',[])]
+    size=record.get('size')
+    if size==[1920,1080]:
+        if len(find(texts,r'^Rewards Acquired$',(.39,.30,.61,.39),size,.9))==1:return 'receipt'
+        if len(find(texts,r'^Pass Level Up$',(.40,.30,.61,.39),size,.9))==1:return 'pass'
+    return ACTIONS.get(record.get('scene'))
+
+
+def finish(config,scope,home,*,journal=None):
+    """Only audited inputs, actual receipts and HOME may advance rotation."""
+    path=config/'user-reward-claim-transaction.json'
+    tx=read_json(path)
+    if tx.get('scope')!=scope or tx.get('completed'):
+        raise ValueError('Current reward transaction missing or already complete')
+    reports={action:read_json(Path(report)) for action,report in tx.get('task_input_reports',{}).items()}
+    proof=verify(tx,home,reports)
+    ledger=config/'user-run-ledger.json'
+    data=read_json(ledger)
+    active=data.get('active') or {}
+    if active:
+        if active.get('id')!=scope or active.get('floors')!=[1,2,3,4,5] or not active.get('victory'):
+            raise ValueError('Completed run scope differs before payout bookkeeping')
+        profiles={p.slot:p for p in ProfileStore(config/'user-team-profiles.json').load()}
+        slots=data.get('team_slots')
+        if not isinstance(slots,list) or not slots or any(slot not in profiles for slot in slots):
+            raise ValueError('Current payout rotation references an unsaved team')
+        store=RunStore(ledger,[profiles[slot] for slot in slots])
+        if active.get('team')!=store.team_slot:
+            raise ValueError('Completed run team differs from the retained queue cursor')
+        # Save the verified HOME before bookkeeping. If the transaction write
+        # after rotation fails, recovery checks the exact archived events and
+        # finishes this transaction without rotating or clicking again.
+        tx['bookkeeping_home']=str(home)
+        write_json(path,tx)
+        store.record(scope,'native-reward-task-receipt','reward_received',tx['receipt_proof'])
+        store.record(scope,'native-reward-task-home','entry_returned',home)
+    else:
+        import hashlib
+        matches=[r for r in data.get('receipts',[]) if r.get('id')==scope]
+        if len(matches)!=1 or tx.get('bookkeeping_home')!=str(home):
+            raise ValueError('Exact completed bookkeeping scope missing')
+        archived=matches[0]
+        if archived.get('floors')!=[1,2,3,4,5] or not archived.get('victory') or not archived.get('reward'):
+            raise ValueError('Archived payout completion missing')
+        for event_id,kind,evidence in (
+                ('native-reward-task-receipt','reward_received',tx['receipt_proof']),
+                ('native-reward-task-home','entry_returned',home)):
+            event=archived.get('events',{}).get(event_id,{})
+            if event!=dict(kind=kind,floor=None,evidence=str(Path(evidence).resolve()),
+                           sha256=hashlib.sha256(Path(evidence).read_bytes()).hexdigest()):
+                raise ValueError('Archived bookkeeping evidence differs')
+    tx.update(completed=True,pending=None,reward_received=True,
+              receipt_chain=proof['proofs'],home_return_proof=str(home),
+              module_balance_delta_verified=False)
+    write_json(path,tx)
+    from .shop_outcomes import refresh_scope
+    learning=refresh_scope(config,scope,trigger='payout_home_archived',journal=journal)
+    return dict(passed=True,reason='mirror_payout_and_home_verified',task='rewards',
+                reward_received=True,mail_daily_verified=False,verified_clear=False,proof=proof,
+                purchase_learning=learning)
+
+
+def execute(config,directory,observer,device,journal,*,deadline=None):
+    config,directory=Path(config),Path(directory)
+    deadline=deadline or time.monotonic()+90
+    try:
+        ledger=read_json(config/'user-run-ledger.json')
+    except (ValueError,OSError) as error:
+        _note(journal,'reward_task_skipped',scope=None,reason=str(error),inputs_sent=False)
+        return dict(passed=False,reason=str(error),task='rewards',input_sent=False,
+                    reward_received=False,mail_daily_verified=False)
+    active=ledger.get('active') or {}
+    scope=active.get('id')
+    if not active:
+        txpath=config/'user-reward-claim-transaction.json'
+        try:
+            tx=read_json(txpath) if txpath.exists() else {}
+        except (ValueError,OSError) as error:
+            return dict(passed=False,reason=str(error),task='rewards',input_sent=False,
+                        reward_received=False,mail_daily_verified=False)
+        if tx.get('completed') and tx.get('reward_received') and tx.get('home_return_proof'):
+            # The last process may have exited after the authoritative payout
+            # commit but before optional labels were collected. Retry only the
+            # label join; never repeat bookkeeping, rotation or device input.
+            from .shop_outcomes import refresh_scope
+            refresh_scope(config,tx.get('scope'),trigger='completed_payout_resume',journal=journal)
+        if tx.get('bookkeeping_home') and not tx.get('completed'):
+            try:
+                result=finish(config,tx.get('scope'),Path(tx['bookkeeping_home']),journal=journal)
+                result['input_sent']=False
+                _note(journal,'reward_task_executed',scope=tx.get('scope'),passed=True,
+                      reason=result.get('reason'),reward_received=True,inputs_sent=False,
+                      resumed=True)
+                return result
+            except (ValueError,KeyError,OSError,RuntimeError) as error:
+                _note(journal,'reward_task_skipped',scope=tx.get('scope'),reason=str(error),
+                      inputs_sent=False,resumed=True)
+                return dict(passed=False,reason=str(error),task='rewards',input_sent=False,
+                            reward_received=False,mail_daily_verified=False)
+    if not scope or not active.get('victory') or active.get('floors')!=[1,2,3,4,5]:
+        _note(journal,'reward_task_skipped',scope=scope,
+              reason='completed_mirror_run_required',inputs_sent=False)
+        return dict(passed=False,reason='completed_mirror_run_required',task='rewards',input_sent=False,
+                    mail_daily_verified=False,reward_received=False)
+    sent=0
+    class TrackedDevice:
+        def click(self,x,y):
+            nonlocal sent
+            sent+=1  # Count attempts even if the device or successor read fails.
+            return device.click(x,y)
+    tracked=TrackedDevice()
+    def returning():
+        # The game loads the main menu once the last receipt is acknowledged. Live
+        # packaged-mirror-20261120-205012: Claim, Confirm, the receipt and the pass were
+        # all sent and proven, frames 8 and 9 read LOADING, and the payout stopped as
+        # "successor not proven" two seconds before HOME. A loader is a wait only after
+        # this run's own receipt has been acknowledged; before that it proves nothing.
+        txpath=config/'user-reward-claim-transaction.json'
+        try:tx=read_json(txpath) if txpath.exists() else {}
+        except (ValueError,OSError):return False
+        return (tx.get('scope')==scope and tx.get('confirm_sent') is True
+                and tx.get('receipt_ack_sent') is True and not tx.get('completed'))
+    try:
+        stages=0
+        while stages<5:
+            record=runner.observe(observer,deadline)
+            if pages.is_loading(record.get('scene')) and returning():
+                if time.monotonic()>=deadline:
+                    raise ValueError('Reward return to HOME did not arrive before the deadline')
+                time.sleep(LOADER_POLL_SECONDS)
+                continue
+            stages+=1
+            if record.get('scene')=='HOME':
+                result=finish(config,scope,runner.frame_file(directory),journal=journal)
+                result['input_sent']=sent>0
+                result['input_attempts']=sent
+                _note(journal,'reward_task_executed',scope=scope,passed=True,
+                      reason=result.get('reason'),reward_received=True,
+                      inputs_sent=sent>0,resumed=False)
+                return result
+            action=action_for(record)
+            if action is None:raise ValueError('Reward page or successor not proven')
+            def preflight(current):
+                if action_for(current)!=action:raise ValueError('Fresh reward page changed')
+                frame=runner.frame_file(directory)
+                return prepare(action,read_json(frame),config,scope,str(frame))
+            entry=runner.one_shot_click(tracked,observer,[0,0,1,1],label='paid_reward_'+action,
+                deadline=deadline,journal=journal,rounds=3,interval=1,preflight=preflight)
+            report=directory/('reward-'+action+'-input.json')
+            write_json(report,dict(run_ledger=dict(run=scope),clicks_sent=1,steps=[entry]))
+            txpath=config/'user-reward-claim-transaction.json'
+            tx=read_json(txpath)
+            tx.setdefault('task_input_reports',{})[action]=str(report)
+            write_json(txpath,tx)
+            if not entry['passed']:raise ValueError('Reward successor did not settle')
+        raise ValueError('Reward task input bound reached')
+    except (ValueError,KeyError,OSError,RuntimeError) as error:
+        _note(journal,'reward_task_stopped',scope=scope,error=str(error),inputs_sent=sent,
+              passed=False,reward_received=False)
+        return dict(passed=False,reason=str(error),task='rewards',input_sent=sent>0,
+                    input_attempts=sent,
+                    reward_received=False,mail_daily_verified=False,verified_clear=False)

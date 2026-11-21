@@ -1,0 +1,91 @@
+# Windows 开发包
+
+本地包包含未修改的 MXU 2.7.1、MaaFramework 5.12.2、独立打包的 Agent/有时限 Runner、EN/JP 资源、许可文本和公开项目源码。它用于开发验证，尚未完成桌面界面及游戏实机验收，未发布 Release。
+
+## 构建
+
+使用已审核的本地归档；工具不自动联网下载、不覆盖旧安装，输入哈希不一致会拒绝。每次输出到新的 `build/windows-package-<唯一标识>` 目录。
+
+```powershell
+python tools/build_windows_package.py --mxu <MXU归档.zip> --maa <Maa归档.zip> --mxu-source <MXU对应源码归档.zip> --maa-source <Maa对应源码归档.zip>
+```
+
+| 输入 | 审核版本/来源 | SHA-256 |
+| --- | --- | --- |
+| MXU 二进制 | 官方 v2.7.1 Windows x86_64 归档 | 825A62AF7A344A7A47ADCA09D1414128E6F53A222A11CDF456F08D2E83D31724 |
+| Maa 二进制 | 官方 v5.12.2 Windows x86_64 归档 | 55DCEE2306F95656949165237E781322F6858A1675A3B271BC045A50F43C41B7 |
+| MXU 对应源码 | 已缓存的原始源码归档，提交 9fa8cc51e8ff8cd89d99f3ea55fe3a7a82e6ede3 | B350877C03598922B14D1804923E331361ACF64534494945274B80B5D28CEC35 |
+| Maa 对应源码 | v5.12.2 实际发布提交 f625a60edeccd4549f9a71c0f74628d827ade8fb | 0013BAAA2F30B14EA6B102A5F1A1438D7CC97A60AAAA5040F755DA711B0A4ACF |
+
+源归档哈希标识本地已审核输入的精确内容，不声称是上游发布的校验签名。改版本必须先审核新的来源及对应源码，再修改固定输入。
+
+输出记录在 `build/windows-package-latest.json`。包内 `build-info.json` 保存输入来源/哈希、代码版本/是否有未提交变更、明确的验收缺口；`package-manifest.json` 保存逐文件校验。
+
+v0.1.1 候选构建要求源码已提交。更新资产输出为 `release-assets/MaaLimbus-win-x64-v0.1.1.zip` 与 `SHA256SUMS`，由实际 interface 版本生成，不再使用更新器拒绝的 development 文件名。导出前校验完整 manifest、应用身份、独立启动器和对应源码，检查嵌套项目源码 ZIP 的私有目录。输出目录必须新建，不能覆盖旧候选。此动作不会发布 Release；依赖分发审计与公开下载安装验证仍独立验收。
+
+源码归档只取公开源码、资源、测试、工具与文档。账户配置、运行日志、截图证据和旧安装目录均不复制到开发 ZIP。MXU 对应源码单独随包保存，Maa 原生依赖的完整源码/许可分发审计仍待完成。
+
+## 游戏素材不进包
+
+发行包只从已提交的文件构建：`assets/`、`docs/`、`THIRD_PARTY_NOTICES/` 和根目录说明文件取的是提交里的字节，不是工作目录里的文件。所以你本机导入的游戏位图、未跟踪的笔记和未提交的修改都不会进包。导出发行归档之前，`src/maalimbus/release_package.py` 的 `export_assets` 还会再查一遍包目录；发现识别位图、队伍编辑器头像源文件，或者内含它们的嵌套源码归档，就拒绝导出。
+
+包里因此没有游戏素材。打包后的 Agent 自检会在结果的 `local_game_assets` 字段里按组写明缺什么，`MaaLimbusAgent.exe --local-assets-check` 单独报告一次（缺素材时退出码 2）；`build-info.json` 的 `pending` 也列着这一项。素材由用户按[本地游戏素材](local-assets.md)在本机提供。带自定义队伍编辑器的 MXU 客户端会把头像编进可执行文件，这样的包目前不能公开发行。
+
+本地开发用的 `tools/make_local_app.py` 不打包也不发布，它照旧从工作目录复制 `assets/`，所以本机组装出来的应用带着你导入的素材，只供本机使用。
+
+## 打包后路径
+
+Agent 和 Runner 从自身可执行文件的安装位置定位包根目录，不使用当前工作目录或 PyInstaller 临时目录。打包 Agent 在导入 `maa.agent` 前指向相邻 `maafw`，避免该模块在导入时加载不存在的默认原生库。环境中遗留的其他应用资源路径不会覆盖打包根目录。
+
+根 `interface.json` 只在构建副本中调整资源、语言、许可和 Agent 的相对路径；开发源码的 PI 入口保留原样。
+
+## 离线验证
+
+```powershell
+python tools/verify_packaged_replay.py --app <开发包目录> --references <本地参考截图目录>
+python tools/verify_packaged_theme_replay.py --app <开发包目录>
+python tools/verify_packaged_deployment_replay.py --app <开发包目录> --expected-source <该包源码提交>
+python tools/verify_packaged_battle_replay.py --app <开发包目录> --expected-source <该包源码提交>
+```
+
+此工具使用 Maa CustomController 和保存的画面，经过真实 Maa AgentClient/打包 Agent 的进程通信执行生产识别及 Pipeline。它不创建 Win32 游戏控制器、不发送游戏输入。
+
+已验证参考导航两次回放点击并在队伍库边界停止，以及未知画面零点击；终态明确保留 `verified_clear: false`。Agent 自检还验证了实际包内的 EN/JP 与礼物目录，Runner 的帮助入口可运行。这些不构成日语实机、MXU 桌面操作或镜牢通关证据。
+
+`4178821` 开发包另验证了主题包的打包 Agent：经 Maa IPC 读取已保存的第二队，
+更新一个权重而保留其他设置，执行一次原生拖动后保存画面并停在地图待验收边界；
+资源弹窗零输入。611 个文件校验和隐私排除检查通过。主题包名称/权重的 PI 下拉项已打包，
+实际 MXU 界面仍未打开验证。
+
+`ded609b` 开发包另经冻结 Agent IPC 验证实验性出战顺序：依次选择、点击无效不重试、
+资源弹窗零输入；保留第二队的名称、关键词和主题包权重。612 个文件校验通过。
+这里使用派生人数/序号画面，未验证真实囚人身份、实机格子位置或开始战斗。
+
+开发包构建不会发起 UAC。实机权限条件满足且没有旧控制器后，才可另行启动有时限任务；仍须保存每层、领奖和轮换的真实证据。
+
+最新干净 `8b309b8` 开发包包含实验性战斗规划：619文件完整 manifest/私有根目录排除、
+Agent 自检通过。冻结 Agent 经 Maa IPC 对派生正常/卡住画面各按一次 P，对资源弹窗/
+未支持日语画面均零输入；正常派生新图的 Neutral 文本可读取，但不声明计划安全或胜利。
+子进程退出后未发现运行的 Agent/Runner。证据 `build/battle-package-integrity.json`、
+`build/packaged-battle-replay-verification.json`；原 `ded609b` 证明保留其历史范围。
+
+新 ZIP 也通过 `tools/verify_update_stage.py` 的全包离线暂存校验，619文件/原 ZIP 哈希一致。
+`build/update-stage-verification.json` 现在指向此新包；派生 Release 元数据不代表已经发布，
+暂存不安装也不执行。此前612文件包的 stage-result 仍保留在独立旧暂存目录。
+新包尚未打开 MXU 界面、未覆盖安装、未实机输入，也未完成分发审计/发布。
+
+窗口/后台/前台三种控制方式、中文任务词条与小唐窗口图标现已通过 PI 配置；具体方法和实机边界见 [原生控制](native-control.md)。
+
+`08c2adc` 新包622文件/冻结Agent自检及四组生产图IPC回归通过。已实际打开
+MXU，原生截图确认小唐窗口图标、中文任务和三种控制方式，语言/保留日志设置在重启后生效。
+证据 `build/native-ui-verification.json`、`evidence/runtime/native-ui-chinese-check/main-frame.png`。
+这只验收界面显示，不代表队伍选项执行、原生游戏输入或五层通关；完整范围见 acceptance。
+
+干净 `d14d119` 新开发包包含十二位置下拉选项和回调异常停止修复，622文件哈希与
+Agent 自检通过。冻结 Agent 的九组出战 IPC 验证自定义保存、重复/缺位置拒绝、
+错误参数/配置损坏/日志失败零输入；四组战斗 IPC 回归仍为 1/1/0/0 次 P。
+`build/windows-package-latest.json` 指向新包；`build/packaged-deployment-replay-verification.json`
+与 `build/battle-package-integrity.json` 保存证明。随后已正常退出旧08c2adc GUI，
+打开d14d119原生窗口并确认十二位置选项、修改和重启保存。新GUI只有一个未勾选任务，
+未连接游戏、自动运行关闭。保存选项的独立解析/冻结Agent派生回放通过，未点击GUI开始。
+`build/native-deployment-ui-verification.json` 保存实际界面证明；均未验证五层/领奖/轮换或发布。

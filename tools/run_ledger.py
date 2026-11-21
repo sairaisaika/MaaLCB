@@ -1,0 +1,122 @@
+"""Read or seed the rotation ledger the window walks with.
+
+The ledger is the player's own order of saved teams; the window asks it which team to
+bring and records the run's five floor clears, the final victory, the claimed reward
+and the entry back in. This tool inspects it, seeds it at a known rotation, files the
+active run when the player gives one up, and points the rotation at a slot the player
+names for the next entry -- a run is never invented here, because every ledger event
+has to name the frame it was read from.
+"""
+import argparse
+import json
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
+
+from maalimbus.storage import RunStore, read_json, seed_run_store  # noqa: E402
+
+DEFAULT = 'config/user-run-ledger.json'
+
+
+def route_status(data, rows):
+    """Show the recorded location and route without authorizing a resume input."""
+    from maalimbus.native_evidence import journal_scope
+    from maalimbus.run_wiring import journey_progress
+
+    run_id = (data.get('active') or {}).get('id')
+    result = dict(progress=journey_progress(data, run_id), observed_path=[],
+                  last_recorded=None, component_checkpoint=None, proposed_next=None,
+                  fresh_observation_required=True)
+    if run_id is None or journal_scope(rows) != run_id:
+        return dict(result, journal_matches_active_scope=False)
+    observed_path = result['observed_path']
+    for row in rows:
+        if row['event'] in ('map_observed', 'battle_observed') and row.get('scene') and row.get('frame'):
+            page = row['scene']
+            if not observed_path or observed_path[-1] != page:
+                observed_path.append(page)
+                result['component_checkpoint'] = None
+            result['last_recorded'] = dict(page=page, frame=row['frame'], image_sha256=row.get('image_sha256'))
+            result['proposed_next'] = None
+        if row['event'] == 'page_checkpoint' and row.get('run_scope') == run_id:
+            observed = row.get('observed') or {}
+            last = result['last_recorded']
+            if (last and observed.get('image_sha256')
+                    and all(last[key] == observed.get(key) for key in ('page', 'frame', 'image_sha256'))):
+                result['last_recorded'] = observed
+                result['component_checkpoint'] = observed
+                result['proposed_next'] = row.get('proposal')
+    return dict(result, journal_matches_active_scope=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--path', default=DEFAULT, help='the ledger file')
+    sub = parser.add_subparsers(dest='action', required=True)
+    status = sub.add_parser('status', help='print the rotation and what the active run holds')
+    status.add_argument('--journal', type=Path, help='show the recorded route for this active scope')
+    seed = sub.add_parser('seed', help='create the ledger at a known rotation')
+    seed.add_argument('--slots', required=True,
+                      help='saved-team slots in rotation order, e.g. 5,4,1,6,2,7,3')
+    seed.add_argument('--rotation', type=int, default=0,
+                      help='which of those slots the next run brings (0-based)')
+    seed.add_argument('--force', action='store_true',
+                      help='replace an existing ledger, but only one that recorded '
+                           'nothing; use it when a run finished out of the harness '
+                           'sight and moved the player order')
+    give_up = sub.add_parser('abandon', help='drop the active run and keep the rotation')
+    give_up.add_argument('--note', default=None,
+                         help='why the run is being given up (kept with the record)')
+    point = sub.add_parser('point', help='aim the next entry at one saved-team slot')
+    point.add_argument('--slot', type=int, required=True,
+                       help='the saved-team slot the next run should bring, e.g. 2')
+    args = parser.parse_args()
+
+    if args.action == 'seed':
+        slots = [int(part) for part in args.slots.replace(' ', '').split(',') if part]
+        seed_run_store(args.path, slots, rotation=args.rotation, overwrite=args.force)
+        print('seeded %s with slots=%s rotation=%d' % (args.path, slots, args.rotation))
+    elif args.action == 'abandon':
+        value = read_json(args.path)
+        # RunStore only reads ``slot`` off the teams it is handed, so a plain stand-in is
+        # enough here and the tool stays a ledger reader rather than a team planner.
+        store = RunStore(args.path, [SimpleNamespace(slot=s) for s in value['team_slots']])
+        try:
+            dropped = store.abandon(note=args.note)
+        except ValueError as error:
+            raise SystemExit(str(error))
+        print('abandoned run %s team %d floors=%s (rotation stays at %d -> team %d)'
+              % (dropped['id'][:8], dropped['team'], dropped['floors'],
+                 store.data['rotation'], store.team_slot))
+    elif args.action == 'point':
+        value = read_json(args.path)
+        store = RunStore(args.path, [SimpleNamespace(slot=s) for s in value['team_slots']])
+        try:
+            index = store.point_at(args.slot)
+        except ValueError as error:
+            raise SystemExit(str(error))
+        print('rotation now %d -> team %d (of %s)'
+              % (index, store.team_slot, value['team_slots']))
+
+    value = read_json(args.path)
+    if args.action == 'status' and args.journal is not None:
+        rows = [json.loads(line) for line in args.journal.read_text(encoding='utf8').splitlines() if line.strip()]
+        print(json.dumps(route_status(value, rows), ensure_ascii=False, indent=2))
+        return
+    active = value.get('active')
+    print('slots        %s' % value['team_slots'])
+    print('rotation     %d -> team %d' % (value['rotation'],
+                                          value['team_slots'][value['rotation']]))
+    print('completed    %d' % value['completed_runs'])
+    if active is None:
+        print('active run   none')
+    else:
+        print('active run   %s team %d floors=%s victory=%s reward=%s'
+              % (active['id'][:8], active['team'], active['floors'],
+                 active['victory'], active['reward']))
+
+
+if __name__ == '__main__':
+    main()

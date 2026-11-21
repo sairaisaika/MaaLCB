@@ -1,0 +1,210 @@
+"""Run the mirror loop in this process, without the packaged agent server (D193).
+
+Some packaged starts abort in ZeroMQ (`epoll.cpp:73`, then socket error 10038).
+The source Agent and minimal frozen bootstrap can start with that same DLL, so
+the failure has not been isolated to a framework binary defect. Everything the agent does is
+also reachable in one process -- `map_live_observe.py` has driven the controller and the
+tasker this way since round 1 -- so this tool drives `MirrorRunner` directly: same
+journal, same settings, same evidence directory, no agent.
+
+It is a verification tool, not a second agent: it does not accept PI resource params and it
+runs one loop with the arguments on its command line.
+"""
+import argparse
+import json
+import os
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(ROOT / 'src'), str(ROOT / 'agent')]
+
+from maa.library import Library
+from maa.controller import AdbController
+from maa.resource import Resource
+from maa.tasker import Tasker
+from maa.toolkit import Toolkit
+
+from maalimbus.adb_device import build, discover, foreground_of
+from maalimbus.controller_lease import ControllerLease
+from maalimbus.jobs import wait_job
+from maalimbus import runner
+
+import selfrun_finish
+
+from recognition import (Journal, BattleObservation, BattlePlanObservation, DeploymentProof,
+                         DifficultyProof, GlobalSettingsAction, InitialGiftProof,
+                         InitialReceiptProof, InputPreflight, LimbusRecognition,
+                         LimbusTerminal, MainTaskAction, MapObservation,
+                         MirrorLoopAction, StarProof, TeamAction, ThemeObservation)
+
+# The same table `agent/main.py` registers against the agent server, pointed at a client-side
+# resource instead.  Kept as data so a new custom is one line here and one line there.
+CUSTOM_ACTIONS = ((('limbus_terminal', LimbusTerminal), ('limbus_team', TeamAction),
+                   ('limbus_star_proof', StarProof),
+                   ('limbus_initial_gift_proof', InitialGiftProof),
+                   ('limbus_initial_receipt_proof', InitialReceiptProof),
+                   ('limbus_difficulty_proof', DifficultyProof),
+                   ('limbus_preflight', InputPreflight),
+                   ('limbus_theme_observe', ThemeObservation),
+                   ('limbus_deployment_proof', DeploymentProof),
+                   ('limbus_battle_plan_observe', BattlePlanObservation),
+                   ('limbus_map_observe', MapObservation),
+                   ('limbus_battle_observe', BattleObservation),
+                   ('limbus_mirror_loop', MirrorLoopAction),
+                   ('limbus_global_settings', GlobalSettingsAction),
+                   ('limbus_main_task', MainTaskAction)))
+
+
+def register(resource, recognition):
+    """Register every custom the packaged agent registers, on a plain resource."""
+    resource.register_custom_recognition('limbus_scene', recognition)
+    for name, factory in CUSTOM_ACTIONS:
+        resource.register_custom_action(name, factory(recognition))
+    return tuple(name for name, _ in CUSTOM_ACTIONS)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--binary', type=Path, required=True)
+    parser.add_argument('--address', required=True)
+    parser.add_argument('--adb', type=Path, default=None)
+    parser.add_argument('--seconds', type=float, default=180.0)
+    parser.add_argument('--steps', type=int, default=300)
+    parser.add_argument('--observe-only', action='store_true')
+    parser.add_argument('--stop-page', help='Stop at the first fresh named page before input there')
+    parser.add_argument('--main-task', action='store_true',
+                        help='Execute the native MirrorTask entry/settings/ledger path, without Agent IPC')
+    parser.add_argument('--locale', default='en')
+    args = parser.parse_args()
+
+    directory = ROOT / ('evidence/runtime/packaged-mirror-' + datetime.now().strftime('%Y%m%d-%H%M%S'))
+    directory.mkdir(parents=True)
+    if args.main_task:
+        os.environ['MAALIMBUS_RUN_DIR']=str(directory)
+        os.environ['MAALIMBUS_EVIDENCE']=str(directory)
+    budget = float(args.seconds)
+    deadline = time.monotonic() + budget
+    lease = ControllerLease.acquire(ROOT / 'build/controller.lock')
+    result = dict(pid=os.getpid(), address=args.address, controller='Maa AdbController (in process)',
+                  observe_only=bool(args.observe_only), budget=budget, steps=[], clicks_sent=0,
+                  verified_clear=False, foreground_before=None, input_sent=not args.observe_only)
+    journal = Journal(directory)
+    loop = None
+    try:
+        Library.open(args.binary, agent_server=False)
+        device_record = discover(args.address, args.adb)
+        # A failed identity check must never create an input-enabled controller.
+        result['foreground_before'] = foreground_of(device_record)
+        controller = build(device_record, input_enabled=not args.observe_only)
+        wait_job(controller.post_connection(), timeout=15, deadline=deadline)
+        controller.set_screenshot_target_long_side(1920)
+        recognition = LimbusRecognition(args.locale, journal)
+        resource = Resource()
+        result['customs'] = register(resource, recognition)
+        for layer in ('base', args.locale):
+            bundle = ROOT / f'assets/resource/{layer}'
+            if bundle.is_dir():
+                wait_job(resource.post_bundle(bundle), timeout=30, deadline=deadline)
+        tasker = Tasker()
+        if not tasker.bind(resource=resource, controller=controller):
+            raise RuntimeError('the tasker could not bind the resource and controller')
+        if args.main_task:
+            from maalimbus.jobs import wait_task
+            from maalimbus.storage import read_json
+            options=json.loads((ROOT/'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))['MirrorLoop']['custom_action_param']
+            options.update(steps=args.steps,budget=budget,stop_page=args.stop_page,
+                           observe_only=bool(args.observe_only),directory=str(directory),
+                           run_store=str(ROOT/'config/user-run-ledger.json'))
+            assert resource.override_pipeline({'MirrorLoop':{
+                'timeout':int(budget*1000),'custom_action_param':options}})
+            result.update(entry='MirrorTask',agent_ipc=False,gui_start_verified=False,
+                          settings_source='native_task_nodes_and_canonical_saved_configuration')
+            # MainTask owns the lease, exactly as in the real GUI dispatch.
+            lease.close()
+            task=wait_task(tasker,tasker.post_task('MirrorTask'),deadline=deadline+15)
+            result['task']=task
+            summary_path=directory/'agent-result.json'
+            summary=read_json(summary_path) if summary_path.exists() else dict(
+                passed=False,reason='native_main_task_result_missing')
+            selfrun_finish.summary(journal,summary,result,directory)
+            return 0 if result.get('passed') else 1
+        inner = runner.MaaDevice(controller, deadline=deadline, tasker=tasker,
+                                 target_long_side=runner._TARGET_LONG_SIDE)
+        # MaaObserver takes a *context* with tasker/run/journal, not a bare tasker: the
+        # agent passes its custom-action context, this tool passes the same three things.
+        observer = runner.MaaObserver(SimpleNamespace(tasker=tasker, run=None,
+                                                      journal=journal, directory=directory),
+                                      directory)
+        settings = runner.settings({'steps': args.steps, 'observe_only': bool(args.observe_only),
+                                    'stop_page': args.stop_page,
+                                    # The agent's own default (recognition.py LOOP_DEFAULTS):
+                                    # without a run store the five transaction ledgers are
+                                    # created as None and the loop stops at the first
+                                    # PRE_BATTLE_TEAM page (four runs of 2026-10-25, 4 s each).
+                                    'run_store': str(ROOT / 'config' / 'user-run-ledger.json'),
+                                    'address': args.address})
+        journal.record('mirror_loop_start', directory=str(directory), budget=budget,
+                       deadline=deadline, in_process=True, steps=args.steps,
+                       observe_only=bool(args.observe_only), address=args.address)
+        snapping = selfrun_finish.Snapshotting(journal, directory, result)
+        # The five transaction ledgers only exist when the runner is given a store
+        # (runner.py: every `X_transaction` is `X(...) if self.store is not None else None`),
+        # and a runner without them stops at the first PRE_BATTLE_TEAM page with
+        # `deployment_transaction_or_counter_missing` -- four live runs of 2026-10-25 died
+        # that way in 4 s while the screen offered `To Battle!`.  This tool built no store,
+        # so the agent's own builder decides: observe-only gives (None, None), a real run
+        # gets the ledger the packaged agent would have used.
+        from recognition import loop_store
+        store, run_id = loop_store(settings, journal)
+        loop = runner.MirrorRunner(inner, settings=settings, locale=args.locale,
+                                   registry=json.loads(runner.REGISTRY.read_text(encoding='utf-8')),
+                                   directory=directory, journal=snapping, observer=observer,
+                                   store=store, run_id=run_id, result=result)
+        loop.configure(deadline=deadline)
+        # `round_limit` is how many steps one call may walk (the agent passes the same
+        # budget as `steps`), not a cap on unproductive rounds.
+        summary = loop.run(steps=args.steps, interval=settings.interval,
+                           round_limit=args.steps, deadline=deadline)
+        # A tool that replaces the agent also writes the stop row the agent used to write,
+        # and the summary goes to disk here because `os._exit` skips `finally` (D195).
+        selfrun_finish.summary(snapping, summary, result, directory)
+    except BaseException as error:  # the run must leave a cause, whatever it was
+        result['error'] = str(error)[:300]
+        import traceback as _traceback
+        result['traceback'] = _traceback.format_exc()[-1500:]
+        result['passed'] = False
+        # The error path writes the same stop row and summary the success path does, so a
+        # tool run is readable through `run_metrics.ending` whichever way it ended (D195).
+        selfrun_finish.summary(journal, {'passed': False, 'reason': type(error).__name__},
+                               result, directory)
+        result['error'] = str(error)[:300]
+        result['passed'] = False
+    finally:
+        try:
+            lease.close()
+        except Exception:
+            pass
+        # The summary is written whatever happened above: a run that reached a floor and
+        # then tripped over its own bookkeeping still has to leave the numbers (D195).
+        try:
+            path = directory / 'events.jsonl'
+            rows = [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines()
+                    if line.strip()] if path.exists() else []
+            selfrun_finish.tally(rows, result)
+        except Exception as error:
+            result['summary_error'] = str(error)[:200]
+        try:
+            selfrun_finish.Snapshotting(journal, directory, result).snapshot()
+        except Exception as error:
+            result['summary_error'] = str(error)[:200]
+        print(json.dumps({key: result.get(key) for key in
+                          ('passed', 'events', 'stop', 'floors', 'error')}))
+    return 0 if result.get('passed') else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

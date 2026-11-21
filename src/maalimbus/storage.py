@@ -1,0 +1,332 @@
+"""Atomic private configuration and durable, ordered run evidence."""
+import hashlib
+import copy
+import datetime
+import json
+import os
+from dataclasses import asdict
+from pathlib import Path
+import tempfile
+import uuid
+
+from .policies import Team
+
+SINNERS = ('Yi Sang', 'Faust', 'Don Quixote', 'Ryoshu', 'Meursault', 'Hong Lu',
+           'Heathcliff', 'Ishmael', 'Rodion', 'Sinclair', 'Outis', 'Gregor')
+KEYWORDS = ('Bleed', 'Blunt', 'Burn', 'Charge', 'Keywordless', 'Pierce', 'Poise',
+            'Rupture', 'Sinking', 'Slash', 'Tremor', 'Vestige')
+#: Private configuration and state stay small; the ProjectInterface does not. It carries
+#: the option table for every identity (708 options, 3.7 MB on 2026-10-12), so it is read
+#: with this limit instead of the default one.
+INTERFACE_LIMIT = 16 * 1024 * 1024
+
+
+def write_json(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(data, ensure_ascii=False, indent=2).encode('utf-8')
+    from .workspace import reserve_output
+    # Atomic replacement temporarily retains the entire old file as well as the
+    # new one. Admit the full temporary payload, not just the final size delta.
+    reserve_output(path, len(payload))
+    # Unique temporary name and replace protect the previous complete state.
+    fd, name = tempfile.mkstemp(prefix=path.name + '.', suffix='.tmp', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'wb') as file:
+            file.write(payload)
+            file.flush()
+            os.fsync(file.fileno())
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def read_json(path, limit=2 * 1024 * 1024):
+    path = Path(path)
+    if path.stat().st_size > limit:
+        raise ValueError('Configuration/state exceeds %d MiB' % (limit // (1024 * 1024)))
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def team_from_json(value):
+    slot = value['slot']
+    if type(slot) is not int:
+        raise ValueError('Team slot must be an integer')
+    deployment = tuple(value.get('deployment', ()))
+    if any(s not in SINNERS for s in deployment):
+        raise ValueError('Deployment contains an unknown sinner')
+    keywords = frozenset(value.get('keywords', ()))
+    if not keywords <= set(KEYWORDS):
+        raise ValueError('Unknown gift keyword')
+    formation_keywords=frozenset(value.get('formation_keywords',()))
+    if not formation_keywords<=set(KEYWORDS):raise ValueError('Unknown formation keyword')
+    name = value.get('name', '')
+    if not isinstance(name, str) or len(name) > 80:
+        raise ValueError('Team name must be at most 80 characters')
+    return Team(slot, keywords, name, frozenset(value.get('allow', ())),
+                frozenset(value.get('block', ())), deployment,
+                tuple(tuple(p) for p in value.get('pack_weights', ())), formation_keywords,
+                tuple(value.get('graces',())),tuple(value.get('initial_gifts',())),value.get('auto_team',False),
+                value.get('grace_budget'))
+
+
+class ProfileStore:
+    def __init__(self, path):
+        self.path = Path(path)
+
+    def load(self):
+        value = read_json(self.path)
+        if value.get('version') != 1:
+            raise ValueError('Unsupported profile version')
+        teams = tuple(team_from_json(t) for t in value['teams'])
+        if not teams or len(teams) > 40 or len({t.slot for t in teams}) != len(teams):
+            raise ValueError('Configure unique saved-team slots in rotation order')
+        return teams
+
+    def save(self, teams):
+        data = []
+        for team in teams:
+            value = asdict(team)
+            for key in ('keywords', 'allow', 'block', 'formation_keywords'):
+                value[key] = sorted(value[key])
+            team_from_json(value)
+            data.append(value)
+        if not data or len(data) > 40 or len({t['slot'] for t in data}) != len(data):
+            raise ValueError('Configure unique saved-team slots in rotation order')
+        write_json(self.path, {'version': 1, 'teams': data})
+        return self.load()
+
+
+def seed_run_store(path, slots, *, rotation=0, overwrite=False):
+    """Write a fresh run ledger at a known rotation, before any run is active.
+
+    The rotation order is the player's own (their official ledger), so it is seeded
+    explicitly instead of being derived: every slot must be a saved team, and the
+    rotation must point at one of them. Refuses to touch an existing file, because
+    overwriting a ledger would silently move the player's place in the order.
+
+    ``overwrite`` exists for exactly one case: a ledger that has recorded nothing (no
+    active run and no receipts) and whose rotation no longer matches the player's
+    order -- for instance a run finished out of the harness' sight. It is refused the
+    moment a single run has been recorded, because then the place is evidence, not a
+    guess.
+    """
+    path = Path(path)
+    slots = [int(s) for s in slots]
+    if not slots or len(set(slots)) != len(slots) or any(type(s) is not int or not 1 <= s <= 40 for s in slots):
+        raise ValueError('Configure unique saved-team slots in rotation order')
+    if not 0 <= rotation < len(slots):
+        raise ValueError('Rotation must point at one of the saved teams')
+    if path.exists():
+        if not overwrite:
+            raise ValueError('A run ledger already exists; do not overwrite it')
+        existing = read_json(path)
+        if existing.get('active') is not None or existing.get('receipts'):
+            raise ValueError('A ledger that recorded a run is never reseeded')
+    write_json(path, dict(version=1, team_slots=slots, rotation=rotation,
+                          completed_runs=0, active=None, receipts=[]))
+
+
+class RunStore:
+    """One active run; rotate exactly once after floor 5, reward and entry return.
+
+    Callers must supply the retained observation file for every transition.
+    This stores evidence and order; it does not itself recognize game success.
+    """
+    def __init__(self, path, teams):
+        self.path = Path(path)
+        self.slots = [t.slot for t in teams]
+        if not self.slots or len(set(self.slots)) != len(self.slots):
+            raise ValueError('Invalid rotation')
+        if self.path.exists():
+            self.data = read_json(self.path)
+            if self.data.get('version') != 1 or self.data['team_slots'] != self.slots:
+                raise ValueError('Existing run uses another rotation; do not overwrite it')
+            if not 0 <= self.data['rotation'] < len(self.slots):
+                raise ValueError('Invalid persisted rotation')
+        else:
+            self.data = dict(version=1, team_slots=self.slots, rotation=0,
+                             completed_runs=0, active=None, receipts=[])
+
+    @property
+    def team_slot(self):
+        return self.slots[self.data['rotation']]
+
+    def point_at(self, slot):
+        """Aim the rotation at one saved-team slot, changing nothing else.
+
+        The player asks for a team by number ("test team 2 now") while the rotation is
+        a queue that only ever moves forward, and only after a run is fully receipted.
+        Between the two there was no supported way to say which team the *next* entry
+        brings: editing `rotation` by hand works but validates nothing, and reseeding
+        refuses a ledger that already recorded a run. This points the rotation at `slot`
+        and leaves `active`, `receipts` and `abandoned` untouched.
+
+        It refuses an unknown slot -- a typo would otherwise aim the window at a slot
+        that is not part of the rotation -- and it refuses while a run is active,
+        because `team_slot` is what the window clicks on the loadout page: moving the
+        rotation under an open run would make the window bring a team the ledger's own
+        record of that run does not name.
+        """
+        if self.data['active'] is not None:
+            raise ValueError('Finish or abandon the active run before moving the rotation')
+        if slot not in self.slots:
+            raise ValueError('Slot is not part of this rotation')
+        data = copy.deepcopy(self.data)
+        data['rotation'] = self.slots.index(slot)
+        write_json(self.path, data)
+        self.data = data
+        return data['rotation']
+
+    def start(self):
+        if self.data['active'] is None:
+            data = copy.deepcopy(self.data)
+            data['active'] = dict(id=uuid.uuid4().hex, team=self.team_slot,
+                                      floors=[], victory=False, reward=False, events={}, phase='preparing')
+            write_json(self.path, data)
+            self.data = data
+        return self.data['active']['id']
+
+    def entry_intent(self, run_id, team, evidence):
+        active = self.data.get('active')
+        if (not active or active['id'] != run_id or active['team'] != team or
+                active.get('phase') != 'preparing' or active.get('entry')):
+            raise ValueError('Entry confirmation already sent or scope unknown')
+        path = Path(evidence)
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        data = copy.deepcopy(self.data)
+        data['active'].update(phase='entry_pending', entry=dict(team=team,
+            before=str(path.resolve()), before_sha256=digest, confirm_sent=True))
+        write_json(self.path, data)
+        self.data = data
+
+    def entry_observed(self, run_id, page, evidence):
+        active = self.data.get('active')
+        if (not active or active['id'] != run_id or active.get('phase') != 'entry_pending' or
+                not active.get('entry', {}).get('confirm_sent') or
+                page not in ('STAR_GRACES','INITIAL_GIFTS','THEME_PACKS','MAP')):
+            raise ValueError('Independent entry successor required')
+        path = Path(evidence)
+        data = copy.deepcopy(self.data)
+        data['active']['phase'] = 'entered'
+        data['active']['entry'].update(successor_page=page, successor=str(path.resolve()),
+                                      successor_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+        write_json(self.path, data)
+        self.data = data
+
+    def entry_warning_intent(self, run_id, evidence):
+        active=self.data.get('active') or {}
+        if (active.get('id')!=run_id or active.get('phase')!='entry_pending' or
+                not active.get('entry',{}).get('confirm_sent') or active['entry'].get('warning_sent')):
+            raise ValueError('Level-warning confirmation pending or scope unknown')
+        path=Path(evidence);data=copy.deepcopy(self.data)
+        data['active']['entry'].update(warning_sent=True,warning_before=str(path.resolve()),
+            warning_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+        write_json(self.path,data);self.data=data
+
+    def abandon(self, *, note=None, ended_entry_proof=None):
+        """Drop the active run and leave the rotation where it stands.
+
+        A wipe only ends a dungeon if the player accepts the result, and the driver keeps
+        that row out of its plans (the wipe dialog offers a bounded retry instead), so a
+        run the player gives up on would otherwise stay active for ever and keep pinning
+        its team slot -- and nothing could clear it, because reseeding refuses a ledger
+        that already recorded a run. Abandoning files the active record (with the floors
+        it had proved and the note) under `abandoned` and clears `active`, so the next
+        entry starts the same team again. It refuses when no run is open.
+        """
+        if self.data['active'] is None:
+            raise ValueError('There is no active run to abandon')
+        data = copy.deepcopy(self.data)
+        active = data['active']
+        data.setdefault('abandoned', []).append(dict(
+            active, note=note,
+            abandoned_at=datetime.datetime.now(datetime.timezone.utc).isoformat()))
+        if ended_entry_proof is not None:
+            data['abandoned'][-1]['ended_entry_proof']=copy.deepcopy(ended_entry_proof)
+        data['abandoned'] = data['abandoned'][-50:]
+        data['active'] = None
+        write_json(self.path, data)
+        self.data = data
+        return dict(active)
+
+    def record(self, run_id, event_id, kind, evidence, *, floor=None):
+        data = copy.deepcopy(self.data)
+        active = data['active']
+        if active is None or active['id'] != run_id:
+            raise ValueError('Observation does not belong to the active run')
+        proof = Path(evidence)
+        digest = hashlib.sha256(proof.read_bytes()).hexdigest()
+        event = dict(kind=kind, floor=floor, evidence=str(proof.resolve()), sha256=digest)
+        if event_id in active['events']:
+            if active['events'][event_id] != event:
+                raise ValueError('Conflicting observation ID')
+            return False
+        if kind == 'floor_clear':
+            if type(floor) is not int or floor != len(active['floors']) + 1 or not 1 <= floor <= 5:
+                raise ValueError('Floors must be verified in sequence')
+            active['floors'].append(floor)
+        elif kind == 'final_victory':
+            if active['floors'] != [1, 2, 3, 4, 5]:
+                raise ValueError('Final victory needs all five verified floors')
+            active['victory'] = True
+        elif kind == 'reward_received':
+            if not active['victory']:
+                raise ValueError('Reward cannot complete a run without victory')
+            active['reward'] = True
+        elif kind == 'entry_returned':
+            if not active['reward']:
+                raise ValueError('Entry return cannot advance an unclaimed run')
+        else:
+            raise ValueError('Unsupported completion observation')
+        active['events'][event_id] = event
+        if kind == 'entry_returned':
+            # A receipt says when it was settled, so the driver can tell a payout that was
+            # earned from one the game handed over after expiring the run: both are the
+            # newest settled thing, and only the later of the two may spend a weekly bonus.
+            active['settled_at'] = datetime.datetime.now(
+                datetime.timezone.utc).isoformat()
+            data['receipts'].append(active)
+            data['receipts'] = data['receipts'][-50:]
+            data['completed_runs'] += 1
+            data['rotation'] = (data['rotation'] + 1) % len(self.slots)
+            data['active'] = None
+        write_json(self.path, data)
+        self.data = data
+        return True
+
+    def skip_current(self, request_id, *, expected_rotation):
+        """Explicit idle skip; never a clear, reward or automatic abandonment policy.
+
+        A retained request ID makes a retry after a lost response idempotent. The
+        expected cursor prevents a stale settings panel from skipping a new team.
+        Caller must hold the controller lease and validate task/payout state.
+        """
+        if (not isinstance(request_id, str) or len(request_id) != 32
+                or any(c not in '0123456789abcdef' for c in request_id)):
+            raise ValueError('Invalid manual skip request')
+        try:
+            int(request_id, 16)
+        except ValueError:
+            raise ValueError('Invalid manual skip request') from None
+        for row in self.data.get('manual_skips', []):
+            if row['request_id'] == request_id:
+                return dict(row, repeated=True)
+        if self.data['active'] is not None:
+            raise ValueError('Finish or abandon the active run before skipping its team')
+        if type(expected_rotation) is not int or expected_rotation != self.data['rotation']:
+            raise ValueError('Rotation changed; refresh the displayed team before skipping')
+        if len(self.slots) < 2:
+            raise ValueError('Single-team mode has no next rotation team')
+        data = copy.deepcopy(self.data)
+        after = (expected_rotation + 1) % len(self.slots)
+        row = dict(request_id=request_id, before=expected_rotation, after=after,
+                   previous_team=self.team_slot, next_team=self.slots[after],
+                   reason='explicit_manual_skip', counts_as_completion=False)
+        data.setdefault('manual_skips', []).append(row)
+        data['manual_skips'] = data['manual_skips'][-50:]
+        data['rotation'] = after
+        write_json(self.path, data)
+        self.data = data
+        return dict(row, repeated=False)

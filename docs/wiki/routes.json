@@ -1,0 +1,5145 @@
+{
+  "schema_version": 1,
+  "project": "MaaLimbus",
+  "routes": [
+    {
+      "id": "bounded-image-vault",
+      "title": "自动证据容量管理和可选冷归档 / automatic evidence capacity and local vault",
+      "aliases": [
+        "自动回收",
+        "本机冷归档",
+        "native image vault",
+        "managed disk growth"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/native_cold_vault.py",
+          "symbol": "offload"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "archive_file"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_reserve"
+        },
+        {
+          "path": "src/maalimbus/workspace.py",
+          "symbol": "protected_evidence"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#bounded-image-vault",
+        "docs/wiki/en_us/6-deployment.md#bounded-image-vault"
+      ],
+      "tests": [
+        "tests/test_native_image_archive.py",
+        "tests/test_cold_retention.py",
+        "tests/test_capture_retention.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_native_image_archive.py tests/test_cold_retention.py tests/test_capture_retention.py"
+      ],
+      "boundary": "Project 3 GB and separately bounded opt-in vault. Whole immutable historical blobs retain logical bytes and index identity. Current, referenced, unclosed or unverifiable captures stay in the project. No input or pending-state authority."
+    },
+    {
+      "id": "page-journey",
+      "title": "页面组件、预期后继与续跑记录 / page components and resumable route records",
+      "aliases": [
+        "页面组件",
+        "中断续跑",
+        "当前页面",
+        "page_checkpoint",
+        "MIRROR_ENTRY 预留"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/anchors.py",
+          "symbol": "describe_page"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "mirror_entry_components"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._page_checkpoint"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._admit_capacity"
+        },
+        {
+          "path": "src/maalimbus/run_wiring.py",
+          "symbol": "journey_progress"
+        },
+        {
+          "path": "tools/run_ledger.py",
+          "symbol": "route_status"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#page-journey",
+        "docs/wiki/en_us/3-runtime.md#page-journey"
+      ],
+      "tests": [
+        "tests/test_anchors.py",
+        "tests/test_stall_watch.py",
+        "tests/test_run_ledger.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_anchors.py tests/test_stall_watch.py tests/test_run_ledger.py"
+      ],
+      "boundary": "The checkpoint is scoped to a named original capture. A same-frame plan is a proposal; fresh observation, domain successors, input admission and transaction reconciliation retain authority. The catalog matches 43 of 63 page names. Installed run 193007 observed the Floor 3 entrance and stopped before input on storage admission."
+    },
+    {
+      "id": "node-preview-handoff",
+      "title": "地图到预览的同帧控件交接 / same-frame node preview handoff",
+      "aliases": [
+        "NODE_PREVIEW",
+        "node_preview",
+        "the_preview_panel_has_no_enter_to_press",
+        "节点预览",
+        "预览Enter",
+        "地图后继遗漏"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "node_preview"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "_plan_step"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "node_transition"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "after_settle"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "fact_drift"
+        },
+        {
+          "path": "tools/verify_capture_scale_native.py",
+          "symbol": "main"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#node-preview-handoff",
+        "docs/wiki/en_us/4-business-flows.md#node-preview-handoff"
+      ],
+      "tests": [
+        "tests/test_node_preview.py",
+        "tests/test_map_transition_contract.py",
+        "tests/test_map_dispatch.py",
+        "tests/test_page_contracts.py",
+        "tests/test_map_control_roles.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py tests/test_node_preview.py tests/test_map_transition_contract.py tests/test_map_dispatch.py tests/test_page_contracts.py tests/test_map_control_roles.py -q"
+      ],
+      "boundary": "Current native frame proves preview caption/Enter, not a complete transition. Source fresh-control/box-shape/original-expectation handoff and static projection corrected;66related pass. Full functional snapshot4failed/3502passed/709skipped predates projection-only correction; three historical audits remain open. Frozen/native/live reacceptance separate; no floor/payout/model grant."
+    },
+    {
+      "id": "wiki-hook-integration",
+      "title": "Wiki hook integration",
+      "aliases": [
+        "hook",
+        "hooks",
+        "PROJECT_WIKI_PACKET",
+        "wiki lifecycle",
+        "wiki没有送达"
+      ],
+      "sources": [
+        {
+          "path": "tools/wiki_hook.py",
+          "symbol": "deliver"
+        },
+        {
+          "path": "tools/wiki_session.py",
+          "symbol": "prepare"
+        },
+        {
+          "path": "tools/wiki_context.py",
+          "symbol": "native_context"
+        },
+        {
+          "path": "tools/wiki_router.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/wiki_route.py",
+          "needle": "if __name__=='__main__':"
+        },
+        {
+          "path": "AGENTS.md",
+          "needle": "### Project Wiki"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/8-agent-rules.md#project-wiki-hooks",
+        "docs/wiki/en_us/8-agent-rules.md#project-wiki-hooks"
+      ],
+      "tests": [
+        "tests/test_wiki_hooks.py"
+      ],
+      "checks": [
+        "python tools/wiki_session.py status",
+        "python tools/run_tests.py tests/test_wiki_hooks.py"
+      ],
+      "boundary": "Project adapter invokes the installed project-wiki saved-only lifecycle. Normal project-definition trust observed; actual host trigger/context use remain unobserved. Local replay, routing and compatibility tests do not prove game completion. No controller or trust writes."
+    },
+    {
+      "id": "native-input-ownership",
+      "title": "原生输入通道与未知提交 / native input ownership and uncertain dispatch",
+      "aliases": [
+        "native_input_completion_unproven",
+        "input_dispatch_uncertain",
+        "输入超时重复",
+        "输入已经尝试",
+        "native input owner"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaDevice._send"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaDevice.send_through_a_task"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "InputDispatchUncertain"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#native-input-owner",
+        "docs/wiki/en_us/3-runtime.md#native-input-owner"
+      ],
+      "tests": [
+        "tests/test_input_call_deadline.py",
+        "tests/test_input_route.py",
+        "tests/test_native_pinch_route.py",
+        "tests/test_maa_coordinate_boundary.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py tests/test_input_call_deadline.py tests/test_input_route.py tests/test_native_pinch_route.py",
+        "python tools/verify_controller_coordinates.py"
+      ],
+      "boundary": "Tasker/Context ownership is selected before dispatch; missing acknowledgement cannot authorize replay. Native in-memory proof has zero game inputs. Generic executor, physical acceptance and whole-run completion remain open."
+    },
+    {
+      "id": "current-runtime-checkpoint",
+      "title": "当前实机进度与安装差异 / current native checkpoint and installed boundary",
+      "aliases": [
+        "current checkpoint",
+        "现在跑到哪里",
+        "当前续作",
+        "最新验收",
+        "post-passage review",
+        "修后复盘"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/run_wiring.py",
+          "symbol": "observe_map_checkpoint"
+        },
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "bound_frame"
+        },
+        {
+          "path": "AGENTS.md",
+          "needle": "安装版实际通过卡点后，按"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#current-checkpoint",
+        "docs/wiki/en_us/9-execution-plan.md#current-checkpoint",
+        "docs/wiki/en_us/9-execution-plan.md#post-passage-review",
+        "docs/wiki/zh_cn/9-execution-plan.md#post-passage-review"
+      ],
+      "tests": [
+        "tests/test_map_locomotive_marker.py"
+      ],
+      "checks": [
+        "python tools/wiki_route.py \"current checkpoint\""
+      ],
+      "boundary": "Single current-checkpoint anchor precedes explicitly dated feasibility history. Read source/installed/current game separately. 2026-11-21 UTC: installed b112566 via MXU Start cleared Team2 floor 5 and recorded final victory; rebuilt a2546a0 claimed the user-authorized 18-module, weekly 3/3 offer through the headless installed entry (four proven inputs, receipt 750, pass 203) and booked it at HOME with no input; ledger holds three completed runs and no active run. Open: one GUI start through to payout, a single-pass payout (loader wait installed with 5c57e55, not exercised live), multi-team rotation."
+    },
+    {
+      "id": "lossless-native-images",
+      "title": "原始截图无损冷存储与登录恢复分流 / lossless native storage and startup recovery",
+      "aliases": [
+        "登录卡住",
+        "cold startup",
+        "截图压缩",
+        "2GB",
+        "recovery dispatch",
+        "TITLE",
+        "title_start_not_anchored",
+        "TOUCH TO START",
+        "login fresh handoff",
+        "3GB",
+        "3g空间",
+        "项目容量",
+        "截图保留职责",
+        "capture retention ownership"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_released_poll_diagnostics"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "read_png"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "compact"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "retire"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._viewport_recovery"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_source_references"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "verified_reads"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "verified_png"
+        },
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "bound_frame"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "plan"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "reserve"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "candidates"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._startup_handoff"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._resume_login"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._capacity_reobserve"
+        },
+        {
+          "path": "src/maalimbus/workspace.py",
+          "symbol": "require_space"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#capture-retention-ownership",
+        "docs/wiki/en_us/6-deployment.md#capture-retention-ownership",
+        "docs/wiki/zh_cn/6-deployment.md#native-image-cold-storage",
+        "docs/wiki/en_us/6-deployment.md#native-image-cold-storage",
+        "docs/wiki/zh_cn/3-runtime.md#startup-recovery-dispatch",
+        "docs/wiki/en_us/3-runtime.md#startup-recovery-dispatch",
+        "docs/wiki/zh_cn/6-deployment.md#source-fixture-pins",
+        "docs/wiki/en_us/6-deployment.md#source-fixture-pins",
+        "docs/wiki/zh_cn/6-deployment.md#original-read-session",
+        "docs/wiki/en_us/6-deployment.md#original-read-session",
+        "docs/wiki/zh_cn/6-deployment.md#archive-page-ownership",
+        "docs/wiki/zh_cn/1-overview.md#glossary",
+        "docs/wiki/en_us/6-deployment.md#archive-page-ownership",
+        "docs/wiki/en_us/1-overview.md#glossary",
+        "docs/wiki/en_us/3-runtime.md#fresh-startup-owner",
+        "docs/wiki/zh_cn/3-runtime.md#fresh-startup-owner"
+      ],
+      "tests": [
+        "tests/test_native_image_archive.py",
+        "tests/test_startup_recovery_dispatch.py",
+        "tests/test_capture_retention.py",
+        "tests/test_original_read_session.py",
+        "tests/test_archive_page_ownership.py",
+        "tests/test_archived_retention_witness.py",
+        "tests/test_title_flow_retained.py",
+        "tests/test_capacity_plan_refresh.py",
+        "tests/test_workspace_retention.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py tests/test_native_image_archive.py tests/test_startup_recovery_dispatch.py tests/test_original_read_session.py tests/test_capture_retention.py tests/test_evidence_capacity.py"
+      ],
+      "boundary": "Exact raw/cold original bytes and separate review authority remain required. Current startup source: direct/recovered observation shares one owner; capacity work discards unsent login plan before intent/attempt/deadline. After acknowledged Start, independent reads consume existing absolute180s window without immediate repeat; exact client-update foreground blocks background TITLE and names required external update.112focused and actual native client-update OCR passed; full/new freeze/live next. Actual game is updated1.119.1/code494. Previous clean55 source full3742/699skip and actual frozen Agent/launcher3GB/private preservation passed; updated-source and whole-run acceptance are separate. No receipt/pending reset, expiry or model grant follows from a title/notice. Final complete source3756passed/699historical skips/517.35s/ownexit0; current-cohort UNKNOWN wait1of3 chrome only reviewed with hash-bound journals, no historical/threshold/order/input-authority change. New freeze/updated-client continuous task next. Actual clean5e2ba53 Agent install/self-test/549snapshot/PYZ startup+notice and source-frozen6290refs parity passed;106private/31canonical preserved;both components3GB;folder2.156GB. Updated1.119.1 continuous installed task next, whole-run unaccepted."
+    },
+    {
+      "id": "native-frame-reference",
+      "title": "战斗事件混入商店OCR与同帧引用 / native event and same-frame identity",
+      "aliases": [
+        "FrameRef",
+        "observation frame",
+        "跨帧OCR",
+        "最新截图补错",
+        "frame binding failed",
+        "原生帧绑定"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runtime_contracts.py",
+          "symbol": "FrameRef"
+        },
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "frame_reference"
+        },
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "observation_frame"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "observe"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaObserver"
+        },
+        {
+          "path": "src/maalimbus/capture_profiles.py",
+          "symbol": "BattleCaptureObserver._identity"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#feature-3-12",
+        "docs/wiki/en_us/3-runtime.md#feature-3-12",
+        "docs/wiki/zh_cn/5-state-and-data.md#feature-5-6",
+        "docs/wiki/en_us/5-state-and-data.md#feature-5-6"
+      ],
+      "tests": [
+        "tests/test_observation_frame.py",
+        "tests/test_runtime_contracts.py",
+        "tests/test_native_reads.py",
+        "tests/test_capture_profiles.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_observation_frame.py tests/test_runtime_contracts.py tests/test_native_reads.py tests/test_capture_profiles.py"
+      ],
+      "boundary": "Native metadata binding source migration: original named JSON/PNG only, missing/conflicting proof cannot borrow latest; page UNKNOWN/domain hypotheses preserved. FrameRef is not freshness, input/spend authority or completion. Legacy replay remains explicit; complete immutable Observation/pixel callers/executor still open. Native/frozen/live proof follows current checkpoint."
+    },
+    {
+      "id": "packaged-cold-launch",
+      "title": "原生打开游戏到成品镜牢 / native open-game then packaged Mirror",
+      "aliases": [
+        "OpenGameTask",
+        "打开游戏",
+        "cold launch",
+        "冷启动",
+        "Android launcher"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/game_launch.py",
+          "symbol": "open_game"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MainTaskAction"
+        },
+        {
+          "path": "tools/verify_packaged_mirror_loop.py",
+          "symbol": "check_open_game_foreground"
+        },
+        {
+          "path": "tools/verify_packaged_mirror_loop.py",
+          "symbol": "open_game_first"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#cold-launch-verification",
+        "docs/wiki/en_us/4-business-flows.md#cold-launch-verification"
+      ],
+      "tests": [
+        "tests/test_game_launch.py",
+        "tests/test_packaged_open_game.py",
+        "tests/test_main_task_dispatch.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_game_launch.py tests/test_packaged_open_game.py tests/test_main_task_dispatch.py"
+      ],
+      "boundary": "Explicit packaged harness cold-launch option reuses existing production OpenGameTask. Launcher/target only, readonly cannot launch, pending launch not repeated; normal verified launch must precede Mirror on same controller. Focused checks are not live GUI or complete Mirror acceptance; see current checkpoint."
+    },
+    {
+      "id": "map-target-role",
+      "title": "探索进度被格距门禁拦住 / Page control treated as map node",
+      "aliases": [
+        "map_target_outside_current_step",
+        "探索进度",
+        "TargetRole",
+        "页面控件",
+        "progress panel distance",
+        "动画面板误判MAP",
+        "named foreground",
+        "blind map modal",
+        "底图抢占",
+        "current room",
+        "occupied node",
+        "最右侧列车",
+        "gold badge wrong party",
+        "当前房间"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "is_node_action"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "_plan_step"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "can_probe_header_only"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "resume_navigation_requested"
+        },
+        {
+          "path": "src/maalimbus/dungeon_progress.py",
+          "symbol": "floating_panel"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "occupied_node"
+        },
+        {
+          "path": "src/maalimbus/unknown_exploration.py",
+          "symbol": "Exploration.choose"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-20",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-20"
+      ],
+      "tests": [
+        "tests/test_map_control_roles.py",
+        "tests/test_map_withheld_recovery.py",
+        "tests/test_occupied_node_probe.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_map_control_roles.py tests/test_map_withheld_recovery.py"
+      ],
+      "boundary": "Only bound progress controls bypass node reach. UNKNOWN header probes cannot override named foregrounds; floating-panel row anchors add no weaker OCR thresholds. Current-scope resume restores a navigation goal only. Retained-frame/synthetic successor checks do not prove resumed gameplay."
+    },
+    {
+      "id": "native-pinch-context",
+      "title": "双指缩放空Controller ID / Native pinch callback route",
+      "aliases": [
+        "post_touch_down",
+        "MultiSwipe",
+        "controller_id empty",
+        "缩放挂住",
+        "导航复核副本",
+        "post_swipe empty ID",
+        "callback transport",
+        "Context input owner"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/native_gestures.py",
+          "symbol": "pinch_node"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaDevice.pinch"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._normalise_view_once"
+        },
+        {
+          "path": "src/maalimbus/jobs.py",
+          "symbol": "wait_task"
+        },
+        {
+          "path": "src/maalimbus/review_storage.py",
+          "symbol": "compaction_plan"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "AgentTasker"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#feature-3-10",
+        "docs/wiki/en_us/3-runtime.md#feature-3-10",
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-8-4",
+        "docs/wiki/en_us/6-deployment.md#feature-6-8-4"
+      ],
+      "tests": [
+        "tests/test_native_pinch_route.py",
+        "tests/test_task_producer_exit.py",
+        "tests/test_review_storage.py",
+        "tests/test_viewport_freshness.py",
+        "tests/test_input_route.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_native_pinch_route.py tests/test_task_producer_exit.py tests/test_review_storage.py"
+      ],
+      "boundary": "Native Resource parse and routing negatives are not live gesture acceptance; reference compaction preserves originals/manual reviews and approves no label. No restart while the prior producer remains alive."
+    },
+    {
+      "id": "bootstrap-checkpoint-retention",
+      "title": "主页重复等待标题与精确容量 / HOME checkpoint and exact-byte capacity",
+      "aliases": [
+        "主页等待标题",
+        "HOME title wait",
+        "TOUCHITOISTART",
+        "无输入主页回收",
+        "UTF8容量"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/session_flow.py",
+          "symbol": "checkpoint_index"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "run_flow"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "input_free_home_history"
+        },
+        {
+          "path": "src/maalimbus/documents.py",
+          "symbol": "write_document"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-11",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-11",
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-8-3",
+        "docs/wiki/en_us/6-deployment.md#feature-6-8-3"
+      ],
+      "tests": [
+        "tests/test_flow_checkpoint_and_home_retention.py",
+        "tests/test_evidence_writer_capacity.py",
+        "tests/test_title_flow_retained.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_flow_checkpoint_and_home_retention.py tests/test_evidence_writer_capacity.py tests/test_title_flow_retained.py"
+      ],
+      "boundary": "Navigation skip is no input or business receipt; only sealed input-free HOME histories qualify, all external proof pins retained. Installed/live acceptance separate."
+    },
+    {
+      "id": "closed-report-archive",
+      "title": "封存报告归档与引用保护 / closed-report archive and frame pins",
+      "aliases": [
+        "报告压缩",
+        "旧报告归档",
+        "read_evidence_report",
+        "归档引用",
+        "report archive",
+        "归档增量",
+        "archive rollover",
+        "归档中断恢复"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/evidence_reports.py",
+          "symbol": "references"
+        },
+        {
+          "path": "src/maalimbus/evidence_reports.py",
+          "symbol": "read_report_bytes"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "storage_diagnostic"
+        },
+        {
+          "path": "tools/restore_report_snapshot.py",
+          "symbol": "reconstruct"
+        },
+        {
+          "path": "tools/rollover_report_archive.py",
+          "symbol": "prepare"
+        },
+        {
+          "path": "tools/rollover_report_archive.py",
+          "symbol": "rollover"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-8-2",
+        "docs/wiki/en_us/6-deployment.md#feature-6-8-2"
+      ],
+      "tests": [
+        "tests/test_evidence_reports.py",
+        "tests/test_capture_retention.py",
+        "tests/test_report_snapshot.py",
+        "tests/test_report_rollover.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_evidence_reports.py tests/test_capture_retention.py",
+        "dist/MaaLimbus/agent/MaaLimbusAgent.exe --evidence-storage-check",
+        "python tools/run_tests.py -q tests/test_report_rollover.py tests/test_report_snapshot.py tests/test_evidence_reports.py"
+      ],
+      "boundary": "Exact immutable closed-build-report bytes and frame pins only; no game/config/pending/capture/review migration. Actual generation6:23sealed reports moved,143members,3375evidence files unchanged,5888reference pins/source-frozen reader parity. Four interruption stages covered; original generation4/5 ZIPs reconstruct byte-exactly. Not long-run capture capacity, gameplay, learning-quality or full-goal acceptance."
+    },
+    {
+      "id": "input-evidence-capacity",
+      "title": "输入前证据容量预留 / pre-dispatch evidence capacity",
+      "aliases": [
+        "发送前容量",
+        "2GB截图失败",
+        "预留后继截图",
+        "reserved credit",
+        "evidence capacity",
+        "双槽恢复",
+        "frozen image runtime",
+        "optional video backend",
+        "视频后端",
+        "运行包体积",
+        "selection commit",
+        "编队证据容量",
+        "罪人数增加",
+        "recorder versus scope",
+        "续跑尾部重复",
+        "跨会话编队",
+        "1280 capture",
+        "小图固定裁剪",
+        "低分辨率容量",
+        "3GB",
+        "3g空间",
+        "项目容量",
+        "evidence_capacity_unavailable_before_input",
+        "capacity_plan_discarded",
+        "storage_credit_handoff_bytes",
+        "反复容量重规划",
+        "the_run_kept_observing_without_writing_anything",
+        "evidence_storage_progress",
+        "原图回收无进展",
+        "Fresh capture required after storage maintenance",
+        "LimbusRecognition.cache",
+        "相同像素新记录",
+        "source-v3",
+        "split-source-pins",
+        "拆分路径保护",
+        "fixture original discarded",
+        "Cold diagnostic role inputs changed",
+        "Discarded proposal witnesses changed",
+        "guarded-storage-progress",
+        "日志自修改",
+        "Workspace budget exceeded compact",
+        "compression scratch",
+        "native_temp TEMP",
+        "临时目录峰值",
+        "staged observation credit",
+        "purpose refresh",
+        "分阶段观察预留"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/evidence_capacity.py",
+          "symbol": "EvidenceCapacity.admit"
+        },
+        {
+          "path": "src/maalimbus/evidence_capacity.py",
+          "symbol": "EvidenceCapacity.load"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.before_input"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.frame"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._admit_capacity"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "reference_inventory"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_settled_map_inputs"
+        },
+        {
+          "path": "tools/frozen_image_bundle.py",
+          "symbol": "trim_image_bundle"
+        },
+        {
+          "path": "src/maalimbus/deployment_evidence.py",
+          "symbol": "selection_commit"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_older_selection_diagnostics"
+        },
+        {
+          "path": "src/maalimbus/deployment_evidence.py",
+          "symbol": "diagnostic_index"
+        },
+        {
+          "path": "tools/verify_capture_scale_native.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "prune_discarded_plan"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_discarded_capacity_plans"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/workspace.py",
+          "symbol": "require_space"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "completed_capture_retirement"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_delete_rows"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._storage_progress"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.needs_fresh_capture"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "LimbusRecognition.observe"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_source_references"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "deferred_progress"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "completed_cold_retirement"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._storage_activity"
+        },
+        {
+          "path": "src/maalimbus/cold_retention.py",
+          "symbol": "reclaim"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "compact"
+        },
+        {
+          "path": "src/maalimbus/native_agent.py",
+          "symbol": "native_temp"
+        },
+        {
+          "path": "src/maalimbus/evidence_capacity.py",
+          "symbol": "refresh_required"
+        },
+        {
+          "path": "src/maalimbus/evidence_capacity.py",
+          "symbol": "EvidenceCapacity.consume_capture"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._capacity_reobserve"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#staged-observation-credit",
+        "docs/wiki/zh_cn/5-state-and-data.md#capacity-credit-phases",
+        "docs/wiki/en_us/6-deployment.md#staged-observation-credit",
+        "docs/wiki/en_us/5-state-and-data.md#capacity-credit-phases",
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-8-1",
+        "docs/wiki/en_us/6-deployment.md#feature-6-8-1",
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-8-5",
+        "docs/wiki/en_us/6-deployment.md#feature-6-8-5",
+        "docs/wiki/en_us/6-deployment.md#cold-diagnostic-lifecycle",
+        "docs/wiki/zh_cn/6-deployment.md#cold-diagnostic-lifecycle",
+        "docs/wiki/en_us/6-deployment.md#storage-plan-refresh",
+        "docs/wiki/zh_cn/6-deployment.md#storage-plan-refresh",
+        "docs/wiki/en_us/6-deployment.md#funded-storage-reobserve",
+        "docs/wiki/zh_cn/6-deployment.md#funded-storage-reobserve",
+        "docs/wiki/en_us/6-deployment.md#raw-retirement-progress",
+        "docs/wiki/zh_cn/6-deployment.md#raw-retirement-progress",
+        "docs/wiki/en_us/6-deployment.md#required-capture-cache",
+        "docs/wiki/zh_cn/6-deployment.md#required-capture-cache",
+        "docs/wiki/en_us/6-deployment.md#split-source-pins",
+        "docs/wiki/zh_cn/6-deployment.md#split-source-pins",
+        "docs/wiki/en_us/6-deployment.md#guarded-storage-progress",
+        "docs/wiki/zh_cn/6-deployment.md#guarded-storage-progress",
+        "docs/wiki/zh_cn/6-deployment.md#compression-staging-peak",
+        "docs/wiki/en_us/6-deployment.md#compression-staging-peak"
+      ],
+      "tests": [
+        "tests/test_evidence_capacity.py",
+        "tests/test_journal_workspace_limit.py",
+        "tests/test_input_route.py",
+        "tests/test_reference_inventory.py",
+        "tests/test_frozen_image_bundle.py",
+        "tests/test_deployment_evidence.py",
+        "tests/test_capture_coordinates.py",
+        "tests/test_capacity_handoff.py",
+        "tests/test_cold_retention.py",
+        "tests/test_capacity_plan_refresh.py",
+        "tests/test_workspace_retention.py",
+        "tests/test_retirement_progress.py",
+        "tests/test_progress_window.py",
+        "tests/test_original_read_session.py",
+        "tests/test_capture_cache_refresh.py",
+        "tests/test_observation_frame.py",
+        "tests/test_capture_profiles.py",
+        "tests/test_split_source_references.py",
+        "tests/test_reference_cache.py",
+        "tests/test_white_connected_node.py",
+        "tests/test_cold_storage_progress.py",
+        "tests/test_compression_peak.py",
+        "tests/test_staged_credit.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_evidence_capacity.py tests/test_journal_workspace_limit.py tests/test_input_route.py",
+        "python tools/verify_evidence_capacity_retained.py --out build/evidence-capacity-retained-verification.json"
+      ],
+      "boundary": "Installed970b8ed physically reused deployment→BATTLE_HUD turn1/MAX and cold commit/deferred progress; next joint3P+stop+journal peak refused before input. Actual retained986884byte pair demonstrates staged fit, not future size. Plan refresh-purpose one-read credit then independent fresh FrameRef→full two successor input credit/device recheck. Source implemented259related/9skip, native cache/admission share predicate and completed refresh must attempt full input. Real retained replay oldjoint refuses→new two refreshes/full2P simulated click1/device0; current original/private bytes unchanged. Full XML/install/live pending, same producer bounds/3GB/foreign/pending/torn/stale authority. Full4008/701skip is prior source; no whole-run/payout/rotation/latestGUIStart/model-promotion/lost0048 recovery claim. Stable-source full4017pass/701skip/559.98s/pytest ownexit0; XML nine added passes and no existing case status losses. Prior lost0048/two coverage gaps remain explicit. Clean freeze then current sameTeam2 physical battle continuation remain next. Actual cleande63542 Agent installed terminalexit0;549source snapshot/13complete compiled identities/self-test,106private/33canonical/current originals unchanged. Actual installed PYZ recognition and capacity code execute retained-frame staged-credit replay: old joint refuses, two refreshes then full16,699,268bytes, simulated input1/device0. Prior frozen native_TEMP/memory-staging readback retained. Source/frozen7174references/143archived reports match; launcher unchanged, folder2,967,297,809bytes. build/staged-credit-installed-verification.json. Full4017pass/701skip/559.98s/ownexit0, XML9new passes/0old status loss. Next fresh page and normal sameTeam2 continuous physical task. Not GUIStart/whole-run/payout/rotation/model promotion or lost0048 recovery."
+    },
+    {
+      "id": "battle-capture-profile",
+      "title": "战斗小图与跨页独立大图 / qualified battle sizing and full fallback",
+      "aliases": [
+        "capture profile",
+        "battle1280",
+        "截图尺寸切换",
+        "战斗小图",
+        "capture_profile_full_reread",
+        "shop_transaction_scope_missing",
+        "native access violation",
+        "borrowed controller",
+        "冷启动观察崩溃",
+        "RemoteTasker::controller"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/capture_profiles.py",
+          "symbol": "BattleCaptureObserver"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "symbol": "start_button"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "symbol": "dial_control"
+        },
+        {
+          "path": "src/maalimbus/evidence_capacity.py",
+          "symbol": "EvidenceCapacity.admit"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.before_input"
+        },
+        {
+          "path": "tools/verify_capture_profiles_native.py",
+          "symbol": "main"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MirrorLoopAction"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#battle-capture-profile",
+        "docs/wiki/en_us/6-deployment.md#battle-capture-profile"
+      ],
+      "tests": [
+        "tests/test_capture_profiles.py",
+        "tests/test_battle_capture_geometry.py",
+        "tests/test_evidence_capacity.py",
+        "tests/test_shop_observe_only.py",
+        "tests/test_callback_controller_lifetime.py",
+        "tests/test_input_call_deadline.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_capture_profiles.py tests/test_battle_capture_geometry.py tests/test_evidence_capacity.py tests/test_shop_observe_only.py"
+      ],
+      "boundary": "Source/native proxy and ordinary MirrorLoop observe-only verified, not GUI or live game. Small non-HUD/insufficient reads require fresh1920; original deadline and worst-case full successor capacity apply. Explicit fixed profile unchanged. Shop read-only skips transaction effects; actual purchase still requires scope. No new input, spend, model promotion or whole-run capacity acceptance. Actual cold-start05782de failed before first page input: repeated RemoteTasker controller getters invalidated borrowed pointers. Per-callback single binding source repair and generation-invalidating tests pass; installed/live reacceptance remains open."
+    },
+    {
+      "id": "capture-calibration",
+      "title": "截图尺寸、星光裁剪与坐标归属 / capture size and star calibration",
+      "aliases": [
+        "capture coordinates",
+        "capture calibration",
+        "star crop",
+        "星光裁剪",
+        "1280星光",
+        "Available漏字"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/capture_geometry.py",
+          "symbol": "frame_coordinates"
+        },
+        {
+          "path": "src/maalimbus/capture_geometry.py",
+          "symbol": "analysis_image"
+        },
+        {
+          "path": "src/maalimbus/star_vision.py",
+          "symbol": "grid"
+        },
+        {
+          "path": "src/maalimbus/star_vision.py",
+          "symbol": "reference_image"
+        },
+        {
+          "path": "src/maalimbus/grace_balance_native.py",
+          "symbol": "repair"
+        },
+        {
+          "path": "src/maalimbus/grace_vision.py",
+          "symbol": "conversion_state"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#capture-star-calibration",
+        "docs/wiki/en_us/6-deployment.md#capture-star-calibration"
+      ],
+      "tests": [
+        "tests/test_grace_capture_scale.py",
+        "tests/test_grace_balance_native.py",
+        "tests/test_capture_coordinates.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_grace_capture_scale.py tests/test_grace_balance_native.py tests/test_capture_coordinates.py"
+      ],
+      "boundary": "Original captures remain native witnesses; interpolation is analysis only. Four retained positives and two erased counterexamples per1280/1920 native replay are not live entry or whole-product acceptance. Default1920 remains; paid claim/receipt and legacy standalone PI star geometry still need native lower-resolution proof. No spend or model promotion."
+    },
+    {
+      "id": "frozen-neural-observer",
+      "title": "冻结观察器与实际神经推理 / frozen observer and actual neural participation",
+      "aliases": [
+        "frozen observer",
+        "packaged callback",
+        "shadow但没有推理",
+        "0 verified ROI",
+        "1280神经不推理",
+        "native_inference_executed"
+      ],
+      "sources": [
+        {
+          "path": "tools/verify_capture_scale_native.py",
+          "symbol": "frozen_observe"
+        },
+        {
+          "path": "tools/verify_packaged_agent_ipc.py",
+          "symbol": "verify"
+        },
+        {
+          "path": "src/maalimbus/neural_shadow.py",
+          "symbol": "verified_card_rois"
+        },
+        {
+          "path": "src/maalimbus/neural_shadow.py",
+          "symbol": "observe"
+        },
+        {
+          "path": "src/maalimbus/capture_geometry.py",
+          "symbol": "analysis_image"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#capture-neural-calibration",
+        "docs/wiki/en_us/6-deployment.md#capture-neural-calibration"
+      ],
+      "tests": [
+        "tests/test_neural_capture_geometry.py",
+        "tests/test_neural_training_evidence.py",
+        "tests/test_packaged_ipc_probe.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_neural_capture_geometry.py tests/test_neural_training_evidence.py tests/test_packaged_ipc_probe.py"
+      ],
+      "boundary": "Installed2978cfa frozen callbacks passed14cases per1280/1920, including actual neural execution; original1280sample11ROI/10boxes,1920sample12ROI/11boxes. Pending proposals remain unreviewed, qualityFalse, no promotion/training. Native callback/isolated queue verification is not MainTask GUI Start, current gameplay or full-run payout. Auto follows saved MXU transport; explicit IPC failure remains visible."
+    },
+    {
+      "id": "canonical-glossary",
+      "title": "规范词典与语义边界 / canonical dictionary and semantic boundaries",
+      "aliases": [
+        "词典",
+        "术语表",
+        "glossary",
+        "语义",
+        "intent sent",
+        "pending accepted",
+        "Box BoundingBox",
+        "passed meaning",
+        "model applied",
+        "收据 确认",
+        "TeamSlot PresetSlot"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runtime_contracts.py",
+          "symbol": "TransitionVerdict"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._resolve_map_click"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/1-overview.md#glossary",
+        "docs/wiki/en_us/1-overview.md#glossary",
+        "CONTEXT-MAP.md",
+        "docs/adr/0001-runtime-convergence.md"
+      ],
+      "tests": [
+        "tests/test_wiki.py",
+        "tests/test_map_transition_contract.py",
+        "tests/test_runtime_contracts.py"
+      ],
+      "checks": [
+        "python tools/wiki_route.py --check",
+        "python tools/run_tests.py -q tests/test_wiki.py tests/test_map_transition_contract.py"
+      ],
+      "boundary": "Canonical normative terms; proposed record names do not assert implemented classes. Preserve producer-specific legacy semantics and separate source/install/live/whole-chain evidence. Shared TransitionVerdict is now implemented and used by the map judge through a compatibility alias; source-only, no native controller."
+    },
+    {
+      "id": "runtime-redesign",
+      "title": "正式运行时架构与迁移 / accepted runtime architecture and migration",
+      "aliases": [
+        "屎山",
+        "架构重构",
+        "最大效益",
+        "脚本泛化",
+        "单一动作链路",
+        "运行时收敛"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runtime_contracts.py",
+          "symbol": "TransitionVerdict"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "node_transition"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "candidates_of"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "plan_step"
+        },
+        {
+          "path": "src/maalimbus/unknown_exploration.py",
+          "symbol": "Exploration"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "reserve"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/2-architecture.md#feature-2-6",
+        "docs/wiki/zh_cn/3-runtime.md#feature-3-10",
+        "docs/wiki/zh_cn/9-execution-plan.md#runtime-migration",
+        "docs/wiki/en_us/2-architecture.md#feature-2-6",
+        "docs/wiki/en_us/3-runtime.md#feature-3-10",
+        "docs/wiki/en_us/9-execution-plan.md#runtime-migration"
+      ],
+      "tests": [
+        "tests/test_map_connected_node.py",
+        "tests/test_map_withheld_recovery.py",
+        "tests/test_completed_battle_retention.py",
+        "tests/test_map_transition_contract.py",
+        "tests/test_map_verdict_late.py",
+        "tests/test_ordinary_battle_retention.py",
+        "tests/test_runtime_contracts.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_map_connected_node.py tests/test_map_withheld_recovery.py tests/test_completed_battle_retention.py"
+      ],
+      "boundary": "Accepted normative architecture with staged implementation: shared TransitionVerdict, map-owned successor judgment, evidence-capacity admission and domain-owned retention are implemented. A single fully typed observation/executor kernel remains incomplete. Latest native Team2 reaches floor3 turn2; no current full payout. See current-runtime-checkpoint for installed/source differences and full regression failures."
+    },
+    {
+      "id": "supplier-map-classifiers",
+      "title": "外部地图模型 / native classifier compatibility and limits",
+      "aliases": [
+        "mirror_legend",
+        "mirror_path",
+        "地图模型",
+        "ImageNet",
+        "native logits",
+        "ONNX适配"
+      ],
+      "sources": [
+        {
+          "path": "tools/verify_map_supplier_classifier_native.py",
+          "symbol": "adapter"
+        },
+        {
+          "path": "tools/verify_map_supplier_classifier_native.py",
+          "symbol": "main"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-4-3",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-4-3"
+      ],
+      "tests": [],
+      "checks": [
+        "python tools/verify_map_supplier_classifier_native.py --out build/supplier-map-native-parity.json"
+      ],
+      "boundary": "Pinned external crop classifiers, not detectors. Six real-region comparisons establish ORT adapter logits and Maa top class/score parity only. Path outputs are multi-label sigmoid; native softmax scores are not connection probabilities. No live controller, local training, quality or production steering accepted."
+    },
+    {
+      "id": "map-connected-pitch",
+      "title": "箭头反复点击 / next room filtered by click box width",
+      "aliases": [
+        "map_connected_step",
+        "measured_connected_segment",
+        "地图步长",
+        "gold_badge_node",
+        "current_position_not_proven",
+        "map_player None",
+        "火苗误作队伍点",
+        "pause exploration recovery",
+        "暂停探索恢复",
+        "white shop",
+        "white endpoint",
+        "train_calibrated_lattice",
+        "内部地图缩放",
+        "没有奖励标记的商店",
+        "共享地图间距",
+        "red outline white path",
+        "节点颜色与路径颜色",
+        "path_support",
+        "独立连接线核验"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "train_body"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_red_node"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "candidates_of"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "retire_rejected_target"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_ring_node"
+        },
+        {
+          "path": "src/maalimbus/map_vision.py",
+          "symbol": "locomotive_marker"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MapObservation.run"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "pause_exploration_confirm"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_settled_map_inputs"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "_supported_path"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_node"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._normalise_view_once"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_compact_nodes"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-18",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-18",
+        "docs/wiki/zh_cn/4-business-flows.md#train-anchor-projection",
+        "docs/wiki/en_us/4-business-flows.md#train-anchor-projection",
+        "docs/wiki/en_us/4-business-flows.md#navigation-diagnostic-contract",
+        "docs/wiki/zh_cn/4-business-flows.md#navigation-diagnostic-contract",
+        "docs/wiki/en_us/4-business-flows.md#independent-map-path",
+        "docs/wiki/zh_cn/4-business-flows.md#independent-map-path",
+        "docs/wiki/en_us/4-business-flows.md#compact-colour-handoff",
+        "docs/wiki/zh_cn/4-business-flows.md#compact-colour-handoff"
+      ],
+      "tests": [
+        "tests/test_map_connected_node.py",
+        "tests/test_reach_gate.py",
+        "tests/test_one_step_reach.py",
+        "tests/test_map_verdict_late.py",
+        "tests/test_connected_ring_node.py",
+        "tests/test_measured_train_projection.py",
+        "tests/test_pause_exploration_ownership.py",
+        "tests/test_map_diagnostic_retention.py",
+        "tests/test_connected_white_endpoint.py",
+        "tests/test_map_path_planes.py",
+        "tests/test_compact_coloured_glyphs.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_map_connected_node.py tests/test_reach_gate.py tests/test_one_step_reach.py tests/test_map_verdict_late.py",
+        "python tools/run_tests.py -q tests/test_connected_ring_node.py tests/test_map_connected_node.py",
+        "python tools/run_tests.py -q tests/test_connected_white_endpoint.py tests/test_white_connected_node.py tests/test_map_escape.py tests/test_map_control_roles.py",
+        "python tools/run_tests.py -q tests/test_map_path_planes.py tests/test_map_connected_node.py tests/test_white_connected_node.py tests/test_connected_white_endpoint.py tests/test_plan_reasons.py"
+      ],
+      "boundary": "Installed4d92677 actual self-test/549snapshot/nine compiled identities/frozen original geometry verified;106private/33canonical preserved. Oldb62 passed smaller blue/event/battle/storage.205related and144complete contracts passed; last full3954pass/699skip/one inspection-copy drift then snapshot-only sync, not new complete full green. Current larger-body/whole-run physical acceptance remains next."
+    },
+    {
+      "id": "map-withheld-pending",
+      "title": "点击未发送却产生pending / withheld map input blocks recovery",
+      "aliases": [
+        "map_input_withheld",
+        "map_click_out_of_step",
+        "map_target_outside_current_step",
+        "node_outcome_is_still_pending",
+        "相机战斗返回"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "rearm_after_battle"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "prepare_view_change"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-17",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-17"
+      ],
+      "tests": [
+        "tests/test_map_withheld_recovery.py",
+        "tests/test_viewport_freshness.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_map_withheld_recovery.py tests/test_viewport_freshness.py"
+      ],
+      "boundary": "Installed8fbd190 continued through battle and SHOP; camera rearm fired. Later map stopped on box-width/pitch mismatch, now routed to map-connected-pitch. No full run acceptance."
+    },
+    {
+      "id": "public-source-cache",
+      "title": "参考源码占容量 / pinned public source cache",
+      "aliases": [
+        "pinned_lalc",
+        "LixAssistantLimbusCompany.source.zip",
+        "source subset",
+        "参考仓库容量"
+      ],
+      "sources": [
+        {
+          "path": "tools/pinned_lalc.py",
+          "symbol": "verify_snapshot"
+        },
+        {
+          "path": "tools/pinned_lalc.py",
+          "symbol": "checkout"
+        },
+        {
+          "path": "tools/pinned_lalc.py",
+          "symbol": "with_source"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-4-6",
+        "docs/wiki/en_us/6-deployment.md#feature-6-4-6"
+      ],
+      "tests": [
+        "tests/test_pinned_lalc.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_pinned_lalc.py"
+      ],
+      "boundary": "516 retained reference files/12.2MB, complete958-entry Git tree index, four actual isolated importers verified. Private evidence stays in place.12 tests, not complete supplier runtime or public release audit."
+    },
+    {
+      "id": "native-callback-cause",
+      "title": "存储错误误报读取超时 / latched callback cause",
+      "aliases": [
+        "Workspace budget exceeded; protected captures retained",
+        "native_observation_callback_failed",
+        "callback_failed",
+        "存储错误读取超时"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "ObservationCallbackFailed"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaObserver._check_callback"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MirrorLoopAction.run"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-13",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-13"
+      ],
+      "tests": [
+        "tests/test_observation_callback_failure.py",
+        "tests/test_callback_guard.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_observation_callback_failure.py tests/test_callback_guard.py"
+      ],
+      "boundary": "Typed native backend cause preserves original message and stops futile retries; genuine transient read failures still retry.74 related passes; source-only until installation."
+    },
+    {
+      "id": "deployment-modal-recovery",
+      "title": "重置编队弹窗被背景12/12抢占 / reset modal ownership and bounded reopening",
+      "aliases": [
+        "Reset Deployment Order",
+        "DEPLOYMENT_RESET",
+        "party_intent",
+        "reset_reopen_required",
+        "Unverified deployment input remains pending",
+        "重置弹窗",
+        "清空队伍确认"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/deployment_transaction.py",
+          "symbol": "DeploymentTransaction._can_reopen_reset"
+        },
+        {
+          "path": "src/maalimbus/deployment_transaction.py",
+          "symbol": "DeploymentTransaction.reserve_clear_reopen"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "deployment_reset_confirm"
+        },
+        {
+          "path": "src/maalimbus/party_vision.py",
+          "symbol": "plan"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-16",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-16"
+      ],
+      "tests": [
+        "tests/test_deployment_reset_recovery.py",
+        "tests/test_deployment_transaction.py",
+        "tests/test_deployment_pending_wait.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_deployment_reset_recovery.py tests/test_deployment_transaction.py tests/test_deployment_pending_wait.py"
+      ],
+      "boundary": "Named pages own their input; UNKNOWN fallback cannot preempt a modal or unresolved deployment. Reopen preserves the original unconfirmed clear with current full-board/hash proof and at most2 attempts; Confirm/card/submit are never replayed by this path.135 related passes/1 skip and retained offline proof; installation and actual corrected deployment remain pending."
+    },
+    {
+      "id": "map-viewport-freshness",
+      "title": "地图缩放拖动后旧图与旧点击框 / stale viewport coordinates",
+      "aliases": [
+        "map viewport",
+        "map navigation",
+        "viewport freshness",
+        "地图视口",
+        "旧坐标",
+        "normalise_view",
+        "map_committed",
+        "bright_lit_icon",
+        "locomotive_marker",
+        "金币当我方"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._normalise_view_once"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._recovery_gesture"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "frame_for"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "prepare_view_change"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._viewport_recovery"
+        },
+        {
+          "path": "src/maalimbus/map_vision.py",
+          "symbol": "locomotive_marker"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "node_sized_boxes"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-15",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-15"
+      ],
+      "tests": [
+        "tests/test_view_normalisation_wiring.py",
+        "tests/test_view_wiring.py",
+        "tests/test_map_commitment.py",
+        "tests/test_viewport_freshness.py",
+        "tests/test_map_locomotive_marker.py",
+        "tests/test_map_selection_bracket.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_viewport_freshness.py tests/test_capture_retention.py",
+        "python tools/run_tests.py -q tests/test_view_normalisation_wiring.py tests/test_view_wiring.py tests/test_map_commitment.py"
+      ],
+      "boundary": "Source follow-up covers all recovery producers, keeps navigation intent, and prioritizes supported lit glyphs with a unique flame/body anchor. Actual four-frame and counterfactual checks do not certify live room entry or neural promotion. Previous bounded run failed; new installation and live verification pending."
+    },
+    {
+      "id": "mirror-run-bounds",
+      "title": "完整镜牢局数、步骤窗口与总时限 / complete runs versus bounded windows",
+      "aliases": [
+        "run_count",
+        "mirror run count",
+        "运行次数",
+        "MirrorRunCount",
+        "4000",
+        "steps budget"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/mirror_task_options.py",
+          "symbol": "collect"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MirrorLoopAction.run"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "loop_budget"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._run_count_reached"
+        },
+        {
+          "path": "tools/verify_packaged_mirror_loop.py",
+          "symbol": "verdict"
+        },
+        {
+          "path": "src/maalimbus/storage.py",
+          "symbol": "RunStore.record"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-6",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-6"
+      ],
+      "tests": [
+        "tests/test_mirror_task_options.py",
+        "tests/test_mirror_task_options_gui.py",
+        "tests/test_packaged_mirror_verdict.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_mirror_task_options.py tests/test_mirror_task_options_gui.py",
+        "python tools/run_tests.py -q tests/test_packaged_mirror_verdict.py"
+      ],
+      "boundary": "A positive run_count uses the verified completed-run ledger delta; the Agent raises its step window to at least4000. Default total budget5400seconds remains bounded. Diagnostic --steps/--stop-page runs are not complete-run acceptance. Neither count nor time settings authorize resource purchases, prove payout or justify timeout restarts. Installed verification host requires the current invocation milestone, exact ledger delta and successful Agent ending to report dungeon_complete; an unmet explicit count exits unsuccessfully while preserving bounded progress."
+    },
+    {
+      "id": "incoming-page-handoff",
+      "title": "指定停页误报失败与地图多余手势 / incoming stop-page handoff",
+      "aliases": [
+        "stop_page",
+        "stop_page_reached",
+        "incoming handoff",
+        "停页",
+        "主动停止",
+        "MAP zero input"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._incoming_handoff"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._settle_battle_submission"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-14",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-14"
+      ],
+      "tests": [
+        "tests/test_incoming_handoff.py",
+        "tests/test_entry_scope.py",
+        "tests/test_view_normalisation_wiring.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_incoming_handoff.py tests/test_entry_scope.py tests/test_view_normalisation_wiring.py"
+      ],
+      "boundary": "A fresh named-page handoff passes with zero new input before view/candidate actions; UNKNOWN is not accepted. Existing same-scope successor bookkeeping may settle, without clear/reward/rotation credit. Source tests do not prove installed behavior or full Mirror completion; preserve the older failed diagnostic report."
+    },
+    {
+      "id": "startup-native-recovery",
+      "title": "冷启动前台迟到、标题连写、Journal接口与奖励浮层 / native startup and recovery",
+      "aliases": [
+        "TOUCHTOSTART",
+        "Journal.note",
+        "run_flow",
+        "launch_foreground_not_proven",
+        "Before Entry",
+        "奖励遮罩",
+        "cold launch"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/game_launch.py",
+          "symbol": "open_game"
+        },
+        {
+          "path": "src/maalimbus/run_wiring.py",
+          "symbol": "settle_entry_successor"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "run_flow"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "one_shot_click"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "classify"
+        },
+        {
+          "path": "tools/map_live_observe.py",
+          "symbol": "prepare"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-11",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-11"
+      ],
+      "tests": [
+        "tests/test_game_launch.py",
+        "tests/test_entry_scope.py",
+        "tests/test_session_flow.py",
+        "tests/test_session_flow_execution.py",
+        "tests/test_reward_modal_foreground.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_game_launch.py tests/test_session_flow.py tests/test_session_flow_execution.py tests/test_reward_modal_foreground.py"
+      ],
+      "boundary": "Wrong-Team1 exit and installed Team2 entry through STAR verified; not generic abandon policy, neural training, GUI click or Mirror completion. Entry handoff bookkeeping repair awaits full regression/install."
+    },
+    {
+      "id": "shop-review-ownership",
+      "title": "自动标签覆盖人工复核与普通收集触发 / automatic labels and manual review ownership",
+      "aliases": [
+        "人工拒绝",
+        "人工修改",
+        "自动标注",
+        "自动标签覆盖",
+        "review_sample",
+        "review_problem",
+        "延迟标签",
+        "最后购物",
+        "delayed labels",
+        "refresh_scope"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/shop_review_state.py",
+          "symbol": "review_problem"
+        },
+        {
+          "path": "src/maalimbus/shop_review_state.py",
+          "symbol": "merge_outcome"
+        },
+        {
+          "path": "src/maalimbus/shop_value_training.py",
+          "symbol": "review_sample"
+        },
+        {
+          "path": "src/maalimbus/shop_outcomes.py",
+          "symbol": "sync"
+        },
+        {
+          "path": "src/maalimbus/shop_outcomes.py",
+          "symbol": "refresh_scope"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "record_ledger_event"
+        },
+        {
+          "path": "src/maalimbus/reward_task.py",
+          "symbol": "finish"
+        },
+        {
+          "path": "tools/review_shop_purchase.py",
+          "symbol": "decide"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-4-2",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-4-2"
+      ],
+      "tests": [
+        "tests/test_shop_outcome_dispatch.py",
+        "tests/test_shop_review_ownership.py",
+        "tests/test_shop_purchase_learning.py",
+        "tests/test_shop_value_review.py",
+        "tests/test_shop_review_tool.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_shop_outcome_dispatch.py tests/test_shop_review_ownership.py tests/test_shop_purchase_learning.py tests/test_shop_value_review.py tests/test_shop_review_tool.py"
+      ],
+      "boundary": "SHOP and durable floor/victory/payout events invoke verified factual labelling; launch retries labels without input/rotation. Human decisions retained. Isolated tests, not new actual-account labels, automatic retraining, perception-label approval or live buying quality."
+    },
+    {
+      "id": "neural-shop-promotion",
+      "title": "神经购买排序的留出凭据与实际参与 / neural shop ranking participation",
+      "aliases": [
+        "ranked",
+        "promotion",
+        "神经购买",
+        "留出排序",
+        "参与排序",
+        "购买预测值"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/shop_value_promotion.py",
+          "symbol": "evaluate"
+        },
+        {
+          "path": "src/maalimbus/shop_value_training.py",
+          "symbol": "verification_summary"
+        },
+        {
+          "path": "src/maalimbus/shop_value_shadow.py",
+          "symbol": "rank_preview"
+        },
+        {
+          "path": "src/maalimbus/shop_value_shadow.py",
+          "symbol": "diagnostic"
+        },
+        {
+          "path": "tools/verify_shop_value_participation.py",
+          "symbol": "verify"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-4-1",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-4-1"
+      ],
+      "tests": [
+        "tests/test_shop_value_promotion.py",
+        "tests/test_shop_value_review.py",
+        "tests/test_decision_log.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_shop_value_promotion.py tests/test_shop_value_review.py tests/test_decision_log.py"
+      ],
+      "boundary": "Runtime recomputes bound heldout scores. Retained trained model remains shadow and its original two-scope corpus is absent; rebuilt current corpus has5same-scope purchases with independently bound delayed labels,not a restored training/heldout chain or live purchase quality acceptance."
+    },
+    {
+      "id": "update-capacity-recovery",
+      "title": "完整更新峰值容量与中断恢复 / bounded update and crash recovery",
+      "aliases": [
+        "update capacity",
+        "replacement_pending",
+        "rollback_failed",
+        "更新容量",
+        "更新断电",
+        "UpdateSession"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/update_session.py",
+          "symbol": "UpdateSession"
+        },
+        {
+          "path": "src/maalimbus/archives.py",
+          "symbol": "extract_checked"
+        },
+        {
+          "path": "src/maalimbus/update_install.py",
+          "symbol": "validate_install"
+        },
+        {
+          "path": "tools/verify_update_recovery.py",
+          "symbol": "verify"
+        },
+        {
+          "path": "tools/launch_app.py",
+          "symbol": "main"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-4-5",
+        "docs/wiki/en_us/6-deployment.md#feature-6-4-5"
+      ],
+      "tests": [
+        "tests/test_update_session.py",
+        "tests/test_startup_update.py",
+        "tests/test_launcher_prepare.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_update_session.py tests/test_startup_update.py tests/test_launcher_prepare.py"
+      ],
+      "boundary": "Installed launcher and actual frozen-helper recovery of three synthetic fixture files verified; latest source project cap3GB; installed components need rebuild and one stable external sibling session cap 1GB. Full production candidate/public download/GUI and desktop-shortcut interruption recovery remain unverified."
+    },
+    {
+      "id": "map-party-target-scales",
+      "title": "地图位置标记被过滤、目标尺寸与一步边界 / map anchor and target scales",
+      "aliases": [
+        "lit_node",
+        "party anchor",
+        "位置标记",
+        "40px",
+        "190px",
+        "map party missing",
+        "next tile skips white node",
+        "图标倍增跳过下一格",
+        "map node",
+        "map glyph color independence",
+        "跨层节点图案",
+        "Sisyphus",
+        "32x23",
+        "小问号",
+        "compact neutral glyph",
+        "paths as nodes",
+        "white connected node",
+        "384px",
+        "白色相邻节点",
+        "neutral ring pitch"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "candidates_of"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "node_sized_boxes"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._map_click_allowed"
+        },
+        {
+          "path": "src/maalimbus/map_vision.py",
+          "symbol": "train_next_point"
+        },
+        {
+          "path": "src/maalimbus/map_vision.py",
+          "symbol": "neutral_node_glyphs"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_ring_node"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "_connected_white_outline"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-7",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-7",
+        "docs/wiki/zh_cn/4-business-flows.md#map-shape-generalization",
+        "docs/wiki/en_us/4-business-flows.md#map-shape-generalization"
+      ],
+      "tests": [
+        "tests/test_party_anchor_lit.py",
+        "tests/test_one_step_reach.py",
+        "tests/test_train_next_point.py",
+        "tests/test_neutral_glyph_candidates.py",
+        "tests/test_white_connected_node.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_party_anchor_lit.py tests/test_one_step_reach.py",
+        "python tools/run_tests.py -q tests/test_train_next_point.py tests/test_train_arrow.py tests/test_map_locomotive_marker.py",
+        "python tools/run_tests.py -q tests/test_neutral_glyph_candidates.py tests/test_drive_node_ownership.py",
+        "python tools/run_tests.py -q tests/test_white_connected_node.py tests/test_connected_ring_node.py tests/test_map_connected_node.py",
+        "python tools/audit_map_glyph_shapes.py --report build/map-glyph-shape-cross-floor.json"
+      ],
+      "boundary": "Unique raw position measurements survive destination-size filtering; ambiguous marks do not name a party. Node size and one-step input bounds remain. Unit/replay checks do not prove live MAP progression. Actual6f763e3 reaches Hard floor1 but small neutral glyphs were filtered while bright paths survived. New repeated compact-neutral glyph proposals reuse lit_icon lane, keep independent MAP/party/step/outcome guards, and log measurement provenance. Source retained1920/1280/panned candidate chains and erased/synthetic negatives pass; full regression, clean freeze and live node entry still required. Current full serial3792passed/699historical skips/459.92s/pytest exit0. Actual same-Context two-dispatch native proof passes; new Agent freeze and live continuation next. New glyph journal fields are not an approved/trained model or a verified review-UI integration. Current92a3f68 live traverses first glyph/event then stops before384px white neighbor. New neutral-ring lane measures independent column pitch and requires train/ring/dark interior/bright corridor/one-step/uniqueness; old colored lane and general fallback are retained.56focused checks pass; new complete regression, clean freeze and live neighbor input/independent successor still required. bright_share and warm_share are distinct measured fractions, not training approval. Current white-neighbor source complete3813pass/699historical skips/499.96s/pytest exit0; new Agent install and actual node successor still required."
+    },
+    {
+      "id": "launcher-lifetime-capacity",
+      "title": "启动器重复副本、独立更新与生命周期 / launcher capacity and installation",
+      "aliases": [
+        "launcher",
+        "helper",
+        "启动器",
+        "prepare-only",
+        "启动副本",
+        "startup updater launcher"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/launcher_cache.py",
+          "symbol": "stage_launcher"
+        },
+        {
+          "path": "tools/refreeze_agent.py",
+          "symbol": "install_agent"
+        },
+        {
+          "path": "tools/launch_app.py",
+          "symbol": "main"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#launcher-lifetime-capacity",
+        "docs/wiki/en_us/6-deployment.md#launcher-lifetime-capacity"
+      ],
+      "tests": [
+        "tests/test_launcher_cache.py",
+        "tests/test_launcher_prepare.py",
+        "tests/test_agent_component_install.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_launcher_cache.py tests/test_launcher_prepare.py tests/test_agent_component_install.py"
+      ],
+      "boundary": "Installed prepare-only reuse proves stable helper bytes and capacity, not GUI restart or public newer-version installation. Launcher metadata must not overwrite Agent/source fingerprints. Native MXU directly dispatches Maa; MaaPiCli is an optional standalone entry."
+    },
+    {
+      "id": "learning-evidence-storage",
+      "title": "学习采样、证据保留与3GB容量 / sampled review and capture retention",
+      "aliases": [
+        "learning review storage",
+        "learning-review",
+        "副本",
+        "2GB",
+        "学习队列",
+        "证据去重",
+        "compact review",
+        "capture retention",
+        "semantic sampling",
+        "截图保留",
+        "提案采样",
+        "turn checkpoint",
+        "回合检查点",
+        "动画截图占空间",
+        "EvidenceCensus",
+        "report pins all frames",
+        "哈希清单锁住截图",
+        "stranded witness",
+        "partial retirement",
+        "diagnostic battle exit",
+        "回收孤岛",
+        "整组退休",
+        "raw required consumer",
+        "复核原图占空间",
+        "cold learning evidence",
+        "owner_diagnostic_poll",
+        "diagnostic_sample_released",
+        "截图生命周期"
+      ],
+      "sources": [
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.finish_diagnostic_sample"
+        },
+        {
+          "path": "src/maalimbus/semantic_labels.py",
+          "symbol": "persist_frame_proposals"
+        },
+        {
+          "path": "src/maalimbus/review_storage.py",
+          "symbol": "compaction_plan"
+        },
+        {
+          "path": "src/maalimbus/review_storage.py",
+          "symbol": "compact"
+        },
+        {
+          "path": "src/maalimbus/workspace.py",
+          "symbol": "protected_evidence"
+        },
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "configure_host"
+        },
+        {
+          "path": "src/maalimbus/semantic_labels.py",
+          "symbol": "_frame_admission"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "plan"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "apply"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "reserve"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_completed_battle_inputs"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_older_hud_diagnostics"
+        },
+        {
+          "path": "src/maalimbus/hud_evidence.py",
+          "symbol": "diagnostic_index"
+        },
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "bound_frame"
+        },
+        {
+          "path": "src/maalimbus/evidence_report_roles.py",
+          "symbol": "project"
+        },
+        {
+          "path": "src/maalimbus/evidence_report_roles.py",
+          "symbol": "load"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_unfinished_retirements"
+        },
+        {
+          "path": "src/maalimbus/viewport_evidence.py",
+          "symbol": "diagnostic_index"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_settled_map_inputs"
+        },
+        {
+          "path": "src/maalimbus/deployment_evidence.py",
+          "symbol": "startup_order_preview"
+        },
+        {
+          "path": "src/maalimbus/startup_evidence.py",
+          "symbol": "preview_records"
+        },
+        {
+          "path": "src/maalimbus/startup_evidence.py",
+          "symbol": "answered_login_diagnostics"
+        },
+        {
+          "path": "src/maalimbus/learning_dataset.py",
+          "symbol": "local_file"
+        },
+        {
+          "path": "src/maalimbus/learning_dataset.py",
+          "symbol": "digest"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "verified_reads"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "verified_sha"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "verified_png"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-4",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-4",
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-4-5",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-4-5",
+        "docs/wiki/en_us/6-deployment.md#review-original-storage-boundary",
+        "docs/wiki/zh_cn/6-deployment.md#review-original-storage-boundary",
+        "docs/wiki/en_us/6-deployment.md#verified-storage-work",
+        "docs/wiki/zh_cn/6-deployment.md#verified-storage-work"
+      ],
+      "tests": [
+        "tests/test_review_storage.py",
+        "tests/test_workspace_retention.py",
+        "tests/test_native_evidence.py",
+        "tests/test_capture_retention.py",
+        "tests/test_semantic_sampling.py",
+        "tests/test_journal_workspace_limit.py",
+        "tests/test_completed_battle_retention.py",
+        "tests/test_ordinary_battle_retention.py",
+        "tests/test_hud_evidence.py",
+        "tests/test_evidence_report_roles.py",
+        "tests/test_battle_exit_retention.py",
+        "tests/test_viewport_evidence.py",
+        "tests/test_map_diagnostic_retention.py",
+        "tests/test_deployment_startup_preview.py",
+        "tests/test_hud_startup_preview.py",
+        "tests/test_inflight_battle_reads.py",
+        "tests/test_archived_retention_witness.py",
+        "tests/test_original_read_session.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_review_storage.py tests/test_workspace_retention.py",
+        "python tools/run_tests.py -q tests/test_native_evidence.py tests/test_journal_workspace_limit.py",
+        "python tools/run_tests.py -q tests/test_capture_retention.py tests/test_semantic_sampling.py",
+        "python tools/capture_retention.py --reserve-bytes 64000000",
+        "python tools/run_tests.py -q tests/test_hud_evidence.py tests/test_capture_retention.py",
+        "python tools/run_tests.py -q tests/test_evidence_report_roles.py tests/test_evidence_reports.py tests/test_capture_retention.py",
+        "python tools/run_tests.py -q tests/test_battle_exit_retention.py tests/test_hud_evidence.py tests/test_capture_retention.py",
+        "python tools/run_tests.py -q tests/test_viewport_evidence.py tests/test_capture_retention.py"
+      ],
+      "boundary": "3GB is a maintenance signal for live runs. Passive poll owners declare same-phase releases; Journal retains endpoint and referenced originals. Historical reclamation still verifies legacy metadata and archive hashes. Release grants no input, receipt, or learning authority."
+    },
+    {
+      "id": "agent-ipc-startup",
+      "title": "Agent启动IPC、TEMP拒绝与控制权误报 / native startup boundary",
+      "aliases": [
+        "xrpg",
+        "CreateDirectory",
+        "make_fdpair",
+        "bad FD",
+        "epoll",
+        "WSA10013",
+        "0xc0000022",
+        "Agent IPC startup",
+        "native_temp",
+        "tcpCompatMode",
+        "another_controller_owns_game",
+        "controller.lock",
+        "session mutex"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/native_agent.py",
+          "symbol": "native_temp"
+        },
+        {
+          "path": "src/maalimbus/native_agent.py",
+          "symbol": "tcp_compatibility"
+        },
+        {
+          "path": "agent/main.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/controller_lease.py",
+          "symbol": "ControllerLease.acquire"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-1",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-1"
+      ],
+      "tests": [
+        "tests/test_native_agent.py",
+        "tests/test_controller_lease.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_native_agent.py tests/test_controller_lease.py"
+      ],
+      "boundary": "Owned-child writable TEMP/TMP plus AgentClient.create_tcp(0) proves 15 registered actions and exit 0, not live GUI acceptance. Preserve other MXU settings and game budgets; no system ACL/TEMP/firewall repair. Windows-session mutex preserves existing controller exclusion; rebuilt packaged MirrorTask observed real STAR_GRACES with zero inputs at its configured stop. This proves dispatch/observation, not GUI clicking, Team2 correctness or a full run."
+    },
+    {
+      "id": "controller-coordinates",
+      "title": "点击坐标、截图缩放与重复换算 / Maa coordinate boundary",
+      "aliases": [
+        "点击坐标",
+        "缩放",
+        "double scaling",
+        "wm size",
+        "坐标偏移",
+        "点了没变化",
+        "post_click",
+        "preproc_touch_point"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaDevice.click"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaDevice.swipe"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "point_override"
+        },
+        {
+          "path": "tools/verify_controller_coordinates.py",
+          "symbol": "verify"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-1",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-1"
+      ],
+      "tests": [
+        "tests/test_maa_coordinate_boundary.py",
+        "tests/test_input_route.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_maa_coordinate_boundary.py tests/test_input_route.py",
+        "python tools/verify_controller_coordinates.py"
+      ],
+      "boundary": "Maa 5.12.2 owns screenshot-to-raw conversion. Actual installed-DLL callbacks prove direct/Pipeline click/swipe coordinates with zero device input; this is not a successful live game action. Keep frame coordinates at the Maa boundary, never manually scale by adb wm size."
+    },
+    {
+      "id": "gift-resume-scope",
+      "title": "礼物选择恢复、同局pending和OCR漂移 / scoped gift resume",
+      "aliases": [
+        "floor_gift_selected_without_scoped_evidence",
+        "同局恢复",
+        "录制目录",
+        "trial OCR drift",
+        "floor gift pending",
+        "礼物恢复",
+        "pending丢失"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/floor_gift_transaction.py",
+          "symbol": "FloorGiftTransaction.recover_pick"
+        },
+        {
+          "path": "src/maalimbus/floor_gift_transaction.py",
+          "symbol": "FloorGiftTransaction.retire_stale_run"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._retire_foreign_pending"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3"
+      ],
+      "tests": [
+        "tests/test_floor_gift_resume_scope.py",
+        "tests/test_foreign_pending.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_floor_gift_resume_scope.py tests/test_foreign_pending.py"
+      ],
+      "boundary": "Recording directory is not game scope. Retained before-image hash, same ordered card identities, unchanged target trial and exact counter increment may recover one sent pick despite another card's trial OCR drift. Same-scope pending stays; no replay or invented receipt."
+    },
+    {
+      "id": "startup",
+      "title": "GUI开始红停 / actual Start pipeline",
+      "aliases": [
+        "开始失败",
+        "任务失败",
+        "GUI Start",
+        "mirror_loop_failed",
+        "a node plan needs a Maa tasker",
+        "RESUME_DIALOG entry",
+        "Resume 续跑",
+        "MirrorResume",
+        "resume token",
+        "unknown_or_bounded_transition_exhausted",
+        "任务续不上一局",
+        "cannot resume the run",
+        "the_task_ended_but_the_page_moved",
+        "page decides",
+        "屏幕说了算",
+        "任务判决不等于屏幕",
+        "MirrorInside",
+        "already inside",
+        "已经在内",
+        "entry task coverage",
+        "入口任务覆盖",
+        "DoNothing 终局",
+        "LOADING",
+        "加载页",
+        "scene loader",
+        "NOW LOADING",
+        "loading_screen",
+        "_loading_wait",
+        "the_loading_screen_never_left",
+        "Open File - Security Warning",
+        "无法验证发布者",
+        "GUI启动安全警告"
+      ],
+      "sources": [
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MainTaskAction.run"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MirrorLoopAction.run"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaDevice.__init__"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "run_node"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "AgentTasker.post_task"
+        },
+        {
+          "path": "assets/resource/base/pipeline/mirror.json",
+          "needle": "\"MirrorResume\": {"
+        },
+        {
+          "path": "tests/test_entry_task_resume.py",
+          "symbol": "_problems"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def _page_after_a_failed_node(self, page):"
+        },
+        {
+          "path": "tests/test_entry_task_inside.py",
+          "symbol": "_reachable"
+        },
+        {
+          "path": "assets/resource/base/pipeline/mirror.json",
+          "needle": "\"MirrorInside\": {"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "needle": "def loading_screen("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def _loading_wait(self, page, settings):"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "def is_loading(name):"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "needle": "'RESUME_DIALOG': {'control': 'resume.resume_button'"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "DISPATCH_FACTS = {"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/2.3-decisions.md#d120-a-named-loader-is-a-duration-not-an-unreadable-page",
+        "docs/wiki/en_us/2.3-decisions.md#d73-a-task-that-cannot-resume-the-run-it-was-asked-to-continue",
+        "docs/wiki/en_us/2.3-decisions.md#d74-the-tasks-verdict-is-a-statement-about-its-route-not-about-the-screen",
+        "docs/wiki/en_us/2.3-decisions.md#d83-a-task-that-can-only-enter-cannot-finish-entering",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-1",
+        "docs/wiki/zh_cn/2.3-decisions.md#d120-有名字的加载页是一段时长不是一个读不懂的页面",
+        "docs/wiki/zh_cn/2.3-decisions.md#d73-一个无法继续它被要求继续的那一局的任务",
+        "docs/wiki/zh_cn/2.3-decisions.md#d74-任务的判决说的是它自己的路线不是屏幕",
+        "docs/wiki/zh_cn/2.3-decisions.md#d83-只会进不会结束的任务进不完",
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-2",
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-1",
+        "docs/wiki/zh_cn/6-deployment.md#native-gui-publisher-warning",
+        "docs/wiki/en_us/6-deployment.md#native-gui-publisher-warning",
+        "docs/wiki/en_us/4-business-flows.md#map-recovery-episode",
+        "docs/wiki/zh_cn/4-business-flows.md#map-recovery-episode"
+      ],
+      "tests": [
+        "tests/test_agent_loop.py",
+        "tests/test_entry_task_inside.py",
+        "tests/test_entry_task_resume.py",
+        "tests/test_loading_screen.py",
+        "tests/test_main_task_dispatch.py",
+        "tests/test_plan_successors.py",
+        "tests/test_page_contracts.py",
+        "tests/test_pages.py",
+        "tests/test_step_rows.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_main_task_dispatch.py tests/test_agent_loop.py",
+        "python tools/verify_pipeline_spec.py",
+        "python tools/run_tests.py -q tests/test_page_contracts.py tests/test_pages.py tests/test_step_rows.py tests/test_plan_successors.py tests/test_loading_screen.py"
+      ],
+      "boundary": "Installed b62fe4e normal frozen OpenGameTask/MirrorTask actually resumed currentTeam2 and passed events/battle; this is not a fresh GUIStart or whole-run proof. Three observed Resume→LOADING→MAP traces expose a missing finite wait successor; new source names LOADING but retains unjudged/no-input/clock and no business credit. Latest lamp/recovery source4d92677 is now clean installed/nine compiled identities verified; actual physical continuation remains next,3GB unchanged. Dated Windows publisher-warning/GUI evidence is historical, not current pending approval."
+    },
+    {
+      "id": "queue",
+      "title": "单队、轮换和离屏Team查找",
+      "aliases": [
+        "team1",
+        "team2",
+        "team22",
+        "teams7",
+        "轮换",
+        "单队",
+        "队伍",
+        "滑动"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/task_preferences.py",
+          "symbol": "TaskPreferences.set_mirror_queue"
+        },
+        {
+          "path": "src/maalimbus/team_vision.py",
+          "symbol": "selected_saved_team"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-10",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-10"
+      ],
+      "tests": [
+        "tests/test_task_preferences.py",
+        "tests/test_team_navigation.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_task_preferences.py tests/test_team_navigation.py"
+      ],
+      "boundary": "保存队伍、运行队列、游戏槽位分开；自动换队只在真实完成后。"
+    },
+    {
+      "id": "stars",
+      "title": "星光余额、卡片和已发送购买恢复",
+      "aliases": [
+        "星光",
+        "余额",
+        "Grace purchase successor balance not proven",
+        "grace",
+        "star balance",
+        "pending card4"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/grace_balance_native.py",
+          "symbol": "repair"
+        },
+        {
+          "path": "src/maalimbus/grace_transaction.py",
+          "symbol": "GraceTransaction.recover"
+        },
+        {
+          "path": "src/maalimbus/mirror_starlight.py",
+          "symbol": "resolve"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-5",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-5"
+      ],
+      "tests": [
+        "tests/test_grace_balance_native.py",
+        "tests/test_grace_transaction.py",
+        "tests/test_mirror_starlight.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_grace_balance_native.py tests/test_grace_transaction.py tests/test_mirror_starlight.py"
+      ],
+      "boundary": "读不清先重观察核账；不重买已发送卡片，不推断当前游戏现场。"
+    },
+    {
+      "id": "deployment",
+      "title": "部署顺序复用与实际人数",
+      "aliases": [
+        "部署",
+        "编队顺序",
+        "每场重新编队",
+        "Clear Selection",
+        "deployment",
+        "inherited order",
+        "队伍检测",
+        "编队核验",
+        "TEAMS # N",
+        "team_verdict",
+        "gift_slot",
+        "saved_team",
+        "team_mismatch",
+        "team_verified",
+        "slot_source",
+        "which team is in play",
+        "Preset #1",
+        "TEAMS #",
+        "team header",
+        "编队表头",
+        "saved_team_word",
+        "team_state",
+        "'str' object has no attribute 'get'",
+        "local_ocr",
+        "counter fallback",
+        "8/12"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/deployment_transaction.py",
+          "symbol": "DeploymentTransaction.prepare"
+        },
+        {
+          "path": "src/maalimbus/team_vision.py",
+          "symbol": "carries_saved_order"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "team_verdict"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "gift_slot"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def _check_team(self, team, *, page="
+        },
+        {
+          "path": "src/maalimbus/team_vision.py",
+          "symbol": "selected_saved_team"
+        },
+        {
+          "path": "src/maalimbus/team_vision.py",
+          "symbol": "saved_team_header"
+        },
+        {
+          "path": "src/maalimbus/team_vision.py",
+          "needle": "TEAM_HEADER_PATTERN = "
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "LimbusRecognition.observe"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.frame"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "team_state"
+        },
+        {
+          "path": "src/maalimbus/party_vision.py",
+          "symbol": "counter_reads"
+        },
+        {
+          "path": "tools/verify_deployment_counter_native.py",
+          "symbol": "main"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-3",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-3",
+        "docs/wiki/zh_cn/2.3-decisions.md#d90-计划必须知道场上用的是哪一套保存编队",
+        "docs/wiki/en_us/2.3-decisions.md#d90-the-plan-must-know-which-team-the-game-deployed",
+        "docs/wiki/en_us/2.3-decisions.md#d92-a-reader-that-understands-one-wording-of-a-header-has-proved-nothing-about-the-page",
+        "docs/wiki/zh_cn/2.3-decisions.md#d92-只认一种写法的表头读取器什么也没证明",
+        "docs/wiki/zh_cn/3-runtime.md#deployment-counter-provenance",
+        "docs/wiki/en_us/3-runtime.md#deployment-counter-provenance"
+      ],
+      "tests": [
+        "tests/test_deployment_transaction.py",
+        "tests/test_team_verification.py",
+        "tests/test_team_header.py",
+        "tests/test_deployment_provenance.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_deployment_transaction.py tests/test_team_verification.py",
+        "python tools/run_tests.py -q tests/test_deployment_provenance.py tests/test_deployment_transaction.py",
+        "python tools/verify_deployment_counter_native.py --report build/deployment-counter-new-run.json"
+      ],
+      "boundary": "印刷顺序和当前人数需独立证明；身份网格位置不等于部署顺序。队伍检测读的是页面标题（TEAMS # N）与部署徽章，不读每个罪人的关键词：关键词来自用户写的 slot 档案（D90）。 新写入local_ocr必须为可序列化有限JSON字典记录；旧不兼容条目忽略而原字节保留，不能变成availability证据。实际8/12原生OCR回放已通过，成品续跑与整局完成仍待验收。"
+    },
+    {
+      "id": "shop",
+      "title": "商店购买、刷新和金币对账",
+      "aliases": [
+        "商店",
+        "购买",
+        "刷新",
+        "shop purchase delta",
+        "Exact shop purchase currency delta not proven",
+        "purchase",
+        "refresh",
+        "super_shop",
+        "Super Shop",
+        "超级商店",
+        "商店标题",
+        "shop title",
+        "两个标题",
+        "theme identity",
+        "主题身份",
+        "aliases",
+        "theme catalog",
+        "Vield",
+        "truncated header",
+        "packaged assets",
+        "打包资源",
+        "dist drift",
+        "theme alias",
+        "Shop policy purchase evidence differs",
+        "shop execution teacher",
+        "购买执行教师",
+        "canonical purchase evidence",
+        "商店样本重复截图"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/shop_vision.py",
+          "symbol": "matching_purchase_question"
+        },
+        {
+          "path": "src/maalimbus/shop_transaction.py",
+          "symbol": "ShopTransaction.reconcile_purchase"
+        },
+        {
+          "path": "src/maalimbus/shop_transaction.py",
+          "symbol": "ShopTransaction.reconcile_refresh"
+        },
+        {
+          "path": "assets/resource/en/locale.json",
+          "needle": "\"super_shop\""
+        },
+        {
+          "path": "src/maalimbus/theme_vision.py",
+          "needle": "    def _prefix_identity(self,target):"
+        },
+        {
+          "path": "src/maalimbus/theme_transaction.py",
+          "needle": "    def matches(self,scope,header,catalog):"
+        },
+        {
+          "path": "tests/test_packaged_assets.py",
+          "needle": "def test_the_packaged_copy_says_what_the_repository_says("
+        },
+        {
+          "path": "src/maalimbus/shop_transaction.py",
+          "symbol": "purchase_execution_witness"
+        },
+        {
+          "path": "src/maalimbus/shop_outcomes.py",
+          "symbol": "sync"
+        },
+        {
+          "path": "src/maalimbus/shop_value_training.py",
+          "symbol": "_purchase_rule"
+        },
+        {
+          "path": "src/maalimbus/shop_evidence.py",
+          "symbol": "native_reading"
+        },
+        {
+          "path": "src/maalimbus/shop_evidence.py",
+          "symbol": "reference_root"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/2.3-decisions.md#d124-two-spellings-of-one-pack-are-one-identity-not-a-mismatch",
+        "docs/wiki/en_us/2.3-decisions.md#d125-a-fix-in-the-repository-is-not-a-fix-in-the-packaged-application",
+        "docs/wiki/en_us/2.3-decisions.md#d77-a-page-named-by-one-of-its-two-titles-is-named-by-luck",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-8",
+        "docs/wiki/zh_cn/2.3-decisions.md#d124-同一个主题包的两种拼写是同一个身份不是不一致",
+        "docs/wiki/zh_cn/2.3-decisions.md#d125-只改仓库不改打包物等于没改",
+        "docs/wiki/zh_cn/2.3-decisions.md#d77-只有两个名字里一个被记住的页面等于靠运气命名",
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-8"
+      ],
+      "tests": [
+        "tests/test_packaged_assets.py",
+        "tests/test_shop_actual_purchase.py",
+        "tests/test_shop_super_shop.py",
+        "tests/test_shop_transaction.py",
+        "tests/test_theme_identity.py",
+        "tests/test_shop_execution_teacher.py",
+        "tests/test_shop_canonical_evidence.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_shop_transaction.py tests/test_shop_actual_purchase.py",
+        "python tools/run_tests.py -q tests/test_shop_execution_teacher.py tests/test_shop_review_ownership.py tests/test_shop_value_training.py"
+      ],
+      "boundary": "购买确认、GET和完整货架结算分开；交易成功不是藏品强度标签。"
+    },
+    {
+      "id": "receipts",
+      "title": "藏品GET与后继恢复",
+      "aliases": [
+        "收据",
+        "GET",
+        "floor_gift_receipt_unknown_repeated_or_pending",
+        "receipt",
+        "到账",
+        "Faint Vestige",
+        "receipt attribution",
+        "替换礼物归属",
+        "closed receipt chain"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/floor_gift_transaction.py",
+          "symbol": "FloorGiftTransaction.observe_receipt"
+        },
+        {
+          "path": "src/maalimbus/floor_receipt_recovery.py",
+          "symbol": "recover_closed_receipts"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._resolve_floor_receipt"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-4",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-4"
+      ],
+      "tests": [
+        "tests/test_gift_receipt_settling.py",
+        "tests/test_floor_receipt_recovery.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_gift_receipt_settling.py",
+        "python tools/run_tests.py -q tests/test_floor_receipt_recovery.py tests/test_gift_receipt_settling.py"
+      ],
+      "boundary": "完整名称、scope和独立后继才可核账，不能重复GET。"
+    },
+    {
+      "id": "progress",
+      "title": "这一局走到哪一层、这层还剩几步",
+      "aliases": [
+        "进度",
+        "Dungeon Progress",
+        "还剩几步",
+        "走到哪一层",
+        "dungeon_progress",
+        "steps_left",
+        "no_candidate_node_observed"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/dungeon_progress.py",
+          "symbol": "dungeon_progress"
+        },
+        {
+          "path": "src/maalimbus/dungeon_progress.py",
+          "symbol": "steps_left"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-11",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-11"
+      ],
+      "tests": [
+        "tests/test_dungeon_progress.py"
+      ],
+      "checks": [
+        "python -m pytest tests/test_dungeon_progress.py -q"
+      ],
+      "boundary": "reads the paused panel only; it is a measurement, not an input"
+    },
+    {
+      "id": "scores",
+      "title": "候选权重与最终评分日志",
+      "aliases": [
+        "打分",
+        "权重",
+        "评分",
+        "分数",
+        "score",
+        "weights",
+        "log"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/decision_log.py",
+          "symbol": "lines"
+        },
+        {
+          "path": "src/maalimbus/floor_gifts.py",
+          "symbol": "rank"
+        },
+        {
+          "path": "src/maalimbus/theme_vision.py",
+          "symbol": "recommend_pack"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-5",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-5"
+      ],
+      "tests": [
+        "tests/test_decision_log.py",
+        "tests/test_floor_gifts.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_decision_log.py tests/test_floor_gifts.py"
+      ],
+      "boundary": "区分规则分方向、手动优先级、影子预测和真实学习参与。"
+    },
+    {
+      "id": "unknown",
+      "title": "未知页面的有界探索和证据包",
+      "aliases": [
+        "未知",
+        "unknown",
+        "自标签",
+        "自动标签",
+        "self label",
+        "无进展"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/unknown_exploration.py",
+          "symbol": "Exploration"
+        },
+        {
+          "path": "src/maalimbus/semantic_labels.py",
+          "symbol": "persist_frame_proposals"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3"
+      ],
+      "tests": [
+        "tests/test_unknown_exploration.py",
+        "tests/test_semantic_labels.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_unknown_exploration.py tests/test_semantic_labels.py"
+      ],
+      "boundary": "未知不直接结束整条任务；探索受次数、可见控件和预算约束，标签先proposal。"
+    },
+    {
+      "id": "neural",
+      "title": "神经模型是否真正用于识别或策略",
+      "aliases": [
+        "神经",
+        "neural applied",
+        "模型",
+        "训练",
+        "onnx",
+        "shadow",
+        "自监督"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/neural_shadow.py",
+          "symbol": "verified_model"
+        },
+        {
+          "path": "src/maalimbus/shop_value_shadow.py",
+          "symbol": "rank_preview"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-4",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-4"
+      ],
+      "tests": [
+        "tests/test_neural_training_evidence.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_neural_training_evidence.py"
+      ],
+      "boundary": "Maa原生推理与项目离线训练分开；shadow不得冒充生产控制策略。"
+    },
+    {
+      "id": "gpu",
+      "title": "CPU、内存、GPU和显存占用",
+      "aliases": [
+        "gpu占用",
+        "GPU",
+        "显存",
+        "CPU",
+        "RAM",
+        "VRAM",
+        "性能",
+        "占用"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/resource_diagnostics.py",
+          "symbol": "sample"
+        },
+        {
+          "path": "src/maalimbus/resource_diagnostics.py",
+          "symbol": "NvidiaSmiProvider"
+        },
+        {
+          "path": "src/maalimbus/resource_diagnostics.py",
+          "symbol": "_process_gpu_block"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-6",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-6"
+      ],
+      "tests": [
+        "tests/test_resource_diagnostics.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_resource_diagnostics.py"
+      ],
+      "boundary": "已实现采样器原型与只读CLI；整卡GPU不是进程归属。具体进程GPU供应商、GUI面板及同窗实机验收仍待证明。"
+    },
+    {
+      "id": "run-count",
+      "title": "镜牢完整局数与步数上限",
+      "aliases": [
+        "运行次数",
+        "次数",
+        "run count",
+        "步数",
+        "steps",
+        "根据部署"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "Settings"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3"
+      ],
+      "tests": [
+        "tests/test_agent_loop.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_agent_loop.py"
+      ],
+      "boundary": "完整局数是设计要求；Settings步数上限不是通关次数。"
+    },
+    {
+      "id": "payout",
+      "title": "领奖、返回和一次轮换记账",
+      "aliases": [
+        "领奖",
+        "奖励模块",
+        "module budget",
+        "reward",
+        "payout",
+        "完成"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/reward_task.py",
+          "symbol": "finish"
+        },
+        {
+          "path": "src/maalimbus/storage.py",
+          "symbol": "RunStore.record"
+        },
+        {
+          "path": "src/maalimbus/paid_reward_action.py",
+          "symbol": "measured_offer"
+        },
+        {
+          "path": "src/maalimbus/reward_cost.py",
+          "symbol": "observe_native"
+        },
+        {
+          "path": "src/maalimbus/reward_task.py",
+          "symbol": "execute"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-6-1",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-6-1"
+      ],
+      "tests": [
+        "tests/test_reward_task.py",
+        "tests/test_paid_reward_action.py",
+        "tests/test_reward_cost.py",
+        "tests/test_reward_return_loader.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_reward_task.py"
+      ],
+      "boundary": "clear、实际到账、返回分别证明；新scope不能冒用旧预算。Executable offers are the measured pairs only: 6/1, 5/0 and 18/3 (two-digit cost layout); budget options stop at 6, so 18 needs explicit per-run authorization. The loader after the last receipt is a bounded wait."
+    },
+    {
+      "id": "settings",
+      "title": "头像编队和星光卡片编辑器",
+      "aliases": [
+        "头像",
+        "设置页",
+        "editor",
+        "设置",
+        "game-like"
+      ],
+      "sources": [
+        {
+          "path": "desktop/mxu/TeamBuildEditor.tsx",
+          "needle": "export function TeamBuildEditor"
+        },
+        {
+          "path": "desktop/mxu/StarCardsEditor.tsx",
+          "needle": "export function StarCardsEditor"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-2",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-2"
+      ],
+      "tests": [
+        "tests/test_mxu_choices.py",
+        "tests/test_mxu_distribution.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_mxu_choices.py tests/test_mxu_distribution.py"
+      ],
+      "boundary": "界面渲染、保存重开、PI参数应用和游戏内生效是四个不同证据。"
+    },
+    {
+      "id": "updater",
+      "title": "GitHub更新按钮与安装分发",
+      "aliases": [
+        "github",
+        "更新按钮",
+        "更新",
+        "updater",
+        "release"
+      ],
+      "sources": [
+        {
+          "path": "desktop/mxu/SoftwareUpdatePanel.tsx",
+          "needle": "export function SoftwareUpdatePanel"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#feature-6-4-5",
+        "docs/wiki/en_us/6-deployment.md#feature-6-4-5"
+      ],
+      "tests": [
+        "tests/test_mxu_distribution.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_mxu_distribution.py"
+      ],
+      "boundary": "按钮存在不等于公开新版下载/安装/重启已验收。"
+    },
+    {
+      "id": "recovery",
+      "title": "一步没落地时的视角手势与识别卡死看门狗",
+      "aliases": [
+        "CLICK_KIND_ORDER",
+        "FIXED_CONTROL_PAGES",
+        "LADDER_VIEW_EVIDENCE",
+        "MAP_ESCAPE_REFUSALS",
+        "NODE_EVENTS",
+        "SKILL_ROW_POINT",
+        "_resolve_map_click",
+        "audit_ladder",
+        "audit_map_clicks",
+        "battle tip close",
+        "box_key",
+        "bright_lit_icon",
+        "click kind",
+        "destination",
+        "escape hatch",
+        "gold_badge_node",
+        "hang",
+        "ladder order",
+        "ladder_effect",
+        "late panel",
+        "map_click_kinds",
+        "map_escape_wanted",
+        "map_nodes_offered",
+        "map_unjudged",
+        "moves_the_view",
+        "no drag on a fixed board",
+        "node signal",
+        "node_view",
+        "pinch",
+        "progress panel",
+        "provisional verdict",
+        "recovery",
+        "rung",
+        "rung_effect",
+        "skill row tap",
+        "stall",
+        "start drift",
+        "the_click_was_not_taken_and_the_page_stayed",
+        "the_click_was_taken_after_the_verdict",
+        "the_exploration_must_be_resumed_before_a_node_click",
+        "unjudged",
+        "view change",
+        "watchdog",
+        "zoom out",
+        "临时判决",
+        "停滞",
+        "卡死",
+        "只看到一格",
+        "回放阶梯",
+        "固定控件页",
+        "地图拉近",
+        "恢复",
+        "拖到技能槽",
+        "挂了",
+        "晚开的面板",
+        "没反应",
+        "点击框种类",
+        "目的地",
+        "缩小地图",
+        "节点信号",
+        "视图",
+        "视角",
+        "视野变化",
+        "进度面板",
+        "逃生口",
+        "阶梯效用",
+        "阶梯顺序",
+        "settle_rounds",
+        "轮询次数",
+        "map poll",
+        "two polls",
+        "map_resume_did_not_restore_navigation",
+        "重复暂停续入",
+        "map_resume_attempted"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "pinch_out"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._recover"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "stall_watchdog"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "rung_effect"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "ladder_effect"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "LADDER_VIEW_EVIDENCE = {"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "ladder_order_problems"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "ladder_view_class"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "node_view"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "self.note('map_nodes_offered',"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "click_kinds"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "def box_key(box):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "def _kind_rank(kind):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._resolve_map_click"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "CLICK_VERDICTS = ('accepted', 'rejected', 'superseded', 'unjudged')"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "map_escape_wanted"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "MAP_ESCAPE_REFUSALS = 3"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "needle": "SKILL_ROW_POINT = ("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "FIXED_CONTROL_PAGES = ('BATTLE_HUD'"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "is_progress_action"
+        },
+        {
+          "path": "src/maalimbus/map_dispatch.py",
+          "symbol": "retire_recovery_after_progress"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/2.3-decisions.md#d106-a-drag-on-the-battle-board-is-a-game-action-not-a-view-move",
+        "docs/wiki/en_us/2.3-decisions.md#d123-a-click-on-the-map-is-a-poll-and-two-polls-are-enough",
+        "docs/wiki/en_us/2.3-decisions.md#d62-a-rung-that-cannot-be-measured-cannot-be-ordered",
+        "docs/wiki/en_us/2.3-decisions.md#d65-an-effect-the-journal-cannot-see-is-not-a-verdict",
+        "docs/wiki/en_us/2.3-decisions.md#d75-the-click-boxs-kind-is-a-fact-the-reader-already-had",
+        "docs/wiki/en_us/2.3-decisions.md#d76-a-clicks-verdict-belongs-to-the-read-that-can-still-contradict-it",
+        "docs/wiki/en_us/2.3-decisions.md#d91-the-progress-panel-is-the-last-answer-not-the-first",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-3-8",
+        "docs/wiki/zh_cn/2.3-decisions.md#d106-战斗板上的拖动是游戏动作不是视野移动",
+        "docs/wiki/zh_cn/2.3-decisions.md#d123-地图上的一次点击是轮询两次就够",
+        "docs/wiki/zh_cn/2.3-decisions.md#d62-改不了视野的恢复手段就没法排序",
+        "docs/wiki/zh_cn/2.3-decisions.md#d65-日志看不见的效果不能当成判决",
+        "docs/wiki/zh_cn/2.3-decisions.md#d75-点击框的种类识别器早就知道",
+        "docs/wiki/zh_cn/2.3-decisions.md#d76-一次点击的判决属于那个还能推翻它的读取",
+        "docs/wiki/zh_cn/2.3-decisions.md#d91-进度面板是最后的答案不是第一个",
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-3-8",
+        "docs/wiki/en_us/4-business-flows.md#navigation-diagnostic-contract",
+        "docs/wiki/zh_cn/4-business-flows.md#navigation-diagnostic-contract",
+        "docs/wiki/en_us/4-business-flows.md#bounded-map-resume",
+        "docs/wiki/zh_cn/4-business-flows.md#bounded-map-resume",
+        "docs/wiki/en_us/4-business-flows.md#map-recovery-episode",
+        "docs/wiki/zh_cn/4-business-flows.md#map-recovery-episode"
+      ],
+      "tests": [
+        "tests/test_fixed_control_pages.py",
+        "tests/test_ladder_evidence.py",
+        "tests/test_map_click_kinds.py",
+        "tests/test_map_escape.py",
+        "tests/test_map_nodes_journal.py",
+        "tests/test_map_verdict_late.py",
+        "tests/test_recovery_ladder.py",
+        "tests/test_plan_reasons.py",
+        "tests/test_map_control_roles.py",
+        "tests/test_map_recovery_episode.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_recovery_ladder.py tests/test_ladder_evidence.py",
+        "python tools/audit_ladder.py"
+      ],
+      "boundary": "Only proven MAP may spend viewport gestures; other pages retain domain control strategies and bounded rereads. Log and dispatch share canonical kind_of. A successful native launch grants one serial-bound absolute180s startup window capped by the original task deadline; rich unknown controls remain eligible for normal exploration. This does not prove a whole run. 2026-11-18: page-only audit uses runtime successor_ok including mixed ANY; dated historical counts/calibration remain separate from the current retained cohort. No input, navigation, financial receipt or learning credit follows from this audit. Resume after3node no-ops is one per-invocation hypothesis. Auxiliary pages do not renew it; independent expected node successor clears attempt/sticky goal. New source only; no physical recovery acceptance yet."
+    },
+    {
+      "id": "plan",
+      "title": "实施计划、依赖、工程图和完成标准",
+      "aliases": [
+        "plan",
+        "计划",
+        "wiki",
+        "验收",
+        "diagram"
+      ],
+      "sources": [],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#feature-9-2",
+        "docs/wiki/en_us/9-execution-plan.md#feature-9-2"
+      ],
+      "tests": [
+        "tests/test_wiki.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_wiki.py"
+      ],
+      "boundary": "执行计划不是已实现事实；依赖是技术关系，不是文档锁或审批。"
+    },
+    {
+      "id": "dispatch",
+      "title": "一个页面归哪一层管、输入之后可能跟什么、拒绝会不会停这一轮",
+      "aliases": [
+        "页面分派",
+        "页面契约",
+        "后继",
+        "dispatch",
+        "contract",
+        "unexpected_successor",
+        "wait 页",
+        "拒绝",
+        "漂移",
+        "dispatch_facts",
+        "DISPATCH_FACTS",
+        "STEP_ROWS",
+        "行数据",
+        "一页一行",
+        "step row",
+        "LOADING successor contract",
+        "RESUME_DIALOG LOADING",
+        "后继列表漂移",
+        "恢复计划加载页"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/window.py",
+          "needle": "STEP_ROWS = {"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "dispatch_facts"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "plan_step"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "DISPATCH_FACTS = {"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "unsafe_wait_branches"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "dispatch_sites"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/2.3-decisions.md#d45-页面契约要从链路派生不能写在链路旁边",
+        "docs/wiki/en_us/2.3-decisions.md#d45-a-page-contract-must-be-derived-from-the-chain-not-written-beside-it",
+        "docs/wiki/zh_cn/2.3-decisions.md#d47-只问一个问题的页面是一行数据不是一个分支",
+        "docs/wiki/en_us/2.3-decisions.md#d47-a-page-that-answers-one-question-is-a-row-not-a-branch"
+      ],
+      "tests": [
+        "tests/test_page_contracts.py",
+        "tests/test_pages.py",
+        "tests/test_step_rows.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_page_contracts.py tests/test_pages.py tests/test_step_rows.py"
+      ],
+      "boundary": "派生是静态读 window.STEP_ROWS 与 window._plan_step：运行期才决定的名字记为 '<expr>'，且只覆盖窗口链路与 runner 行内分派两层；记录与链路的漂移由 tests/test_page_contracts.py 守，行与分支的互斥由 tests/test_step_rows.py 守，不做行为推断。"
+    },
+    {
+      "id": "plan-reason",
+      "title": "一份计划带的 reason 有写方也有读方，它的类别不靠拼写猜",
+      "aliases": [
+        "计划理由",
+        "plan reason",
+        "plan_reasons",
+        "PLANNED_REASONS",
+        "死钩子",
+        "dead hook",
+        "refused_by_policy",
+        "confirm_proven_owned_gift_refusal",
+        "词表",
+        "证据欠额",
+        "plan['reason']",
+        "acting_plans",
+        "unproven",
+        "PLANS_WITHOUT_PROOF",
+        "input_without_a_proof",
+        "证据关系",
+        "无证据的点击",
+        "证伪",
+        "plan_outcomes",
+        "归档证据",
+        "never_changed",
+        "证明类型",
+        "state proof",
+        "pixel proof",
+        "PLANS_AWAITING_A_STATE_PROOF",
+        "PLANS_WITH_ONLY_A_DISMISSAL",
+        "declared_same",
+        "unexpected",
+        "索引视野",
+        "index reach",
+        "同页后继",
+        "PLANS_THE_INDEX_CANNOT_NAME",
+        "successor set",
+        "SUCCESSORS_THE_ARCHIVE_SAW",
+        "unnamed_landings",
+        "unreadable_landings",
+        "缺失后继",
+        "missing successor",
+        "落点",
+        "landing",
+        "UNKNOWN 落点",
+        "索引盲区",
+        "index blind spot",
+        "win_rate_is_the_proven_auto_assign_control",
+        "the_starting_gift_row_is_taken_from_the_tray",
+        "invisible word",
+        "看不见的词",
+        "混合ANY审计",
+        "mixed ANY audit",
+        "reason hooks",
+        "reason hook count",
+        "按reason分支"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "symbol": "producers"
+        },
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "symbol": "consumers"
+        },
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "symbol": "unmatched"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "PLANNED_REASONS = {"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "kind_of"
+        },
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "symbol": "acting_plans"
+        },
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "symbol": "unproven"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "PLANS_WITH_ONLY_A_DISMISSAL = {"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "PLANS_THE_INDEX_CANNOT_NAME = {"
+        },
+        {
+          "path": "src/maalimbus/plan_outcomes.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/plan_outcomes.py",
+          "needle": "def outcomes("
+        },
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "needle": "def _dismissal("
+        },
+        {
+          "path": "src/maalimbus/plan_reasons.py",
+          "needle": "def _locals("
+        },
+        {
+          "path": "src/maalimbus/plan_outcomes.py",
+          "needle": "def after_page("
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "SUCCESSORS_THE_ARCHIVE_SAW = {"
+        },
+        {
+          "path": "src/maalimbus/plan_outcomes.py",
+          "needle": "def unnamed_landings("
+        },
+        {
+          "path": "src/maalimbus/plan_outcomes.py",
+          "needle": "def unreadable_landings("
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "PLANS_THE_INDEX_CANNOT_NAME = {}"
+        },
+        {
+          "path": "src/maalimbus/plan_outcomes.py",
+          "symbol": "_page_matches"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "successor_ok"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/2.3-decisions.md#d48-计划的-reason-是一个有写方的词它的类别不能从拼写里读出来",
+        "docs/wiki/en_us/2.3-decisions.md#d48-a-plans-reason-is-a-word-with-a-writer-and-a-kind-that-is-not-read-off-its-spelling",
+        "docs/wiki/zh_cn/2.3-decisions.md#d49-无法被证伪的输入是一个决定不是一次诊断",
+        "docs/wiki/en_us/2.3-decisions.md#d49-an-input-nothing-can-judge-is-a-decision-not-a-diagnosis",
+        "docs/wiki/en_us/2.3-decisions.md#d56-the-instrument-that-measured-the-gap-was-the-gap",
+        "docs/wiki/zh_cn/2.3-decisions.md#d56-度量缺口的仪器本身就是缺口",
+        "docs/wiki/en_us/2.3-decisions.md#d57-a-successor-set-is-names-and-an-index-has-a-reach",
+        "docs/wiki/zh_cn/2.3-decisions.md#d57-后继集合是名字而索引有它的视野边界",
+        "docs/wiki/en_us/2.3-decisions.md#d58-a-landing-the-archive-saw-every-time-is-a-missing-line-not-a-surprise",
+        "docs/wiki/zh_cn/2.3-decisions.md#d58-归档每次都看到的落点是计划里漏掉的一行不是意外",
+        "docs/wiki/en_us/2.3-decisions.md#d64-an-invisible-word-is-a-plan-nobody-can-gate",
+        "docs/wiki/zh_cn/2.3-decisions.md#d64-谁都看不见的理由就是一个没人能守的计划",
+        "docs/wiki/en_us/4-business-flows.md#navigation-diagnostic-contract",
+        "docs/wiki/zh_cn/4-business-flows.md#navigation-diagnostic-contract"
+      ],
+      "tests": [
+        "tests/test_plan_reasons.py",
+        "tests/test_plan_proof.py",
+        "tests/test_plan_outcomes.py",
+        "tests/test_plan_successors.py",
+        "tests/test_plan_index.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_plan_reasons.py tests/test_plan_proof.py",
+        "python tools/audit_plan_evidence.py"
+      ],
+      "boundary": "两侧都由 ast 静态派生：窗口层的 _plan/_refuse/STEP_ROWS 行与 runner 里 plan=… 的赋值是写方，plan['reason'] 比较是读方；只对计划这一层设闸，回合结论与设置项交给 pages.kind_of，运行期拼出的词记为未解析。 证据关系另由 plan_reasons.acting_plans/unproven 派生：只数得出\"有证据/无证据\"，判不出\"证据是否永远成立\"。 D56: the archive can only see pages and only from runs older than the change; a state proof can be demanded, never derived from it. D57: the archive can compare an observed page with the successor set a plan declared; it cannot see a frame, so an advance plan's pixel proof stays invisible to it. D58: the archive compares a landing with the pages a plan named; a landing at UNKNOWN is reported apart as a reading question, and a plan proved by a dismissal has nothing to forget. D64: 两个曾对静态读者不可见的词改为在 window 层写字面量，PLANS_THE_INDEX_CANNOT_NAME 清空但仍被门读取；运行时拼出的计划与\"归档有、源码无\"的词依旧是声明并计数的义务。 2026-11-18: page-only audit uses runtime successor_ok including mixed ANY; dated historical counts/calibration remain separate from the current retained cohort. No input, navigation, financial receipt or learning credit follows from this audit."
+    },
+    {
+      "id": "endings",
+      "title": "一局怎么结束必须说得出是谁结束的，普查的桶必须覆盖全体",
+      "aliases": [
+        "结束",
+        "谁结束了",
+        "stop_path",
+        "STOP_PATHS",
+        "ending",
+        "endings",
+        "died_without_a_stop",
+        "audit_runs",
+        "audit_silent",
+        "进程死亡",
+        "unrecorded",
+        "ReadNeverReturned",
+        "读不回来",
+        "read failure",
+        "settle_read_never_returned",
+        "loop_read_failed",
+        "read_retries",
+        "_unreadable_frame",
+        "unreadable_rounds",
+        "reads_failed",
+        "读预算",
+        "read budget",
+        "连续读失败",
+        "consecutive reads",
+        "efficiency",
+        "portfolio",
+        "audit_efficiency",
+        "效率指标",
+        "六个数字",
+        "clear_rate",
+        "reads_per_step",
+        "no_progress_stop_rate",
+        "unconfirmed_purchases",
+        "None 与 0",
+        "payout_rate",
+        "reward_task_executed",
+        "reward_task_stopped",
+        "reward_task_skipped",
+        "PAYOUT_EVENTS",
+        "领奖率",
+        "有没有领到奖",
+        "payout",
+        "claimed",
+        "time_budget",
+        "时间预算",
+        "audit_time",
+        "门到门的秒数",
+        "where the seconds go",
+        "time_portfolio",
+        "MAX_GAP_SECONDS",
+        "event cost",
+        "heartbeats",
+        "step rate",
+        "步进比率",
+        "代理量",
+        "proxy rate",
+        "denominator",
+        "分母",
+        "read_cost",
+        "read_split",
+        "reads that time themselves",
+        "读取自述时长",
+        "节点 vs 包装",
+        "node versus wrapper",
+        "seconds field",
+        "TIMED_READ_EVENTS",
+        "read_phases",
+        "phases",
+        "分段耗时",
+        "phase split",
+        "ocr_seconds",
+        "roi_seconds",
+        "classify_seconds",
+        "timing_fields",
+        "缓存不报时间",
+        "ActionNodeFailed",
+        "node_action_unconfirmed",
+        "任务被拆",
+        "torn task",
+        "failed action node",
+        "an_action_node_failed",
+        "harness.json",
+        "killed_by_budget",
+        "budget",
+        "预算结束",
+        "killed at the budget",
+        "MARGIN_SECONDS",
+        "余量",
+        "harness_budget",
+        "unknown_interval",
+        "未知页节拍",
+        "unknown page pacing",
+        "window_unknown_wait",
+        "hazard",
+        "风险率",
+        "flat hazard",
+        "floor_progress",
+        "budget_ended",
+        "平均楼层",
+        "clear rate denominator",
+        "通关率的分母",
+        "progress figure",
+        "unknown_waits",
+        "after",
+        "前驱页",
+        "what came before",
+        "is_unreadable",
+        "UNREADABLE_PAGE",
+        "wait cause",
+        "binding_lost",
+        "note_binding_lost",
+        "BINDING_GONE_AFTER_A_TORN_TASK",
+        "绑定已释放",
+        "released binding",
+        "torn task input",
+        "harness.json 优先级",
+        "input_withheld",
+        "INPUT_NEEDS_A_TASK",
+        "_input_door",
+        "输入门判据",
+        "no task no route",
+        "tasker.running",
+        "RouteLost",
+        "ROUTE_LOST",
+        "rebind",
+        "_send",
+        "重绑",
+        "input route",
+        "controller not found",
+        "probe_route",
+        "route_suspect",
+        "mark_action_ended",
+        "rebind before the next input",
+        "路由交回",
+        "action task ended",
+        "781 s",
+        "send_through_a_task",
+        "point_override",
+        "PIPELINE_INPUT_NODES",
+        "pipeline_inputs",
+        "任务承载输入",
+        "carried by a task",
+        "DirectHit",
+        "call_with_a_deadline",
+        "INPUT_CALL_SECONDS",
+        "inputs_abandoned",
+        "PROGRESS_SECONDS",
+        "不回答的请求",
+        "never answered",
+        "abandoned call",
+        "step pacing",
+        "步骤间隔",
+        "_pause_between_steps",
+        "input_at",
+        "间隔付两遍",
+        "pause",
+        "harness reap",
+        "孤儿 agent",
+        "orphan agent",
+        "stale_agents",
+        "reap_stale_agents",
+        "run_bounded",
+        "taskkill",
+        "selfrun_mirror",
+        "外壳清理",
+        "seconds_per_floor",
+        "floor pace",
+        "每层秒数",
+        "floor_pace",
+        "TARGET_SECONDS_PER_FLOOR",
+        "一层十分钟",
+        "ten minutes a floor",
+        "transaction_waits",
+        "blocked_by",
+        "pending transaction",
+        "待结事务",
+        "unknown_blockers",
+        "pending_transaction_wait_exhausted",
+        "floor_dwell",
+        "停留时长",
+        "dwell",
+        "一层多久",
+        "ended inside a floor",
+        "floor_time",
+        "一层时间",
+        "floor split",
+        "battle vs map",
+        "audit_floor_time"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/pages.py",
+          "needle": "STOP_PATHS = {"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "ending"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "unknown_stop_paths"
+        },
+        {
+          "path": "tools/audit_runs.py",
+          "symbol": "census"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "class ReadNeverReturned("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "def _unreadable_frame("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "'unreadable_rounds': 2,"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "efficiency"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "portfolio"
+        },
+        {
+          "path": "tools/audit_efficiency.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/reward_task.py",
+          "needle": "def _note("
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "PAYOUT_EVENTS = ("
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "time_budget"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "time_portfolio"
+        },
+        {
+          "path": "tools/audit_time.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "        'heartbeats': heartbeats,"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "read_cost"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "read_split"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MapObservation"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "read_phases"
+        },
+        {
+          "path": "agent/recognition.py",
+          "needle": "    def timing_fields(self):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "ActionNodeFailed"
+        },
+        {
+          "path": "tools/selfrun_mirror.py",
+          "needle": "MARGIN_SECONDS = 45"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "ENDING_KINDS = ("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "'unknown_interval': 3.0,"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "'floor_progress': {"
+        },
+        {
+          "path": "src/maalimbus/pages.py",
+          "symbol": "is_unreadable"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def note_binding_lost(self, reason):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "BINDING_GONE_AFTER_A_TORN_TASK = '"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "INPUT_NEEDS_A_TASK = "
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "class RouteLost(RuntimeError):"
+        },
+        {
+          "path": "tools/probe_route.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    route_suspect = False"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def mark_action_ended(self):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "def point_override(entry, payload, *, post_delay=150):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def send_through_a_task(self, what, payload):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "PIPELINE_INPUT_NODES = "
+        },
+        {
+          "path": "tests/test_input_route_after_action.py",
+          "symbol": "test_an_input_after_a_finished_task_goes_through_a_task"
+        },
+        {
+          "path": "src/maalimbus/jobs.py",
+          "needle": "def call_with_a_deadline(call, *, timeout, clock=time.monotonic):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "INPUT_CALL_SECONDS = 10.0"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    PROGRESS_SECONDS = 90.0"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "def _pause_between_steps(self, interval):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "self.artifacts['input_at'] = time.monotonic()"
+        },
+        {
+          "path": "tools/selfrun_mirror.py",
+          "symbol": "reap_stale_agents"
+        },
+        {
+          "path": "tools/selfrun_mirror.py",
+          "symbol": "run_bounded"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "floor_pace"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "_floor_of"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "    def _pending_transaction_wait(self):"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "needle": "PENDING_TRANSACTION_UNREADABLE = 'the_outcome"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "def floor_dwell("
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "needle": "def floor_time("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._execution_stack"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._storage_progress"
+        },
+        {
+          "path": "tools/verify_packaged_mirror_loop.py",
+          "symbol": "handoff_open_game_result"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/2.3-decisions.md#d121-a-run-that-ends-inside-a-floor-has-a-dwell-not-a-pace",
+        "docs/wiki/en_us/2.3-decisions.md#d122-a-floors-time-has-parts-and-they-are-not-what-the-name-suggests",
+        "docs/wiki/en_us/2.3-decisions.md#d50-a-census-whose-buckets-do-not-partition-the-corpus-is-not-a-denominator",
+        "docs/wiki/en_us/2.3-decisions.md#d59-a-read-that-does-not-come-back-is-not-a-verdict",
+        "docs/wiki/en_us/2.3-decisions.md#d60-one-budget-cannot-count-two-different-events",
+        "docs/wiki/en_us/2.3-decisions.md#d61-the-efficiency-figures-have-one-owner-and-a-zero-is-not-a-measurement",
+        "docs/wiki/en_us/2.3-decisions.md#d63-a-run-that-never-says-it-was-paid-cannot-be-measured",
+        "docs/wiki/en_us/2.3-decisions.md#d66-a-duration-without-a-budget-is-a-stopwatch-not-a-measurement",
+        "docs/wiki/en_us/2.3-decisions.md#d67-a-rate-over-a-proxy-is-not-a-rate",
+        "docs/wiki/en_us/2.3-decisions.md#d68-a-read-that-does-not-time-itself-cannot-be-split",
+        "docs/wiki/en_us/2.3-decisions.md#d70-the-reads-cost-is-the-full-frame-ocr-and-now-the-row-says-so",
+        "docs/wiki/en_us/2.3-decisions.md#d72-a-node-that-answers-no-has-already-ended-the-task",
+        "docs/wiki/en_us/2.3-decisions.md#d78-a-killed-process-cannot-write-its-ending-so-the-killer-does",
+        "docs/wiki/en_us/2.3-decisions.md#d79-waiting-is-not-patience-when-the-hazard-is-flat",
+        "docs/wiki/en_us/2.3-decisions.md#d80-a-clear-rate-over-runs-nobody-gave-time-to-clear-is-a-statement-about-the-budget",
+        "docs/wiki/en_us/2.3-decisions.md#d81-an-unknown-page-is-not-one-behaviour",
+        "docs/wiki/en_us/2.3-decisions.md#d82-a-torn-down-task-closes-the-input-door-not-the-reading-one",
+        "docs/wiki/en_us/2.3-decisions.md#d84-a-task-that-finished-still-owns-the-door",
+        "docs/wiki/en_us/2.3-decisions.md#d85-no-local-predicate-can-predict-a-rejected-click-so-the-door-is-one-repair",
+        "docs/wiki/en_us/2.3-decisions.md#d86-a-task-that-ends-hands-the-route-back-so-the-next-input-asks-for-it",
+        "docs/wiki/en_us/2.3-decisions.md#d87-a-refused-input-is-carried-by-a-task-not-repaired-by-asking-for-the-route",
+        "docs/wiki/en_us/2.3-decisions.md#d88-a-request-that-is-never-answered-must-not-own-the-run",
+        "docs/wiki/en_us/2.3-decisions.md#d89-a-watchdog-that-cannot-fire-inside-the-budget-is-not-a-watchdog",
+        "docs/wiki/en_us/2.3-decisions.md#d93-a-spacer-between-inputs-is-not-a-sleep-the-clock-is-owed",
+        "docs/wiki/en_us/2.3-decisions.md#d94-a-killer-that-leaves-the-child-alive-has-not-ended-the-run",
+        "docs/wiki/en_us/2.3-decisions.md#d95-the-requirement-has-units-so-the-report-needs-them-too",
+        "docs/wiki/en_us/2.3-decisions.md#d96-a-wait-that-can-spend-the-whole-run-has-no-budget",
+        "docs/wiki/zh_cn/2.3-decisions.md#d121-停在同一层里的运行有停留时长没有速度",
+        "docs/wiki/zh_cn/2.3-decisions.md#d122-一层的时间是分块的而且和名字给人的印象不一样",
+        "docs/wiki/zh_cn/2.3-decisions.md#d50-分桶不覆盖全体的普查不是分母",
+        "docs/wiki/zh_cn/2.3-decisions.md#d59-读不回来的一次读不是一次判定",
+        "docs/wiki/zh_cn/2.3-decisions.md#d60-一个预算不能同时数两件事",
+        "docs/wiki/zh_cn/2.3-decisions.md#d61-效率数字只能有一个主人而零不是测量结果",
+        "docs/wiki/zh_cn/2.3-decisions.md#d63-说不清有没有领到奖的运行量不出通关率",
+        "docs/wiki/zh_cn/2.3-decisions.md#d66-只有总时长没有预算是秒表不是测量",
+        "docs/wiki/zh_cn/2.3-decisions.md#d67-用代理量算出的比率不是比率",
+        "docs/wiki/zh_cn/2.3-decisions.md#d68-不会计时的读取拆不开",
+        "docs/wiki/zh_cn/2.3-decisions.md#d70-一次读取的成本就是整帧-ocr现在这一行自己会说了",
+        "docs/wiki/zh_cn/2.3-decisions.md#d72-回答不的节点已经把任务结束了",
+        "docs/wiki/zh_cn/2.3-decisions.md#d78-被杀掉的进程写不了自己的结尾于是由杀它的进程来写",
+        "docs/wiki/zh_cn/2.3-decisions.md#d79-风险率是平的等待就不叫耐心",
+        "docs/wiki/zh_cn/2.3-decisions.md#d80-用一群没给够时间的人算通关率量到的是预算",
+        "docs/wiki/zh_cn/2.3-decisions.md#d81-无法命名的页面不是一种行为",
+        "docs/wiki/zh_cn/2.3-decisions.md#d82-任务被拆掉之后关的是输入门不是读门",
+        "docs/wiki/zh_cn/2.3-decisions.md#d84-任务结束了门还归它管",
+        "docs/wiki/zh_cn/2.3-decisions.md#d85-没有本地谓词能预测被拒的点击门就只是一次修复",
+        "docs/wiki/zh_cn/2.3-decisions.md#d86-任务结束时把路由交回去所以下一次输入要先去要",
+        "docs/wiki/zh_cn/2.3-decisions.md#d87-被拒的输入改由任务承载而不是去要回路由",
+        "docs/wiki/zh_cn/2.3-decisions.md#d88-一个永远不回答的请求不能占据整次运行",
+        "docs/wiki/zh_cn/2.3-decisions.md#d89-在预算内开不了火的看门狗不算看门狗",
+        "docs/wiki/zh_cn/2.3-decisions.md#d93-点击之间的间隔不是一个欠给时钟的睡眠",
+        "docs/wiki/zh_cn/2.3-decisions.md#d94-只杀了父进程却没杀掉子进程的杀手并没有让这一轮结束",
+        "docs/wiki/zh_cn/2.3-decisions.md#d95-要求有单位报表就得有单位",
+        "docs/wiki/zh_cn/2.3-decisions.md#d96-能把整把时间等完的等待就是没有预算",
+        "docs/wiki/en_us/3-runtime.md#dead-producer-handoff",
+        "docs/wiki/zh_cn/3-runtime.md#dead-producer-handoff"
+      ],
+      "tests": [
+        "tests/test_run_endings.py",
+        "tests/test_read_failure.py",
+        "tests/test_run_efficiency.py",
+        "tests/test_payout_journal.py",
+        "tests/test_time_budget.py",
+        "tests/test_read_cost.py",
+        "tests/test_unknown_pacing.py",
+        "tests/test_binding_lost.py",
+        "tests/test_input_route.py",
+        "tests/test_input_route_after_action.py",
+        "tests/test_input_call_deadline.py",
+        "tests/test_progress_window.py",
+        "tests/test_step_pacing.py",
+        "tests/test_harness_reap.py",
+        "tests/test_floor_pace.py",
+        "tests/test_transaction_wait.py",
+        "tests/test_native_job_teardown.py",
+        "tests/test_packaged_open_game.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_run_endings.py",
+        "python tools/audit_time.py"
+      ],
+      "boundary": "静态：只给出写方名字，不给原因；历史 91 条结束永远 unrecorded。 D59: an ending may follow a bounded retry of a failed read, so the reason can be the read's own (the_page_read_did_not_come_back_inside_its_window) rather than the loop's generic task failure. D60: a failed read is bounded twice -- consecutively inside one settle loop (unreadable_rounds, default 2) and by steps at the top (read_retries); the two are independent numbers and the step record carries reads_failed. D61: the six phase-6 figures come from run_metrics.efficiency/metrics/portfolio; a figure the journal cannot supply is None with a reason, never 0. D63: 领奖结果由 reward_task 自己写（executed/stopped/skipped），payout_rate 的分母是\"记录了领奖结果的运行\"；142 局旧日志没有这个事件，所以它是 None 且一直是，放宽语料 glob 必须作为单独一次决定。 D66: 秒数按\"到下一行\"的间隔记在前一行账上，它是预算不是 profile；占比的分母是已归属秒数，解释不了的部分单列。 D67: 步进比率的分母是各局声明的步数，心跳条数只作记录说明；分子只取声明过步数的那批局。 D68: 每次读取现在自述时长，于是\"读取组\"可以被拆成节点自己与包装；旧语料没有这个字段，必须读成未测量。 D70: 读取的 `seconds` 现在带三段（整帧 OCR / ROI 重读 / 分类）；缓存命中不报时间，旧语料报\"分段未测量\"，且回放帧不含设备截图。 D72: 动作节点失败即结束会话；此后任何输入都被拒绝。它不解释节点为什么失败。 Stop posting and disconnect calls are bounded; producer death cannot inherit OpenGame success as Mirror result. Watchdog locations exclude locals/source text. Completed storage work may report actual progress without extending original deadline."
+    },
+    {
+      "id": "transactions",
+      "title": "交易的两半：意图在输入之前写下，读者必须在之后把它读回来",
+      "aliases": [
+        "事务",
+        "交易",
+        "预留",
+        "对账",
+        "intent",
+        "reconcile",
+        "reservation",
+        "duplicate purchase",
+        "重复消费",
+        "重复交易",
+        "transaction_ledger",
+        "unpaired",
+        "injected reader"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/transaction_ledger.py",
+          "symbol": "ledger"
+        },
+        {
+          "path": "src/maalimbus/transaction_ledger.py",
+          "symbol": "sites"
+        },
+        {
+          "path": "src/maalimbus/transaction_ledger.py",
+          "symbol": "unpaired"
+        },
+        {
+          "path": "src/maalimbus/transaction_ledger.py",
+          "symbol": "dead_api"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/2.3-decisions.md#d51-只作为回调传递的读者仍然是读者",
+        "docs/wiki/en_us/2.3-decisions.md#d51-a-reservation-whose-reader-is-only-a-callback-is-still-a-reservation"
+      ],
+      "tests": [
+        "tests/test_transaction_ledger.py"
+      ],
+      "checks": [
+        "python tools/audit_transactions.py"
+      ],
+      "boundary": "账本证明的是\"引用存在\"，不是\"辅助函数走到它\"；写在 MirrorRunner.step 之外的交易对它不可见；死方法按名跨模块匹配。"
+    },
+    {
+      "id": "replay",
+      "title": "回放只有一层：保留帧不是游戏，所以输入要由场景声明",
+      "aliases": [
+        "回放",
+        "离线回放",
+        "replay",
+        "ReplayFrames",
+        "ReplayController",
+        "offline uuid",
+        "不碰游戏",
+        "expects",
+        "replay_inventory",
+        "CustomController",
+        "scenario_uuid",
+        "uuid 只读",
+        "构造回放",
+        "neighbour import",
+        "邻居 import",
+        "build a controller",
+        "blank_replay",
+        "全零帧",
+        "把帧存进类里",
+        "neighbour controller",
+        "摊平 import",
+        "advance",
+        "clicks",
+        "推进一帧",
+        "点击记录",
+        "capability"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/replay.py",
+          "symbol": "ReplayFrames"
+        },
+        {
+          "path": "src/maalimbus/replay.py",
+          "symbol": "ReplayController"
+        },
+        {
+          "path": "src/maalimbus/replay.py",
+          "needle": "def _input("
+        },
+        {
+          "path": "tools/replay_inventory.py",
+          "symbol": "report"
+        },
+        {
+          "path": "src/maalimbus/replay.py",
+          "needle": "def blank_replay("
+        },
+        {
+          "path": "src/maalimbus/replay.py",
+          "needle": "self.advance = advance"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/2.3-decisions.md#d52-一句承诺写十遍就是十句承诺",
+        "docs/wiki/en_us/2.3-decisions.md#d52-a-promise-written-ten-times-is-ten-promises",
+        "docs/wiki/zh_cn/2.3-decisions.md#d53-只靠清点证明的承诺不算被证明",
+        "docs/wiki/en_us/2.3-decisions.md#d53-a-promise-proven-by-a-count-is-not-proven",
+        "docs/wiki/zh_cn/2.3-decisions.md#d54-一个只会存帧的类体不是子类",
+        "docs/wiki/en_us/2.3-decisions.md#d54-a-body-that-only-stores-a-frame-is-not-a-subclass",
+        "docs/wiki/en_us/2.3-decisions.md#d55-a-subclass-that-exists-to-add-one-method-is-a-capability-the-layer-is-missing",
+        "docs/wiki/zh_cn/2.3-decisions.md#d55-只为补一个方法而存在的子类说明这一层缺了这个能力"
+      ],
+      "tests": [
+        "tests/test_replay_surface.py",
+        "tests/test_replay_runtime.py"
+      ],
+      "checks": [
+        "python tools/replay_inventory.py",
+        "python tools/verify_hard_toggle_replay.py --binary build/mxu-probe-271/maafw --frame evidence/runtime/hard-toggle-replay-1791255518617925400-unchanged/frame-0001.png"
+      ],
+      "boundary": "这一层证明的是拒绝、取帧与记账；它不证明某个场景的期望合理，也没有把 29 个仍然经邻居 import Replay 的工具摊平——清单如实报出这条链。 D53 adds the runtime proof: the layer is built in a test, so a construction failure cannot hide behind a static count; the 46 neighbour imports are reported, not flattened. D54 flattened every tool whose source class only stored a frame (46 -> 12 neighbour imports), so what remains is exactly the tools whose expectation needs flattening one at a time. D55: the layer holds the mechanical half (frames, advance, records); a scene still owns its own expectation, and the five remaining scene reuses keep theirs."
+    },
+    {
+      "id": "binding",
+      "title": "设备绑定的读与写两半：方法、计价与固定",
+      "aliases": [
+        "设备绑定",
+        "binding",
+        "adb_device",
+        "pin_input",
+        "pin_screencap",
+        "screencap method",
+        "截图方法",
+        "capture",
+        "截图耗时",
+        "measure_screencap",
+        "input policy",
+        "输入策略",
+        "EMPTY_BINDINGS",
+        "binding_is_empty",
+        "the_controller_binding_is_empty",
+        "空绑定",
+        "empty binding",
+        "controller not found",
+        "发不出去的输入",
+        "input door"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/adb_device.py",
+          "symbol": "pin_screencap"
+        },
+        {
+          "path": "src/maalimbus/adb_device.py",
+          "symbol": "pin_input"
+        },
+        {
+          "path": "src/maalimbus/adb_device.py",
+          "symbol": "build"
+        },
+        {
+          "path": "tools/measure_screencap.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "binding_is_empty"
+        },
+        {
+          "path": "src/maalimbus/run_metrics.py",
+          "symbol": "read_phases_of"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/2.3-decisions.md#d69-the-capture-half-was-named-not-priced",
+        "docs/wiki/zh_cn/2.3-decisions.md#d69-截图那一半只是被点名没有被计价",
+        "docs/wiki/en_us/2.3-decisions.md#d71-an-input-that-cannot-land-must-not-be-posted",
+        "docs/wiki/zh_cn/2.3-decisions.md#d71-落不下去的输入不该被发出去"
+      ],
+      "tests": [
+        "tests/test_screencap_pricing.py",
+        "tests/test_click_binding.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_screencap_pricing.py",
+        "python tools/measure_screencap.py --binary build/mxu-probe-271/maafw --count 3"
+      ],
+      "boundary": "D69: 这一路只解释\"一次截图要多久\"与\"绑定被固定成哪一种\"。它不解释识别耗时，也不解释流水线往返；MuMu 12 只提供 EmulatorExtras 一种方法，因此在这台设备上不存在\"选更快的方法\"这个选项。 D71: 空绑定（`\"\"` 或 `None`）在任何输入门前都会被拒绝；这不解释绑定为什么会在运行中变空。"
+    },
+    {
+      "id": "battle",
+      "title": "战斗板：固定点、提交表盘与浮层",
+      "aliases": [
+        "battle",
+        "战斗",
+        "battle board",
+        "TOGGLE_POINTS",
+        "fixed point",
+        "固定点",
+        "toggle_boxes",
+        "Win Rate",
+        "Damage",
+        "提交表盘",
+        "submit dial",
+        "SKILL_ROW_POINT",
+        "skill row",
+        "技能排",
+        "BATTLE_TIP",
+        "浮动层",
+        "popup",
+        "battle_progress_stalled",
+        "battle storage refresh",
+        "战斗重复计数",
+        "turn readiness",
+        "未配卡表盘",
+        "START activation"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "needle": "TOGGLE_POINTS = {"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "symbol": "auto_assign_buttons"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "symbol": "submit_dial"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "needle": "SKILL_ROW_POINT = ("
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "battle_progress"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._capacity_reobserve"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "symbol": "start_button"
+        },
+        {
+          "path": "src/maalimbus/battle_vision.py",
+          "symbol": "dial_beside_caption"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/3-runtime.md#battle-progress-lifetime",
+        "docs/wiki/zh_cn/3-runtime.md#battle-progress-lifetime",
+        "docs/wiki/en_us/2.3-decisions.md#d107-a-control-that-never-moves-is-a-point-not-a-search",
+        "docs/wiki/zh_cn/2.3-decisions.md#d107-不会动的控件是一个点不是一次搜索",
+        "docs/wiki/en_us/2.3-decisions.md#d106-a-drag-on-the-battle-board-is-a-game-action-not-a-view-move",
+        "docs/wiki/zh_cn/2.3-decisions.md#d106-战斗板上的拖动是游戏动作不是视野移动"
+      ],
+      "tests": [
+        "tests/test_battle_toggles.py",
+        "tests/test_battle_touch.py",
+        "tests/test_battle_hud_controls.py",
+        "tests/test_battle_storage_refresh.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_battle_toggles.py tests/test_battle_touch.py"
+      ],
+      "boundary": "Battle controls use native capture geometry. Current installed f94661d owns battle progress once per observation and separates storage rereads and encounter boundaries. Retained ten-frame review distinguishes START readiness, strict lit shape and position-only fallback across MirrorRunner and BattleStartTurn. The separate readiness repair is conditional on live continuation. See chapter 3 for full evidence, historical regression and open acceptance."
+    },
+    {
+      "id": "map-anchor",
+      "title": "我方在哪：节点上方的火苗，只用灰度几何",
+      "aliases": [
+        "我方标记",
+        "我方位置",
+        "party",
+        "party_point",
+        "火苗",
+        "torch",
+        "player anchor",
+        "party_from_flame",
+        "灰度几何",
+        "颜色退出判定",
+        "party_point returns None",
+        "map_party_anchor"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/map_vision.py",
+          "symbol": "party_from_flame"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "party_point"
+        }
+      ],
+      "tests": [
+        "tests/test_party_flame.py",
+        "tests/test_map_party_anchor.py"
+      ],
+      "checks": [
+        "python -m pytest -q tests/test_party_flame.py tests/test_map_party_anchor.py"
+      ],
+      "boundary": "只回答“我方标记在哪”这一件事：灰度局部对比 + 竖直细长亮块 + 正下方必须有已检出节点。不含颜色阈值，也不含屏幕像素常数（全为画面/节点比例）。无节点框时返回 None（不猜）。不负责节点图标分类，也不负责选择路线。",
+      "docs": [
+        "docs/wiki/en_us/2.3-decisions.md#d281-the-party-mark-is-found-by-grey-geometry",
+        "docs/wiki/zh_cn/2.3-decisions.md#d281-我方标记按灰度几何找颜色退出判定"
+      ]
+    },
+    {
+      "id": "initial-catalogue-preview",
+      "title": "初始藏品滚动后未知 / wrong map gestures on catalogue",
+      "aliases": [
+        "INITIAL_GIFTS UNKNOWN",
+        "initial gift preview",
+        "初始藏品",
+        "catalogue scroll",
+        "configured_initial_gift_not_offered",
+        "初始地图缩放"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/initial_gifts.py",
+          "symbol": "page"
+        },
+        {
+          "path": "src/maalimbus/initial_gifts.py",
+          "symbol": "group_target"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._normalise_view_once"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/4-business-flows.md#feature-4-12",
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-12"
+      ],
+      "tests": [
+        "tests/test_initial_gifts.py",
+        "tests/test_initial_transaction.py",
+        "tests/test_view_normalisation_wiring.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_initial_gifts.py tests/test_initial_transaction.py tests/test_view_normalisation_wiring.py"
+      ],
+      "boundary": "Native MAP identity owns normalization. Preview is not a gift pick; current actual zero counter and original frames are retained. Offline reclassification/replay does not prove live receipt or full Mirror."
+    },
+    {
+      "id": "preset-is-not-team",
+      "title": "Preset1误当Team1 / saved order silently replaced",
+      "aliases": [
+        "Preset #1",
+        "team_reconciled_to_the_board",
+        "deployment_order_from_badges",
+        "战前队伍不对",
+        "顺序复用"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/team_vision.py",
+          "symbol": "saved_team_header"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._check_team"
+        },
+        {
+          "path": "src/maalimbus/deployment_transaction.py",
+          "symbol": "DeploymentTransaction.prepare"
+        }
+      ],
+      "docs": [
+        "docs/wiki/en_us/4-business-flows.md#feature-4-13",
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-13"
+      ],
+      "tests": [
+        "tests/test_team_header.py",
+        "tests/test_team_reconcile.py",
+        "tests/test_saved_deployment_order.py",
+        "tests/test_deployment_transaction.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_team_header.py tests/test_team_reconcile.py tests/test_saved_deployment_order.py tests/test_deployment_transaction.py"
+      ],
+      "boundary": "Preset numbers cannot change the global team binding; printed order verifies reuse, not user intent. Real first Team2 battle used wrong profile order before this repair; current HUD is not a correct-deployment or clear proof."
+    },
+    {
+      "id": "native-observation-read-scope",
+      "title": "启动战斗前重复截图与观察成本 / native preflight duplicate HUD reads",
+      "aliases": [
+        "identity_only",
+        "battle_hint",
+        "four HUD images",
+        "四张截图",
+        "MaaObserver"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MaaObserver.observe"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MainTaskAction.run"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#feature-3-11",
+        "docs/wiki/en_us/3-runtime.md#feature-3-11"
+      ],
+      "tests": [
+        "tests/test_battle_read_disagreement.py",
+        "tests/test_main_task_dispatch.py",
+        "tests/test_observation_callback_failure.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_battle_read_disagreement.py tests/test_main_task_dispatch.py tests/test_observation_callback_failure.py"
+      ],
+      "boundary": "New native reads remain mandatory; routing hints cannot supply cached controls, input authority or completion.119related tests passed; native installation/continuation pending."
+    },
+    {
+      "id": "incoming-floor-checkpoint",
+      "title": "地图观察即通层事实，不等下一次点击",
+      "aliases": [
+        "CompletionFact",
+        "账本漏记通层",
+        "incoming floor checkpoint",
+        "floor ledger depends on click"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/run_wiring.py",
+          "symbol": "observe_map_checkpoint"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._settle_incoming_floor_checkpoint"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/1-overview.md#glossary",
+        "docs/wiki/en_us/1-overview.md#glossary",
+        "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-4",
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-4"
+      ],
+      "tests": [
+        "tests/test_incoming_floor_checkpoint.py",
+        "tests/test_incoming_handoff.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_incoming_floor_checkpoint.py tests/test_incoming_handoff.py"
+      ],
+      "boundary": "同scope/entered与原始MAP标题双哈希才记前一层；不创建run、不支付/轮换，observe-only零写入。"
+    },
+    {
+      "id": "sinner-caption-teacher",
+      "title": "罪人独立caption教师、徽标顺序与神经推理区别",
+      "aliases": [
+        "pre battle identity teacher",
+        "pre_battle_identity_report",
+        "sinner teacher",
+        "independent caption teacher",
+        "独立身份教师",
+        "人格教师",
+        "verified_against_saved_order",
+        "order_badges"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "pre_battle_identity_evidence"
+        },
+        {
+          "path": "src/maalimbus/pre_battle_identity.py",
+          "symbol": "identity_report"
+        },
+        {
+          "path": "src/maalimbus/pre_battle_identity.py",
+          "symbol": "agrees_with_saved_order"
+        },
+        {
+          "path": "src/maalimbus/pre_battle_identity.py",
+          "symbol": "learned_references"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#feature-3-8",
+        "docs/wiki/en_us/3-runtime.md#feature-3-8"
+      ],
+      "tests": [
+        "tests/test_pre_battle_identity.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_pre_battle_identity.py"
+      ],
+      "boundary": "Measured card presence, printed slot order, resolved identities and neural predictions are separate facts. Teacher does not read detector; partial captions leave identity-order unverified. Actual11neural boxes are shadow,not production quality or input authority."
+    },
+    {
+      "id": "learning-original-readers",
+      "title": "语义学习原图的raw/cold一致读取 / exact original-byte consumers",
+      "aliases": [
+        "冷学习原图",
+        "cold semantic originals",
+        "read_image original_bytes",
+        "原图消费者迁移"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/learning_dataset.py",
+          "symbol": "original_bytes"
+        },
+        {
+          "path": "src/maalimbus/learning_dataset.py",
+          "symbol": "read_image"
+        },
+        {
+          "path": "src/maalimbus/learning_dataset.py",
+          "symbol": "local_file"
+        },
+        {
+          "path": "src/maalimbus/learning_dataset.py",
+          "symbol": "digest"
+        },
+        {
+          "path": "src/maalimbus/review_storage.py",
+          "symbol": "original_byte_documents"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "archive_reference_keep"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "candidates"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "retire"
+        },
+        {
+          "path": "src/maalimbus/semantic_labels.py",
+          "symbol": "persist_frame_proposals"
+        },
+        {
+          "path": "src/maalimbus/sinner_dataset.py",
+          "symbol": "manifest"
+        },
+        {
+          "path": "src/maalimbus/sinner_dataset.py",
+          "symbol": "export"
+        },
+        {
+          "path": "src/maalimbus/sinner_dataset.py",
+          "symbol": "verify_export"
+        },
+        {
+          "path": "tools/autolabel_owned_gallery_research.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/autolabel_sinner_retained.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/compare_sinner_preprocessing.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/evaluate_sinner_detector_native.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/verify_sinner_card_roi_native.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/verify_trained_sinner_shadow.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/map_label_review.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/export_map_dataset.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/export_map_yolo.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/sanity_gallery_onnx.py",
+          "needle": "path=local_file(ROOT,line['frame']);pixels=read_image(path)"
+        },
+        {
+          "path": "tools/sanity_gallery_perclass.py",
+          "needle": "path=local_file(ROOT,line['frame']);pixels=read_image(path)"
+        },
+        {
+          "path": "tools/collect_sinner_samples.py",
+          "needle": "original_bytes(original.with_suffix('.png'))"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#learning-original-readers",
+        "docs/wiki/en_us/6-deployment.md#learning-original-readers"
+      ],
+      "tests": [
+        "tests/test_cold_learning_originals.py",
+        "tests/test_learning_dataset.py",
+        "tests/test_sinner_learning.py",
+        "tests/test_review_storage.py",
+        "tests/test_native_image_archive.py",
+        "tests/test_archive_page_ownership.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_cold_learning_originals.py tests/test_sinner_learning.py tests/test_review_storage.py tests/test_native_image_archive.py"
+      ],
+      "boundary": "Source wired;194related passed/10historical skips and44final ownership checks pass. Real56additional originals archived,62candidate identities/pixels unchanged;3309protected files unchanged;591originals/63containers verify. No review approval/deletion/input grant. Complete regression, clean installed parity and sameTeam2 whole-run remain required. Shop/transition review and independent state/model/source/report raw needs are retained."
+    },
+    {
+      "id": "cold-diagnostic-lifecycle",
+      "title": "录制scope、冷诊断回收及未使用容量交接",
+      "aliases": [
+        "冷诊断闭包",
+        "cold diagnostic lifecycle",
+        "scope缺失",
+        "unused credit handoff",
+        "归档删除",
+        "占位挡住归档",
+        "3GB",
+        "3g空间",
+        "项目容量"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/native_evidence.py",
+          "symbol": "journal_scope"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "diagnostic_groups"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_settled_map_inputs"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_reserve"
+        },
+        {
+          "path": "src/maalimbus/viewport_evidence.py",
+          "symbol": "diagnostic_index"
+        },
+        {
+          "path": "src/maalimbus/hud_evidence.py",
+          "symbol": "diagnostic_index"
+        },
+        {
+          "path": "src/maalimbus/deployment_evidence.py",
+          "symbol": "diagnostic_index"
+        },
+        {
+          "path": "src/maalimbus/cold_retention.py",
+          "symbol": "reclaim"
+        },
+        {
+          "path": "src/maalimbus/cold_retention.py",
+          "symbol": "recover"
+        },
+        {
+          "path": "src/maalimbus/evidence_capacity.py",
+          "symbol": "EvidenceCapacity.admit"
+        },
+        {
+          "path": "src/maalimbus/native_image_archive.py",
+          "symbol": "read_png"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "prune_discarded_plan"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_discarded_capacity_plans"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.step"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "Journal.before_input"
+        },
+        {
+          "path": "src/maalimbus/workspace.py",
+          "symbol": "require_space"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#cold-diagnostic-lifecycle",
+        "docs/wiki/en_us/6-deployment.md#cold-diagnostic-lifecycle",
+        "docs/wiki/zh_cn/1-overview.md#glossary",
+        "docs/wiki/en_us/1-overview.md#glossary",
+        "docs/wiki/en_us/6-deployment.md#storage-plan-refresh",
+        "docs/wiki/zh_cn/6-deployment.md#storage-plan-refresh"
+      ],
+      "tests": [
+        "tests/test_journal_scope.py",
+        "tests/test_capacity_handoff.py",
+        "tests/test_cold_retention.py",
+        "tests/test_map_diagnostic_retention.py",
+        "tests/test_viewport_evidence.py",
+        "tests/test_hud_evidence.py",
+        "tests/test_deployment_evidence.py",
+        "tests/test_capacity_plan_refresh.py",
+        "tests/test_journal_workspace_limit.py",
+        "tests/test_workspace_retention.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_journal_scope.py tests/test_capacity_handoff.py tests/test_cold_retention.py"
+      ],
+      "boundary": "Historical installeddb1c8d2 passed547source fingerprint/self-test,98private/31canonical preservation and6230reference source/frozen storage parity. Complete3686passed/709historical skips/pytest exit0. Typed scope, raw/cold diagnostic retirement and unused-credit handoff require fresh replan; max3consecutive returns/original deadline; direct stale dispatch refuses. Strong pending/review/model/source/report proof, complete two-pair capture and scope budget authority unchanged. No new live task started: fresh2026-11-18T22:55UTC MuMu is Arknights withMAA present; availability pending. Priorcb33 live ended normally afterHOME→DRIVE on capacity, not current-source evidence. Continuous sameTeam2/GUIStart/fullrun/payout/rotation/modelpromotion and actual host hook delivery remain unaccepted. Current user policy is3,000,000,000bytes/source wired; actual installed Agent and launcher embed3GB; the new Drive repair still needs an Agent rebuild. Older2GB measurements are historical; no resource-budget/pending/quality guard relaxation."
+    },
+    {
+      "id": "drive-mode-caption-owner",
+      "title": "Drive模式菜单误判主页／局部字幕交接",
+      "aliases": [
+        "Drive反复点击",
+        "HOME误判",
+        "Inferno分段",
+        "MirrorDrive",
+        "Drive menu",
+        "Luxcavation"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "drive_menu_probe"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "classify"
+        },
+        {
+          "path": "src/maalimbus/drive_menu_native.py",
+          "symbol": "repair"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "LimbusRecognition.observe"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "LimbusRecognition.analyze"
+        },
+        {
+          "path": "assets/resource/base/pipeline/mirror.json",
+          "needle": "\"MirrorDrive\": {"
+        },
+        {
+          "path": "tools/verify_drive_menu_native.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "run_node"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "AgentTasker.post_task"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#drive-mode-caption-owner",
+        "docs/wiki/en_us/3-runtime.md#drive-mode-caption-owner",
+        "docs/wiki/zh_cn/1-overview.md#glossary",
+        "docs/wiki/en_us/1-overview.md#glossary"
+      ],
+      "tests": [
+        "tests/test_drive_menu_caption_contract.py",
+        "tests/test_drive_menu_native.py",
+        "tests/test_vision.py",
+        "tests/test_pipeline_scenes.py",
+        "tests/test_service_notice.py",
+        "tests/test_binding_lost.py",
+        "tests/test_drive_node_ownership.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_drive_menu_caption_contract.py tests/test_drive_menu_native.py tests/test_vision.py tests/test_pipeline_scenes.py tests/test_drive_node_ownership.py",
+        "python tools/verify_drive_menu_native.py --report build/drive-menu-native-verification.json"
+      ],
+      "boundary": "Same-image probe grants reads and HOME veto only. Detector OCR at.9 over the existing classifier/MirrorDrive band preserves native boxes; missing Inferno alone uses exact only_rec crop. Actual updated-client5e2ba53 run reached Drive but not Mirror; fixed-row read failed on event layout. Source/native9case replay and old/new production one-action memory handoffs passed;106private/31canonical/original bytes unchanged,0device input. Mandatory focused36pass/43historical skips. Full serial3772pass/699historical skips/446.18s/ownexit0; clean Agent install and actual continuous task are next. No old proof/pending/budget rewrite, model promotion, payout or rotation claim. Both components retain3GB. Later same-context Drive dispatch exposed native shared max_hit1. Exact Runner one-action override alone resets that entry before Context.run_task; other inputs/graphs and transactions retain state. Native same-context repeated dispatch failed before fix and passed twice after it,0device input; new frozen/live continuation pending. Current full serial3792passed/699historical skips/459.92s/pytest exit0. Actual same-Context two-dispatch native proof passes; new Agent freeze and live continuation next. New glyph journal fields are not an approved/trained model or a verified review-UI integration."
+    },
+    {
+      "id": "server-service-notice",
+      "title": "服务器维护浮层／有界关闭与独立后继／保留旧局",
+      "aliases": [
+        "Scheduled Maintenance",
+        "维护通知",
+        "server_scheduled_maintenance",
+        "service_notice",
+        "server unavailable",
+        "维护误判",
+        "控制器已释放",
+        "service_notice_repeated_after_close",
+        "service_notice_dispatch_outcome_unproven",
+        "关闭维护弹窗",
+        "pending index0",
+        "game_client_update_required",
+        "client_update_required",
+        "Game client is not up to date",
+        "login_response_not_observed_before_deadline"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/service_notice.py",
+          "symbol": "scheduled_maintenance"
+        },
+        {
+          "path": "src/maalimbus/service_notice.py",
+          "symbol": "from_record"
+        },
+        {
+          "path": "src/maalimbus/vision.py",
+          "symbol": "classify"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._startup_handoff"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "run_node"
+        },
+        {
+          "path": "src/maalimbus/run_wiring.py",
+          "symbol": "reconcile_idle_entry"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MainTaskAction.run"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner._service_handoff"
+        },
+        {
+          "path": "src/maalimbus/service_notice.py",
+          "symbol": "close_candidates"
+        },
+        {
+          "path": "src/maalimbus/service_notice.py",
+          "symbol": "dismissed_successor"
+        },
+        {
+          "path": "src/maalimbus/unknown_exploration.py",
+          "symbol": "Exploration.reserve"
+        },
+        {
+          "path": "src/maalimbus/unknown_exploration.py",
+          "symbol": "Exploration.acknowledge"
+        },
+        {
+          "path": "src/maalimbus/unknown_exploration.py",
+          "symbol": "Exploration.finish"
+        },
+        {
+          "path": "src/maalimbus/window.py",
+          "symbol": "plan_step"
+        },
+        {
+          "path": "src/maalimbus/service_notice.py",
+          "symbol": "known_service_notice"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/3-runtime.md#service-notice-owner",
+        "docs/wiki/zh_cn/1-overview.md#glossary",
+        "docs/wiki/zh_cn/9-execution-plan.md",
+        "docs/wiki/en_us/3-runtime.md#service-notice-owner",
+        "docs/wiki/en_us/1-overview.md#glossary",
+        "docs/wiki/en_us/9-execution-plan.md"
+      ],
+      "tests": [
+        "tests/test_service_notice.py",
+        "tests/test_mirror_startup_reconciliation.py",
+        "tests/test_native_action.py",
+        "tests/test_binding_lost.py",
+        "tests/test_unknown_exploration.py",
+        "tests/test_unknown_exploration_retained.py",
+        "tests/test_plan_reasons.py",
+        "tests/test_plan_proof.py",
+        "tests/test_plan_outcomes.py",
+        "tests/test_login_pending.py",
+        "tests/test_client_update_retained.py",
+        "tests/test_startup_recovery_dispatch.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_service_notice.py tests/test_unknown_exploration.py tests/test_mirror_startup_reconciliation.py tests/test_native_action.py tests/test_binding_lost.py",
+        "python tools/verify_drive_menu_native.py --report build/service-notice-navigation-check.json"
+      ],
+      "boundary": "Current source adds exact client-update foreground before TITLE, no Close/Store/reservation; pending login consumes original180s response window after one ACK rather than immediate duplicate Start.112focused and actual native retained client-update OCR/no input passed; full/new freeze/updated-client live next. Last installed55c4872 two title inputs were acknowledged at correct scaled coordinates; delayed out-of-date client notice appeared after stop. User updated actual package to1.119.1/code494; no login/Mirror progress inferred. Existing bounded maintenance/shared planner/ACK/pending0/cold-byte protection remains. Prior clean55 full3742pass/699historical skips and installed106private/31canonical/3GB proof are historical to this follow-up, not new-source acceptance. Fullrun/payout/rotation/model promotion remain open. Final complete source3756passed/699historical skips/517.35s/ownexit0; current-cohort UNKNOWN wait1of3 chrome only reviewed with hash-bound journals, no historical/threshold/order/input-authority change. New freeze/updated-client continuous task next. Actual clean5e2ba53 Agent install/self-test/549snapshot/PYZ startup+notice and source-frozen6290refs parity passed;106private/31canonical preserved;both components3GB;folder2.156GB. Updated1.119.1 continuous installed task next, whole-run unaccepted."
+    },
+    {
+      "id": "project-health",
+      "title": "项目健康、仓库卫生与存储盘点 / project health, repository hygiene and storage inventory",
+      "aliases": [
+        "项目健康",
+        "健康状态",
+        "project health",
+        "health snapshot",
+        "仓库卫生",
+        "hygiene",
+        "公开仓库不干净",
+        "public repo",
+        "release过期",
+        "stale release",
+        "默认分支落后",
+        "磁盘增长",
+        "disk growth",
+        "清理",
+        "cleanup",
+        "存储盘点",
+        "storage inventory",
+        "收尾",
+        "closeout",
+        "maintenance",
+        "维护入口",
+        "私有边界",
+        "private boundary",
+        "文件落点",
+        "文件放哪",
+        "新文件",
+        "file placement",
+        "where does this file go",
+        "发布区",
+        "release zone",
+        "公开树检查",
+        "public tree"
+      ],
+      "sources": [
+        {
+          "path": ".gitignore",
+          "needle": "# Workstation-only diagnostic code and generated runs."
+        },
+        {
+          "path": "src/maalimbus/public_privacy.py",
+          "symbol": "require_public"
+        },
+        {
+          "path": "src/maalimbus/workspace.py",
+          "symbol": "require_space"
+        },
+        {
+          "path": "tools/check_wiki.py",
+          "needle": "def main("
+        },
+        {
+          "path": "tools/check_public_tree.py",
+          "symbol": "examine"
+        }
+      ],
+      "docs": [
+        "docs/wiki/README.md#project-health",
+        "docs/wiki/README.md#file-placement",
+        "docs/wiki/README.md#project-health-snapshot"
+      ],
+      "tests": [
+        "tests/test_public_privacy.py",
+        "tests/test_wiki.py",
+        "tests/test_public_tree.py"
+      ],
+      "checks": [
+        "python tools/check_public_tree.py",
+        "python tools/run_tests.py -q tests/test_public_privacy.py tests/test_public_tree.py tests/test_wiki.py",
+        "python tools/check_wiki.py"
+      ],
+      "boundary": "Dated observation, not a live certificate: re-measure before relying on it. Inventory is read-only; size, age and ignore status grant no cleanup, merge or release authority. Tracked, ignored, packaged and retained are four separate facts. Public pages carry categories and counts, never private values."
+    },
+    {
+      "id": "local-game-assets",
+      "title": "本地游戏素材：缺什么、怎么导入 / local game assets: what is missing and how to supply it",
+      "aliases": [
+        "本地素材",
+        "游戏素材",
+        "缺素材",
+        "素材缺失",
+        "识别模板",
+        "模板缺失",
+        "礼物图标",
+        "导入素材",
+        "local game assets",
+        "local assets",
+        "missing assets",
+        "assets missing",
+        "missing template",
+        "recognition template",
+        "gift icon",
+        "import assets",
+        "local_game_assets_missing",
+        "MissingLocalAssets",
+        "Game bitmap",
+        "not installed",
+        "needs local game assets",
+        "teamArtwork",
+        "Lix checkout",
+        "发行包带素材",
+        "release carries game assets",
+        "local-assets-check"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/local_assets.py",
+          "symbol": "inventory"
+        },
+        {
+          "path": "src/maalimbus/local_assets.py",
+          "symbol": "require"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "InputPreflight.run"
+        },
+        {
+          "path": "src/maalimbus/gift_vision.py",
+          "symbol": "GiftCatalog"
+        },
+        {
+          "path": "tools/import_lix_assets.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tools/import_local_templates.py",
+          "symbol": "main"
+        },
+        {
+          "path": "tests/conftest.py",
+          "symbol": "_skip_for_missing_game_bitmap"
+        },
+        {
+          "path": "src/maalimbus/local_assets.py",
+          "symbol": "packaged_game_assets"
+        },
+        {
+          "path": "src/maalimbus/release_package.py",
+          "symbol": "export_assets"
+        }
+      ],
+      "docs": [
+        "docs/local-assets.md",
+        "docs/wiki/README.md#file-placement",
+        "docs/windows-package.md"
+      ],
+      "tests": [
+        "tests/test_local_assets.py",
+        "tests/test_local_prerequisites.py",
+        "tests/test_release_game_assets.py"
+      ],
+      "checks": [
+        "python tools/check_local_assets.py",
+        "python tools/run_tests.py -q tests/test_local_assets.py tests/test_local_prerequisites.py"
+      ],
+      "boundary": "No game bitmap is tracked, packaged or uploaded; the manifest keeps paths, sizes and SHA-256 only. A missing group stops the Mirror task before input and is named. Tools read local files and never download. A self-cropped template is checked by size only: a live run is the proof that the crop is right."
+    }
+  ]
+}

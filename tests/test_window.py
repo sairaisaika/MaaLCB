@@ -1,0 +1,1607 @@
+"""Tests for the bounded window step planner.
+
+The planner decides which single input a live page may receive; every case here
+is a page that the live tools have already met, plus the refusals that keep an
+unproven page from receiving a guessed coordinate.
+"""
+import json
+import pytest
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+def _archived_json(relative):
+    """读归档帧；D355 把 evidence 压到 2 GiB 之后这些帧可能不在了。
+
+    缺帧就用 pytest.skip 说明白，不要 FileNotFoundError 冒充“回归”（D357 的同一类债）。
+    """
+    path = ROOT / 'evidence' / relative
+    if not path.is_file():
+        pytest.skip(f'归档帧不在仓库里：{relative}')
+    return json.loads(path.read_text('utf-8'))
+
+sys.path.insert(0, str(ROOT / 'src'))
+
+from maalimbus.vision import Text, classify  # noqa: E402
+from maalimbus.window import (ANY, CLICK, FORBIDDEN_CONTROLS, NODE, RECORD,
+                              SWIPE, plan_step, resolve_overlay,
+                              step_result, successor_ok)  # noqa: E402
+
+CONTROLS = {'node_panel.enter_button': [1668, 780, 124, 63],
+            'pre_battle.battle_button': [1674, 859, 144, 44],
+            'entry.enter_button': [1534, 716, 96, 36],
+            'home.drive_button': [1438, 968, 68, 28]}
+CONTROLS.update({'pre_battle.card_%02d' % index:
+                 [355 + 195 * ((index - 1) % 6), 236 + 296 * ((index - 1) // 6), 190, 248]
+                 for index in range(1, 13)})
+
+
+def test_map_clicks_the_planned_candidate_and_expects_the_panel():
+    plan = plan_step('MAP', candidates=[[900, 400, 60, 60], [1200, 500, 60, 60]])
+    assert plan['action'] == CLICK
+    assert plan['target'] == [900, 400, 60, 60]
+    assert plan['expect'][0] == 'NODE_PANEL'
+    assert successor_ok(plan, 'NODE_PANEL')
+    # Live proof: build/window-run73.json step17 clicked a node and landed on
+    # PRE_BATTLE_TEAM, which the panel-only expectation read as an unexpected successor.
+    assert successor_ok(plan, 'PRE_BATTLE_TEAM')
+    assert not successor_ok(plan, 'MAP')
+
+
+def test_map_without_a_candidate_refuses_instead_of_guessing():
+    plan = plan_step('MAP', candidates=[])
+    assert plan['action'] == RECORD
+    assert plan['reason'] == 'no_candidate_node_observed'
+    assert plan['target'] is None
+
+
+def test_map_candidate_index_must_be_in_range():
+    plan = plan_step('MAP', candidates=[[900, 400, 60, 60]], candidate_index=3)
+    assert plan['action'] == RECORD
+    assert plan['reason'] == 'candidate_index_out_of_range'
+
+
+def test_home_uses_the_drive_nav_box_and_accepts_the_drive_page():
+    plan = plan_step('HOME', controls=CONTROLS)
+    assert plan['action'] == CLICK
+    assert plan['target'] == CONTROLS['home.drive_button']
+    assert 'DRIVE' in plan['expect']
+    assert successor_ok(plan, 'DRIVE')
+
+
+def test_home_without_the_anchor_refuses():
+    plan = plan_step('HOME', controls={})
+    assert plan['action'] == RECORD
+    assert plan['reason'] == 'drive_button_not_anchored'
+
+
+def test_drive_delegates_to_the_proven_pipeline_node():
+    plan = plan_step('DRIVE')
+    assert plan['action'] == NODE
+    assert plan['node'] == 'MirrorDrive'
+    assert successor_ok(plan, 'MIRROR_ENTRY')
+    assert not successor_ok(plan, 'SHOP')
+
+
+def test_node_panel_uses_the_anchored_enter_button():
+    plan = plan_step('NODE_PANEL', controls=CONTROLS)
+    assert plan['action'] == CLICK
+    assert plan['target'] == CONTROLS['node_panel.enter_button']
+    assert plan['expect'][:4] == ['PRE_BATTLE_TEAM', 'SHOP', 'MAP', 'CUTSCENE']
+    assert 'UNKNOWN' in plan['expect']
+
+
+def test_node_panel_without_the_anchor_refuses():
+    plan = plan_step('NODE_PANEL', controls={})
+    assert plan['action'] == RECORD
+    assert plan['reason'] == 'enter_button_not_anchored'
+
+
+def test_pre_battle_team_uses_the_anchored_battle_button():
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS)
+    assert plan['target'] == CONTROLS['pre_battle.battle_button']
+    assert 'BATTLE_HUD' in plan['expect']
+
+
+def test_pre_battle_team_joins_the_next_unpicked_card_before_battling():
+    # Live proof: evidence/runtime/window-20261006-030750/frame-0001.json opens at
+    # 0/12 with a dark Battle! button; picking eleven more cards reaches 12/12 and
+    # only then does the button light up. Never click a card that already has a badge
+    # (that would take its identity back out of the team).
+    states = [None] * 12
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS, team={'states': states})
+    assert plan['target'] == CONTROLS['pre_battle.card_01']
+    assert plan['reason'] == 'team_card_joins_the_next_unpicked_identity'
+    assert plan['advance'] is True
+    assert plan['detail'] == {'card_index': 1}
+    # A click on a card only changes pixels, so it is proven by the frame moving.
+    assert successor_ok(plan, 'PRE_BATTLE_TEAM') is False
+    assert step_result(plan, sent=True, before='PRE_BATTLE_TEAM',
+                       after='PRE_BATTLE_TEAM', page='PRE_BATTLE_TEAM',
+                       frame_changed=True)['passed'] is True
+    assert step_result(plan, sent=True, before='PRE_BATTLE_TEAM',
+                       after='PRE_BATTLE_TEAM', page='PRE_BATTLE_TEAM',
+                       frame_changed=False)['passed'] is False
+    # Skipping the picked cards and stopping at the first gap keeps the order stable.
+    states = ['selected'] * 6 + ['backup'] + [None] * 5
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS, team={'states': states})
+    assert plan['target'] == CONTROLS['pre_battle.card_08']
+    assert plan['detail'] == {'card_index': 8}
+
+
+def test_pre_battle_team_battles_once_every_card_is_in_the_team():
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS,
+                     team={'states': ['selected'] * 7 + ['backup'] * 5})
+    assert plan['target'] == CONTROLS['pre_battle.battle_button']
+    assert plan['reason'] == 'battle_button_submits_the_team'
+
+
+def test_pre_battle_team_battles_when_the_counter_already_reads_full():
+    # Live proof: build/live-prebattle.png (window-20261007-001439) is a full team this
+    # encounter caps at eleven: 'Backup Deployed 4/4', 'Total Participants 11/11' and a
+    # bright To Battle!, while card 12 has no badge because the slot does not exist.
+    # build/window-run94.json spent fifty-seven steps tapping that missing slot.
+    states = ['selected'] * 7 + ['backup'] * 4 + [None]
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS,
+                     team={'states': states, 'participants': [11, 11]})
+    assert plan['target'] == CONTROLS['pre_battle.battle_button']
+    assert plan['reason'] == 'battle_button_submits_the_team'
+    # A counter that is not full still leaves the unpicked cards to tap.
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS,
+                     team={'states': states, 'participants': [10, 11]})
+    assert plan['reason'] == 'team_card_joins_the_next_unpicked_identity'
+
+
+def test_the_reward_claim_question_is_confirmed_and_never_cancelled():
+    # Live proof: evidence/runtime/window-20261007-021916/frame-0002.json is that
+    # question -- 'Claim the rewards?' [828,502,262,34] over '× Cancel' [704,718,142,42]
+    # and 'Confirm' [1114,722,112,34]. The modal's own Claim only opens this page, so
+    # the summary's Claim is not the last input the run needs.
+    box = [1114, 722, 112, 34]
+    plan = plan_step('RUN_REWARD_CONFIRM',
+                     controls={'run_reward_confirm.confirm_button': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'the_reward_claim_is_confirmed_and_never_cancelled'
+    assert plan['advance'] is True and plan['expect'] == [ANY]
+    # Cancelling is registered as an anchor and can never be a target.
+    cancelled = plan_step('RUN_REWARD_CONFIRM',
+                          controls={'run_reward_confirm.cancel_button': [704, 718, 142, 42]})
+    assert cancelled['action'] == RECORD
+    assert cancelled['reason'] == 'run_reward_confirm_not_anchored'
+    assert 'run_reward_confirm.cancel_button' in FORBIDDEN_CONTROLS
+    blind = plan_step('RUN_REWARD_CONFIRM', controls={})
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'run_reward_confirm_not_anchored'
+
+
+def test_the_reward_modal_is_claimed_and_its_give_up_is_forbidden():
+    # Live proof: window-20261007-021150/frame-0002.json is that modal -- 'Exploration
+    # Reward' over 'GiveUpRewards' [450,796,278,39], 'To Window' [874,800,172,33] and
+    # 'Claim' [1238,796,98,41] -- with the summary's own Claim still readable behind it.
+    box = [1200, 780, 200, 60]
+    plan = plan_step('RUN_REWARD_DIALOG', controls={'run_reward.claim_button': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'the_reward_modal_is_claimed_and_never_given_up'
+    assert plan['advance'] is True and plan['expect'] == [ANY]
+    # Giving the rewards up is registered as an anchor and can never be a target.
+    given_up = plan_step('RUN_REWARD_DIALOG',
+                         controls={'run_reward.give_up_button': [430, 780, 320, 75]})
+    assert given_up['action'] == RECORD
+    assert given_up['reason'] == 'run_reward_claim_not_anchored'
+    assert 'run_reward.give_up_button' in FORBIDDEN_CONTROLS
+    blind = plan_step('RUN_REWARD_DIALOG', controls={})
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'run_reward_claim_not_anchored'
+
+
+def test_the_run_summary_is_claimed_and_never_paged_back_and_forth():
+    # Live proof: window-20261007-020715/frame-0006.json is the five-floor settlement
+    # (Floor1..Floor5 6/6, Total Progress 100%) with 'Claim' [1682,865,82,30] beside a dim
+    # 'Next' [1382,895,80,36] and a live 'Previous' [1096,895,148,36].
+    box = [1638, 855, 180, 80]
+    plan = plan_step('RUN_CLAIM', controls={'run.claim_button': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'claiming_is_the_only_forward_input_on_the_run_summary'
+    assert plan['advance'] is True and plan['expect'] == [ANY]
+    # The claim plays its own animation, so one tap is not proof the page moved.
+    assert step_result(plan, sent=True, before='RUN_CLAIM', after='RUN_CLAIM',
+                       page='RUN_CLAIM', frame_changed=False)['passed'] is False
+    assert step_result(plan, sent=True, before='RUN_CLAIM', after='RUN_CLAIM',
+                       page='RUN_CLAIM', frame_changed=True)['passed'] is True
+    # Nowhere else on that page is clicked: without the anchor nothing is sent at all.
+    blind = plan_step('RUN_CLAIM', controls={'battle_result.page_previous': [1096, 895, 148, 36]})
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'run_claim_button_not_anchored'
+
+
+def test_the_victory_screen_is_cleared_by_its_own_confirm():
+    # Live proof: window-20261007-015542/frame-0130.json is that page -- 'Victory' 1.0,
+    # 'EX-CLEAR' 0.96, 'Confirm' [1638,831,164,48] 1.0 -- and the driver waited thirty
+    # rounds on it as if it were an animation (build/window-run100.json).
+    box = [1638, 831, 164, 48]
+    plan = plan_step('BATTLE_VICTORY', controls={'battle_victory.confirm_button': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'victory_confirm_clears_the_result_and_carries_the_rewards'
+    assert plan['advance'] is True and plan['expect'] == [ANY]
+    assert step_result(plan, sent=True, before='BATTLE_VICTORY', after='BATTLE_VICTORY',
+                       page='BATTLE_VICTORY', frame_changed=True)['passed'] is True
+    assert step_result(plan, sent=True, before='BATTLE_VICTORY', after='BATTLE_VICTORY',
+                       page='BATTLE_VICTORY', frame_changed=False)['passed'] is False
+    blind = plan_step('BATTLE_VICTORY', controls={})
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'battle_victory_confirm_not_anchored'
+
+
+def test_the_wiped_stage_is_retried_within_its_bound_and_then_left_alone():
+    # Live proof: window-20261007-044408/frame-0001.json is the dialog the floor 5 wipe
+    # raised -- 'Retry Stage' [946,480,144,34], 'Return to Stage Select' [948,343,262,28],
+    # 'Accept results and return to Stage select' [952,625,362,20], 'Confirm' [930,770,126,36].
+    retry = [946, 480, 144, 34]
+    confirm = [930, 770, 126, 36]
+    controls = {'defeat.retry_button': retry, 'defeat.confirm_button': confirm,
+                'defeat.accept_button': [952, 625, 362, 20]}
+    # First pass: pick the retry row.
+    row = plan_step('BATTLE_DEFEAT', controls=controls,
+                    defeat={'row_sent': False, 'spent': False})
+    assert row['action'] == CLICK and row['target'] == retry
+    assert row['reason'] == 'the_wiped_stage_is_picked_for_a_retry'
+    assert row['expect'] == [ANY] and row['advance'] is True
+    # Second pass: its own Confirm, and never the accept row.
+    commit = plan_step('BATTLE_DEFEAT', controls=controls,
+                       defeat={'row_sent': True, 'spent': False})
+    assert commit['action'] == CLICK and commit['target'] == confirm
+    assert commit['reason'] == 'the_retry_is_confirmed_and_the_stage_starts_over'
+    # The bound is the driver's: once the retries are spent nothing is sent at all, so
+    # accepting the deaths stays the player's decision.
+    spent = plan_step('BATTLE_DEFEAT', controls=controls,
+                      defeat={'row_sent': False, 'spent': True})
+    assert spent['action'] == RECORD
+    assert spent['reason'] == 'defeat_retries_exhausted'
+    # A retry already in flight is never cut in half: the row is picked, so the Confirm
+    # is still sent even when the budget reads spent.
+    in_flight = plan_step('BATTLE_DEFEAT', controls=controls,
+                          defeat={'row_sent': True, 'spent': True})
+    assert in_flight['action'] == CLICK and in_flight['target'] == confirm
+    # Missing anchors are named rather than guessed.
+    blind = plan_step('BATTLE_DEFEAT', controls={}, defeat={'row_sent': False})
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'defeat_retry_row_not_anchored'
+    # Only a window started with --defeat-accept presses the accept row, and only once the
+    # retries are spent: the driver is the operator saying the run may be filed for them.
+    accepted = plan_step('BATTLE_DEFEAT', controls=controls,
+                         defeat={'row_sent': False, 'spent': True, 'accept': True})
+    assert accepted['action'] == CLICK
+    assert accepted['target'] == controls['defeat.accept_button']
+    assert accepted['reason'] == \
+        'the_wiped_run_is_accepted_and_the_stage_select_comes_back'
+    assert accepted['expect'] == [ANY] and accepted['advance'] is True
+    # A retry in flight is still finished first, and a missing anchor is named.
+    still_retrying = plan_step('BATTLE_DEFEAT', controls=controls,
+                               defeat={'row_sent': True, 'spent': True, 'accept': True})
+    assert still_retrying['target'] == confirm
+    unanchored = plan_step('BATTLE_DEFEAT', controls={'defeat.confirm_button': confirm},
+                           defeat={'row_sent': False, 'spent': True, 'accept': True})
+    assert unanchored['reason'] == 'defeat_accept_row_not_anchored'
+
+
+def test_the_skill_detail_popup_is_dismissed_off_the_board():
+    # Live proof: window-20261007-014613/frame-0094.json is that popup -- 'Skill Effects'
+    # over the keyword list, no close control of its own, WAVE/TURN covered. The dark
+    # board under the auto-assign buttons reads mean (0,3,14) with std 6.6 there, so the
+    # dismiss tap goes there and nowhere near a skill card or Win Rate.
+    box = [1660, 910, 80, 80]
+    plan = plan_step('BATTLE_TIP', controls={'battle_tip.dismiss_point': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'the_skill_detail_popup_is_dismissed_off_the_board'
+    assert plan['advance'] is True
+    assert plan['expect'] == [ANY]
+    # The popup moves the page without leaving it: the pass comes from the frame changing.
+    assert successor_ok(plan, 'BATTLE_TIP') is False
+    assert step_result(plan, sent=True, before='BATTLE_TIP', after='BATTLE_TIP',
+                       page='BATTLE_TIP', frame_changed=True)['passed'] is True
+    assert step_result(plan, sent=True, before='BATTLE_TIP', after='BATTLE_TIP',
+                       page='BATTLE_TIP', frame_changed=False)['passed'] is False
+    # Without the anchor there is no input at all.
+    blind = plan_step('BATTLE_TIP', controls={})
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'battle_tip_dismiss_not_anchored'
+
+
+@pytest.mark.parametrize('page',['BATTLE_HUD','BATTLE_PLANNING'])
+def test_damage_mode_requires_its_own_proven_button_and_observe_never_submits(page):
+    targets={'win_rate':[1198,796,48,41],'damage':[1200,875,60,40]}
+    plan=plan_step(page,auto_assign=targets,battle_assignment='damage')
+    assert plan['target']==targets['damage']
+    missing=plan_step(page,auto_assign={'win_rate':targets['win_rate']},battle_assignment='damage')
+    assert missing['action']=='record'
+    for mode in ('observe','unknown'):
+        stopped=plan_step(page,start_box=[1000,800,100,80],auto_assign=targets,battle_assignment=mode)
+        assert stopped['action']=='record' and not stopped.get('target')
+    start=plan_step(page,start_box=[1000,800,100,80],auto_assign=targets,battle_assignment='damage')
+    assert start['reason']=='start_button_submits_the_assigned_turn'
+
+
+def test_battle_prefers_start_and_falls_back_to_win_rate():
+    start = plan_step('BATTLE_HUD', start_box=[1038, 771, 121, 133],
+                      auto_assign={'win_rate': [1198, 796, 48, 41]})
+    assert start['target'] == [1038, 771, 121, 133]
+    assert start['reason'] == 'start_button_submits_the_assigned_turn'
+    win = plan_step('BATTLE_HUD', start_box=None,
+                    auto_assign={'win_rate': [1198, 796, 48, 41]})
+    assert win['target'] == [1198, 796, 48, 41]
+    assert win['reason'] == 'win_rate_is_the_proven_auto_assign_control'
+
+
+def test_the_battle_planning_sub_state_takes_the_same_inputs():
+    """Live window-20261006-053000-frame-0031 named the battle screen BATTLE_PLANNING.
+
+    The WAVE/TURN captions are not read on that frame, so agent/recognition.py calls
+    it the planning sub-state; the forward input is still assign-then-submit, and the
+    other sub-state must be an accepted successor instead of stopping the run.
+    """
+    assign = plan_step('BATTLE_PLANNING', start_box=None,
+                       auto_assign={'win_rate': [1198, 796, 48, 41]})
+    assert assign['action'] == CLICK
+    assert assign['target'] == [1198, 796, 48, 41]
+    assert successor_ok(assign, 'BATTLE_HUD')
+    assert successor_ok(assign, 'BATTLE_PLANNING')
+    start = plan_step('BATTLE_PLANNING', start_box=[1038, 771, 121, 133], auto_assign=None)
+    assert start['reason'] == 'start_button_submits_the_assigned_turn'
+    assert successor_ok(start, 'BATTLE_PLANNING')
+    refused = plan_step('BATTLE_PLANNING', start_box=None, auto_assign=None)
+    assert refused['reason'] == 'battle_has_no_proven_control'
+
+
+def test_battle_without_a_proven_control_refuses():
+    plan = plan_step('BATTLE_HUD', start_box=None, auto_assign=None)
+    assert plan['action'] == RECORD
+    assert plan['reason'] == 'battle_has_no_proven_control'
+
+
+def test_unproven_pages_are_observe_only():
+    for page in ('EVENT_DIALOG', 'REWARD_SETTLE', 'FLOOR_GIFTS', 'UNKNOWN'):
+        plan = plan_step(page, controls=CONTROLS,
+                         start_box=[1, 2, 3, 4], candidates=[[5, 6, 7, 8]])
+        assert plan['action'] == RECORD, page
+        assert plan['reason'] == 'page_is_observe_only'
+        assert plan['target'] is None
+
+
+def test_the_victory_screen_names_the_anchor_it_is_missing():
+    plan = plan_step('BATTLE_RESULT', controls=CONTROLS, start_box=[1, 2, 3, 4])
+    assert plan['action'] == RECORD
+    assert plan['reason'] == 'battle_result_control_not_anchored'
+    assert plan['target'] is None
+
+
+def test_the_entry_page_has_one_plan_under_both_spellings():
+    def body(plan):
+        return {key: value for key, value in plan.items() if key != 'page'}
+
+    controls = dict(CONTROLS, **{'entry.enter_button': [11, 22, 33, 44]})
+    assert body(plan_step('BEFORE_ENTRY', controls=controls)) == \
+        body(plan_step('MIRROR_ENTRY', controls=controls))
+    without = plan_step('BEFORE_ENTRY', controls=CONTROLS)
+    assert body(without) == body(plan_step('MIRROR_ENTRY', controls=CONTROLS))
+    assert without['reason'] != 'page_is_observe_only'
+
+
+def test_successor_outside_the_expected_set_is_recorded_as_a_failure():
+    # The map accepts anything a node can hand back, so the outsider here has to be a page
+    # a node click can never reach - the battle HUD needs a fight to have started.
+    plan = plan_step('MAP', candidates=[[900, 400, 60, 60]])
+    assert not successor_ok(plan, 'BATTLE_HUD')
+    record = step_result(plan, sent=True, before='MAP', after='BATTLE_HUD',
+                         page='BATTLE_HUD')
+    assert record['passed'] is False
+    assert record['reason'] == 'unexpected_successor'
+    assert record['clicks_sent'] == 1
+
+
+def test_refusal_records_no_click():
+    plan = plan_step('BATTLE_HUD', start_box=None, auto_assign=None)
+    record = step_result(plan, sent=False, before='BATTLE_HUD', after=None,
+                         page='BATTLE_HUD')
+    assert record['passed'] is False
+    assert record['clicks_sent'] == 0
+    assert record['page_after'] == 'BATTLE_HUD'
+
+
+def test_tutorial_overlay_advances_before_entry_is_live():
+    # Live proof: evidence/runtime/window-20261006-023714/frame-0001.json is a
+    # tutorial overlay whose underlying Enter is inert (a click left the frame
+    # byte-identical), so the overlay's own continue control is the only input.
+    plan = plan_step('TUTORIAL', controls={'tutorial.next_button': [1782, 505, 76, 52]})
+    assert plan['action'] == CLICK
+    assert plan['target'] == [1782, 505, 76, 52]
+    assert plan['expect'] == [ANY]
+    assert plan['advance'] is True
+    # The overlay's cards uncover many different pages, so the only decidable
+    # failure is that the overlay is still there after the click.
+    assert successor_ok(plan, 'MIRROR_ENTRY')
+    assert successor_ok(plan, 'DUNGEON_TEAM')
+    assert successor_ok(plan, 'UNKNOWN')
+    assert not successor_ok(plan, 'TUTORIAL')
+    # Card after card keeps the same page label, so the changed frame is the
+    # proof that the click landed (live: window-20261006-030013 frame-0001 vs
+    # frame-0002 are two different "Creating your Team" cards).
+    stuck = step_result(plan, sent=True, before='TUTORIAL', after='TUTORIAL',
+                        page='TUTORIAL', frame_changed=False)
+    assert stuck['passed'] is False and stuck['reason'] == 'unexpected_successor'
+    advanced = step_result(plan, sent=True, before='TUTORIAL', after='TUTORIAL',
+                           page='TUTORIAL', frame_changed=True)
+    assert advanced['passed'] is True
+    assert plan['reason'] == 'tutorial_overlay_must_be_dismissed_before_enter_is_live'
+    unanchored = plan_step('TUTORIAL', controls={})
+    assert unanchored['action'] == RECORD
+    assert unanchored['reason'] == 'tutorial_next_button_not_anchored'
+
+
+def test_tutorial_follows_the_live_page_turn_triangle():
+    # Live proof: the book's last page keeps only the left triangle
+    # (evidence/runtime/window-20261006-030152/frame-0014.png, previous
+    # 93,519,40,44, next absent), so a fixed right-edge box clicks empty space.
+    turned = plan_step('TUTORIAL', controls={'tutorial.next_button': [1782, 505, 76, 52]},
+                       arrows={'previous': [93, 519, 40, 44], 'next': [1787, 517, 40, 44]})
+    assert turned['action'] == CLICK
+    assert turned['target'] == [1787, 517, 40, 44]
+    last = plan_step('TUTORIAL', controls={'tutorial.next_button': [1782, 505, 76, 52]},
+                     arrows={'previous': [93, 519, 40, 44], 'next': None})
+    assert last['action'] == RECORD
+    assert last['reason'] == 'tutorial_last_page_has_no_forward_control'
+    # With the book's own header arrow anchored it outranks ▶: the header closes the
+    # whole guide, while ▶ only turns one page (live: build/window-run50.json turned
+    # eleven pages without ever reaching the team page underneath; the player read
+    # that screen and said to click the top-left corner instead).
+    closed = plan_step('TUTORIAL',
+                       controls={'tutorial.next_button': [1782, 505, 76, 52],
+                                 'tutorial.book_close': [83, 27, 114, 77]},
+                       arrows={'previous': [93, 519, 40, 44], 'next': None})
+    assert closed['action'] == CLICK
+    assert closed['target'] == [83, 27, 114, 77]
+    assert closed['advance'] is True
+    assert closed['reason'] == 'tutorial_book_is_closed_from_its_own_header_arrow'
+    assert successor_ok(closed, 'PRE_BATTLE_TEAM')
+    assert not successor_ok(closed, 'TUTORIAL')
+    opening = plan_step('TUTORIAL',
+                        controls={'tutorial.next_button': [1782, 505, 76, 52],
+                                  'tutorial.book_close': [83, 27, 114, 77]},
+                        arrows={'previous': [93, 519, 40, 44], 'next': [1787, 517, 40, 44]})
+    assert opening['target'] == [83, 27, 114, 77]
+    # Without a frame reading at all the anchor is still the best available box.
+    blind = plan_step('TUTORIAL', controls={'tutorial.next_button': [1787, 517, 39, 44]})
+    assert blind['target'] == [1787, 517, 39, 44]
+
+
+def test_tutorial_overlay_outranks_the_page_it_covers():
+    # Live proof: card 2 of the overlay (evidence/runtime/window-20261006-024050/
+    # frame-0002.json) is not in the OCR token, so the covered entry page would be
+    # planned and its inert Enter would swallow the step. The continue control is
+    # the overlay's stable identity, so it outranks the label underneath.
+    assert resolve_overlay('MIRROR_ENTRY', overlay_hit=True) == 'TUTORIAL'
+    assert resolve_overlay('TUTORIAL', overlay_hit=True) == 'TUTORIAL'
+    assert resolve_overlay('MIRROR_ENTRY', overlay_hit=False) == 'MIRROR_ENTRY'
+    assert resolve_overlay('MAP', overlay_hit=None) == 'MAP'
+
+
+def test_the_guide_book_may_cover_the_page_after_any_input():
+    # Live proof: build/window-run3.json step 1 clicked "To Battle!" on the pre
+    # battle team page (target 1674,859,144,44) and the guide book came up over the
+    # battle HUD, so a step that only expected BATTLE_HUD reported
+    # unexpected_successor and stopped the run.
+    plan = plan_step('PRE_BATTLE_TEAM', controls=CONTROLS)
+    assert plan['action'] == CLICK
+    assert successor_ok(plan, 'TUTORIAL')
+    # The overlay's own plan is unaffected: it still has to be gone afterwards.
+    overlay = plan_step('TUTORIAL', controls={'tutorial.next_button': [1782, 505, 76, 52]})
+    assert not successor_ok(overlay, 'TUTORIAL')
+    assert successor_ok(overlay, 'BATTLE_HUD')
+
+
+def test_resume_dialog_resumes_and_never_halts_the_run():
+    # Live proof: evidence/runtime/window-20261006-025617/frame-0002.json is the
+    # "Dungeon Progress" prompt of a run that a second Enter press re-opens.
+    resume = [902, 579, 114, 34]
+    plan = plan_step('RESUME_DIALOG', controls={'resume.resume_button': resume})
+    assert plan['action'] == CLICK
+    assert plan['target'] == resume
+    assert plan['reason'] == 'resume_rejoins_the_run_that_is_already_in_progress'
+    assert successor_ok(plan, 'MAP') and not successor_ok(plan, 'SHOP')
+    missing = plan_step('RESUME_DIALOG', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'resume_button_not_anchored'
+    # The page carries Halt Exploration, and no plan may ever land on it: not by
+    # naming it as the control to click, and not by a mis-registered resume anchor.
+    halt = [848, 647, 222, 33]
+    named = plan_step('RESUME_DIALOG', controls={'resume.halt_button': halt})
+    assert named['action'] == RECORD
+    misregistered = plan_step('RESUME_DIALOG',
+                              controls={'resume.resume_button': halt,
+                                        'resume.halt_button': halt})
+    assert misregistered['action'] == RECORD
+    assert misregistered['reason'] == 'control_is_forbidden'
+
+
+def test_the_weekly_reset_notice_is_declined_and_never_takes_the_window():
+    # Live proof: evidence/runtime/window-20261007-164753/frame-0252.json — the notice
+    # run-continue-8 raised over the floor 3 map (step 64). Cancel keeps the run in the
+    # dungeon; Confirm would move it to the Window and throw the run away.
+    cancel = [730, 673, 148, 45]
+    plan = plan_step('WINDOW_RESET', controls={'window_reset.cancel_button': cancel})
+    assert plan['action'] == CLICK
+    assert plan['target'] == cancel
+    assert plan['advance'] is True
+    assert plan['reason'] == 'the_weekly_reset_notice_is_declined_and_the_run_stays'
+    assert successor_ok(plan, 'MAP') and not successor_ok(plan, 'WINDOW_RESET')
+    missing = plan_step('WINDOW_RESET', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'weekly_reset_cancel_not_anchored'
+    # Confirm is the irreversible branch and stays refused however the anchors are
+    # arranged: naming it as the click, or mis-registering the cancel box onto it.
+    confirm = [1050, 678, 150, 36]
+    named = plan_step('WINDOW_RESET', controls={'window_reset.cancel_button': confirm,
+                                                'window_reset.confirm_button': confirm})
+    assert named['action'] == RECORD
+    assert named['reason'] == 'control_is_forbidden'
+
+
+def test_the_expired_session_claims_its_rewards_and_never_dismisses_them():
+    # Live proof: evidence/runtime/window-20261007-170653/frame-0009.json — the page the
+    # weekly reset left behind ("The previous session has expired. / Please claim your
+    # rewards."). Confirm pays the dead run out; Cancel would leave it unclaimed.
+    confirm = [1112, 720, 116, 40]
+    plan = plan_step('EXPIRED_SESSION',
+                     controls={'expired_session.confirm_button': confirm})
+    assert plan['action'] == CLICK
+    assert plan['target'] == confirm
+    assert plan['advance'] is True
+    assert plan['reason'] == 'the_expired_session_is_confirmed_so_its_rewards_are_claimed'
+    assert successor_ok(plan, 'DRIVE') and not successor_ok(plan, 'EXPIRED_SESSION')
+    missing = plan_step('EXPIRED_SESSION', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'expired_session_confirm_not_anchored'
+    cancel = [702, 724, 140, 36]
+    misregistered = plan_step('EXPIRED_SESSION',
+                              controls={'expired_session.confirm_button': cancel,
+                                        'expired_session.cancel_button': cancel})
+    assert misregistered['action'] == RECORD
+    assert misregistered['reason'] == 'control_is_forbidden'
+
+
+def test_the_pass_level_notice_is_acknowledged_instead_of_the_covered_menu():
+    # Live proof: evidence/runtime/window-20261007-171928/frame-0005.json — the notice
+    # that follows a weekly bonus being spent, drawn over Before Entry whose own Enter
+    # stays readable. run-continue-12 clicked that Enter and the page did not move.
+    confirm = [884, 682, 160, 46]
+    plan = plan_step('PASS_LEVEL_UP', controls={'pass_level_up.confirm_button': confirm})
+    assert plan['action'] == CLICK
+    assert plan['target'] == confirm
+    assert plan['advance'] is True
+    assert plan['reason'] == 'the_pass_level_up_notice_is_acknowledged_to_clear_the_menu'
+    assert successor_ok(plan, 'MIRROR_ENTRY') and not successor_ok(plan, 'PASS_LEVEL_UP')
+    missing = plan_step('PASS_LEVEL_UP', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'pass_level_up_confirm_not_anchored'
+    # The menu under it accepts the notice as the successor of its own Enter.
+    entry = plan_step('MIRROR_ENTRY', controls={'entry.enter_button': [1606, 718, 112, 44]})
+    assert successor_ok(entry, 'PASS_LEVEL_UP')
+
+
+def test_the_weekly_bonus_question_is_answered_while_it_is_asked():
+    # Live: evidence/runtime/packaged-mirror-20261025-053045/frame-0002.json carries
+    # "Spend your 'Weekly Bonuses, to claim the bonus rewards?" with `Confirm`
+    # [1110,718,116,40].  The game asks only when a bonus exists to spend (operator,
+    # 2026-10-25), so the anchored Confirm is the answer whatever the ledger says; a page
+    # that shows the question with no Confirm control is refused by name.
+    confirm = [1110, 718, 116, 40]
+    cancel = [704, 718, 142, 42]
+    controls = {'run_reward_bonus.confirm_button': confirm,
+                'run_reward_bonus.cancel_button': cancel}
+    for spend in (True, False):
+        plan = plan_step('RUN_REWARD_BONUS', controls=controls, bonus={'spend': spend})
+        assert plan['action'] == CLICK
+        assert plan['target'] == confirm
+        assert plan['advance'] is True
+        assert plan['reason'] == 'the_weekly_bonus_question_is_answered_while_it_is_asked'
+    keep = plan_step('RUN_REWARD_BONUS',
+                     controls={'run_reward_bonus.cancel_button': cancel},
+                     bonus={'spend': True})
+    assert keep['target'] == cancel
+    assert keep['reason'] == 'the_weekly_bonus_question_has_no_confirm_control_to_answer'
+    refused = plan_step('RUN_REWARD_BONUS', controls={}, bonus={'spend': True})
+    assert refused['action'] == RECORD
+    assert refused['reason'] == 'run_reward_bonus_confirm_not_anchored'
+
+
+def test_the_graces_page_buys_what_is_affordable_then_leaves_by_its_own_enter():
+    # Live: evidence/runtime/window-20261006-193843/frame-0004.json reads the page
+    # title at the top left and its own Enter at [1740,986,102,42]; the + button of
+    # card 1 sits at (271,534).
+    enter = [1740, 986, 102, 42]
+    buy = plan_step('STAR_GRACES', controls={'graces.enter_button': enter},
+                    graces={'card': 1, 'point': (271, 534)})
+    assert buy['action'] == CLICK
+    assert buy['target'] == [226, 511, 90, 46]
+    assert buy['advance'] is True
+    assert buy['reason'] == 'grace_card_is_bought_within_the_available_starlight'
+    assert buy['detail'] == {'card': 1}
+    leave = plan_step('STAR_GRACES', controls={'graces.enter_button': enter})
+    assert leave['target'] == enter
+    assert leave['reason'] == 'the_graces_page_is_left_with_its_own_enter'
+    assert successor_ok(leave, 'INITIAL_GIFTS') and successor_ok(leave, 'MAP')
+    # Enter asks its own question first: live run105 bought five graces, pressed Enter
+    # and stopped as an unexpected successor on the confirm (build/window-run105.json).
+    assert successor_ok(leave, 'STAR_CONFIRM')
+    assert not successor_ok(leave, 'STAR_GRACES')
+    # A grace the driver could not locate must not turn into a blind click.
+    assert plan_step('STAR_GRACES', controls={})['reason'] == 'graces_enter_not_anchored'
+    # A located grace is still bought even when the page anchor is missing.
+    assert plan_step('STAR_GRACES', controls={},
+                     graces={'card': 2, 'point': (518, 534)})['target'] == [473, 511, 90, 46]
+
+
+def test_the_gift_pickup_popup_is_acknowledged_with_its_confirm():
+    # Live: evidence/runtime/window-20261006-201456/frame-0001.json, the modal the run
+    # raises over the map after picking a gift up.
+    confirm = [916, 825, 126, 40]
+    plan = plan_step('EGO_GIFT_POPUP', controls={'ego_gift_popup.confirm_button': confirm})
+    assert plan['action'] == CLICK
+    assert plan['target'] == confirm
+    assert plan['reason'] == 'the_ego_gift_popup_is_acknowledged_with_its_confirm'
+    assert successor_ok(plan, 'MAP') and not successor_ok(plan, 'EGO_GIFT_POPUP')
+    assert plan_step('EGO_GIFT_POPUP', controls={})['reason'] == \
+        'ego_gift_popup_confirm_not_anchored'
+
+
+def test_the_battle_result_is_waited_out_rather_than_stopped_on():
+    # Live: build/window-run62.json stopped on BATTLE_RESULT with nothing sent, and the
+    # next observation already showed the post-battle story and then the map.
+    from maalimbus.window import WAIT_PAGES
+    # D120: the scene loader is a wait page too -- it has no control to take.
+    assert WAIT_PAGES == ('UNKNOWN', 'BATTLE_RESULT', 'DEFEAT', 'LOADING')
+    assert 'MAP' not in WAIT_PAGES and 'PRE_BATTLE_TEAM' not in WAIT_PAGES
+
+
+def test_the_wiped_run_is_waited_into_its_dialog_and_the_battle_expects_it():
+    # Live: evidence/runtime/window-20261007-195545/frame-0222.json is the DEFEAT banner
+    # over Gebura's line with no rows drawn yet; run-continue-18 stopped on it
+    # ('page_is_observe_only') because only BATTLE_DEFEAT had a plan. The banner is waited
+    # out, and a battle that kills the team is allowed to hand over to it.
+    from maalimbus.vision import classify
+    from maalimbus.window import plan_step
+    frame = json.loads(
+        _archived_json('runtime/window-20261007-195545/frame-0222.json'))
+    words = json.loads((ROOT / 'assets/resource/en/locale.json').read_text('utf-8'))
+    tokens = [Text(t['text'], tuple(t['box']), t['score']) for t in frame['ocr']]
+    assert classify(tokens, words, tuple(frame['size'])) == 'DEFEAT'
+    battle = plan_step('BATTLE_HUD', controls={'battle.start_control': [1440, 771, 121, 134]},
+                       start_box=[1440, 771, 121, 134])
+    assert 'DEFEAT' in battle['expect']
+    assert plan_step('DEFEAT', controls={})['reason'] == 'page_is_observe_only'
+
+
+def test_the_forgone_gift_search_is_confirmed_and_never_cancelled():
+    # Live: evidence/runtime/window-20261006-200357/frame-0001.json is the prompt the
+    # refused search raises.
+    confirm = [1116, 722, 112, 38]
+    cancel = [700, 720, 142, 40]
+    plan = plan_step('GIFT_SEARCH_FORGO',
+                     controls={'gift_search_forgo.confirm_button': confirm,
+                               'gift_search_forgo.cancel_button': cancel})
+    assert plan['action'] == CLICK
+    assert plan['target'] == confirm
+    assert plan['reason'] == 'the_forgone_gift_search_is_confirmed'
+    assert successor_ok(plan, 'MAP') and not successor_ok(plan, 'GIFT_SEARCH_FORGO')
+    assert plan_step('GIFT_SEARCH_FORGO', controls={})['reason'] == \
+        'gift_search_forgo_confirm_not_anchored'
+    stolen = plan_step('GIFT_SEARCH_FORGO',
+                       controls={'gift_search_forgo.confirm_button': cancel,
+                                 'gift_search_forgo.cancel_button': cancel})
+    assert stolen['reason'] == 'control_is_forbidden'
+
+
+def test_the_gift_search_is_refused_and_the_select_path_still_exists():
+    # Live: evidence/runtime/window-20261006-195803/frame-0001.json. The tray header
+    # prints the running starlight price, so the player asked for the optional search
+    # to be refused outright; 'select' stays available as the other mode.
+    select = [1568, 845, 88, 30]
+    refuse = [1302, 843, 152, 34]
+    plan = plan_step('GIFT_SEARCH', controls={'gift_search.select_button': select,
+                                              'gift_search.refuse_button': refuse})
+    assert plan['action'] == CLICK
+    assert plan['target'] == refuse
+    assert plan['reason'] == 'the_player_asked_the_optional_gift_search_to_be_refused'
+    assert successor_ok(plan, 'MAP') and not successor_ok(plan, 'GIFT_SEARCH')
+    other = plan_step('GIFT_SEARCH', controls={'gift_search.select_button': select,
+                                               'gift_search.refuse_button': refuse},
+                      search={'mode': 'select'})
+    assert other['target'] == select
+    assert other['reason'] == 'the_gift_search_is_left_without_spending_starlight'
+    assert plan_step('GIFT_SEARCH', controls={})['reason'] == \
+        'gift_search_refuse_not_anchored'
+    assert plan_step('GIFT_SEARCH', controls={},
+                     search={'mode': 'select'})['reason'] == \
+        'gift_search_select_not_anchored'
+
+
+def test_the_starting_gift_comes_from_the_rotation_keyword_then_select():
+    # Live: evidence/runtime/window-20261006-194741/frame-0001.json reads the tray
+    # title, the Bleed column and Select [1524,859,110,42] with its '0/1' counter.
+    select = [1524, 859, 110, 42]
+    take = plan_step('INITIAL_GIFTS', controls={'initial_gifts.select_button': select},
+                     initial={'point': (503, 360), 'keyword': 'bleed',
+                              'chosen': 0, 'required': 1})
+    assert take['action'] == CLICK
+    assert take['target'] == [473, 330, 60, 60]
+    assert take['advance'] is True
+    assert take['reason'] == 'the_starting_gift_is_picked_from_the_rotation_keyword'
+    assert take['detail'] == {'keyword': 'bleed', 'gift': None}
+    # The second click takes the tray row the rotation names; the third leaves.
+    named = plan_step('INITIAL_GIFTS', controls={'initial_gifts.select_button': select},
+                      initial={'point': (1386, 350), 'gift': True,
+                               'reason': 'the_starting_gift_row_is_taken_from_the_tray',
+                               'chosen': 0, 'required': 1})
+    assert named['advance'] is True
+    assert named['reason'] == 'the_starting_gift_row_is_taken_from_the_tray'
+    assert named['detail'] == {'keyword': None, 'gift': True}
+    leave = plan_step('INITIAL_GIFTS', controls={'initial_gifts.select_button': select},
+                      initial={'point': None, 'keyword': 'bleed','chosen':1,'required':1})
+    assert leave['target'] == select
+    assert leave['reason'] == 'select_takes_the_starting_gift'
+    assert successor_ok(leave, 'MAP') and successor_ok(leave, 'THEME_PACKS')
+    # A keyword the frame does not show must never become a blind click.
+    assert plan_step('INITIAL_GIFTS', controls={})['reason'] == \
+        'initial_gift_selection_incomplete'
+    # Refuse Gift abandons the starting gift, so it is never a target.
+    refused = [1256, 865, 150, 28]
+    stolen = plan_step('INITIAL_GIFTS',
+                       controls={'initial_gifts.select_button': refused,
+                                 'initial_gifts.refuse_button': refused},initial={'chosen':1,'required':1})
+    assert stolen['reason'] == 'control_is_forbidden'
+
+
+def test_the_grace_selection_prompt_confirms_and_never_cancels():
+    # Live: evidence/runtime/window-20261006-194533/frame-0001.json is the prompt the
+    # Graces page hands off to.
+    confirm = [1040, 778, 148, 35]
+    cancel = [740, 774, 148, 41]
+    plan = plan_step('STAR_CONFIRM', controls={'star_confirm.confirm_button': confirm,
+                                               'star_confirm.cancel_button': cancel},
+                     graces={'complete':True,'conversion':'unchecked','cost':0})
+    assert plan['action'] == CLICK
+    assert plan['target'] == confirm
+    assert plan['reason'] == 'the_grace_selection_is_confirmed_before_the_run_starts'
+    assert successor_ok(plan, 'INITIAL_GIFTS') and successor_ok(plan, 'MAP')
+    assert not successor_ok(plan, 'STAR_CONFIRM')
+    # Cancel is the way back to the Graces page: it is never a target.
+    assert plan_step('STAR_CONFIRM',
+                     controls={'star_confirm.cancel_button': cancel},
+                     graces={'complete':True,'conversion':'unchecked','cost':0})['reason'] == \
+        'star_confirm_button_not_anchored'
+    # The driver always hands over every anchor of the page, so a mis-registered
+    # confirm box that coincides with Cancel is refused.
+    stolen = plan_step('STAR_CONFIRM', controls={'star_confirm.confirm_button': cancel,
+                                                 'star_confirm.cancel_button': cancel},
+                     graces={'complete':True,'conversion':'unchecked','cost':0})
+    assert stolen['reason'] == 'control_is_forbidden'
+
+
+def test_the_level_warning_proceeds_and_never_cancels():
+    # Live proof: evidence/runtime/window-20261006-193730/frame-0003.json is the
+    # prompt the rotation team raises (avg level 55 against a recommended 60).
+    dialog_confirm = [1116, 720, 112, 40]
+    cancel = [744, 728, 96, 30]
+    plan = plan_step('LEVEL_WARNING', controls={'level_warning.confirm_button': dialog_confirm,
+                                                'level_warning.cancel_button': cancel})
+    assert plan['action'] == CLICK
+    assert plan['target'] == dialog_confirm
+    assert plan['reason'] == 'the_level_warning_proceeds_with_the_rotation_team'
+    assert successor_ok(plan, 'THEME_PACKS') and successor_ok(plan, 'MAP')
+    assert not successor_ok(plan, 'LEVEL_WARNING')
+    missing = plan_step('LEVEL_WARNING', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'level_warning_confirm_not_anchored'
+    # Cancel backs out of a run the rotation asked for, so it is never a target -
+    # not by naming it, and not through a mis-registered anchor.
+    named = plan_step('LEVEL_WARNING', controls={'level_warning.cancel_button': cancel})
+    assert named['action'] == RECORD
+    misregistered = plan_step('LEVEL_WARNING',
+                              controls={'level_warning.confirm_button': cancel,
+                                        'level_warning.cancel_button': cancel})
+    assert misregistered['action'] == RECORD
+    assert misregistered['reason'] == 'control_is_forbidden'
+
+
+def test_the_dungeon_team_page_brings_the_rotation_slot_then_confirms():
+    # Live proof: evidence/runtime/window-20261006-193439/frame-0002.json is the
+    # loadout picker a run opens on - TEAMS #1..#7 down the left edge, Starlight
+    # Bonus 107 and Confirm on the bottom right.
+    slot5 = [152, 673, 88, 21]
+    confirm = [1632, 853, 170, 52]
+    controls = {'team.slot_05': slot5, 'team.confirm_button': confirm}
+    picked = plan_step('DUNGEON_TEAM', controls=controls,
+                       team={'wanted': 5, 'selected': 1})
+    assert picked['action'] == CLICK
+    assert picked['target'] == slot5
+    assert picked['advance'] is True
+    assert picked['detail'] == {'slot': 5}
+    assert picked['reason'] == 'dungeon_team_slot_is_selected_for_the_rotation'
+    entered = plan_step('DUNGEON_TEAM', controls=controls,
+                        team={'wanted': 5, 'selected': 5})
+    assert entered['action'] == CLICK
+    assert entered['target'] == confirm
+    assert entered['reason'] == 'dungeon_team_confirm_brings_the_chosen_team_in'
+    assert successor_ok(entered, 'MAP') and successor_ok(entered, 'UNKNOWN')
+    assert not successor_ok(entered, 'DUNGEON_TEAM')
+    # Without a rotation the page must still be able to start the run.
+    blind = plan_step('DUNGEON_TEAM', controls=controls,
+                      team={'wanted': None, 'selected': None})
+    assert blind['target'] == confirm
+    missing = plan_step('DUNGEON_TEAM', controls={'team.slot_05': slot5},
+                        team={'wanted': 5, 'selected': 5})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'dungeon_team_confirm_not_anchored'
+
+
+def test_the_entry_confirmation_starts_the_run_and_cancel_is_never_the_target():
+    # Live proof: evidence/runtime/window-20261006-192917/frame-0001.json is the
+    # prompt the entry page raises ("Will you enter Mirror of Names and Spiders?").
+    # It carries the dialog's own Enter while the page's Enter [1606,718,112,44]
+    # stays visible underneath, so the two must not be confused.
+    dialog_enter = [1124, 704, 90, 42]
+    cancel = [708, 704, 152, 42]
+    plan = plan_step('ENTRY_CONFIRM',
+                     controls={'entry_confirm.confirm_button': dialog_enter,
+                               'entry_confirm.cancel_button': cancel})
+    assert plan['action'] == CLICK
+    assert plan['target'] == dialog_enter
+    assert plan['reason'] == 'the_entry_confirmation_starts_the_run'
+    assert successor_ok(plan, 'MAP') and successor_ok(plan, 'UNKNOWN')
+    assert not successor_ok(plan, 'ENTRY_CONFIRM')
+    missing = plan_step('ENTRY_CONFIRM', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'entry_confirm_button_not_anchored'
+    # X Cancel cancels the run the player just asked for, so it may never be the
+    # landing spot - not by naming it, and not through a mis-registered anchor.
+    named = plan_step('ENTRY_CONFIRM', controls={'entry_confirm.cancel_button': cancel})
+    assert named['action'] == RECORD
+    misregistered = plan_step('ENTRY_CONFIRM',
+                              controls={'entry_confirm.confirm_button': cancel,
+                                        'entry_confirm.cancel_button': cancel})
+    assert misregistered['action'] == RECORD
+    assert misregistered['reason'] == 'control_is_forbidden'
+
+
+def test_the_mirror_entry_page_uses_its_own_enter_button():
+    # Live proof: evidence/runtime/window-20261006-192906/frame-0001.json is the
+    # bright entry page. The same page dim (mean 16.0, Enter band mean 6.3) is what
+    # the guide overlay produces; pressing Before Entry lifts it (mean 30.7, Enter
+    # band 76.0) and only then does this button answer.
+    enter = [1606, 718, 112, 44]
+    plan = plan_step('MIRROR_ENTRY', controls={'entry.enter_button': enter})
+    assert plan['action'] == CLICK
+    assert plan['target'] == enter
+    assert plan['reason'] == 'before_entry_enter_starts_the_free_run'
+    assert successor_ok(plan, 'ENTRY_CONFIRM')
+    assert not successor_ok(plan, 'MIRROR_ENTRY')
+    # The pipeline spells this page both ways and both must plan identically.
+    other = plan_step('BEFORE_ENTRY', controls={'entry.enter_button': enter})
+    assert ({k: v for k, v in plan.items() if k != 'page'} ==
+            {k: v for k, v in other.items() if k != 'page'})
+    missing = plan_step('MIRROR_ENTRY', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'entry_enter_button_not_anchored'
+
+
+def test_reward_card_is_picked_before_confirm_and_cancel_is_never_the_target():
+    # Live proof: evidence/runtime/window-20261006-034714/frame-0022.json is the
+    # pick-one screen a cleared node hands back ("Selectable 0/1").
+    controls = {'reward_card.card_01': [700, 300, 270, 370],
+                'reward_card.card_02': [1000, 300, 270, 370],
+                'reward_card.confirm_button': [1128, 764, 168, 49],
+                'reward_card.cancel_button': [688, 768, 154, 45]}
+    empty = plan_step('REWARD_CARD', controls=controls,
+                      reward={'chosen': 0, 'required': 1})
+    assert empty['action'] == CLICK
+    assert empty['target'] == [700, 300, 270, 370]
+    assert empty['expect'] == [ANY]
+    assert empty['advance'] is True
+    assert empty['reason'] == 'the_reward_card_must_be_picked_before_confirm'
+    picked = plan_step('REWARD_CARD', controls=controls,
+                       reward={'chosen': 1, 'required': 1})
+    assert picked['action'] == CLICK
+    assert picked['target'] == [1128, 764, 168, 49]
+    assert picked['reason'] == 'confirm_grants_the_picked_encounter_reward'
+    # A missing counter is read as "nothing picked yet", never as "confirm now".
+    unread = plan_step('REWARD_CARD', controls=controls)
+    assert unread['target'] == [700, 300, 270, 370]
+    no_card = plan_step('REWARD_CARD',
+                        controls={'reward_card.confirm_button': [1128, 764, 168, 49]})
+    assert no_card['action'] == RECORD
+    assert no_card['reason'] == 'reward_card_box_not_anchored'
+    # Cancel refuses the reward, so it is registered but never a plan target.
+    cancel = [688, 768, 154, 45]
+    named = plan_step('REWARD_CARD', controls={'reward_card.card_01': cancel,
+                                               'reward_card.cancel_button': cancel})
+    assert named['action'] == RECORD
+    assert named['reason'] == 'control_is_forbidden'
+
+
+def test_the_shop_page_only_ever_leaves():
+    # Live proof: evidence/runtime/window-20261006-042123/frame-0001.json is the
+    # Shop node the encounter panel's Enter handed back. The module budget is
+    # 0/pending, so Leave is the only input; buying, refreshing, healing, fusing
+    # and selling stay unanchored on purpose.
+    controls = {'shop.leave_button': [1622, 945, 150, 53]}
+    plan = plan_step('SHOP', controls=controls)
+    assert plan['action'] == CLICK
+    assert plan['target'] == [1622, 945, 150, 53]
+    assert plan['reason'] == 'leaving_the_shop_is_the_only_budget_safe_input'
+    assert successor_ok(plan, 'SHOP_LEAVE')
+    assert successor_ok(plan, 'MAP')
+    assert not successor_ok(plan, 'BATTLE_HUD')
+    missing = plan_step('SHOP', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'shop_leave_button_not_anchored'
+
+
+def test_the_shop_exit_confirmation_confirms_and_never_cancels():
+    # Live proof: evidence/runtime/window-20261006-042529/frame-0002.json is what
+    # leaving the shop asks back ("Leave the shop?" with X Cancel / Confirm).
+    controls = {'shop.leave_confirm_button': [1116, 722, 110, 34]}
+    plan = plan_step('SHOP_LEAVE', controls=controls)
+    assert plan['action'] == CLICK
+    assert plan['target'] == [1116, 722, 110, 34]
+    assert plan['reason'] == 'confirming_the_shop_exit_is_the_only_forward_input'
+    assert successor_ok(plan, 'MAP')
+    missing = plan_step('SHOP_LEAVE', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'shop_leave_confirm_not_anchored'
+
+
+def test_the_gift_get_notice_is_cleared_with_its_own_confirm():
+    # Live proof: evidence/runtime/window-20261006-042956/frame-0001.json is the
+    # "E.G.O Gift GET!" notice the reward card's Confirm raised.
+    controls = {'gift_get.confirm_button': [922, 774, 136, 45]}
+    plan = plan_step('GIFT_GET', controls=controls)
+    assert plan['action'] == CLICK
+    assert plan['target'] == [922, 774, 136, 45]
+    assert plan['reason'] == 'the_gift_get_notice_is_cleared_with_its_own_confirm'
+    # One notice per picked gift, so the page may hand back to itself: live
+    # window-20261006-043531 shows Phlebotomy Pack then Bloody Gadget.
+    assert successor_ok(plan, 'GIFT_GET')
+    assert successor_ok(plan, 'REWARD_CARD')
+    assert successor_ok(plan, 'MAP')
+    # The starting gift's notice can be observed already past itself: the optional
+    # gift search follows it, and which page the settle window catches is a race.
+    # Live proof of the failure: build/window-run-continue-2.json step 71 stopped
+    # with unexpected_successor on exactly this transition.
+    assert successor_ok(plan, 'GIFT_SEARCH')
+    missing = plan_step('GIFT_GET', controls={})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'gift_get_confirm_not_anchored'
+
+
+def test_the_node_panel_enter_may_fade_back_through_the_map():
+    # Live: window-20261006-042056 shows Enter landing on a MAP frame before the
+    # node content (that run's next observation was the Shop page).
+    plan = plan_step('NODE_PANEL', controls=CONTROLS)
+    assert successor_ok(plan, 'MAP')
+    assert successor_ok(plan, 'SHOP')
+    assert successor_ok(plan, 'PRE_BATTLE_TEAM')
+
+
+def test_the_floor_gift_pick_is_counter_driven_and_refuse_is_never_the_target():
+    # Live proof: evidence/runtime/window-20261006-043102/frame-0003.json is the
+    # floor's gift pick (Acquire E.G.O Gift x4, Select 0/2, Refuse Gift).
+    controls = {'gift_pick.card_01': [337, 300, 240, 200],
+                'gift_pick.card_02': [732, 300, 240, 200],
+                'gift_pick.card_03': [1128, 300, 240, 200],
+                'gift_pick.card_04': [1526, 300, 240, 200],
+                'gift_pick.select_button': [1620, 851, 100, 36],
+                'gift_pick.refuse_button': [1350, 851, 150, 34]}
+    empty = plan_step('GIFT_PICK', controls=controls,
+                      gift={'chosen': 0, 'required': 2})
+    assert empty['action'] == CLICK
+    assert empty['target'] == [337, 300, 240, 200]
+    assert empty['expect'] == [ANY]
+    assert empty['advance'] is True
+    assert empty['reason'] == 'the_floor_gift_card_must_be_picked_before_select'
+    one = plan_step('GIFT_PICK', controls=controls, gift={'chosen': 1, 'required': 2})
+    assert one['target'] == [732, 300, 240, 200]
+    full = plan_step('GIFT_PICK', controls=controls, gift={'chosen': 2, 'required': 2})
+    assert full['target'] == [1620, 851, 100, 36]
+    assert full['reason'] == 'select_takes_the_picked_floor_gifts'
+    # The pick page itself lingers while the notice animates in (live:
+    # window-20261006-043531 read GIFT_PICK in the settle frame right after Select
+    # and raised the "E.G.O Gift GET!" notice only on the next observation), so the
+    # page handing back to itself is accepted; the loop guard bounds a dead button.
+    assert successor_ok(full, 'GIFT_PICK')
+    assert successor_ok(full, 'GIFT_GET')
+    assert successor_ok(full, 'MAP')
+    # A missing counter is read as "nothing picked yet", never as "select now".
+    unread = plan_step('GIFT_PICK', controls=controls)
+    assert unread['target'] == [337, 300, 240, 200]
+    # The three-card round prints no counter at all (live:
+    # evidence/runtime/window-20261006-043531), so the driver's own count and the
+    # Select button's brightness carry the pick: dark -> next card, lit -> select.
+    dark = plan_step('GIFT_PICK', controls=controls,
+                     gift={'chosen': 1, 'required': None, 'ready': False})
+    assert dark['target'] == [732, 300, 240, 200]
+    assert dark['reason'] == 'the_floor_gift_card_must_be_picked_before_select'
+    lit = plan_step('GIFT_PICK', controls=controls,
+                    gift={'chosen': 1, 'required': None, 'ready': True})
+    assert lit['target'] == [1620, 851, 100, 36]
+    assert lit['reason'] == 'select_takes_the_picked_floor_gifts'
+    # The button lights up as soon as one choice is made, so a readable counter has to
+    # outrank brightness: live window-20261006-052152 pressed Select at "1/2" and the
+    # game answered with "You have remaining E.G.O Gift choices."
+    early = plan_step('GIFT_PICK', controls=controls,
+                      gift={'chosen': 1, 'required': 2, 'ready': True})
+    assert early['target'] == [732, 300, 240, 200]
+    assert early['reason'] == 'the_floor_gift_card_must_be_picked_before_select'
+    # Four cards offered and the button still dark: repeating a pick would be a
+    # guess, so the page refuses instead of clicking a card again.
+    exhausted = plan_step('GIFT_PICK', controls=controls,
+                          gift={'chosen': 4, 'required': None, 'ready': False})
+    assert exhausted['action'] == RECORD
+    assert exhausted['reason'] == 'gift_pick_cards_exhausted_without_a_lit_select'
+    # Refuse Gift is anchored so the page is identifiable, but never a target.
+    refuse = [1350, 851, 150, 34]
+    named = plan_step('GIFT_PICK', controls={'gift_pick.card_01': refuse,
+                                             'gift_pick.refuse_button': refuse})
+    assert named['action'] == RECORD
+    assert named['reason'] == 'control_is_forbidden'
+    no_cards = plan_step('GIFT_PICK',
+                         controls={'gift_pick.select_button': [1620, 851, 100, 36]})
+    assert no_cards['action'] == RECORD
+    assert no_cards['reason'] == 'gift_pick_card_not_anchored'
+
+
+def test_the_theme_pack_page_is_pulled_down_and_never_clicked():
+    # Live: evidence/runtime/window-20261006-044113/frame-0001.json is the floor 2
+    # theme pack page ("SELECT FLOOR 2 THEME PACK", "Select a Pack And Pull").
+    controls = {'theme_packs.pack_01': [520, 390, 250, 300],
+                'theme_packs.pull_to': [600, 900, 90, 60]}
+    plan = plan_step('THEME_PACKS', controls=controls, difficulty='hard')
+    assert plan['action'] == SWIPE
+    assert plan['target'] == [520, 390, 250, 300]
+    assert plan['to'] == [645, 930]
+    assert plan['duration_ms'] == 700
+    assert plan['reason'] == 'the_floor_theme_pack_is_pulled_down_to_be_taken'
+    # The page must hand back something other than itself: a drag that did nothing
+    # cannot be recorded as progress.
+    assert plan['expect'] == [ANY]
+    assert successor_ok(plan, 'THEME_PACKS') is False
+    assert successor_ok(plan, 'MAP') is True
+    assert successor_ok(plan, 'UNKNOWN') is True
+    # Without the pack box, or without a pull target, the page refuses to guess.
+    assert plan_step('THEME_PACKS', controls={}, difficulty='hard')['reason'] == 'theme_pack_card_not_anchored'
+    half = plan_step('THEME_PACKS', controls={'theme_packs.pack_01': [520, 390, 250, 300]}, difficulty='hard')
+    assert half['action'] == RECORD
+    assert half['reason'] == 'theme_pack_pull_target_not_anchored'
+
+
+def test_the_cutscene_is_skipped_once_and_never_left_waiting():
+    # Live: evidence/runtime/window-20261006-044556/frame-0023.json is the abnormality
+    # intro ("A thing wearing human skin was dancing in place…") with REC and SKIP.
+    controls = {'cutscene.skip_button': [1620, 919, 152, 99]}
+    plan = plan_step('CUTSCENE', controls=controls)
+    assert plan['action'] == CLICK
+    assert plan['target'] == [1620, 919, 152, 99]
+    assert plan['reason'] == 'the_cutscene_is_skipped_to_resume_the_run'
+    # Skipping can move the story on without changing the scene (live run70: SKIP left a
+    # frame that still read CUTSCENE), so the same page counts when the frame changed,
+    # and a scene that is truly gone passes outright.
+    assert plan['expect'] == ['CUTSCENE', ANY]
+    assert plan['advance'] is True
+    assert successor_ok(plan, 'CUTSCENE') is False
+    assert successor_ok(plan, 'MAP') is True
+    assert step_result(plan, sent='click', before='CUTSCENE', after='CUTSCENE',
+                       page='CUTSCENE', frame_changed=True)['passed'] is True
+    assert step_result(plan, sent='click', before='CUTSCENE', after='CUTSCENE',
+                       page='CUTSCENE', frame_changed=False)['passed'] is False
+    assert plan_step('CUTSCENE', controls={})['reason'] == 'cutscene_skip_not_anchored'
+
+
+def test_the_event_choice_takes_the_row_that_names_its_reward():
+    # Live: evidence/runtime/window-20261006-044943/frame-0015.json has three rows and
+    # the hint "Select to gain a Blunt E.G.O Gift" under the second one.
+    rows = [[1096, 311, 290, 28], [1096, 464, 378, 28], [1096, 643, 366, 33]]
+    plan = plan_step('EVENT_CHOICE', candidates=rows, candidate_index=1)
+    assert plan['action'] == CLICK
+    assert plan['target'] == [1096, 464, 378, 28]
+    assert plan['reason'] == 'the_event_choice_that_names_its_reward_is_taken'
+    assert plan['detail'] == {'option_count': 3, 'option_index': 1}
+    # Any row advances, so the plan is proven by the page being gone - or by the page
+    # changing under the same scene name while the row's outcome is narrated.
+    assert plan['expect'] == ['EVENT_CHOICE', ANY]
+    assert plan['advance'] is True
+    assert successor_ok(plan, 'EVENT_CHOICE') is False
+    assert successor_ok(plan, 'MAP') is True
+    # No rows read, or an index outside them, refuses instead of clicking blind.
+    assert plan_step('EVENT_CHOICE')['reason'] == 'no_event_choice_observed'
+    bad = plan_step('EVENT_CHOICE', candidates=rows, candidate_index=3)
+    assert bad['action'] == RECORD
+    assert bad['reason'] == 'event_choice_index_out_of_range'
+
+
+def test_the_event_result_is_tapped_through_and_then_continued():
+    # Live: evidence/runtime/window-20261006-045451/frame-0001.json is the outcome page
+    # with the bottom-right control still dim; one tap on the story panel produced
+    # frame-0002.json, whose Continue is the only control left.
+    controls = {'event_result.story_panel': [300, 400, 500, 250],
+                'event_result.continue_button': [1588, 943, 218, 55]}
+    tap = plan_step('EVENT_RESULT', controls=controls)
+    assert tap['action'] == CLICK
+    assert tap['target'] == [300, 400, 500, 250]
+    assert tap['reason'] == 'the_event_result_story_is_tapped_to_reveal_its_continue'
+    assert tap['advance'] is True
+    # The tap only relights the button, so the same page may come back: the frame
+    # change is what proves it, not the page name.
+    assert successor_ok(tap, 'EVENT_RESULT') is False
+    assert successor_ok(tap, 'EVENT_RESULT_READY') is True
+    assert step_result(tap, sent='click', before='EVENT_RESULT', after='EVENT_RESULT',
+                       page='EVENT_RESULT', frame_changed=False)['passed'] is False
+    assert step_result(tap, sent='click', before='EVENT_RESULT', after='EVENT_RESULT',
+                       page='EVENT_RESULT', frame_changed=True)['passed'] is True
+    done = plan_step('EVENT_RESULT_READY', controls=controls)
+    assert done['action'] == CLICK
+    assert done['target'] == [1588, 943, 218, 55]
+    assert done['reason'] == 'the_event_result_is_cleared_with_its_own_continue'
+    assert done['expect'] == ['EVENT_RESULT_READY', ANY]
+    assert done['advance'] is True
+    assert successor_ok(done, 'EVENT_RESULT_READY') is False
+    assert successor_ok(done, 'MAP') is True
+    # No story panel, or no continue button, refuses rather than clicking blind.
+    assert plan_step('EVENT_RESULT', controls={})['reason'] == 'event_result_story_panel_not_anchored'
+    assert plan_step('EVENT_RESULT_READY', controls={})['reason'] == 'event_result_continue_not_anchored'
+
+
+def test_the_deployment_view_only_starts_the_fight():
+    # Live run build/window-run29.json: To Battle! on the team page handed back
+    # DEPLOYMENT, whose own bottom-right control is the same button
+    # (evidence/runtime/window-20261006-050402/frame-0006.json).
+    controls = {'pre_battle.battle_button': [1674, 859, 144, 44]}
+    plan = plan_step('DEPLOYMENT', controls=controls)
+    assert plan['action'] == CLICK
+    assert plan['target'] == [1674, 859, 144, 44]
+    assert plan['reason'] == 'deployment_view_starts_the_fight'
+    assert 'BATTLE_HUD' in plan['expect']
+    assert successor_ok(plan, 'BATTLE_HUD') is True
+    assert successor_ok(plan, 'DEPLOYMENT') is False
+    # The team page may also hand back the deployment view instead of the fight.
+    team = plan_step('PRE_BATTLE_TEAM', controls=controls)
+    assert 'DEPLOYMENT' in team['expect']
+    assert successor_ok(team, 'DEPLOYMENT') is True
+    assert plan_step('DEPLOYMENT', controls={})['reason'] == 'deployment_battle_button_not_anchored'
+
+
+def test_the_left_over_gift_warning_cancels_and_never_trades_the_gifts():
+    # Live proof: pressing Select at "1/2" raised "You have remaining E.G.O Gift
+    # choices. Will you proceed without selecting an E.G.O Gift?" (evidence/runtime/
+    # window-20261006-052152/frame-0003.json). Its Confirm trades the remaining gifts
+    # for random Trials -- the refusal the user forbade -- so Cancel is the only input.
+    cancel = [704, 718, 142, 42]
+    controls = {'gift_warning.cancel_button': cancel,
+                'gift_warning.confirm_button': [1068, 718, 156, 36]}
+    plan = plan_step('GIFT_WARNING', controls=controls)
+    assert plan['action'] == CLICK
+    assert plan['target'] == cancel
+    assert plan['reason'] == 'the_warning_is_cancelled_to_keep_the_remaining_gift_choices'
+    assert successor_ok(plan, 'GIFT_PICK')
+    missing = plan_step('GIFT_WARNING', controls={'gift_warning.confirm_button': controls['gift_warning.confirm_button']})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'gift_warning_cancel_not_anchored'
+    named = plan_step('GIFT_WARNING',
+                      controls={'gift_warning.cancel_button': controls['gift_warning.confirm_button'],
+                                'gift_warning.confirm_button': controls['gift_warning.confirm_button']})
+    assert named['action'] == RECORD
+    assert named['reason'] == 'control_is_forbidden'
+
+def test_the_gift_warning_is_named_from_a_live_frame():
+    locale = json.loads((Path(__file__).resolve().parents[1]
+                         / 'assets/resource/en/locale.json').read_text())
+    frame = _archived_json('runtime/window-20261006-052152/frame-0003.json')
+    records = [Text(t['text'], tuple(t['box']), t['score']) for t in frame['ocr']]
+    assert classify(records, locale, tuple(frame['size'])) == 'GIFT_WARNING'
+
+
+def test_the_skill_check_is_rolled_by_the_best_odds_and_never_skipped():
+    # Live proof: evidence/runtime/window-20261006-204421/frame-0001.json prints an odds
+    # caption over each identity card, and card 1 (VeryHigh) is the one worth sending.
+    # The driver reads the row and hands that card's box over; the page has no anchored
+    # control of its own, because the row is read live. Picking the card keeps the page
+    # (evidence/runtime/window-20261006-205435/frame-0002.json is the same page after the
+    # click), so the step passes on the changed frame rather than on a new scene.
+    card = [76, 923, 84, 113]
+    plan = plan_step('EVENT_CHECK', check={'slot': 1, 'tier': 'very_high', 'box': card})
+    assert plan['action'] == CLICK
+    assert plan['target'] == card
+    assert plan['reason'] == 'the_skill_check_is_rolled_by_the_best_odds'
+    assert plan['detail'] == {'slot': 1, 'tier': 'very_high'}
+    assert plan['expect'] == ['EVENT_CHECK', ANY]
+    assert plan['advance'] is True
+    assert not successor_ok(plan, 'EVENT_CHECK')
+    assert step_result(plan, sent=True, before='EVENT_CHECK', after='EVENT_CHECK',
+                       page='EVENT_CHECK', frame_changed=True)['passed']
+    assert not step_result(plan, sent=True, before='EVENT_CHECK', after='EVENT_CHECK',
+                           page='EVENT_CHECK', frame_changed=False)['passed']
+    # No slot read means the page is still on its story (live build/window-run88.json:
+    # 'Who will give it a try?' printed while the odds row had not faded in, four refusals
+    # in a row), so the small screen is tapped -- never the SKIP, which forfeits the roll.
+    panel = [206, 181, 756, 325]
+    unread = plan_step('EVENT_CHECK', controls={'event_check.story_panel': panel},
+                       check=None)
+    assert unread['action'] == CLICK
+    assert unread['target'] == panel
+    assert unread['reason'] == 'the_skill_check_story_is_tapped_through_until_it_asks'
+    assert unread['advance'] is True
+    assert unread['expect'] == ['EVENT_CHECK', ANY]
+    # Without that anchor too there is no input at all: the check is never guessed at.
+    blind = plan_step('EVENT_CHECK', check=None)
+    assert blind['action'] == RECORD
+    assert blind['reason'] == 'no_event_check_candidate_observed'
+    # SKIP means nobody attempts the roll, which forfeits the check, so a mis-registered
+    # anchor can never send it.
+    skip = [1628, 929, 138, 83]
+    named = plan_step('EVENT_CHECK', controls={'event_check.skip_button': skip},
+                      check={'slot': 1, 'box': skip})
+    assert named['action'] == RECORD
+    assert named['reason'] == 'control_is_forbidden'
+
+
+def test_the_chosen_skill_check_identity_is_committed_with_its_commence():
+    # Live proof: evidence/runtime/window-20261006-205435/frame-0002.json is the same
+    # check page after an identity was picked - it prints 'Predicted Odds: Very High' and
+    # 'Commence' [1578,946,240,48] where the untouched page had SKIP, and the driver
+    # reports that stage instead of aiming at a second card.
+    box = [1578, 946, 240, 48]
+    plan = plan_step('EVENT_CHECK', controls={'event_check.commence_button': box},
+                     check={'stage': 'commence'})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'the_skill_check_is_committed_with_its_commence'
+    assert successor_ok(plan, 'CUTSCENE') and successor_ok(plan, 'EVENT_RESULT_READY')
+    assert not successor_ok(plan, 'EVENT_CHECK') or plan['advance'] is True
+    # A registration without the button sends nothing.
+    missing = plan_step('EVENT_CHECK', check={'stage': 'commence'})
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'event_check_commence_not_anchored'
+
+
+def test_the_resolved_skill_check_is_tapped_through_its_story_panel():
+    # Live proof: evidence/runtime/window-20261006-205922/frame-0025.json kept the page
+    # for 43 frames with 'Check Passed' and the story already complete, and the only frame
+    # whose OCR reaches the bottom-right control is frame-0001. The user's rule (m10140) is
+    # to keep tapping the small screen until that control lights up, so the story panel is
+    # the target and the tap is judged by the frame, not by the page name.
+    panel = [206, 181, 756, 325]
+    plan = plan_step('EVENT_CHECK_RESULT',
+                     controls={'event_check_result.story_panel': panel})
+    assert plan['action'] == CLICK
+    assert plan['target'] == panel
+    assert plan['reason'] == ('the_check_outcome_is_tapped_through_until_its_control'
+                              '_lights_up')
+    assert plan['advance'] is True
+    assert successor_ok(plan, 'CUTSCENE')
+    assert step_result(plan, sent=True, before='EVENT_CHECK_RESULT',
+                       after='EVENT_CHECK_RESULT', page='EVENT_CHECK_RESULT',
+                       frame_changed=True)['passed']
+    assert not step_result(plan, sent=True, before='EVENT_CHECK_RESULT',
+                           after='EVENT_CHECK_RESULT', page='EVENT_CHECK_RESULT',
+                           frame_changed=False)['passed']
+    # A registration without the panel sends nothing rather than guessing a coordinate.
+    missing = plan_step('EVENT_CHECK_RESULT')
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'event_check_result_panel_not_anchored'
+
+
+def test_the_entry_press_accepts_the_held_run_prompt_as_its_successor():
+    # Live proof: evidence/runtime/window-20261008-030251/frame-0008.json is the Dungeon
+    # Progress prompt, read straight after MIRROR_ENTRY's own Enter. The game still held a
+    # run, so the free entry answered with Resume/Halt instead of a fresh run, and the
+    # window called that an unexpected successor and stopped (job pwsh-203,
+    # run-continue-25). Both entry pages accept it; that prompt's own Resume carries on.
+    box = [1606, 718, 112, 44]
+    plan = plan_step('MIRROR_ENTRY', controls={'entry.enter_button': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert successor_ok(plan, 'RESUME_DIALOG')
+    assert not successor_ok(plan, 'HOME')
+    confirmed = plan_step('ENTRY_CONFIRM',
+                          controls={'entry_confirm.confirm_button': [1124, 704, 90, 42]})
+    assert confirmed['action'] == CLICK
+    assert successor_ok(confirmed, 'RESUME_DIALOG')
+
+
+def test_the_lit_control_of_the_resolved_skill_check_leaves_it():
+    # Live proof: evidence/runtime/window-20261006-210803/frame-0002.json is the same page
+    # after the story was tapped through, with 'Continue' [1588,941,220,59] lit in the slot
+    # that read nothing at all in frame-0001.json. The roll is already resolved, so this
+    # control is how the page is left - it is not the SKIP that forfeits a check.
+    box = [1588, 941, 220, 59]
+    plan = plan_step('EVENT_CHECK_READY',
+                     controls={'event_check_ready.continue_button': box})
+    assert plan['action'] == CLICK
+    assert plan['target'] == box
+    assert plan['reason'] == 'the_check_outcome_is_left_with_its_lit_continue'
+    assert plan['advance'] is True
+    assert successor_ok(plan, 'MAP') and successor_ok(plan, 'CUTSCENE')
+    missing = plan_step('EVENT_CHECK_READY')
+    assert missing['action'] == RECORD
+    assert missing['reason'] == 'event_check_ready_continue_not_anchored'
+
+
+def test_hard_switch_is_offered_only_with_fresh_normal_target():
+    box=[1362,55,40,24]
+    assert plan_step('THEME_PACKS',difficulty='normal',controls={'theme_packs.enable_hard':box})['reason']=='enable_hard_on_proven_floor_one'
+    assert plan_step('THEME_PACKS',difficulty=None,controls={'theme_packs.enable_hard':box})['action']==RECORD
+    assert plan_step('THEME_PACKS',difficulty='normal',controls={})['action']==RECORD
+
+
+def test_inherited_deployment_uses_registered_clear_selection_anchor():
+    import json
+    from pathlib import Path
+    anchors=json.loads((Path(__file__).resolve().parents[1]/'assets/resource/base/anchors.json').read_text(encoding='utf-8'))
+    assert 'pre_battle.clear_selection' in json.dumps(anchors)
+    box=[1640,706,188,22]
+    plan=plan_step('PRE_BATTLE_TEAM',controls={'pre_battle.clear_selection':box},
+                   team={'reset_required':True,'participants':[12,12]})
+    assert plan['action']==CLICK and plan['target']==box
+    assert plan_step('PRE_BATTLE_TEAM',team={'reset_required':True})['action']==RECORD
+
+
+def test_unknown_dialog_is_dismissed_with_its_own_close():
+    # Live 2026-10-12 01:01 (dist evidence pi-20261012-010122): the Charge Enkephalin
+    # modal sat over the home page with 'X Cancel' at [710,782,142,40], the runner had
+    # no plan for the page and the run stopped at its first step. The planner now
+    # clicks that close control and never the Confirm beside it.
+    box=[710,782,142,40]
+    plan=plan_step('UNKNOWN_DIALOG',controls={'unknown_dialog.close':box})
+    assert plan['action']==CLICK and plan['target']==box
+    assert plan['advance'] is True and plan['expect']==[ANY]
+    assert plan['reason']=='the_unexpected_dialog_is_dismissed_with_its_own_close'
+
+
+def test_unknown_dialog_without_a_close_refuses_instead_of_confirming():
+    plan=plan_step('UNKNOWN_DIALOG',controls={})
+    assert plan['action']==RECORD
+    assert plan['reason']=='unknown_dialog_close_not_anchored'
+
+
+SHOP_CONTROLS = dict(CONTROLS, **{'shop.leave_button': [1622, 945, 150, 53]})
+BUY = {'box': [1101, 585, 120, 90], 'name': 'Prejudice', 'price': 152, 'index': 6,
+       'why': 'gift_plan'}
+CARRIED = {'box': [870, 357, 120, 90], 'name': 'Replace Heathciffs Skill', 'price': 77,
+           'index': 1, 'why': 'carry_cap'}
+REFRESH = {'box': [1478, 168, 86, 28], 'cost': 15}
+CONFIRM = [1040, 760, 120, 34]
+
+
+def test_shop_buys_the_offer_the_page_printed_for_the_plan():
+    plan=plan_step('SHOP',controls=SHOP_CONTROLS,
+                   shop={'currency':1008,'buy':BUY,'refresh':None,'confirm':None,
+                         'reason':'the_gift_plan_asked_for_this_offer_and_the_shop_covers_it'})
+    assert plan['action']==CLICK and plan['target']==BUY['box']
+    assert plan['reason']=='buying_the_gift_the_gift_plan_asked_for'
+    assert plan['detail']=={'name':'Prejudice','price':152,'why':'gift_plan',
+                            'currency':1008}
+
+
+def test_shop_spends_the_coins_the_visit_would_carry_out_on_the_shelf_it_read():
+    """The cap's own purchase is a click on the shelf's printed card, not a coordinate.
+
+    It is named differently from the plan's purchase, so the ledger and the journal can
+    tell a gift the plan asked for from a coin the visit simply would not carry out.
+    """
+    plan=plan_step('SHOP',controls=SHOP_CONTROLS,
+                   shop={'currency':1008,'buy':CARRIED,'refresh':None,'confirm':None,
+                         'reason':'the_visit_would_carry_out_more_coins_than_its_cap_holds_so_the_shelf_is_spent_on'})
+    assert plan['action']==CLICK and plan['target']==CARRIED['box']
+    assert plan['reason']=='spending_the_coins_this_visit_would_carry_out_on_the_shelf'
+    assert plan['detail']=={'name':'Replace Heathciffs Skill','price':77,'why':'carry_cap',
+                            'currency':1008}
+
+
+def test_shop_takes_the_way_back_for_a_dead_key_slot_before_it_spends_a_coin():
+    """Heal Sinner is the only service the shop's panel may be aimed at, and only while
+    a saved slot the operator called key is dead (live panel window-20261012-210547/
+    frame-0005.json: Heal Sinner [286,688,72,46] with its badge 100 at [264,742])."""
+    revive={'box':[286,688,72,46],'cost':100,'cost_box':[264,742,62,30],'cards':[6]}
+    plan=plan_step('SHOP',controls=SHOP_CONTROLS,
+                   shop={'currency':3093,'buy':CARRIED,'refresh':REFRESH,'confirm':None,
+                         'revive':revive,'reason':'no_offer_matches_the_gift_plan'})
+    assert plan['action']==CLICK and plan['target']==revive['box']
+    assert plan['reason']=='a_key_saved_slot_is_dead_and_the_shop_sells_the_way_back'
+    assert plan['detail']=={'cards':[6],'cost':100,'currency':3093}
+    # The purchase question still wins: it is already open and cannot be left behind.
+    asked=plan_step('SHOP',controls=SHOP_CONTROLS,
+                    shop={'currency':3093,'buy':CARRIED,'refresh':None,'confirm':CONFIRM,
+                          'revive':revive,'reason':'x'})
+    assert asked['target']==CONFIRM
+    assert asked['reason']=='confirming_the_purchase_the_shop_asked_about'
+    # Without a proven key loss the service is never a target and the cap buys instead.
+    plain=plan_step('SHOP',controls=SHOP_CONTROLS,
+                    shop={'currency':3093,'buy':CARRIED,'refresh':None,'confirm':None,
+                          'revive':None,'reason':'x'})
+    assert plain['target']==CARRIED['box']
+
+
+def test_the_shops_own_option_list_is_answered_with_its_third_row_only():
+    """Only '3. Revive a single Sinner.' is ever aimed at; the healing rows are not."""
+    box=[1246,611,326,34]
+    plan=plan_step('HEAL_SINNERS',
+                   controls=dict(SHOP_CONTROLS,**{'heal_sinners.revive':box}))
+    assert plan['action']==CLICK and plan['target']==box
+    assert plan['reason']=='the_shop_s_own_third_option_is_the_way_back_for_a_dead_key_slot'
+    assert 'UNKNOWN' in plan['expect']
+    # The third row opens the picker, which the classifier names REVIVE_PICK (live
+    # window-20261012-213008/frame-0002.json): an unnamed successor there would cost the
+    # click an unexpected-successor retry.
+    assert 'REVIVE_PICK' in plan['expect']
+    assert 'HEAL_SINNERS' in plan['expect']
+    refused=plan_step('HEAL_SINNERS',controls=SHOP_CONTROLS)
+    assert refused['action']==RECORD and refused['reason']=='heal_sinners_option_not_anchored'
+
+
+def test_shop_answers_the_purchase_question_before_buying_anything_else():
+    plan=plan_step('SHOP',controls=SHOP_CONTROLS,
+                   shop={'currency':1008,'buy':BUY,'refresh':REFRESH,'confirm':CONFIRM,
+                         'reason':'x'})
+    assert plan['action']==CLICK and plan['target']==CONFIRM
+    assert plan['reason']=='confirming_the_purchase_the_shop_asked_about'
+
+
+def test_shop_refreshes_only_when_no_offer_matches_and_the_visit_may_pay():
+    plan=plan_step('SHOP',controls=SHOP_CONTROLS,
+                   shop={'currency':1008,'buy':None,'refresh':REFRESH,'confirm':None,
+                         'reason':'no_offer_matches_the_gift_plan'})
+    assert plan['action']==CLICK and plan['target']==REFRESH['box']
+    assert plan['reason']=='refreshing_the_shelf_for_the_gift_the_plan_wants'
+    assert plan['detail']=={'cost':15,'currency':1008}
+
+
+def test_shop_leaves_when_the_page_offers_nothing_the_plan_may_spend_on():
+    plan=plan_step('SHOP',controls=SHOP_CONTROLS,
+                   shop={'currency':1008,'buy':None,'refresh':None,'confirm':None,
+                         'reason':'every_offer_the_plan_asked_for_costs_more_than_the_shop_holds'})
+    assert plan['action']==CLICK and plan['target']==[1622, 945, 150, 53]
+    assert plan['reason']=='leaving_the_shop_is_the_only_budget_safe_input'
+    assert plan_step('SHOP',controls=SHOP_CONTROLS)['target']==[1622, 945, 150, 53]
+
+
+def test_shop_without_an_anchored_leave_stays_put():
+    plan=plan_step('SHOP',controls={})
+    assert plan['action']==RECORD and plan['reason']=='shop_leave_button_not_anchored'
+
+
+def test_the_purchase_question_answers_its_own_confirm_and_nothing_else():
+    # The question is its own page (maalimbus.vision): it may only ever receive the
+    # Confirm read off its own frame.  A buy or a refresh offered alongside it is not
+    # sent behind the question, and a question whose Confirm could not be read is
+    # recorded instead of clicked -- both would otherwise spend a purchase twice or
+    # cancel one nobody asked to cancel.
+    question={'currency':1008,'buy':BUY,'refresh':REFRESH,'confirm':CONFIRM,'reason':'x'}
+    plan=plan_step('SHOP_PURCHASE',controls=SHOP_CONTROLS,shop=question)
+    assert plan['action']==CLICK and plan['target']==CONFIRM
+    assert plan['reason']=='confirming_the_purchase_the_shop_asked_about'
+    assert successor_ok(plan,'SHOP') and successor_ok(plan,'SHOP_PURCHASE')
+    unread=dict(question, confirm=None)
+    plan=plan_step('SHOP_PURCHASE',controls=SHOP_CONTROLS,shop=unread)
+    assert plan['action']==RECORD
+    assert plan['reason']=='the_shop_asked_about_a_purchase_and_its_confirm_was_not_read'
+    plan=plan_step('SHOP_PURCHASE',controls=SHOP_CONTROLS)
+    assert plan['action']==RECORD
+    assert plan['reason']=='the_shop_asked_about_a_purchase_and_its_confirm_was_not_read'
+
+
+def test_the_revive_picker_only_answers_the_slot_and_button_its_own_frames_bound():
+    """The picker's party bar and the modal's own bottom button are the only targets here.
+
+    Live evidence: window-20261012-213008/frame-0002.png draws the dead card 6's portrait at
+    [642,880,90,120] in the bar, and the confirm that followed it was the modal's 'Select'
+    [1614,937,166,61] (window-20261012-214635/frame-0006.json), which the game answered with
+    'Hong Lu, revived, returns to battle.' (window-20261012-214803/frame-0001.json). A picker
+    that carries neither is refused, never guessed.
+    """
+    slot = [642, 880, 90, 120]
+    picked = plan_step('REVIVE_PICK', controls=dict(SHOP_CONTROLS, **{'revive_pick.slot': slot}))
+    assert picked['action'] == CLICK and picked['target'] == slot
+    assert picked['reason'] == 'picking_the_dead_key_slot_the_deployment_page_could_not_field'
+    assert 'REVIVE_PICK' in picked['expect'] and 'SHOP' in picked['expect']
+    action = [1614, 937, 166, 61]
+    answered = plan_step('REVIVE_PICK',
+                         controls=dict(SHOP_CONTROLS, **{'revive_pick.action': action}))
+    assert answered['action'] == CLICK and answered['target'] == action
+    assert answered['reason'] == 'the_modals_own_button_answers_the_pick_the_bar_made'
+    assert 'REVIVE_DONE' in answered['expect'] and 'SHOP' in answered['expect']
+    refused = plan_step('REVIVE_PICK', controls=SHOP_CONTROLS)
+    assert refused['action'] == RECORD
+    assert refused['reason'] == 'the_picker_asked_for_a_sinner_no_proven_loss_names'
+
+
+def test_the_revived_sinners_notice_leaves_through_the_modals_own_button():
+    """The third state of the panel says who came back and offers nothing else to click.
+
+    Live evidence: window-20261012-214803/frame-0001.json reads 'Hong Lu, revived, returns
+    to battle.' with its own Leave [1622,943,150,53] under it, while the row above it, 'Heal
+    again.', would spend another 100 and is never aimed at.
+    """
+    leave = [1622, 943, 150, 53]
+    done = plan_step('REVIVE_DONE', controls=dict(SHOP_CONTROLS, **{'revive_done.leave': leave}))
+    assert done['action'] == CLICK and done['target'] == leave
+    assert done['reason'] == 'the_revive_is_paid_for_and_the_modal_leaves_back_to_the_shop'
+    assert 'SHOP' in done['expect']
+    refused = plan_step('REVIVE_DONE', controls=SHOP_CONTROLS)
+    assert refused['action'] == RECORD
+    assert refused['reason'] == 'the_revived_sinners_notice_has_no_bound_leave'
+
+
+def test_a_map_that_refuses_every_click_offers_its_own_resume_control():
+    """A page read as MAP that refuses every node is a run that was never resumed.
+
+    Controlled experiment on one device: nine clicks before
+    `entry -> Enter -> Dungeon Progress -> Resume` produced only 300..2000 px of
+    animation, and the first click after the resume opened the node panel (107860 px).
+    So when the runner has seen the refusal streak it hands the plan a progress control,
+    and the plan must use it instead of another node.
+    """
+    from maalimbus.window import plan_step
+    from maalimbus.run_wiring import MAP_FORWARD_REASON
+    candidates = [[100, 100, 40, 40]]
+    plain = plan_step('MAP', candidates=candidates, candidate_index=0, controls={})
+    assert plain['reason'] == MAP_FORWARD_REASON
+    resume = [1780, 8, 128, 104]
+    plan = plan_step('MAP', candidates=candidates, candidate_index=0,
+                     controls={'map.progress_button': resume})
+    assert plan['reason'] == 'the_exploration_must_be_resumed_before_a_node_click'
+    assert list(plan['target']) == resume
+
+
+def test_the_progress_panel_resumes_and_never_offers_another_control():
+    """The panel the map opens prints Resume above Halt Exploration and Cancel.
+
+    Only Resume continues a run that is in progress but not resumed; Forfeit would end
+    it and Config would change settings mid-run, so the planner may only ever offer the
+    bound Resume row.
+    """
+    from maalimbus.window import plan_step
+    resume = [500, 380, 280, 44]
+    plan = plan_step('DUNGEON_PROGRESS',
+                     controls={'dungeon_progress.continue_button': resume})
+    assert list(plan['target']) == resume
+    refused = plan_step('DUNGEON_PROGRESS', controls={})
+    assert refused.get('target') is None
+    assert refused['reason'] == 'continue_button_not_anchored'
+
+
+def test_a_suspended_exploration_is_reentered_through_the_entry_not_continued():
+    """A map that refused three node clicks belongs to a run that was never resumed.
+
+    Measured on `packaged-mirror-20261023-050219`: the pause panel's Continue hands back
+    the same map and the party stays frozen at (1628,562) across eight frames, while the
+    entry dialog's Resume is what re-enters.  So once the refusal streak has tripped, the
+    panel may only offer that window control and that Resume -- never Continue.
+    """
+    from maalimbus.window import plan_step
+    resume = [500, 380, 280, 44]
+    away = [700, 540, 120, 44]
+    plan = plan_step('DUNGEON_PROGRESS',
+                     controls={'dungeon_progress.resume_via_entry': True,
+                               'dungeon_progress.resume_button': resume,
+                               'dungeon_progress.window_button': away})
+    assert list(plan['target']) == resume
+    assert plan['reason'] == 'the_suspended_exploration_is_resumed_from_the_entry'
+    left = plan_step('DUNGEON_PROGRESS',
+                     controls={'dungeon_progress.resume_via_entry': True,
+                               'dungeon_progress.continue_button': [1, 2, 3, 4],
+                               'dungeon_progress.window_button': away})
+    assert list(left['target']) == away
+    assert left['reason'] == 'the_suspended_exploration_is_left_for_the_entry'

@@ -1,0 +1,120 @@
+"""Fail when the packaged Agent/resources do not carry the current source.
+
+Packaged verification executes `dist/MaaLimbus`, rather than `src/`. A fix that is committed,
+tested and *believed* is still invisible to the device until the app is refrozen,
+and a corpus recorded in between is evidence about the old code.  That happened on
+2026-10-23: the heartbeat, the build fingerprint and the silent-death metric were
+all committed while `dist` still sat five commits back, so a whole round of live
+runs could not have contained them.
+
+The content snapshot covers Agent Python and resource assets, not the native
+MXU binary or tools/launch_app.py. An Agent-only rebuild does not certify those
+separately shipped components or GUI behavior.
+
+Usage:
+    python tools/check_freeze.py           # exit 1 when stale
+    python tools/check_freeze.py --json    # machine form for scripts
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+# Only these paths end up inside dist/MaaLimbus.  A commit that touches tests, docs or a
+# tool cannot change the agent, so it must not invalidate the artifact: the first version
+# compared HEAD wholesale and refused a live run after every test-only commit.
+ARTIFACT_PATHS = ('src', 'agent', 'assets')
+BUILD_INFO = ROOT / 'dist' / 'MaaLimbus' / 'build-info.json'
+
+
+def head():
+    return subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=str(ROOT), capture_output=True,
+                          text=True, check=True).stdout.strip()
+
+
+def frozen():
+    if not BUILD_INFO.exists():
+        return None
+    try:
+        return json.loads(BUILD_INFO.read_text(encoding='utf-8')).get('source_commit')
+    except (OSError, ValueError):
+        return None
+
+
+_UNSET = object()
+
+
+def verdict(head_sha=_UNSET, frozen_sha=_UNSET):
+    """``{'state': 'current'|'stale'|'missing', ...}`` -- pure, so it is testable.
+
+    Defaults are a sentinel, not ``None``: ``None`` is the *answer* for "there is no
+    frozen build", and conflating it with "the caller said nothing" is exactly how a
+    guard test passes while the guard is inert.
+    """
+    actual_inputs=head_sha is _UNSET and frozen_sha is _UNSET
+    head_sha = head() if head_sha is _UNSET else head_sha
+    frozen_sha = frozen() if frozen_sha is _UNSET else frozen_sha
+    if actual_inputs and BUILD_INFO.exists():
+        info=json.loads(BUILD_INFO.read_text(encoding='utf8'))
+        snapshot=info.get('source_snapshot')
+        if snapshot is not None:
+            sys.path.insert(0,str(ROOT/'src'))
+            from maalimbus.build_fingerprint import source_snapshot
+            if source_snapshot(ROOT)!=snapshot:
+                return {'state':'stale','head':head_sha,'frozen':frozen_sha,
+                        'reason':'working tree inputs differ from the frozen source snapshot'}
+            return {'state':'current','head':head_sha,'frozen':frozen_sha,
+                    'source_snapshot_verified':True,'reason':None}
+    if not frozen_sha:
+        return {'state': 'missing', 'head': head_sha, 'frozen': None,
+                'reason': 'no dist build-info; run build/refreeze_agent.py'}
+    if frozen_sha == head_sha:
+        return {'state': 'current', 'head': head_sha, 'frozen': frozen_sha, 'reason': None}
+    behind = subprocess.run(['git', 'rev-list', '--count', f'{frozen_sha}..{head_sha}'],
+                            cwd=str(ROOT), capture_output=True, text=True)
+    commits = int(behind.stdout.strip() or 0) if behind.returncode == 0 else None
+    scoped = subprocess.run(['git', 'rev-list', '--count', f'{frozen_sha}..{head_sha}', '--',
+                             *ARTIFACT_PATHS], cwd=str(ROOT), capture_output=True, text=True)
+    touching = int(scoped.stdout.strip() or 0) if scoped.returncode == 0 else None
+    if touching == 0:
+        # HEAD moved, but nothing that ships did: the artifact still carries this source.
+        return {'state': 'current', 'head': head_sha, 'frozen': frozen_sha,
+                'behind': commits, 'artifact_commits': 0, 'reason': None}
+    return {'state': 'stale', 'head': head_sha, 'frozen': frozen_sha, 'behind': commits,
+            'artifact_commits': touching,
+            'reason': 'the frozen app predates HEAD; a live run would test old code'}
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--json', action='store_true')
+    args = parser.parse_args(argv)
+    report = verdict()
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False))
+    else:
+        print(f"frozen {str(report['frozen'])[:8]}  head {report['head'][:8]}  {report['state']}")
+        if report['reason']:
+            print(report['reason'])
+    return 0 if report['state'] == 'current' else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
+
+def runnable(state, *, allow_stale=False):
+    """Whether a live run may start against ``state``.
+
+    A stale bundle is not a style problem: the run would exercise old code and the
+    corpus it produces is evidence about that old code.  So the default is to refuse,
+    and the escape hatch has to be asked for explicitly.
+    """
+    if state.get('state') == 'current':
+        return {'run': True, 'reason': None}
+    if allow_stale:
+        return {'run': True, 'reason': 'stale_build_allowed_explicitly'}
+    return {'run': False, 'reason': 'the_frozen_app_predates_the_source_being_tested'}

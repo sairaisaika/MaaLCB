@@ -1,0 +1,1366 @@
+# 9 端到端修复与学习系统实施计划
+
+[English](../en_us/9-execution-plan.md) · [← 索引](index.md)
+
+<a id="post-passage-review"></a>
+
+### 通过之后复盘，不等下一个错误才复盘
+
+安装版实际跨过修复点后，检视观察到的游戏机制、它证明的生产者/消费者/状态交接和仍缺少的变体。活跃期间只读原生日志/证据并在内存分析，因果复盘留到自然返回或正常维护边界落盘。这是检视修复，不增加审批，也不为复盘暂停健康脚本。先检查相邻页面和间接消费者，再把局部规则推广。比较共享测量与页面专属偏移/回退方案，只在证据支持的范围保留更简单的设计，不宣称全局最优。
+
+本次复盘：共用连线生产者确实跨过原Boss/楼层礼物/主题交接，但前一轮矩阵漏了内部缩放下的有色紧凑图标，尽管已有 `map_vision` 注释早已记录楼层换色。现在补主题×缩放×平移×消费者，而不是再写一个固定蓝色例外。缓存优化初稿还把只要求编码哈希的删除判据误改成必须可解码；5个存储回归暴露了这个变化，因此拆分接口，并实测同语料删除资格完全一致。栈记录初稿的未导入符号也在安装前被测出。保留首轮focused6失败/132通过记录；修正后互有重叠的67与132项focused通过，不当作本次全量或安装版实机通过。
+
+局部Wiki/图示、串行最终回归与干净Agent b62fe4e安装/私有状态/编译身份已核。下一步从当前归属明确的进度面板恢复正常连续任务。通过后再次对照相邻分支检视设计。二至五层、收据/轮换、登录至整局及模型提升均未验收；罪人神经识别仍是shadow/qualityFalse/inputAuthFalse，语义提案采样不授权学习策略控制商店。
+
+最终回归前复核又发现同一连线遗漏：红色分支仍只支持暖色/白线。扩展红/彩色/中性外观×暖色/蓝色/白色路径后，反例暴露了换色箭头被误当节点。随后“完整闭合”假设被实际奖励小标遮断外框的原帧推翻；粗略六分箱也会让开放箭头混过。先测量再定最终规则：原红框白线节点最大角缺口13.84度，保留暖色节点5.88度，合成开放箭头86.66度。红色读法现在对每种路径都测连续环绕覆盖，最多允许缺一个六边形扇区(60度)，保留旧暖色测量优先级；能容纳遮断外框，又不把箭头叫房间。这是有证据范围的几何判据，不是全游戏最优性证明。114项相关检查43.16秒/pytest自身退出0；此前未跑完的全量已明确作废，不计通过。
+
+流程修正：先测保留的正例和反例，再确定识别约束。先写闭合/分箱规则再测原帧，造成了两轮本可避免的回归失败；保留失败反例，不放宽测试，也不等下一次实机失败才学同一机制。最终串行源码回归3920通过/699跳过/516.60秒，pytest自身退出0（build/compact-colour-full-tests-final.log/exit）；干净Agent b62fe4e安装/私有状态/编译身份已核，新实机通过仍待验证。
+
+```mermaid
+flowchart LR
+  I["Installed script"] --> P["Independent passage of repaired blocker"]
+  P --> C["Healthy game task continues"]
+  P --> R["Record mechanism and exact evidence"]
+  R --> H["Review adjacent handoffs and shared consumers"]
+  H --> K["Compare design alternatives and missing variants"]
+  K --> W["Update local Wiki / regression scope"]
+  W --> N["Necessary changes in next serial maintenance"]
+  N --> I
+```
+
+
+
+修复过程复盘：旧主题/平移/屏幕分辨率检查只用了一个保留的内部缩放，因此明知地图另有缩放，70px上限仍漏过。改成更大的常数会重复错误；独立灯距生产者和原生坐标输出同时服务归一化与派发。每次换页就刷新恢复会纵容HOME/resume循环，节点被独立接受才是更小的共用边界。首次全量还暴露本可避免的验证顺序遗漏：新实机日志改变语料审计（三次Resume→LOADING→MAP），所以每轮实机返回后先跑便宜的后继/计划/恢复语料审计，再跑长的稳定源码回归。保留3952通过/699跳过/1失败及原因，不填例外计数，也不把该套件称全绿。这是在证据范围内比较方案，不宣称全局最优。
+
+<a id="current-checkpoint"></a>
+
+## 当前检查点—2026-11-20
+
+**2026-11-21（UTC）：第 5 层通关，停在领奖报价。** 安装版 `b112566` 由 MXU 的「开始任务」启动，MuMu ADB 控制器，续跑同一局 Team2。任务从第 5 层地图进入 Boss 节点，11 个回合后胜利，账本从哈希绑定的 100% 总结页 `frame-0267` 记下第 5 层通关和整局胜利。随后任务按设计停在领奖弹窗，原因是 `reward_module_budget_pending`，Claim 没有发送。弹窗实读为每周加成 3/3 全开、Claim 费用 18 模块。现有预算选项最高 6 模块，执行器也不改每周加成，所以这份报价要么由用户对本局明确授权，要么先在游戏里把加成调到预算之内。这次运行历时 13 分 07 秒、49 次输入，运行目录 `pi-20261120-193352` 留在本机。到账回执、独立 HOME 返回和轮换仍未验收。
+
+这次通过后的复盘有两条。第一条是存储。3 GB 改成提醒以后，任务没有再被容量拦下，上一轮的卡点确实越过了；但这一场 Boss 战留下 269 张原图、约 389 MB，项目目录升到约 3.40 GB，已经高于提醒线。战斗帧的保留密度是下一个要量的东西。第二条是页面身份。49 次输入里有 13 次没有依据。战斗页在单位脚下显示状态计数，位置正好落在教程书的圆点带里，OCR 把几个计数连成一串数字，`carousel_dots` 把这串数字当成圆点行。于是 7 张战斗动画帧被判成 `TUTORIAL`，每张都向书脊角落发了一次点击。其中 6 次之后，「每场战斗只开一次」的倍速开关又被按了一遍，因为这个闩锁跟随的是页面连续性，不是这一场战斗。这些点击落在战斗动画的空白处，这次没有可见后果；同样的误判发生在左上角有返回键的页面上，就是一次真实的错误输入。全部 4,407 张保留帧里，旧规则一共接受 8 个记号，全是这种战斗计数，没有一个真圆点行。源码现在要求圆点行至少八成是环形字形，并补了五个实测反例。这个修正已随后面的重建进入安装版；倍速闩锁的作用域是没有改的相邻缺口。
+
+**同日续记：18 模块报价已领取并入账。** 用户在对话里明确选择全领，也就是 18 模块、每周加成 3/3。源码先补上这份实测报价的识别与执行，见 [4.6.1](4-business-flows.md#feature-4-6-1)，安装版从干净提交 `a2546a0` 重建。MXU 这次启动停在 Windows 的安全提示上，没有出现工作区，所以领奖改用同一安装版 Agent 的无界面入口 `tools/verify_packaged_mirror_loop.py`。运行 `packaged-mirror-20261120-205012` 发出 4 次输入：Claim、Confirm、回执确认、通行证确认。回执页实读 750，通行证等级 203。随后两帧是 `LOADING`，执行器把它当成没有证明的后继而停下，这时奖励已经到账。运行 `packaged-mirror-20261120-205246` 在 HOME 上零输入审计了四份输入报告和各自的原图，写入到账与返回。账本的完成局数从 2 变成 3，没有进行中的局。轮换配置只有 `[2]`，所以仍指向 Team2，多队轮换不能由这一局验收；由一次 GUI 启动从入场跑到领奖也仍未观察到。
+
+这一段的复盘有五条。第一，领奖路径把实测过的报价写死在三处，位置框只量过一位数的费用，所以第一次遇到两位数报价时既读不出也执行不了。第二，执行器不等最后一张回执之后的加载页。源码已经改成在本局回执确认之后把加载页当作有期限的等待，并随 `5c57e55` 的重建进入安装版，还没有在实机上走过。第三，目录超过 3 GB 时证据回收自己启动不了，因为删除清单必须先放进预算。现在按回收之后的占用准入，并据此回收了 226 张没有被引用的中间截图，被引用的帧都在。第四，Agent 启动时仍按 3 GB 硬性检查套接字临时目录，所以「3 GB 只是提醒」只在任务已经启动之后成立：工作区到 3.0027 GB 时 Agent 没能启动。第五，安装版的启动器和 MXU 在这台机器上会被 Windows 的安全提示挡住，这一步只能由用户本人处理，无界面入口是它的替代而不是它的验收。
+
+按用户授权启用了本机冷归档。安装版 `75d4f7b` 保留原索引和配置，把 28 个封存容器迁到有 512 MB 上限的同级目录，为项目腾出 260,003,952 字节。607 张索引原图全部读回，被迁移的 228 张又由安装版编译读者核对。相关本地报告 `build/native-vault-team2-activation.json` 和 `build/native-vault-installed-readback.json`，规则见 [6. 自动容量回收](6-deployment.md#bounded-image-vault)。
+
+同一安装版正常任务 `202015` 从 `MIRROR_ENTRY` 经 `RESUME_DIALOG` 回到第 3 层地图，实际通过上轮存储准入卡点，页面、控件和后继计划都已落入实机日志。地图点击未被接收后，脚本保存返回并再次进入同一局。第二次 Resume 的两张独立画面已明确为 `LOADING`，但 `WAIT_PAGES` 抢在加载页分流前；通用未知页预算以 `page_unreadable_after_waiting` 停止。源码把已有命名加载页时钟放到通用等待前，读清新阶段后清掉旧未知页时间，加载页的轮询继续受加载期限和总期限约束。真实第二次加载到地图还需新的安装版验证。Team2 仍完成层 1、2、未领奖，当前轮换配置仅 `[2]`，因此多队轮换不能由这局单独验收。实机报告 `build/vault-team2-continuous.json`。
+
+第 3 层三次未接收的地图点击对应 `frame-0012/0015/0020`。队伍车头已读准；方向检测到一条向左的光线，却无法将它绑定到任何邻格，误差 129–155 像素。原 box 分支仍用它排除了另一侧已量出的邻格。源码要求箭头真正绑定邻格才允许方向筛选；保留邻格和原有排序与结果判定，不能由方向猜测入账。地图组件同时改读原生楼层与主题包各自的框，避免用楼层标题代替主题包。真实节点能否进入继续由新画面验证。
+
+安装版 `9a64a33` 的连续任务 `193007` 读到第 3 层背景的 `MIRROR_ENTRY`。存储预留检查触发 240 秒看门狗，0 输入。终止栈显示预留进入冷压缩候选的复核证据扫描，终止事件仍只报已结束的观察且页面为空。Team2 保持已完成层 1、2，未领奖，完成计数 2、轮换位置 0。登录诊断维护已释放 8,131,794 字节，原始登录因果帧仍可核验。持续证据容量仍未通过。本地报告 `build/answered-login-team2-continuation.json`。按 [3 运行时 · 页面组件与路径记录](3-runtime.md#page-journey) 让观察、计划、准入阻塞和账本里程碑使用同一局的原帧与日志。整局、领奖、返回、轮换保持待实证。
+
+路径记录版 `b4694c0` 已安装，106 个私有文件和 33 个配置文件保留。实际安装包编译模块回放同一原帧，确认两个入口组件、单帧提议、后继范围、楼层和 `evidence_admission`；模拟切到 HOME 时旧提议退出当前视图。该回放发出 0 次游戏输入。证据为 `build/page-journey-frozen-verification.json`。当前项目余量约 8.5 MB。两个历史容器的内存重打包实验合计只节省 81,520 字节，原截图字节和索引未改，见 `build/cold-image-repack-feasibility.json`。完整续跑需先恢复持续写入余量。
+
+用户交回 MuMu 后，实际安装版 `f94661d` 通过正常 `OpenGameTask` → `MirrorTask` 启动，同一 Team2 仍完成前两层。首次在登录前被存储看门狗终止。经离线重复截图去重，第二次实际通过标题页输入和独立 HOME 后继，随后在镜牢导航前以容量不足停止。账本仍是同一局，完成计数 2、轮换位置 0、未领奖。持续容量是当前前置问题，第三层战斗修复、实际到账、返回、轮换、GUI 启动和模型采用均待各自实机证据。具体字节、两张原图和机制复盘见 [6 部署与运维](6-deployment.md#staged-observation-credit)。
+
+以下为此前安装与回归记录。
+
+实际安装de63542的160101运行发送MAX、未就绪金色表盘、WinRate；原始frame8已配卡/START亮起。只读预留丢弃未发出的提交，frame9已独立新读，却在足额输入再准入前以battle_progress_stalled结束。因此仅补观察实机成立，不能称其后完整输入链通过。build/battle-refresh-live-outcome.json保留19份原始文件、106private/33canonical，目录2,983,506,218字节。机制复盘找到battle_progress和旧内联块对同一HUD重复计数。方案：只保留一个写入者，纯存储补观察不再扣相同回合的停滞额度；普通冻结HUD仍按原上限停止，真实换回合重置，三次补观察/总截止/物理双后继足额要求不变。金色外框不等于配卡就绪，不无测量改视觉阈值。源码反例/修正→全量逐例XML→干净冻结→同Team2正常连续任务。整局/付费收据/模型提升/0048缺口仍开放。
+
+源码已实现：移除旧重复进度块，仅用既有capacity_reobservations标记未发送计划的存储补观察，同回合不重复扣停滞额度。274相关通过/93历史跳过/36.04秒/自身退出0。新增5例包含原始已配卡帧/原生事件包→完整Runner→模拟START派发、普通单次计数/冻结停止、三次刷新上限、真实换回合重置及盲读计数保留。同5例在原04557e8源码全部失败。初版回放夹具漏了原生事件字段，之后又忽略原始帧reader会去掉frame名；均修正夹具，没有改原始记录或游戏门。最终全量XML/冻结/实机续跑仍待完成。
+
+安装前已补相邻生命周期修正：独立命名且非战斗/非加载的页面清掉上一场进度和盲读计数；UNKNOWN、LOADING、BATTLE_TIP、BATTLE_PLANNING保留同场归属，正常配卡观察仍计一次并可停滞。314相关通过/93历史跳过/61.31秒/自身退出0。共新增11例：前5个原始事件/存储衔接，加6种页面生命周期；原HOME/MAP边界反例修前2失败/3通过。初稿因LOADING已命名而误重置，反例发现后用既有is_loading明确排除；配卡夹具改为带可读波次/回合并预期普通一次计数。此前全量为这项必要邻接修正主动中止于35percent/退出-1，未计通过。完整尝试4027通过/701跳过/1项NAV文档失败/843.31秒/自身退出1；第3章双语导航恢复到第3行后，73项Wiki/隐私检查通过82.51秒/自身退出0。运行时SHA与完整尝试完全相同，XML新增11项运行时通过/无更多运行时状态丢失；没有重跑第二次完整套件，不称完整尝试全绿。新增局部图时应先跑导航/格式检查再跑长回归，路由结构不能代替章节布局校验。实际干净f94661d Agent已安装/退出0；549源码、13完整编译身份/自检及实际冻结Runner计数/六个合成页面边界通过；保留冻结原生缓存/容量原帧回放、内存暂存读回。106private/33canonical/19当前原始证据不变。源码/冻结7210引用/143归档报告一致，Launcher未改。build/battle-refresh-installed-verification.json。封闭维护按精确ZIP移除12份重复副本/3,487,105字节，全部唯一字节/packet/当前原始证据保留，目录2,985,782,070字节。新只读检查确认127.0.0.1:16416在线，但前台为com.hypergryph.arknights；尚未启动Limbus续跑，没有创建控制器/发送输入/切换游戏，可用性问题待答。build/battle-device-foreground-readonly-block.json。实际安装f94661d计数修复尚无新实机通过。之后封闭元数据维护移除37份较旧、未选中的重复副本/10,693,655字节，既有ZIP成员逐字节一致，源码引用投影/private/原始证据未变，目录2,978,860,288字节。当前选择和最近两次交接包保留原始JSON；较旧已结束包在历史workflow CLI读取前可能需要按哈希核验native-records.zip成员并解出。见build/battle-refresh-closed-packet-retirement-verification.json及持久manifest；没有移除游戏原图/pending/复核队列或唯一字节。 不称GUIStart/整局/领奖/轮换/模型提升/0048恢复；完整尝试的NAV失败和随后73项Wiki通过仍分别记录。
+
+## 带日期的可行性历史
+
+以下均为历史快照；其中“当前”“最新”“下一步”只描述该快照自己的时间，不覆盖上方当前检查点。局部图和契约继续从任务索引进入。
+
+Actual clean2e4bb27 Agent rebuilt/installed terminalexit0;549source snapshot/self-test/PYZ verify shared supported_path in all3outline readers and connected_node in both candidate/normalization consumers. Prior counter/shared-row/bounded-resume repairs retained.106private/33canonical hashes preserved;33rdfile is the real scoped shop receipt created during prior live run, and all canonical hashes remained unchanged during offline maintenance. Source/frozen storage6770references/775a43ffbc48d6a91f5afaa6d8f88e06a5f26f09fb4d6a52bb62dec96d09e14c match; directory2,815,926,893bytes, Agent/unchanged launcher each3,000,000,000bytes. Proof build/independent-path-installed-verification.json.181affected checks passed, final stable-source full regression still outstanding. Next actual currentTeam2 red/white boss entry and normal continuous run; no physical boss/fullrun/payout/model promotion claim from installation.
+
+Independent path source now also shares connected_node between actual candidates_of and _normalise_view_once, closing the consumer mismatch that could zoom an already visible red goal.181affected checks passed32.30s/ownexit0 (build/independent-path-focused-final.log), including outline x path matrix, original red/white scale/pan/reach, actual normalization with no gestures and whole fake Runner with normalization enabled. Existing threshold/shape/distance/priority stay unchanged; no fixed coordinate, no physical boss success claimed.290Mermaid blocks parse and the local producer/consumer flow was rendered and visually reviewed. Next clean Agent and actual normal continuation; final complete stable-source regression remains outstanding.
+
+Actual installed36f2295 sameTeam2 run packaged-mirror-20261119-071105 resumed HOME/entry/Resume toMAP, selected the previously missing white shop through independent NODE_PANEL/SHOP, refreshed15and30, purchased WristGuards161 with named GET/returning-shelf receipt, and left SHOP. It then stopped naturally no_candidate_node_observed/stop_confirmedTrue before red boss joined by bright neutral path. Active1ff scope retained, no floor/run/payout or model promotion.19original pairs and actual scoped shop state preserved in build/white-endpoint-live-outcome.json; folder2,813,600,139bytes under3GB. Repair review: shared map columns/row calibration removed internal-zoom/ornament assumptions for this shop; next case shows outline colour and path colour are independent, not one combined room class. New plan: one shared path support helper evaluates existing warm/saturated and bright-neutral masks independently at unchanged70percent threshold, used by all outline families while retaining each shape/scale/one-step/uniqueness check. Test appearance combinations and original red/white case plus grey/chevron/missing/ambiguity negatives before installed resume. No fixed boss coordinate or widened fallback. Final stable-source full regression still outstanding; prior full3857pass/1corrected-hook failure is not current full green.
+
+Actual clean36f2295 Agent rebuilt/installed terminalexit0;549source snapshot/self-test/PYZ verify shared map measurements/train-calibrated rows and bound-progress ownership/recovery limit, retaining typed counter fix.106private/32canonical hashes preserved. Source/frozen storage6690references/366a99910338e3df7ebb1c31be8d8365eeadd8649f892799fcd01f4fd80ff33c match; directory2,762,482,981bytes. Agent and unchanged launcher both embed3,000,000,000bytes. Proof build/white-endpoint-installed-verification.json.203affected checks pass; first full3857pass/699skip/1hook failure was corrected but final stable-source full regression remains outstanding. Actual sameTeam2 white-shop entry/continuous run is next; installation is not physical navigation, full-run, payout or model-promotion acceptance.
+
+Source white-endpoint/one-resume repair:128geometry/ownership/cohort checks passed. First full3857passed/699skipped/1architecture-hook failure503.62s/ownexit1; replaced new reason-text dispatch with shared map_dispatch.is_progress_action, also used by existing node ownership.203affected plan/runtime/page/map/recovery checks then passed46.91s (build/white-endpoint-ownership-focused.log). Original163 full-candidate source measurement proposes1124,607 from192px measured columns, train-calibrated rows and original ring/path;0device input/106private unchanged, build/white-endpoint-retained-verification.json. Final complete regression on stable source remains outstanding; do not call current full suite green. Next clean Agent freeze and actual white-shop entry through normal continuous pipeline. Preserve currentTeam2 and3GB; no whole-run/payout/model-promotion claim.
+
+Actual installed9d06636 continuous packaged-mirror-20261119-060820 resumed8to12 without Clear, submitted, completed3battles and reused full saved order by submit-only on encounters2/3. It then omitted the connected white shop, tried invalid alternatives, repeatedly paused/saved toHOME and resumed, ending naturally page_unreadable_after_waiting/stop_confirmedTrue; activeTeam2scope1ff1f6450eb14f27a62db11415e8d9cd remains entered, victoryFalse/rewardFalse. Pause Exploration is save-and-return, not abandonment.12original pairs and current private/state hashes retained by build/deployment-provenance-live-outcome.json. Folder2,759,143,928bytes under3GB. Counter repair review: correct shared producer/consumer fix, unchanged original binding, partial selection and inherited order proven live; avoidable extra full regression came from omitted bootstrap/cohort impact checks. New map plan: reuse existing map_clicks measured badge columns/rows instead of assuming bright-ornament scan sees all internal zoom levels; calibrate repeated row centres against independent train, propose next-column intersections, require original neutral ring/dark centre/bright one-edge path and unique endpoint. No room identity or success follows from a proposal. Bound speculative pause/resume to one attempt until a genuine node transition; returning throughHOME/resume alone cannot renew it. Source then relevant shape/mode/zoom/pan/missing/ambiguity and whole-Runner recovery checks precede final regression/build/live. Not implemented or whole-run accepted yet.
+
+Actual clean9d06636 Agent rebuilt/installed terminalexit0;549source snapshot/self-test/PYZ verify plain fallback provenance, strict new Journal metadata and legacy team_state guard.106private/32canonical hashes preserved, including committed8of12 currentTeam2 transaction. Source/frozen storage6584references/f113907ad5a1e8a32ffc8b2506bc400e09b285384468bdb17813546c2c335de4 match; directory2,441,281,764bytes. Agent and unchanged launcher each embed3,000,000,000bytes. Proof build/deployment-provenance-installed-verification.json.3831full passed/699skipped/539.94s/ownexit0; actual continuous resume is next, not yet battle/clear/payout/model promotion acceptance.
+
+Final serial regression3831passed/699skipped/1duplicate-LICENSE fixture warning539.94s,pytest ownexit0 (build/deployment-provenance-full-tests-final.log and exit receipt).49targeted regressions pass after explicitly fixing diagnostic bootstrap and current-cohort wait declaration. Actual Maa normal/forced fallback8/12 producer→Journal→FrameRef→team_state passed0input/106private/32canonical/original bytes preserved.286Mermaid blocks parse; local dataflow rendered and visually reviewed. Source is ready for clean Agent freeze then normal installed continuous Team2 resume from8/12; no Clear/replay, battle/clear/payout/model promotion credit is inferred.3GB unchanged.
+
+Counter provenance source/native replay passed normal and forced primary-gap cases: actual native8/12 through Journal/FrameRef/team_state,0device input,106private/32canonical and original crash bytes unchanged. First full regression3828passed/699skipped/3failed549.93s (ownexit1): tool bootstrap style and two current-cohort ladder audit contradictions. Fixed tool import convention and explicitly recalibrated PRE_BATTLE_TEAM wait1of3 to rarely, keeping historical3of3, thresholds and runtime ordering unchanged. Current8selected transaction stays preserved; final serial regression and installed continuation remain required.286Mermaid blocks parse, local producer/consumer flow rendered and visually reviewed.
+
+Current actual70f71fc run packaged-mirror-20261119-051846 independently entered the384px white neighbor and pre-battle deployment. SameTeam2scope1ff1f6450eb14f27a62db11415e8d9cd selected/committed first8 of saved order[3,4,9,1,7,2,12,5,8,10,11,6],pendingNone,not submitted. It then crashed team_state AttributeError str.get. Actual frame0026 local_ocr contains13dict records plus3stringified native _Read objects from enlarged participant-counter fallback; producer put attribute objects into provenance and JSON default=str hid the type error. Plan: fallback writes a purpose-named plain-data proof (crop/scale/results) and keeps normalized Text records separate; Journal.frame validates new local_ocr list-of-records/JSON data before writing; team_state ignores incompatible legacy entries without inventing unavailable-card proof or rewriting old evidence. Verify forced fallback producer→Journal→native FrameRef→team_state, malformed/new-write negatives and immutable oldframe/current8selection; serial full regression/freeze then resume remaining cards without reset. Native sinner model inference actually executed in shadow (10–11boxes),qualityFalse/productionFalse/inputAuthFalse; not promoted control. No battle/clear/payout. Preserve rawpairs and current deployment via build/white-map-live-outcome.json;3GB unchanged.
+
+Actual clean70f71fc Agent installed terminalexit0;549source snapshot/self-test/PYZ verify measured white neighbor plus prior glyph/Drive ownership repairs.106private/32canonical baseline hashes preserved; source/frozen storage6498references/0dca6ab975025f48fb50301d2faf0c425f3e6b55c08588e2f3e6d3e12445211c match; directory2,373,304,218bytes. Agent and unchanged launcher both embed3,000,000,000bytes. Proof build/white-map-installed-verification.json.3813full passed/699skipped/499.96s/ownexit0. Actual currentTeam2scope1ff1f6450eb14f27a62db11415e8d9cd continuous resume is next; completed purchases/event are not replayed. No whole-run/login/payout/rotation/model promotion acceptance is inferred.
+
+Current white-neighbor source repair: existing connected-ring owner now measures independent ornament columns, unique train, local dark neutral ring and bright outgoing corridor before returning one native inner target and measured step. General192px fallback and colored lane unchanged; bright_share remains distinct from warm_share.56focused passed, including native-pixel scale/pan and missing-part/grey/two-step/ambiguity negatives. Complete serial3813passed/699historical skips/1duplicate-LICENSE fixture warning,499.96s/pytest ownexit0 (build/white-map-full-tests.log).284Mermaid blocks parse and local measured-neighbor flow rendered/visually reviewed. Actual prior92a3f68 resumed sameTeam2scope1ff1f6450eb14f27a62db11415e8d9cd, entered one real glyph node and completed its event, then stopped before384px white neighbor; no battle/clear/payout/rotation. Raw failure pairs/current pending preserved by build/drive-map-live-outcome.json. Clean new Agent freeze then actual continuous resume remain next; neither whole-run acceptance nor model promotion is inferred.3GB unchanged.
+
+Actual clean92a3f68 Agent installed terminalexit0;549source snapshot/self-test/PYZ verify compact neutral glyphs, frame-report provenance and exact owned-Drive hit reset.106private/32canonical baseline hashes preserved; source/frozen storage6426references/aebe6fc62ec44e101911ead24ab714051a2a0d3fe8b4854bea7378cbfa93a23f match; directory2,308,545,501bytes. Agent and unchanged launcher both embed3,000,000,000bytes. build/drive-map-installed-verification.json.3792full passed/699historical skips/459.92s/ownexit0; before/after same-Context native proof retained. Actual continuous currentTeam2scope1ff1f6450eb14f27a62db11415e8d9cd resume is next. Prior entry/gifts/graces are completed and not replayed; fullrun/login/payout/rotation/model promotion and automatic glyph review-UI ingestion are not established.
+
+Current source repair passed: compact neutral MAP glyph proposals reuse existing lit_icon ranking, with measured boxes/fill/source in journal and frame-bound step reports; exact Runner-owned one-action MirrorDrive resets only its native per-invocation hit.30focused passed/1retired historical skip. Actual same-Context Maa production replay proves one click then skipped dispatch before repair, two distinct successful clicks after repair;9caption/negative cases also pass,0device inputs,106private/32canonical/original bytes unchanged (build/drive-reentry-before-fix-native.json, build/drive-map-after-fix-native.json). Complete serial3792passed/699historical skips/1duplicate-LICENSE fixture warning,459.92s,pytest ownexit0 (build/drive-map-full-tests.log).282Mermaid blocks parse;3local ownership/flow views rendered and visually reviewed. Actual prior6f763e3 task reached Hard floor1 but no battle/clear; activeTeam2scope1ff1f6450eb14f27a62db11415e8d9cd and its purchases remain preserved. New Agent freeze and actual continuous resume are next. Frame labels remain provisional; neither automatic ingestion of new glyph fields into review UI nor model promotion is established.3GB unchanged.
+
+> Earlier checkpoints below retain their original scope.
+
+Actual clean6f763e3 Agent rebuild/install terminalexit0;549source snapshot and actual PYZ verify detector.9/native boxes/shared Drive band.106private/31canonical baseline hashes preserved; source/frozen storage6298references/af3ab9df4596e96ce94eb45360514bbb819d69644f1e58235ca7dbd211650bf5 match. Directory2,195,668,376bytes, both Agent and unchanged launcher embed3,000,000,000bytes. Proof build/drive-event-installed-verification.json.3772full passed/699historical skips/446.18s/ownexit0. Actual current-page normal continuous task is next; not script-login/fullrun/payout/rotation/model promotion proof. Saved ProjectWiki task index was actually delivered by this host SessionStart on resume; that delivery does not check source currentness or establish business completion.
+
+
+Current Drive event-layout repair: same-image native detector.9 over the existing classifier/MirrorDrive band replaces fixed mirror-row OCR, retains actual native boxes and locale guards. Passive Lux probe covers measured old/new rows but grants no input.36focused passed/43historical skips; actual Maa9cases and old/new production one-memory-click handoffs passed,106private/31canonical/original bytes unchanged/0device input. Serial complete3772passed/699historical skips/1duplicate-LICENSE fixture warning,446.18s/pytest ownexit0, build/drive-event-full-tests.log.280Mermaid blocks parse and the local ownership view is visually reviewed. Clean Agent install then actual continuous task follow. Actual prior5e2ba53 run started atHOME, reachedDrive and stopped beforeMirror; not script login/fullrun/payout/rotation/model-promotion proof.3GB cap remains.
+
+实际干净5e2ba53的Agent真实重建／安装退出0，549源码指纹、自检与实际PYZ确认登录后继等待、客户端更新前景和共用计划器。106私有／31规范配置当前基线哈希保持；Agent与未改启动器均为3000000000字节。源码／冻结存储6290引用、ab1d0930f36a7df1d2c27e31ae4fe4a5112a9d53c2e276899d72fefdc1454965一致；目录2,156,385,438字节。build/login-response-installed-verification.json。完整3756通过／699历史跳过／517.35秒／自身退出码0。游戏已更新1.119.1/code494，接下来从实际当前页连续实机；不当整局／领奖／轮换／模型推广验收。
+
+本轮改动：精确客户端更新前景阻止背景TITLE，不授权Close／Go to Store；确认发送一次Start后，用独立观察消耗原有180秒绝对窗口，不重复Start，不结算业务pending。旧55登录运行及迟到提示绑定build/login-response-live-observation.json，实际提示到达时间未知。用户已更新游戏至1.119.1/code494。新源码已安装，实机验收仍待进行，完整通关／领奖／轮换／模型推广仍未验收。
+
+**实际安装已核验；接下来连续实机**：干净55c4872的Agent真实重建／安装退出0，549源码指纹、自检及实际PYZ中的统一计划器／ACK／冷存储读取／维护后继均通过。106私有／31规范配置哈希不变，Agent与启动器均为3000000000字节上限；源码／冻结存储6282引用、ebb0f07205c8f88e20d34cc8e56aab4937fe0f34f453a5d44b4ebaa544ec176a一致，目录2,128,721,201字节。build/service-dismiss-installed-verification.json。完整源码3742通过／699历史跳过／522.76秒／自身退出码0；下一步安装版从实际当前页连续运行，不设中途停页，不操作MAA；不把安装或GUI派发当整局／领奖／轮换／模型推广验收。
+
+**维护旧弹窗的有界恢复修订计划（GUI实证2026-11-19T06:24Z）**：实际GUI开始已到安装版MainTask／Team2，因未关闭的旧维护弹窗0输入停止；这证明GUI派发，不证明当前服务器仍在维护。将这个死路改成每次原生任务最多一次、由当前完整标题和唯一Close拥有的关闭，然后独立重观。保持Maa框内随机350–750ms输入、完整容量准入／维护后重新规划和原总期限；不按无日期的时间文案推断服务可用。
+
+普通未知控件和维护关闭共用 `unknown_exploration.Exploration` 导航尝试／复核所有者。服务通道使用独立固定私有文件与设备scope，但通道中任何pending（包括索引0）都拒绝新reserve。只有Maa实际成功返回才持久化原生派发确认；无确认时，仅独立的正向后继证据可协调，未变化／含糊后继保持pending原字节。完整／部分维护证据、同弹窗仅背景变化、传输／写入失败、pending0和证据变更均需反例。不能为关闭而清掉旧pending、财务状态或人工复核权威。关闭只算展示层迁移，不是收据、旧局归档、过期、通关或模型推广；原图／JSON／前后引用与标签继续进入待复核提案。同次任务关闭一次后又出现维护提示，明确结束，不循环入场或领奖。
+
+退出顺序：真实GUI链与状态保护→共享协议／保留帧检查及实际Maa内存单次关闭回放→串行完整回归→干净Agent冻结与私有哈希保护→从实际页面一次连续成品任务。用户已关闭软件，MuMu未动。GUI标题v0.2.0与独立资源版本v0.1.2分开记录；安装源码指纹5793bc6已核对，不据标题猜测发生了更新。
+
+**Current installed/live checkpoint / 当前实际安装与实机检查点**: 当前实际安装版5793bc6：549源码指纹／自检及冻结字节码中的维护前景、Runner共享消费者、旧局归档否决、单节点派发均核实。98私有／31规范配置哈希保留，Agent与启动器都为3,000,000,000字节；源码／成品容量6254引用与哈希一致。正常安装版OpenGameTask→MirrorTask实测UNKNOWN_DIALOG，旧局归档被否决，server_scheduled_maintenance正常结束，0输入、非超时、stop_confirmedTrue，98／31及账本／pending原字节保持。完整回归3715通过／709历史跳过／590.26秒／自身退出码0；目录约2.045GB。证据build/service-notice-installed-verification.json和service-notice-live-verification.json。通知只写12:00(KST)，无日期；不关闭／重启／重放，也不推断过期、领奖或轮换。Team2／floors[1,2]是保留账本历史，不证明当前服务端仍可恢复旧局。购物学习日志5样本／5自动就绪／神经策略未应用，不证明新增5样本、复训或推广。整局／GUI开始／领奖／轮换／模型推广及实际主机hook送达仍开放。
+
+> Earlier checkpoints are historical feasibility evidence. / 下文旧检查点仅保留原可行性证据。
+
+**Current source checkpoint / 当前源码检查点**: 当前维护前景／单动作交接修复的最终串行完整回归：3715通过／709历史跳过，590.26秒，pytest自身退出码0；唯一警告是重复LICENSE反例夹具。124项相关检查和实际Maa六个字幕案例、一次生产内存点击交接、维护零输入回调均通过。278幅图语法及4幅局部渲染通过并查看。共享通知否决覆盖规范场景、Runner首次／已知重读以及MainTask独立旧局归档消费者。接下来干净安装并验证实际维护拒绝；整局／GUI开始／领奖／轮换／模型推广未验收。目录上限按用户最新授权3,000,000,000字节。
+
+> Older checkpoints below are historical; current source/runtime evidence takes precedence. / 以下检查点为历史切片，当前源码与实机证据优先。
+
+**Current source/native checkpoint / 当前源码与原生检查点**: 当前安装版8ca1b3a已实际通过Drive→镜牢入口，但旧next链越过Runner规划继续入场／确认，遇维护后子任务失败；后续点击被控制器守卫拒绝，正常停止而非超时。98私有／31规范配置不变。新源码已收敛为一次Runner拥有的MirrorDrive动作，并补齐前景通知分类、Runner零输入通知消费者及启动旧局归档的独立否决。124相关通过／43历史跳过。实际Maa生产识别／Click只做一次内存点击后返回；维护图原生回调得到UNKNOWN_DIALOG／完整12:00(KST)说明／零输入（build/service-notice-one-action-native-current.json）。278图语法／4幅局部渲染通过并查看。接下来完整回归、干净安装及实机维护拒绝；恢复时间无日期，不自动重放或推断旧局过期／领奖／完成。维护结束后的当前局核对、整局／GUI开始／轮换／模型推广仍开放。
+
+**Current maintenance/one-action repair plan / 当前维护分流与单动作修复计划**: 安装版8ca1b3a已实际通过Drive→镜牢入口，但Runner发起的MirrorDrive沿旧next链又点击了Enter／确认，遇到服务器维护；任务正常失败，后续点击被已释放控制器守卫拒绝。98安装私有／31规范配置哈希保持。实际通知写明12:00(KST)后可登录。实施切片：仅把Runner拥有的MirrorDrive执行限制为本节点一次识别点击（运行时next/on_error覆写，独立旧流程图不变）；精确中央维护标题优先于背景页面，由共享只读通知消费者在镜牢事务协调与输入前结束。标题不完整的其它字段不授予后台点击；不猜通知日期、不新开局、不归档旧局、不支付、不清pending。先保留帧与反例／失败任务守卫／实际Maa单节点交接，再串行完整回归、干净冻结；服务恢复后才继续实机。
+
+**Current actual installed checkpoint / 当前实际安装检查点**: 实际干净8ca1b3a Agent重建安装退出码0，548份源码指纹／安装自检通过；冻结PYZ包含新菜单helper及观察者调用。98私有文件／31规范配置哈希保留，Agent与未改动的启动器都内嵌3,000,000,000字节上限。源码／成品容量读取6250引用及哈希一致，目录约2.023GB。证据build/drive-menu-installed-verification.json。完整回归3703通过／709历史跳过；下一步读取时钟、进程和实际页面，正常安装版连续续跑同Team2，尚无新实机推进或整局、GUI开始、领奖、轮换、模型推广完成声明。
+
+**Current complete regression / 当前完整回归**: 模式字幕修复的最终串行回归：3703通过／709项历史跳过，575.97秒，pytest退出码0；唯一警告来自重复LICENSE反例夹具。实际Maa生产helper再次通过4张绑定原图和2张遮挡反例，98私有／31规范配置及原始JSON、PNG哈希保留。276幅局部图语法通过，新增两幅已渲染并人工查看。证据：build/drive-menu-combined-full-tests-final.log、对应exit.json及build/drive-menu-native-verification-bootstrap-final.json。接下来干净安装Agent并连续续跑当前Team2；启动器已为3GB。GUI开始、整局、领奖、轮换及模型推广仍未验收。
+
+**Native mode-caption replay completed**: Actual Maa5.12.2 production-helper replay passed four bound retained mode images and two masked-caption negatives, input-forbidden memory controller/zero device attempts. Broken coarseFrame0019 now yields native Inferno.998857 and Dungeons.995119 at the real card target[634,483,90,18]; missing heading/card gives no target.98private/31canonical and original metadata/pixels unchanged. build/drive-menu-native-verification-bootstrap-final.json. This proves actual ROI helper/production card-box geometry, not a frozen callback or live progress; full regression/new Agent freeze/continuous task remain next.
+
+**Current concrete runtime repair**: installed3eb6a81 passed actual login→HOME/DRIVE with folder above old2GB, then normal same-plan guard stop. Split decorative heading skipped local menu OCR, causing falseHOME on shared navigation. Close [same-image mode-caption producer/consumer seam](3-runtime.md#drive-mode-caption-owner), native replay → full regression → clean freeze → sameTeam2 continuation. No new game feature or pending reset.
+
+**Current installed checkpoint**: Actual dual rebuild/install completed: clean source3eb6a81,547source files/current Agent fingerprint/self-test; Agent and launcher embedded workspace constants each3000000000bytes, new startup-owner/reobserve methods present.98private/31canonical hashes unchanged; source/frozen storage6234references digest6992206fec8c2046532f7399ca5ae8ddd992c359c5166efb3a87baff9aea7a1c equal. Directory about1.985GB. build/login-three-gb-installed-verification.json. CurrentTeam2 still entered/floors[1,2]; no new live input yet. Next fresh clock/process/LimbusTITLE then one continuous installed task. GUIStart/fullrun/payout/rotation/model promotion unaccepted; previousTITLE0input failure belongs to olddb1c8d2.
+
+**Latest serial source checkpoint**: Final serial source regression:3689passed/709historical skips/1duplicate-LICENSE fixture warning,523.01s,pytest exit0 (build/login-three-gb-full-tests-final.log). Login direct/recovered fresh observations share one startup owner and maintenance reobserve before intent/attempt/deadline;55focused and79combined/30updater checks passed with overlap. Whole-project source budget is3,000,000,000bytes under the latest user instruction; external updater session1GB and capture/resource/approval bounds unchanged.274Mermaid blocks parse/two local startup views render. Prior installeddb1c8d2 actualTITLE run ended normally0inputs; both Agent and launcher embedded budgets were2GB. Clean dual rebuild and currentTITLE→sameTeam2 continuous task follow; no new live completion/payout/rotation/model promotion.
+
+**Current storage policy / 当前容量约定（用户最新调整）**: User revised the whole-project ceiling to3,000,000,000decimal bytes (3GB). This includes source/git/build/dist/caches/models/evidence and temporary output in the folder. Older2GB runs and measurements remain historical. Capture pair/stop/journal bounds, external updater session1GB, all proof/pending guards and game resource budgets are unchanged. Source Agent/launcher both require clean rebuild before installed3GB acceptance; no game spending is granted.
+
+**Latest actual failure and repair plan**: device released and freshLimbusTITLE observed; installeddb1c8d2 normal0input stop exposed rereadTITLE bypassing startup owner. Reuse startup handoff after the recovered fresh read, share maintenance reobserve before login intent, verify retained/native negative cases → serial full regression → clean freeze → sameTeam2 continuous task. No manual game input/abandon/payout. [Local contract](3-runtime.md#fresh-startup-owner).
+
+**Current installed/device checkpoint**: 2026-11-18 22:55UTC: clean source db1c8d2 actually rebuilt/installed with terminal exit0,547source files/current fingerprint/self-test;98private and31canonical hashes preserved; source/frozen storage parity6230references/3a27ba8262f2a17096ae2e7402ffe39b9d4c8e69667c4e9192cc96732fd40617. Workspace about1.975GB. Evidence build/storage-refresh-installed-verification.json. No live task started: fresh MuMu foreground is Arknights and MAA.exe is present, preserved without switching/stopping/input; availability question pending (build/storage-refresh-live-preflight.json). SameTeam2 ledger remains entered/floors[1,2], no clear/payout/rotation. Continuous installed acceptance/GUIStart/model promotion remain open; no new input or budget authority.
+
+**Latest final source checkpoint**: Final serial regression:3686passed/709historical skips/1duplicate-LICENSE fixture warning,480.98s,pytest exit0 (build/storage-refresh-final-full-tests.log). Wiki navigation repaired without a relaxed rule;272Mermaid diagrams parse and six local lifecycle/replan views render in an isolated browser (build/storage-lifecycle-wiki-render.json). Source/privacy review passed. Clean install and actual sameTeam2 continuous task remain next; GUIStart/full run/payout/rotation/model promotion not accepted.
+
+**Current serial checkpoint**: 105focused pass; first combined suite3685passed/709skipped with one chapter-navigation failure, repaired without weakening the rule; final validation follows. Storage maintenance now discards unsent plans and rereads before input, with bounded retries and exact duplicate ownership. SameTeam2 last provenDRIVE; no complete-run acceptance. Combined full regression → clean install → continuous installed task, in that order. [Contract](6-deployment.md#storage-plan-refresh).
+
+<a id="historical-checkpoint-20261118"></a>
+
+新源码scope／冷回收／占位交接闭包：117／159／53项相关检查通过（有交集）。实际退役11张冷诊断，3225保护哈希／98私有文件保持，581原图／64容器全核，目录约1.973GB。安装版仍cb33fe2、实际一次输入后因容量正常停在DRIVE，同Team2／floors[1,2]；接下来对维护后的真实语料做最终完整回归，再干净冻结和连续原生任务。不加游戏功能、不降低截图边界、不清pending。
+
+2026-11-18最终串行完整回归：3615通过／709项历史跳过／1条重复LICENSE测试fixture警告，430.02秒，pytest退出0（build/runtime-convergence-final-full-tests.log）。混合ANY审计共用运行时successor_ok，旧计数／校准单独保留，真正有限契约缺口与视图矛盾反例仍有效；79份journal哈希不变。实际运行expect／阶梯／输入规则没有放宽。无损归档仍保留591原图／63容器及3309受保护文件哈希，目录约1.973GB。下一步干净源码冻结，安装版从当前HOME连续恢复同Team2；GUI开始／整局／到账／轮换／模型推广均尚未验收。
+
+学习存储最近完整回归3失败／3592通过／709跳过433.42s，历史审计仍保留。导航诊断已消费原动作expect的共享裁决，活跃记录器内较早已回答MAP输入可退休，保留最近两次／当前／外部证明；91相关通过。干净冻结／实机前，先跑合并最终完整套件。
+
+
+
+**当前源码checkpoint**：原始字节消费者闭包已接通，194相关／44最终归属检查通过；真实无损归档56张，62候选身份及3309保护文件哈希不变，591原图／63容器全核。Git13536对象全保留，目录约1.973GB。下一步在实际冷存储语料上串行完整回归、干净冻结，从同Team2当前HOME连续跑；安装源码仍620b245。[消费者／存储边界](6-deployment.md#learning-original-readers)。以下带日期checkpoint属历史。
+
+
+
+**最新实际checkpoint**：安装620b245已证明暂停保存→HOME，随后下一输入前容量拒绝；同Team2/floors[1,2]保留，未完成整局。Hook正常信任／本地已选任务送达和旧Wiki快照原字节保存已核验；主机真实送达仍未观察。下一修复是[原始字节消费者闭包](6-deployment.md#review-original-storage-boundary)，先证raw/cold读取一致，再启动下一轮安装版。以下带日期源码／安装说明属历史。
+
+
+
+**2026-11-18 14:09 UTC 源码checkpoint**：唯一车体位置已接到native map_player和导航；暂停确认须绑定完整保存并返回问句及既有意图。115相关通过/2历史跳过；完整3失败/3565通过/709跳过419.25s，仍是原三项历史审计。冻结前桌面仍874709a；它上一轮在暂停确认前因容量正常退出，同Team2/floors[1,2]保留。核验Git重复对象及缓存维护后约1.975GB，尚非整局余量证明。下一步冻结安装并由脚本连续续跑；[局部归属](4-business-flows.md#train-anchor-projection)。以下带日期checkpoint均属历史。
+
+
+
+**最新安装（2026-11-18 13:08 UTC）**：clean874709a Agent实际重建／安装退出0，自检和546源码指纹匹配；98安装私有／31canonical保留，源码与冻结存储诊断的6196保护引用及digest一致，目录约1.963GB。证据`build/archive-page-readers-installed-verification.json`。完整3失败／3536通过／709跳过仍保留；接下来同Team2正式入口连续续跑，不能当整局／GUI开始／长期容量已验收。
+
+Final complete regression against the actual archived corpus:3failed/3536passed/709skipped in416.22s, pytest exit1 (`build/archive-page-readers-final-full-tests.log`). Same three historical ladder/successor census failures, unchanged skip count. The earlier post-archive attempt is explicitly incomplete, not a pass. New storage/reader changes require frozen installation and live same-run continuation; no full-run capacity, GUIStart, payout or model-promotion acceptance.
+
+
+**最新存储检查点（2026-11-18 12:31 UTC）**：正式安装44add20实际pinch并读到新MAP，随后下一drag因容量不足在发送前拒绝；Agent和host均正常结束，同Team2／floors[1,2]不变。源码现将与页面无关的无损归档和领域授权的永久诊断回收分开。113项focused通过；实际16批次使535份逻辑原图／52容器全部可验，3338份保护原图／配置／模型／复核／metadata哈希不变，目录1,962,145,489字节。接下来对已归档原件完整回归、冻结源码、连续续跑本局；GUI开始／整局／领奖／模型晋升仍未验收。[冷存储资格](6-deployment.md#archive-page-ownership)和[词典](1-overview.md#glossary)定义语义；以下较早检查点均为历史。
+
+**当前检查点（2026-11-18 12:05 UTC）**：正式安装 Agent 来源 af31f4b（callback 生命周期／当前帧 NODE_PREVIEW 修复），已实际从 TITLE 经 HOME／DRIVE 回到同 Team2 第3层 MAP；scope13e46c794c8445d199a634de6d815c05，账本floors[1,2]／未clear／未领奖。随后容量检查反复解压旧图，90秒看门狗结束 Agent，pinch 尚未获许可或发送；已证明 Agent 退出并仅关闭其孤立 host，未重启游戏／清 pending。OpenGame 的旧成功结果不能当 Mirror 成功；硬退出后的报告／host 收尾仍开放。
+
+**当前源码修复与下一步**：一次容量 plan／reserve 共享有界原字节读取会话，实际索引／容器每次仍验 SHA，原图损坏不回退，回收资格不改。118focused通过；完整3失败／3510通过／709跳过409.74秒，原两个ladder语料审计与successor统计未关闭。实际只读计划22.83秒；完整原规则预留／回收51.56秒，924受保护文件哈希不变，目录1,985,127,595字节。还需冻结新源码并连续续跑本局，不将局部检查当GUI开始、整局容量、领奖或模型晋升验收；未来真实付费仍需当前scope预算与fresh成本。局部时序与实证边界见[原图读取会话](6-deployment.md#original-read-session)。
+
+以下是早期可行性切片的历史记录；其中“当前”只指记录当时，不覆盖上面的检查点。
+
+**当前FrameRef切片（2026-11-18，源码／原生离线）**：已复现并修复事件战斗帧混入更新商店OCR／哈希；公共不可变FrameRef由自身原始JSON／PNG验证创建，MaaObserver与捕获策略共用，不改变领域UNKNOWN／消费／标签授权。68focused、111related／77跳过及真实原帧／原生SDK引用字段验证通过；全量6失败／3420通过／709跳过363.44秒，原六项。后续冷启动串联harness与Wiki等92项通过，成品启动仍待实测。240图解析、新时序／FrameRef数据字段中英渲染，62路由；完整Observation／像素访问／executor仍开放。597私有配置／复核／模型文件未改。用户已交还MuMu，Android已上线，ADB仅重连16416；当前实际为Android桌面、Limbus已安装。随后冻结新Agent，再经现有OpenGameTask→MirrorTask连续实测；不重放旧Team2操作。
+
+**当前安装验收（2026-11-18 02:05 UTC）**：clean源码2f724c8实际冻结／安装、自检与545源码指纹匹配。成品原生代理完整验证战斗1920→1280及跨页独立1920，正式MirrorLoop只读零输入；普通IPC仍15actions／正常退出。1280和1920各2例真实转盘正例／擦除反例通过。98安装私有、31canonical、597配置／复核／模型文件及模型权重不变；目录约1.973GB。全量6失败／3385通过／709跳过（367.95秒，原六项）仍未全绿。238图实际解析，中英预览标题和缩放真实验证；词典／运行时／部署／迁移计划与60路由同步。MuMu01:55仍Android未启动，未启动／切换游戏，当前无游戏控制器；同Team2第三层第2回合只是最后历史实证。无GUI开始／新通层／领奖／轮换／模型晋升／整局容量验收。见`build/capture-profiles-installed-real-verification.json`与[局部尺寸时序](6-deployment.md#battle-capture-profile)。
+
+**当前捕获切片（2026-11-18 01:59 UTC，源码已验证／待安装）**：合格战斗HUD可1280，跨页或小图不足同期限独立1920；两次读取复用统一入口，输入前预留两对最坏大图容量。原生跨Agent与正式MirrorLoop只读通过、零游戏输入；商店只读跳过交易／标签写入，实际购买仍需scope。最终全量6失败／3385通过／709跳过，367.95秒，自身退出1，原六项；最初新增四项已修复。238图实际解析，中英新增时序实际渲染；词典及运行时／部署／迁移计划与60路由同步。597配置／复核／模型文件不变。当前安装仍2978cfa，随后仅在无活跃控制器时冻结验收；MuMu01:55仍Android未启动，未启动或切换游戏。不是实机续跑、模型晋升或整局容量验收。见[捕获尺寸与容量](6-deployment.md#battle-capture-profile)。
+
+**当前增量（2026-11-18 00:39 UTC）**：封存报告gen6已实际启用，23份报告原字节／SHA按旧路径读回，143成员；3,375份原始配置／截图／复核／模型文件未改，5,888个保护引用与已安装Agent读取一致。gen4／gen5旧ZIP均已精确重建校验，软件组件未替换。33相关测试通过，完整6失败／3353通过／709跳过（365.24秒，原六项），目录约1.969GB；不是长期容量或实机进展。MuMu实例仍未启动Android，无新游戏输入；同Team2最后实证第三层第2回合保留。下一步最终文档验收与已计划实机续跑，不能重放旧操作。
+
+**当前续作（2026-11-18 00:16 UTC）**：Agent2978cfa实际冻结／安装退出0，自检与544源码指纹匹配、来源clean；98安装私有／31canonical文件及assets保留。安装回调经原生TCP（沿用MXU已有设置）在1280／1920各14例全部通过，含缺价格／缺余额反例及真实推理参与要求，每个子进程正常退出。原生1280战前样本11个边线验证ROI／10个未复核框；1920样本12ROI／11框，原始捕获交Maa检测，质量仍False，未晋升／训练。597份配置／复核／模型元数据与权重不变。第一次新冻结验证9通过／5因容量拒绝；软件关闭时仅回收22,949,109字节可重建WebView缓存，再验收通过，目录约1.973GB，未删除原帧／标签／事务。82相关与50Wiki隐私通过；完整6失败／3339通过／709跳过，362.30秒，自身退出1，原6项历史缺口未消除。实际Mermaid解析先发现14张坏图，修保留ID和分隔标点后234／234通过；新增神经时序中英均实际渲染，不代表业务E2E。当前MuMu实例RPC返回is_android_started=False／is_process_started=False，ADB列表空且已知端口关闭；MAA进程仍在，没有启动或切换游戏／控制器。Limbus最后实证仍同Team2第三层第2回合／floors[1,2]，无clear／领奖／轮换。GUI开始／完整镜牢／低分辨率付费路径与长程容量均待验。见6.8.1／capture-neural-calibration。
+
+**神经购买排序复核（2026-11-16，已实现并安装；真实质量仍待验收）**：已完成原计划的 hash 绑定、runtime 留出重算、篡改反例和隔离训练导出闭环，新增逐报价分数与参与状态日志。安装版实际执行留存模型的假设输入预测，与源码一致，无设备输入或真实配置变更。当前候选仍为 shadow，原始购买语料缺失，不能宣称正式策略已应用。实现、局部图与证据边界见 9.4.1。历史下一格标注与后期一步规则的冲突已用原始像素及箭头擦除反例核实，见4.15。地图修复现已安装并取得局部进房实证，不能据此验收整局或模型质量。
+
+**更新容量阶段（2026-11-16）**：按 6.4.5 的计划接通并安装单会话更新/回滚；实际 frozen 验证又暴露 TEMP 回退到 helper 的差异，已改为项目同级固定目录，1 GB 临时上限与 2 GB 项目上限分别核算。102 项相关测试通过、1 跳过；成品 helper 跨进程恢复隔离中断样例全部 3 份文件，真实配置未变。完整生产 candidate、公开交付、GUI/桌面快捷方式断电恢复仍开放。最近完整套件 7 failed / 2656 passed / 710 skipped，259.21s，先于最后的 TEMP 定位修复；不能用窄测试宣称全绿。实证与路由见 `update-capacity-recovery`，本阶段没有游戏输入或领奖进展。
+
+**2026-11-16 补记**：保留以下历史规格与证据；本轮事实和待验证工作分别见 9.1、9.3、9.3.1、9.4、9.7。历史日期、旧实机进度和旧绿灯不能代替本轮验收。
+
+这是 **2026-10-14 的执行规格**，不是功能完成报告。执行者 DSH；Codex 负责架构、接口、完成判据与复核。事实源仍是 `PROJECT.md`、`docs/design.md`、`docs/acceptance.md`。每张看板卡必须带本文阶段编号、依赖、变更文件、验证命令和实际证据；“开始做”“单测绿”“截图变了”不能关闭阶段。
+
+这是可裁剪的技术计划，不增加代码锁、审批或强制全站阅读。按当前问题从[短索引](../agent-index.md)进入相关阶段，独立工作可以并行；执行者报告读过的路由与实际差异即可。
+
+**当前实施段**：冻结观察器与神经尺寸修复已安装并回放验收；待MuMu Android实际可用后先重新读取当前页，再续同一Team2。最后页是第三层HUD而非MAP；不重放部署、START、礼物或GET，不以旧scope预算支付本轮领奖。
+
+## 9.1 当前基线与工作分工
+
+实际渲染检查234张图发现14张语法错误，主要为保留actor名Loop及消息中未转义的分号。仅修正局部标识符／消息标点，保持交互语义，再重做全图解析和新增神经时序图渲染；解析不等于实现或实机验收。
+
+**本段结果**：计划已执行，两个成品尺寸各14例通过、28个诊断会话正常退出；神经质量／正式输入仍不授权。实际解析234／234、两个新神经图已渲染。原生实机尚不可用；不得将诊断重放当新训练局次或整局通关。证据：build/neural-capture-installed-real-verification.json、frozen-observer-1280-capacity-recheck.json、frozen-observer-1920-final.json、neural-capture-wiki-mermaid-final.json。
+
+**本段原实施计划：冻结观察器IPC（2026-11-17；结果见上）**。复用`tools/verify_packaged_agent_ipc.py`，在实际安装子进程连接期间执行有界只读探针；扩展既有截图尺寸验证器，不再造观察器。加载安装资源，仅以期望scene调用`limbus_scene`，使用禁止输入的重放控制器与隔离临时配置／证据。绑定实际exe、原生库、构建metadata、原始／缩放像素与新Journal结果，并要求正常断开退出。重用缺价／缺余额反例，记录原生神经参与及待复核标签状态。临时副本有界且在所拥有原生进程结束后清理；原始证据和真实配置不变。只验收冻结回调／IPC／资源集成，不冒充GUI开始、通关、策略晋升或新的训练局次。
+
+首次实际冻结1280运行14例中13通过，战前神经要求失败：虽然shadow／model_trained存在，实际verified ROI为0、未执行原生推理。修复尺寸这一机械依赖：与星光读取共享校准分析机制，战前页仍独立核原生标题及四边线；ROI回到捕获坐标后，将原始捕获交Maa NeuralNetworkDetect，不把网格位置当身份、不降阈值、不晋升质量。两种尺寸都重做源码及冻结探针。TCP已成功，IPC拒绝及临时路径写失败保留实证；跟随安装MXU通讯设置，临时证据在项目内有界保存，不更改系统权限。
+
+<a id="feature-9-1"></a>
+
+**最新只读现场核对（2026-11-16 19:34 UTC）**：ADB device 在线，Limbus 为 Android resumed activity；随后 Maa Null-input 观察为 STAR_GRACES，设备输入 0，见 `build/resume-20261116-followup-readonly.log`。Map 专用探针因当前不是 MAP 返回 1，不能翻译为“ADB 未上线”。历史截图 HOME 与本次 STAR 是不同时刻；不把旧现场描述沿用到新报告。
+
+**本轮状态（2026-11-16）**：最新完整套件为 **7 failed / 2631 passed / 710 skipped，退出码 1，252.35 s**，见 `build/resume-20261116-post-map-fix-full-tests.log`。此前完整套件分别有 47 和 25 项失败；历史证据缺失、归档统计及真实下一节点推算偏差仍开放，不能称全绿。该完整运行早于后续 startup stage 失败回退修复，后者更新/安装窄测试为 78 passed / 1 skipped。最新 Agent 与 launcher 独立安装均保留 **98 份安装私有文件、28 份 canonical 配置**；组件安装不证明 GUI 链路、正确选队或通关。
+
+**现场与入口边界**：ADB 已通过 `127.0.0.1:16416` 正常连接；source/Maa in-process 限 10 步运行 `evidence/runtime/packaged-mirror-20261116-132550` 记录 23 帧 HOME → DRIVE → STAR_GRACES，以预设 `stop_page_reached` 停止，星光/模块输入 0。这不是成品 GUI 通过。入口默认曾错用 Team1；一次 `recover_unspent_entry` 原生箭头回到 MIRROR_ENTRY，四份 canonical hash 不变、无星光/模块输入，只能形成“返回菜单”的 human-review 候选。后续 source MainTask resume 又回 STAR_GRACES，说明尚未证明取消/到达队伍编辑器，**Team2 重配未完成**。`pi-20261116-135906` 还暴露 host 目录不同使 driver 报 missing；env binding 已修，不等于 GUI 验收。canonical old scope 与中间 team/entry proof 仍须核对。
+
+整个文件夹（含临时构建）的硬上限是 **2,000,000,000 bytes**。本轮约 2.25 GB → 1.74 GB → 安装后 1.896 GB → 清理后 1.884 GB，最新约 **1.919 GB**；dist 实际 runtime 保留。`Journal.frame` 无损 PNG level 6 压缩并写前核 cap；semantic/exploration 额外副本写前 reservation。安装器只保留一个有界 OS temp rollback 到验证/cleanup，不在 project 堆第二 Agent。cap 内不主动删帧，pending、模型与 review 引用的证据受保护。以下表格保留历史基线，不当作当前页面。
+
+| 事项 | 已核对事实 | 尚不能声称 |
+| --- | --- | --- |
+| 星光余额 | 原失败帧75在 only_rec 模式低于.85；两框检测后识别与隔离恢复已有证据，见 `src/maalimbus/grace_balance_native.py:1`、`src/maalimbus/grace_transaction.py:120` | 每种界面变体都可靠，或历史购买都已到账 |
+| 原生导航 | `agent/recognition.py:1410` 的 AgentTasker 通过 Context 执行子节点；源码252c0d2修复了 Device 未携带适配器的问题 | 源码修复即等于所有安装实例已经更新 |
+| DSH新进展 | `build/grace-stop-page-star-graces.json` 记录成品入口3输入到星光页；运行报告明确 dungeon_complete=false。随后私有事务已有四卡选中记录，必须与该局原生帧逐笔对账 | 三次输入等于镜牢跑完；只读事务记录等于完整实机验收 |
+| 设置与评分 | 定制MXU已构建安装；GitHub按钮已实际显示；评分输出在 `src/maalimbus/decision_log.py:1` | 头像/星光配置保存重开均已验收，或影子分数决定了购买 |
+| 模型与占用 | `src/maalimbus/neural_shadow.py:1`、`src/maalimbus/shop_value_shadow.py:1` 区分识别、影子预测和控制策略；`src/maalimbus/resource_diagnostics.py:1` 已有采样器原型及只读CLI，GUI仍待实现验收 | 有模型文件就已经用于策略；整卡占用就是脚本占用；后端采样等于面板完成 |
+
+同一时刻只有一个设备控制器。DSH可以并行做纯离线数据/文档/监控实现；实机输入必须串行。Codex更新本章与接口，DSH更新实际验收记录；不覆盖对方未提交修改。每次开始先重读 git、安装清单、当前运行状态与最新截图，不把上述快照当当前游戏画面。
+
+```mermaid
+flowchart TB
+    subgraph truth["事实源 / sources of truth"]
+        P["PROJECT.md 当前进度"]
+        D["docs/design.md 设计约束"]
+        A["docs/acceptance.md 验收口径"]
+    end
+    C["Codex：架构、接口、完成判据与复核"]
+    S["DSH：实现、实机验收、双语回写"]
+    G{"同一时刻只有一个设备控制器"}
+    O["离线：数据、文档、监控可并行"]
+    L["实机输入：串行；输入前记录意图，输入后核后继"]
+    C -->|写入本章与接口| truth
+    S -->|写回实际验收记录| truth
+    truth -->|每次开始先重读 git、安装清单、运行状态与最新截图| S
+    S --> G
+    G -->|控制权空闲| L
+    G -->|控制权被占用| O
+    O --> S
+    L -->|命令、报告、原生帧| A
+```
+
+## 9.2 依赖、看板与阶段出口
+
+<a id="feature-9-2"></a>
+
+| 卡号 | 依赖 | 具体实施与产物 | 关闭该卡需要的证据 |
+| --- | --- | --- | --- |
+| P0 现场对账 | 无 | 核对活动局、历史星光意图、实际页面和安装版本；为未结意图选择“核账成功 / 已取消并保留历史 / 仍待证明”分支 | 同scope的前后PNG/JSON/hash、可见余额与成本、无重复购买；现场结论写回验收 |
+| P1 实际启动管线 | P0 | 安装正确适配器；从GUI Start经过MainTask、MirrorLoop和原生子节点；把GUI模式/目标队伍/ledger/游戏选中标题关联 | GUI启动日志、正确Agent和资源版本、真实页面推进；不能用另一个CLI入口替代GUI点击 |
+| P2 镜牢核心循环 | P1 | 地图→事件/战斗→奖励→商店→换层；部署顺序正确则复用；逐个修复后继失败并恢复 | 至少一局Hard五层实际clear；每层、每笔购买/刷新/GET与后继可追溯；脚本自己操作，人工点过不算 |
+| P3 设置与可解释日志 | P1；发布依赖P2 | 四十队槽、头像点序、星光基础卡、单队/轮换、独立运行次数与步数/时间上限；候选权重和最终分 | 保存→正常关闭→重开→原生参数→真实队伍标题一致；反复启动不重复应用；实际日志含分项、决胜规则、拒绝理由 |
+| P4 本地资源占用 | P1后可与P2并行 | 按9.6契约实现CPU/RAM/GPU/VRAM采样与GUI；采样独立于控制器 | 与独立只读工具同时间窗对照；缺供应商/超时/进程退出/开关关闭测试；关闭采样后无后台忙等 |
+| P5 学习闭环 | P2的真实轨迹；可先离线收集 | 按9.4/9.5形成证据包、标签、复核、分集、训练、Maa原生评估、影子对照和可回滚晋级 | 独立episode隔离；模型、数据集、教师、评估hash；真正使用模型的节点日志；未晋级只能明确标为shadow |
+| P6 整体验收与交付 | P2、P3、P4、P5 | 合并后的最新代码完整测试、成品自检、GUI启动及连续运行验收；核wiki/图/实现差异 | 9.7逐项勾选的证据目录、最新安装版本、无遗留未解释失败；公开发布另过许可/隐私/更新门禁 |
+
+```mermaid
+flowchart LR
+  P0["P0 现场与未结意图"] --> P1["P1 GUI真实启动"]
+  P1 --> P2["P2 五层核心循环"]
+  P1 --> P3["P3 设置与评分日志"]
+  P1 --> P4["P4 本地占用采样"]
+  P2 --> P5["P5 学习闭环和晋级"]
+  P2 --> P6["P6 合并后的整体验收"]
+  P3 --> P6
+  P4 --> P6
+  P5 --> P6
+  P6 --> CHECK{"wiki、图、实现、实证一致？"}
+  CHECK -->|否| REPAIR["回到具体缺陷卡并修正规格或实现"]
+  CHECK -->|是| ACCEPT["提交完成矩阵；另行判断发布门禁"]
+```
+
+P0/P1已有局部证据，仍需本轮最终核验；P2–P6不能批量标完成。遇到新缺陷就在对应卡追加“触发→原始证据→假设→修改→正反例→重新运行”，不要另开无关联测试然后宣称旧失败已解决。
+
+## 9.3 失败后的自动恢复与运行次数
+
+<a id="feature-9-3"></a>
+
+**同局恢复修复（2026-11-16，源码/留存回放层）**：游戏 scope 与 recorder 目录不是同一个身份。`FloorGiftTransaction.retire_stale_run` / `retire_stale_commit` 不能因换录制目录、重启观察进程或 OCR 漂移而退休同局未结事务。另一张卡的 trial OCR 改变，只要已发送选择的目标、原始证据与计数仍可核对，就恢复该选择而不重发；这不自动成为 gift 收据或楼层完成。安装后真实后继验证仍待继续。
+
+```mermaid
+stateDiagram-v2
+  [*] --> Pending: 同一游戏scope，输入已发送
+  Pending --> Retained: recorder更换或trial OCR漂移
+  Retained --> SelectionRecovered: 原目标和独立选择证据仍匹配（源码修复）
+  Retained --> Unproven: 目标或证据不符
+  Unproven --> Retained: 保留pending，有界重观察
+  SelectionRecovered --> ReceiptVerified: 计划：实机核收据与独立后继
+  note right of Retained: 不退休同局，不重放已发输入
+```
+
+未知不等于立即结束整条任务。先辨别：等待动画、识别缺失、可逆遮罩、已发送的交易、未知游戏效果、需要新资源预算。允许的已知动作通过Maa执行；未知效果可以在既有有界探索和玩家预算内选择，并把不确定性记入评分。**读不清购买结果时重读核账，而不是重复购买。**
+
+```mermaid
+sequenceDiagram
+  participant U as GUI Start
+  participant R as MainTask and Runner
+  participant M as Maa识别与控制
+  participant T as 持久事务
+  participant E as 证据与标签包
+  U->>R: 实际配置、队伍和运行次数
+  R->>M: 新鲜识别当前页面
+  R->>T: 校验scope并记录一次动作意图
+  R->>M: 一次有界动作
+  M-->>R: 独立后继观察
+  alt 后继已证明
+    R->>T: 结算一次
+    R->>E: 结果、截图、候选标签、来源
+    R->>R: 继续下一步
+  else 缺少识别或暂时未变化
+    loop 有界重观察；不重发交易
+      R->>M: 新截图和独立读取
+      M-->>R: 当前事实或仍未知
+    end
+    R->>E: 保存失败结果和待复核标签
+    R->>T: 能核账则结算，否则保留意图
+  end
+  Note over R,E: 可逆遮罩按锚点关闭；安全候选探索记录每次结果
+  Note over U,T: 通关次数仅在clear、到账和返回均证明后增加
+```
+
+每种动作明确次数/时间/无进展预算；星光购买已有最多3次只读重观察，其他动作不能照搬该数值当无限重试。候选尝试必须记录动作区域、前后画面、是否改变目标页面。达到该动作的上限才暂停该分支；能独立进行的采样、离线训练或缺陷修复继续。弹窗关闭不能变成未经确认的付款。
+
+运行次数是玩家设定的完整局数，必须与“单次运行步数上限”和时间上限分离。“沿用保存值”只读取保存配置，不能从部署人数、队伍数量或循环步数推导局数。重复N局需要逐scope消费预算；预算不够时保留已clear待领奖状态，不能冒用历史6模块授权。
+
+**已落地（2026-10-14）**：玩家可保存的完整局数是 `Settings.run_count`（`src/maalimbus/runner.py:158`）与 PI 选项 `mirror_run_count`（`assets/interface.json:68144`），由管线节点 `MirrorRunCount`（`assets/resource/base/pipeline/mirror.json:5579`）承载并在 `src/maalimbus/mirror_task_options.py:9` 读取。达标判定只认账本增量：`MirrorRunner._run_count_reached`（`src/maalimbus/runner.py:1393`）用 `RunLedger.completed_runs` 减去本次启动基线，而该计数只在 `entry_returned` 后 +1（`src/maalimbus/storage.py:287`），账本对缺少五层、胜利或已领奖的返回一律拒绝。达到玩家N局时窗口以 `run_count_reached` 停止（`src/maalimbus/runner.py:2807`），步骤记录与 `summary()` 带上 `verified_runs={target,completed}`（`src/maalimbus/runner.py:3196`），日志打印 `verified runs: x of y this launch (z in the ledger)`（`src/maalimbus/event_log.py:149`）。**尚未实测**：本窗口还没打完一局（实测时仍在楼层1），该停止路径目前只有单测覆盖。
+
+```mermaid
+stateDiagram-v2
+  [*] --> Preparing
+  Preparing --> Running: 队伍和入场后继证明
+  Running --> Recovering: 未知或缺后继
+  Recovering --> Running: 新观察证明进展或安全探索成功
+  Recovering --> Held: 有界尝试无进展
+  Held --> Recovering: 已诊断修复后恢复，不重放未结交易
+  Running --> Cleared: 五层与最终胜利证明
+  Cleared --> AwaitBudget: 本scope消费预算缺失
+  AwaitBudget --> Claiming: 明确预算及新鲜成本
+  Cleared --> Claiming: 明确预算及新鲜成本
+  Claiming --> Returned: 实际到账回执和独立返回
+  Returned --> Counted: 完整局数加一，仅一次轮换
+  Counted --> Preparing: 尚未达到玩家N局
+  Counted --> [*]: 已达N局
+```
+
+### 9.3.1 GUI Start到原生子节点的实际适配链
+
+<a id="feature-9-3-1"></a>
+
+**Agent 启动的两层 IPC 根因与下一层控制权（2026-11-16）**：系统 TEMP 的 `xrpg*` CreateDirectory 返回 AccessDenied，libzmq `make_fdpair` 内部 AF_UNIX 因而 connect 空地址，继而 bad FD/epoll；外层 `C:/Temp` AF_UNIX 另有 89 次 WSA10013 / NTSTATUS 0xc0000022（`build/owned-agent-outer-ipc-summary.json`）。owned-child 短可写 TEMP/TMP 加 `AgentClient.create_tcp(0)` 原子 loopback TCP 才是配对修复：`build/owned-agent-temp-paired.json` 注册 15 actions/exit 0。早先 TCP 或 socket 初始化单独失败不等于该组合失败；不是 DLL 坏或 UAC 要求，没有改系统 ACL/TEMP/Firewall。`native_agent.native_temp` 上下文与 AgentMain 已安装，MXU 仅把已有 `settings.tcpCompatMode` 置 True，其他 user JSON 值和游戏预算保留；`build/resume-20261116-native-temp-tcp-accepted.log` 再证 15 actions/exit 0。随后成品 MirrorTask 暴露 AppData controller.lock 不可读而误报 another_controller_owns_game；source 可独立拿锁、CIM 无 controller。`ControllerLease` 现将既有 controller 互斥迁到 Win32 Session named mutex，其他非 controller 文件锁不变；跨进程/线程和旧 installer 检查 43 passed / 1 skipped。成品重建已完成：原生 mutex 自检通过，source 持同名 mutex 时 frozen Agent 独立拒绝获取；随后成品 MirrorTask 经 TCP 注册 15 actions，实际观察 STAR_GRACES 并按预设 stop page 结束，0 input（`build/resume-20261116-packaged-main-task-native-fixed.json`）。这只证明成品 dispatch/观察，不是 GUI 点击、Team2 正确入场或通关。最新组件安装保留 96 份私有文件与 28 份 canonical 配置。路由：`agent-ipc-startup`。
+
+**原生中间页交还（源码/管线检查）**：MirrorEnter/MirrorEntryConfirm 经只读节点停在 DUNGEON_TEAM，DungeonTeamConfirm 停在 LEVEL_WARNING；15 新测试与指定组 56 passed / 18 skipped 支持这些 handoff，不支持“所有入口完成”。遗留 MirrorHard 独立路由仍开放；必须用实际中间页证明队伍和入场，不能把一次菜单返回或后续回 STAR 当成 Team2 重配成功。
+
+**坐标层调查（2026-11-16，原生 callback 已证实并修复）**：`tools/verify_controller_coordinates.py` 调用了 installed Maa **5.12.2** 实际 DLL（SHA256 `b22e9ac36f9fe6ffadd13afa405d6cc6759f1fdd7ed763e0a88e2e5c8f8d4e06`）与内存 custom controller。raw 1280×720、recognition 1920×1080 时，旧 runner 手动 `wm size` 缩放再经过原生 `ControllerAgent` 的 frame→raw 转换，点击收到 (427,240) 而不是 (640,360)；`build/controller-coordinates-native-before.json` 基线退出 1。去掉手动缩放后 direct/pipeline 两类 click/swipe 共四条路径全部 exact-match，`build/controller-coordinates-native-after.json` 退出 0，**设备输入 0**。原生实现参考 [MaaFramework v5.12.2 ControllerAgent](https://raw.githubusercontent.com/MaaXYZ/MaaFramework/v5.12.2/source/MaaFramework/Controller/ControllerAgent.cpp#L967)。ADB 随后已连接，source/Maa 限步运行已推进到 STAR_GRACES；这只证明该入口推进，不证明成品 IPC/GUI 或完整游戏落点链。下一步核 canonical old scope 和 native 中间 team/entry proof，继续核重建后的 controller mutex、队伍和实际后继；IPC 配对启动修复不代表整条链路完成。
+
+```mermaid
+sequenceDiagram
+  participant R as Runner
+  participant P as Maa Python binding
+  participant N as Native ControllerAgent 5.12.2
+  participant C as Raw input callback
+  Note over R,C: 事实：旧双缩放基线失败；修复后四条callback路径通过，设备输入0
+  R->>P: 修复后直接传frame坐标，不手动缩放
+  P->>N: 原生控制器调用
+  N->>N: 已核原生实现：frame → raw
+  N-->>C: 已验证：click与swipe精确raw坐标
+  Note over R,C: 计划：验证重建后的mutex、实际落点与独立后继
+```
+
+源码已有的链路是 `MainTaskAction.run → MirrorLoopAction.run → MaaDevice → MirrorRunner → run_node → AgentTasker.post_task → Context.run_task`。用 `python tools/wiki_route.py startup --limit 1` 获取这些符号的当前行号，不依赖图内静态行号。`MirrorLoopAction.run` 必须把 `AgentTasker(context)` 交给Device；Runner从Device取得tasker，NODE计划才能执行原生Pipeline。缺少适配器正是历史报错 `a node plan needs a Maa tasker` 的原因。
+
+```mermaid
+sequenceDiagram
+  participant G as MXU Start / MirrorTask
+  participant A as MainTaskAction / MirrorLoopAction
+  participant R as MaaDevice / MirrorRunner
+  participant T as AgentTasker
+  participant C as Maa Context
+  G->>A: 当前PI参数与原生Context
+  A->>T: AgentTasker(context)
+  A->>R: Device(controller, tasker=adapter)
+  R->>R: NODE计划调用run_node
+  R->>T: post_task(entry, override)
+  opt Read-only observation or exact owned one-action MirrorDrive
+    T->>C: clear_hit_count only for this entry
+    C-->>T: Reset must succeed before dispatch
+  end
+  T->>C: run_task(entry, override)
+  C-->>R: 原生子任务结果
+  R->>R: 新鲜独立后继观察与事务核账
+```
+
+CustomAction已经占用框架worker，不能在里面改回 `context.tasker.post_task` 并等待自身队列；`AgentTasker` 的源码说明了这一点。此图解释已有实现，**本身不等于GUI实机启动或Hard五层通过**；验证仍要绑定实际安装版本、GUI选择和后继帧。只读观察按次重置hit count；精确Runner单动作MirrorDrive另有按调用计数例外，其他输入图及交易记录不清空。
+
+**已落地（2026-10-14）**：用 `8ca1ac1` 重装的版本（其父提交 `d574a26` 是节点面板身份修复）以真实GUI启动（`dist/MaaLimbus/MaaLimbus.exe`，进程34940），并在本地07:22用真实指针输入按下它自己的开始按钮。该局 `dist/MaaLimbus/evidence/runtime/pi-20261014-072228` 的首帧场景是 `NODE_PANEL`——正是打包CLI局在 `d574a26` 之前无法识别而停窗的状态——随后走通 `CUTSCENE -> EVENT_CHOICE -> EVENT_RESULT -> GIFT_GET -> PRE_BATTLE_TEAM -> BATTLE_HUD -> MAP -> NODE_PANEL -> GIFT_GET`，因此上面这条链路现在是实机观察到的，而不再只是接线。仍未由此证明：完整五层一周目，以及保存局数的停止路径。
+
+**实机走到并被修（2026-10-14）**：同一局继续跑到254帧/71次输入——`BATTLE_HUD` 20（胜率分配与开始）、`MAP` 8次节点点击、`SHOP` 7含4次 `SHOP_PURCHASE`、`GIFT_GET` 6、`NODE_PANEL` 5（全部走 `panel_enter_is_the_only_forward_input`，即身份修复在实机被使用）、`GIFT_PICK` 4、`REWARD_CARD` 2——随后停在 `floor_gift_commit_receipt_not_proven`：它按下的 `Select 2/2` 得到的是印着 `Dark Vestige` 的提示窗，这个名字既不在选礼页的四个候选里，也不在本局点击勾选的两张卡里（`frame-0252`），而原来的收据规则要求提示窗必须报出被选名字。现在规则把两件事分开：提示窗页面加上它自己的名牌即可证明这次按键，收据同时保留两个名字——它回应的那张卡与设备实际印出的名字（`src/maalimbus/floor_gift_transaction.py` 的 `FloorGiftTransaction.notice_matches_a_pick` 与 `receipt_intent(..., on_notice_page=True)`，`src/maalimbus/runner.py` 的门控与带标记的说明，`tests/test_gift_receipt_settling.py` 用保留帧 `evidence/runtime/gui-20261014-072228/frame-0254.json` 固定）。选不出处的名字在非提示窗页面仍然拒收，因为中段读数是宽松读取。随后重跑的实机局（`pi-20261014-080122`，本地08:01）又遇到同一页面形态，但这次印出的名字与勾选一致：该局自己的 `floor_gift_ranking` 选中 `Today's Expression`（`selection_source: single_free_select_button`），`Select` 后提示窗出现，交易记下了收据的标题与后继帧（`config/user-floor-gift-transaction.json` 的 `receipts[0]`：`frame-0059.json` -> `frame-0060.json`），链路越过了上次停车的位置。只有“提示窗名字与任何勾选都对不上”的那条分支仍仅有单元测试。
+
+**货架与状态（2026-10-14）**：装好折叠后的下一次启动只走了3次输入，就停在同一条拒绝上，差别只有一个空格——这一局自己的预定帧 `frame-0002` 把144币货位读成 `Crownof Roses`，回来的 `frame-0008` 印的是 `Crown of Roses`，于是 `_fold` 现在在易混字形与 `rn` 连字之外再折掉空格（仍不能缩短标题：字母与数字仍须逐个对上）。它下面还压着一个会让本阶段彻底结束的状态缺陷：再下一次启动在第一次输入之前就抛 `Configuration/state exceeds 2 MiB`，因为决策上下文把 `owned_bought` 记成了整条购买记录，而每条记录又带着自己的上下文，`config/user-shop-<scope>.json` 因此涨到2,464,332字节。现在 runner 只记名字，`shop_transaction._context` 在存储边界强制这一形状，`tools/prune_shop_state.py` 把线上文件改写回46,950字节且不动其他字段。两者都有单测（含修剪工具），被修正的货架也已用真实帧回放（不再列出任何“未持有”的报价）；真正要在实机证明的，是重装后的下一次运行。
+
+**同一处读取差距，落在货架上（2026-10-14）**：同一局复测继续走到第3层，在结算刚买下的 `Rusted Cutting Knife`（244枚，1530 → 1286）时以 `Shop successor shows an offer the shelf never held` 停下（68步 / 67次输入，`passed: false`）。存档保留了 `pending.stage: overlay_intent`，返回后的货架仍是同样的六个槽位、被买下的卡带自己的 `Purchased` 徽标——但本次造访自己的预订帧把160枚那个槽位读成 `Thomy Path`，返回货架读成 `Thorny Path`（图鉴名，`assets/resource/base/gift-catalog.json` 的 `gifts[280]`），于是严格的标题比较把货架一直持有的卡当成“从未持有”的报盘。商店的折叠现在把印刷体连字 `rn` 一并折成 `m`（`src/maalimbus/shop_transaction.py`），由 `tests/test_shop_transaction.py::test_a_condensed_ligature_reads_as_the_same_slot` 及其反例钉住；用返回帧重放停止的存档即可结算（`reconcile_purchase: True`、`bought[-1] = Rusted Cutting Knife`、`pending` 清空）。要再次尝试五层通关，安装版必须带上这处折叠。
+
+**等货架重画完再判（2026-10-14）**：重装后的应用再次由自己的按钮启动（`pi-20261014-193945`，本地19:39），只走了1次输入就停下——货架上没有计划想要的藏品，于是它付了15币刷新（`[1478,168,86,28]`，金币1127），而后继帧 `frame-0004` 只读到六个槽位中的两个、计数仍是刷新前的数，既证不出差额也证不出完整的变更货架。交易规则拒收这样一帧是对的（`ShopTransaction.reconcile_refresh`，`src/maalimbus/shop_transaction.py`），所以 runner 改为等待而不是停车：同一次造访里最多三帧未证成的后继帧会记为 `shop_refresh_settling` 并重新观察，意图在等待期间始终未被认领，第四帧仍然停车（`src/maalimbus/runner.py`，由 `tests/test_runner.py::test_a_refresh_successor_read_mid_change_waits_before_it_stops` 钉住）。实机证明要等下一次在同一商店启动。
+
+### 9.3.2 新版镜牢界面的适配计划（2026-10-15）
+
+<a id="feature-9-3-2"></a>
+
+游戏在 2026-10 整体换掉了镜牢界面：入口改名 `Mirror of Sisyphus`（`DUNGEON 08`），右侧改为 `Exploring / Weekly Bonuses / Parallel Superposition Mode / INFINITY MIRROR`，星光页与买星确认框全部重绘。识别层不比对美术，只读 OCR 文本与归一化框（`src/maalimbus/vision.py:19` 的 `find`、`src/maalimbus/vision.py:63` 的 `classify`），所以这次改版只在**文本形态**和**绘制细节**上打穿它；适配按“先只读、后真输入、只修实机证明坏了的那一处”推进。
+
+只读证法：`python tools/verify_packaged_mirror_loop.py --app dist/MaaLimbus --address 127.0.0.1:16416 --adb "<MuMu>/adb.exe" --observe-only --stop-page MIRROR_ENTRY` 以 `input_enabled=False` 构造控制器（`tools/verify_packaged_mirror_loop.py:117`），不点任何东西；要放真输入则加 `--authorize <nonce>`，门控在 `src/maalimbus/runner.py` 的 `AUTHORIZATION` 与 `authorized(nonce)`。
+
+| 页面 | 改版打穿的方式 | 实机证据 | 状态 |
+| --- | --- | --- | --- |
+| MIRROR_ENTRY / ENTRY_CONFIRM / DUNGEON_TEAM / LEVEL_WARNING | 未受影响 | `evidence/runtime/packaged-mirror-20261015-071912/frame-0001..0009` | 已实机连续走通 |
+| STAR_GRACES | 页面整体重画：OCR 把 `Select All Graces` 读成 `Select Al Graoes`，卡框几何与角标偏移也变了 | 同上 `frame-0010`，判定脚本 `build/probe_star_page.py`、`build/probe_grace_grid.py` | 已修 `45adac7` |
+| STAR_CONFIRM | 勾选框重绘：旧图 1.00 → 勾选 0.83 / 空白 0.15，0.92 的严格门判成未知 | 同上 `frame-0011`，两态对照 `evidence/runtime/star-confirm-20261015/{checked,unchecked}.png` | 已修 `c6df293` |
+| INITIAL_GIFTS / GIFT_GET / GIFT_SEARCH / GIFT_SEARCH_FORGO / THEME_PACKS / MAP / NODE_PANEL / CUTSCENE / EVENT_CHOICE / EVENT_RESULT_READY / EVENT_CHECK / EVENT_CHECK_RESULT | 未受影响 | 同上 `frame-0012..0036` 的 `map_observed.scene` 序列 | 已实机连续走通 |
+| 过渡帧 `UNKNOWN` | 页面切换中的中间帧无身份 | 同上，出现 2 帧后自行重读继续 | 允许等待，不输入 |
+
+`45adac7` 的修法是把“逐字对齐”放宽为**有界容错**（`src/maalimbus/vision.py` 的 `close_to` / `find_read`，编辑距离上限 2，且仍要求一段文本只命中一个候选），同时让星光页先按已证几何判、失败再按实测边界（±24px、密度下限 0.04）定位卡框，读不到十张带框卡片就返回失败而不是猜。`c6df293` 的修法是把勾选状态改成**两道独立证据**：保留模板与框内亮笔画（勾选 0.17、空白 0.00），两者不一致时仍返回未知并拒绝（`src/maalimbus/grace_vision.py:206` 的 `conversion_state`）。
+
+仍待实机证明的部分（本计划未完成项）：完整五层一周目与到账页；按保存局数停止的路径（本次钉的是 `mirror_run_count=3`、`mirror_run_bounds=2000`、单队第 2 队）尚无实机证据；GUI Start 自己按下后走满五层。另外，本机没有 Rust 工具链，`desktop/mxu` 的叠加层改动让 `tools/make_local_app.py` 以 `Modified MXU artifact is stale` 拒绝重装（`src/maalimbus/mxu_distribution.py:10`），因此这一阶段的验证走 `build/refreeze_agent.py` 重冻 agent（保留 agent 备份与自检），MXU 面板本身仍属未验收。
+
+本节的回写纪律：改版适配只按实机帧重标锚点，不按猜测定坐标；每一处修改都必须再用真实脚本启动一次验证，才可写入“已实机走通”。
+
+```mermaid
+flowchart TD
+    A["只读观察：--observe-only（input_enabled=False）"] --> B{"当前页面能读出身份吗"}
+    B -->|不能| C["按实机帧定位根因：文本形态还是绘制细节"]
+    B -->|能| D["--authorize 放真输入，连续观察后继帧"]
+    C --> E["有界容错读字 / 双通道证据，仍以拒绝为默认"]
+    E --> D
+    D --> F{"连续走通且没有拒绝吗"}
+    F -->|否| C
+    F -->|是| G["写入已实机走通，并再启动一次脚本复验"]
+```
+
+### 9.3.3 GUI Start 遇到旧局仍在跑的入口判定（2026-10-15）
+
+<a id="feature-9-3-3"></a>
+
+实机根因（本节写作时的现场）：GUI Start 在 09:55 真的按下了开始，但镜牢入口停在“启动前核对旧局与队伍设置”后以 `mirror_settings_rejected` 结束，`dist/MaaLimbus/evidence/runtime/pi-20261015-095517` 里 0 帧 0 点击。日志两条错误分别是观察节点没读出页面（`the observation node recorded no page for this frame`，`src/maalimbus/runner.py:648`、`:659`）和本机参与者 OCR 无证据（`Maa local participant OCR returned no evidence`，`agent/recognition.py:284`）。
+
+为什么现场是这个状态：只读与放行两类验证脚本（`evidence/runtime/packaged-mirror-20261015-070250`、`-071416`、`-071912`）已经进入一个真实的 Hard 周目，并把游戏留在 `PRE_BATTLE_TEAM`；账本里那条 `active`（id `616264a2…`，team 1，phase `entered`）仍在 app 自己的数据根 `D:\fgoa\MaaLimbus\config`（`dist/MaaLimbus/config/user-data-root.json` 指过去）。**进行中的周目不是空闲入口**：`reconcile_idle_entry`（`src/maalimbus/run_wiring.py:255`）只允许在刚拍到的帧明确证明是空闲 `MIRROR_ENTRY` 或 `DUNGEON_TEAM` 选人页时退休旧局；当时观察连一帧都没产出，于是整条入口被拒。
+
+本节计划：入口预检必须把两种情况分开——「账本有局，且这帧证明游戏已不持有它」照旧退休；「账本有局，但这帧读不出任何页面身份」保留该局，并把读页交给循环自己去做，绝不在读不出的帧上输入。容忍分支只记 `mirror_entry_preparation`（`retired=False` 与观察错误原文），随后与没有旧局时一样继续走 `GlobalSettingsAction.apply` 与 `MirrorLoopAction`；读不出页的帧仍然按未知页面处理，不点、只等。
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 账本 `active` 为 null | 直接按设置进镜牢 | app 日志出现 `mirror_loop_start` |
+| 账本 `active` 非空，帧证明空闲入口/选人页 | 退休旧局后按设置进镜牢 | `mirror_entry_preparation` 的 `retired=True` 与 disposition |
+| 账本 `active` 非空，帧读不出身份（本节的实机现场） | **保留该局**，继续进循环，由循环重读页面 | `mirror_entry_preparation` 的 `retired=False` 与观察错误原文，且不再出现 `mirror_settings_rejected` |
+
+同样必须记住的第二个事实：app 的真实数据根是 `D:\fgoa\MaaLimbus\config`，不是 `dist/MaaLimbus/config`。写进 `dist` 的设置只会被 GUI 显示，agent 读的是前者；要钉“单队第 2 队 / 本次 3 次 / 步数 2000”这类运行设置，必须写 app 自己的数据根。
+
+验收口径：在游戏停在进行中的镜牢页面时按下 GUI Start，必须真的进到循环（app 自己的日志可读），且不得再因为“没有证据”停在 `mirror_settings_rejected`；首帧读不出时循环仍按未知页面诚实停止。
+
+```mermaid
+flowchart TD
+    A["GUI Start 进入镜牢任务"] --> B{"账本里有 active 吗"}
+    B -->|没有| E["按设置开新局（GlobalSettingsAction.apply）"]
+    B -->|有| C{"旧局那一帧读得出身份吗"}
+    C -->|读不出| D["保留该局，记 retired=False 与错误原文"]
+    C -->|读得出且证明空闲| F["退休旧局"]
+    C -->|读得出但仍在进行中| D
+    D --> G["跳到循环，由循环重读页面"]
+    F --> E
+    E --> G
+```
+
+### 9.3.4 参与者计数读不出时的入口与部署（2026-10-15）
+
+<a id="feature-9-3-4"></a>
+
+实机根因（13:01–13:08 现场）：入口观察在 `PRE_BATTLE_TEAM` 页上以 `Maa local participant OCR returned no evidence` 抛出，异常发生在**观察节点内部**（`agent/recognition.py` 的 `PRE_BATTLE_TEAM` 分支），所以 9.3.3 那层“入口容忍”根本没有机会生效：Maa 任务先一步失败，app 显示「任务失败: 自动镜牢」（`dist/MaaLimbus/evidence/runtime/pi-20261015-130827`，0 帧）。
+
+测量：新版选人页把计数器画成 `2/12`，在实机帧里被整帧 OCR 读成 `2/12`、框 `[1610,745,250,80]`、分数 `0.997`（`evidence/runtime/packaged-mirror-20261015-131001/frame-0001.json`）。`team_vision.participants`（`src/maalimbus/team_vision.py:46-62`，模式 `:9`，ROI `:10` = `(0.86,0.66,0.97,0.78)`）在该帧上离线复算得到 `(2,12)`；曾经失效的是旧裁切 `(1680,738,180,92)` 切掉了分子，新裁切 `(1610,745,250,80)` 两侧留了余量。
+
+本节计划：计数器读到与否都不是“页面是否成立”的条件——计数未落定的那一帧仍然是帧，不是页面。节点只记录缺读并放行，由循环自己的有界重读（`src/maalimbus/runner.py:1696-1702`）决定是继续还是诚实停止；节点不再因为缺读而让整个启动失败。
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 计数器读得到 | 照常进入选人与部署判定 | 帧里出现 `2/12` 一类计数，`deployment_participants` 有结果 |
+| 计数器读不到（滚动/未落定帧） | 节点记录缺读并继续，循环做有界重读 | 帧里无计数但页面身份成立，且不再出现节点级异常 |
+| 重读用尽仍读不到 | 诚实停在部署一步，不发输入 | 停止原因为 `deployment_transaction_or_counter_missing`，`clicks_sent` 不增加 |
+
+验收口径：在停顿的 `PRE_BATTLE_TEAM` 页上再按一次 GUI Start，必须走到 `mirror_loop_start` 并进入部署判定，而不是让观察节点把整个任务判失败。
+
+```mermaid
+flowchart TD
+    A["观察一帧"] --> B{"页面是 PRE_BATTLE_TEAM 吗"}
+    B -->|不是| Z["照常分类"]
+    B -->|是| C{"计数器读到了吗"}
+    C -->|读到| D["记入 deployment_participants"]
+    C -->|读不到| E["只记缺读，不抛异常"]
+    D --> F["交给循环部署判定"]
+    E --> F
+    F --> G{"循环重读用尽"}
+    G -->|仍无| H["诚实停止，不发输入"]
+    G -->|有| I["继续选人/开打"]
+```
+
+### 9.3.5 新版购买确认框：粘在一起的货币徽章（2026-10-15）
+
+<a id="feature-9-3-5"></a>
+
+现场：17:31 那次 GUI 启动一路打到第三个商店，在购买确认框上停住，理由是 `the_shop_asked_about_a_purchase_and_its_confirm_was_not_read`（`src/maalimbus/window.py:614`），停在 `SHOP_PURCHASE` 两帧（`dist/MaaLimbus/evidence/runtime/pi-20261015-173132/frame-0250/0251.png`）。
+
+根因（已离线复现）：新版确认框标题是 `Purchase E.G.O Gifts`、按钮是 `Purchase`，`native_purchase_dialog` 三个锚点都读到了；但货币转变徽章 `1102 ▶ 895` 被识别成一个粘连 token `'1102895'`，于是 `purchase_balances` 找不到「前一个数字」而返回 None，`matching_purchase_question`（它是花钱的授权入口）随之返回 None，页面只能拒绝。
+
+修法：`src/maalimbus/shop_vision.py` 的 `purchase_balances` 先按老版式读分开的两个数字；读不到时，用旁边的 after 数字去**切开粘连 token**（`^\d{1,4}` + 那个 after 数字 + `$`），切不出来就返回 None。真正的授权仍然要求 `before - after == price` 且 `before == 意向里记的 coins`，所以切错也买不成。
+
+```mermaid
+flowchart TD
+  A[SHOP_PURCHASE 帧] --> B{native_purchase_dialog 三锚点齐?}
+  B -->|齐| C[读货币徽章]
+  C --> D{before-after == 意向价格?}
+  D -->|是| E[交出 Purchase 按钮]
+  D -->|否| F[不知道就拒绝]
+  B -->|不齐| F
+```
+
+| 锚点 | 新版读数 | 判据 |
+| --- | --- | --- |
+| 标题 | `Purchase E.G.O Gifts` [674,236,292,34] .999 | `^Purchase E\.G\.O Gifts$` 在 (.32,.20,.55,.27) |
+| 确认 | `Purchase` [1092,706,128,34] 1.000 | `^Purchase$` 在 (.50,.58,.70,.80) |
+| 取消 | `X Cancel` [710,702,156,42] .912 | `^[X×]?\s*Cancel$` 在 (.31,.58,.50,.80) |
+| 徽章 | `1102895` + `895` | after 数字切出 before，且 before-after=207=价格 |
+
+验收：同一帧上 `purchase_balances` 返回 (1102,895)、`matching_purchase_question(records,'Awe',207,coins=1102)` 返回 `Purchase` 的框；价格改成 208 必须返回 None。测试在 `tests/test_shop_vision.py`（含无留帧时 skip 的实机帧用例）。
+
+### 9.3.6 按完成镜牢计数，以及把藏品搜索开放出来（2026-10-15）
+
+<a id="feature-9-3-6"></a>
+
+用户口径（m01434）：别再用步数上限当目标，**按完成镜牢算**；步数当安全网就行。藏品搜索要**开放**，让它自己学购买策略；但金币不能攒太多、也不能一点不留。
+
+已经有效的部分：停止条件是循环自己的完成局计数（`src/maalimbus/runner.py:2846` `_run_count_reached`，目标写在 `runner.py:3237` 的 `verified_runs`），不是步数；步数窗口来自 `MirrorRunBounds`（`src/maalimbus/mirror_task_options.py:27-30`，1..2000）。因此入口在**点名了次数**时把窗口抬成至少 4000（`agent/recognition.py` 的 `loop.run(steps=...)` 调用处），让五层镜牢不会被一个“你想跑三次”的数字中途截断。金币平衡规则本来就在：`CARRY_CAP_COINS = 1500`（`src/maalimbus/shop_settings.py`）与保留默认 500（同文件 `:74`）——留一部分、把溢出的花掉，正是“不能攒太多、不能一点不留”。
+
+尚未实现的部分（不得写成已实现）：藏品搜索页现在只有两条路——`refuse` 或“用 Select 离场、不花星光”（`src/maalimbus/window.py:763-785`），而任务设置只接受 `saved`/`refuse`（`src/maalimbus/mirror_task_options.py:22-26`）。要真正“开放”，必须新增：按评分从池子里挑不超过三件、付出星光、支出用带回执的持久事务证明，并且没有回执就不算买过。
+
+```mermaid
+flowchart TD
+  A[入口读到运行计数] -->|点名了次数| B[步数窗口抬到 >= 4000 当安全网]
+  A -->|没点名| C[沿用步数窗口]
+  B --> D[每完成一局写回执]
+  D --> E{完成数达到次数?}
+  E -->|是| F[run_count_reached 停]
+  E -->|否| D
+  C --> G[window_steps_passed 停]
+```
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 点名了完成次数 | 计数到次数才停；步数只做安全网 | 本次调用的 `run_count_reached`、匹配的 `verified_runs` 和 Agent 成功结束记录 |
+| 没有点名次数 | 保持原来的步数窗口行为 | 停止原因为 `window_steps_passed` |
+| 藏品搜索（开放后） | 按评分挑件并付星光 | 星光支出回执 + 页面后继帧 |
+| 藏品搜索（当前） | 只拒绝或离场，不花钱 | 事件里 `gift_search` 走的是 refuse/select 分支 |
+
+验收口径：把次数点成 3 后，一次启动能连跑到第三次完成回执；藏品搜索开放前不得在任何日志或文档里声称它已经在买。
+
+安装版验收工具在任务结束后读取正常 Agent 结果和日志。`window_steps_passed` 可描述一次有界运行，`verified_clear` 记录本窗口观察到的通关。工具判定 `dungeon_complete` 要求 `verified_runs.target` 为正数、`ledger_total − counted_at_launch` 恰好等于目标、当前调用有匹配的 `run_count_reached`、且 Agent 正常成功结束。`RunStore.record` 只在五层、胜利、领奖并验证返回后增加账本计数。已通关后恢复领取也可以完成本局，此时不一定有新的通关观察。显式设置正数 `--run-count` 时，工具在未达目标时返回失败并保留有界进展。两种结算边界均有用例，GUI 开始、实际到账和轮换仍需各自的实证。
+
+### 9.3.7 奖励页的两处误停：目录名错字与“价”的判据（2026-10-15）
+
+<a id="feature-9-3-7"></a>
+
+两次实机停止都发生在奖励页，都不是“游戏变了”而是我们自己的判据错了。
+
+**一、`floor_gift_identity_unknown`。** `dist/MaaLimbus/evidence/runtime/pi-20261015-180214` 跑了 345 帧后停在奖励页。页面确实印着标题，但镜像目录 `assets/resource/base/gift-catalog.json` 把这条藏品的名字写成了 `Arrested Hymm`，客户端印的是 `Arrested Hymn`（`build/learning-review` 的留存语料里 20 次全是 Hymn）。两者归一化后只差一个字母，而 12 字符时 `difflib` 比率只有 0.9167，低于 `src/maalimbus/gift_vision.py` `text_identity` 的 0.93 门槛，于是返回 None、整局停止。处置有两层：目录条目名改成 `Arrested Hymn`（**不改** `icons[].path` 与 `sha256`，图标哈希校验因此不受影响），并在 `text_identity` 加一条兜底——只有“唯一一个、长度 ≥ 8、编辑距离 ≤ 1”的目录名才算命中，短名或两名并列仍然拒绝，所以模糊歧义的原有防线没有放松。
+
+**二、`three_free_gift_trial_or_cost_present`。** `pi-20261015-172214` 在三选一奖励页停了，因为否决条件把 `Defense Level`、`Max HP`、`Cost` 等词当成“这是试炼/付费页”。新版把**每张卡片自己的效果文本**印在卡片里，`Defense Level Down until` `[844,534,244,25]` 就是第一张卡的效果句，页面上按钮却明明是 `Refuse Gift` 与 `Select`。否决改为判“带价的说法”：出现 `Modules`/`Purchase`/`Shop`/`Lunacy`/`Mounting`/`Trials` 这类名词，或 `Enemy Level`/`Defense Level`/`Damage Taken`/`Max HP`/`Cost` 后紧跟数字时才否决；纯效果措辞不再误伤。
+
+```mermaid
+flowchart TD
+  A[奖励页读数] --> B{标题能对上目录吗?}
+  B -->|归一化比率 >= .93 且有领先| C[命中]
+  B -->|否则| D{唯一一个长度 >= 8 的目录名 编辑距离 <= 1?}
+  D -->|是| C
+  D -->|否| E[identity_unknown 停止]
+  C --> F{页面上有带价的说法吗?}
+  F -->|名词或 试炼词+数字| G[trial_or_cost_present 停止]
+  F -->|只是效果措辞| H[按三选一继续]
+```
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 目录名有一个字母错字，客户端印刷正确 | 仍解析成该藏品 | `tests/test_gift_vision.py` 用 `Arrested Hymm` 断言得到 `Arrested Hymn` |
+| 卡片里的纯效果句 | 不否决三选一布局 | `tests/test_three_free_gifts.py` 用 `Defense Level Down until` 断言仍返回三个候选 |
+| 真试炼/真付费措辞 | 仍否决 | 同文件用 `Enemy Level +2` 与 `Mounting Trials` 断言抛出 |
+| 图标路径与哈希 | 改名不触碰它们 | `gift-catalog.json` 的 `icons[].path`/`sha256` 未变，目录加载校验通过 |
+
+验收口径：同一次启动能走过三选一奖励页与购买确认框继续往下跑；`three_free_gift_trial_or_cost_present` 只在真的是付费/试炼页时出现，而目录外的藏品现在退回页面自己印的标题（见 9.3.9），不再结束整局。
+
+### 9.3.8 页面读不动与识别卡死：视角恢复阶梯与停滞看门狗（2026-10-15）
+
+<a id="feature-9-3-8"></a>
+
+用户口径：一天之内连着四次停在不同页面，用户要求先停下来总结规律，而不是再逐个打补丁——「不要遇到问题改一个遇到问题改一个」，并明确「只要在这种界面失败了一律尝试缩小地图」（m02370、m02456–m02457）。四次停止（购买确认框的货币徽章、被拉近到只剩一格的地图、还没淡入的技能检定条、迟迟没等到计划里那件商品的商店）确实共享同一个形状：**都是"这个视图现在读不出东西"，而视图是可以被手势移动的**。所以处置不是再加四条特判，而是两条通解。
+
+**通解一：任何一步没落地，先花一档视角手势，而不是直接结束整局。** `RECOVERY_LADDER`（`src/maalimbus/runner.py:301-306`）四档依次是 `pinch_out`（缩小地图）、`drag_down`、`drag_up`、`wait`。缩小地图这一档直接复用实机标定过的双指手势：`pinch_out`（`runner.py:315`）配 `MAP_ZOOM_OUT = {'centre': (960, 540), 'radius': 320, 'factor': 0.55, 'seconds': 0.9}`（`runner.py:290`，与 `tools/map_zoom.py` 标定值一致），两指从 ±320 走拢到 ±176，共 12 步；控制器不支持双指时抛 `NotImplementedError`，**不会退化成在地图上乱点**。`_recover`（`runner.py:3321`）以 `页面|停止原因` 作为签名，同一个停止一次只花一档（`state['recovery_rung']`），花完整个梯子才允许整局结束，事件分别是 `window_recovery` 与 `window_recovery_exhausted`，另计 `artifacts['recoveries']`。关键安全性质写在注释里也写在测试里：**四档全部只移动视角、不按任何游戏控件**，所以在布局还没学过的页面上也可以放心试。想关掉这套行为就把 `recovery_tries` 设为 0。
+
+**地图上先花掉第一档，再去试下一个候选节点。** 地图上一次点击之后页面完全没动，说明计划瞄的那个节点根本不在屏幕上：实机 `pi-20261015-200848` 在 90 秒里点了五个候选节点，`Exploring Floor 3` 一直没变，看起来就像卡死，用户于是手动停掉了它。所以 `_map_zoom_once`（`runner.py:3304`）在第一次"点了没动"时就直接花掉缩小地图这一档，并按第 0 档记账（写 `state['recovery_for']` 且 `recovery_rung = 1`），使梯子不会把同一档花两遍；只有**再下一次**仍然没动才退回换候选节点（`window_map_retry`）。事件是带 `gesture=pinch_out`、`before_another_candidate=true` 的 `window_recovery`；一旦真的落地成功，`map_zoom_for` 与其它恢复状态一起清零。
+
+**通解二：识别调用卡死时，任何手势都救不回来，于是从循环外把进程结束掉。** `dist/MaaLimbus/evidence/runtime` 里 `pi-20261015-191205` 在 19:16:07 卡在一次 OCR 调用上，此后 12 分钟没有新帧、没有事件、没有结果，GUI 侧表现为「停了，甚至没法打开」（用户 m02283）——进程还在，线程全在等，是挂死不是循环。`stall_watchdog`（`runner.py:342`）用帧心跳判定：`_observe` 每次拿到帧就刷新 `artifacts['heartbeat']`（`runner.py:1582`），守护线程在超过 `stall_seconds`（默认 300 秒，`STALL_SECONDS` 见 `runner.py:3358`）没有心跳时先 `_record_stall`（`runner.py:3382`）把停止记录写进本次运行目录，再 `os._exit(4)`，让 GUI 如实报「任务失败」而不是静默挂着。
+
+```mermaid
+flowchart TD
+  A[一步输入后页面变了吗?] -->|变了| B[继续下一步]
+  A -->|没变| C{这一步的停止原因还剩梯子吗?}
+  C -->|有| D[花一档: 缩小地图 / 下拉 / 上拉 / 等一轮]
+  D --> A
+  C -->|花完了| E[window_recovery_exhausted 结束整局]
+  F[帧心跳] -->|超过 stall_seconds| G[写停止记录后 os._exit, GUI 报失败]
+  F -->|有帧| H[继续循环]
+```
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 地图被拉近、节点在屏幕外 | 先双指缩小地图再重读该页 | `window_recovery` 事件 `gesture=pinch_out`，`artifacts['recoveries']` 递增 |
+| 地图点击后画面完全没动 | **先**缩小地图，再考虑换下一个节点；同一次停滞只缩一次 | `window_recovery` 带 `before_another_candidate=true`；`tests/test_recovery_ladder.py::test_the_map_view_moves_before_another_candidate_is_tried` |
+| 同一页同一原因连续失败 | 一次只花一档，四档花完才结束 | `tests/test_recovery_ladder.py::test_the_ladder_is_spent_once_per_stop_and_then_the_run_ends` |
+| 识别调用永不返回 | 超时后写记录并结束进程，GUI 报失败 | `stall_watchdog` 用例传入 `rounds` 后有界返回；实机帧心跳见 `artifacts['heartbeat']` |
+| 控制器不支持双指 | 抛错而不是退化成点击 | `test_a_controller_that_cannot_simulate_two_fingers_refuses_instead_of_clicking` |
+| 想恢复旧行为 | `recovery_tries = 0` 时一步不落地就立即结束 | 老用例显式传该设置后仍断言原停止原因 |
+
+验收口径：实机在拉近的地图上失败时，停止原因应先是 `the_view_is_pinched_out_so_the_page_shows_all_of_itself` 并伴随 `window_recovery` 事件，而不是直接结束；识别卡死时应在 `stall_seconds` 内以失败结束而非静默挂着。这套阶梯只解决「视图读不动」，不解决「判据本身错」（那属于 9.3.5 与 9.3.7）。
+
+### 9.3.9 读不出来的模态不结束整局：对话框自己的 Cancel 与目录外的藏品（2026-10-15）
+
+<a id="feature-9-3-9"></a>
+
+```mermaid
+flowchart TD
+  A[页面读不动] --> B{页面上有安全出口或安全默认值吗?}
+  B -->|对话框有自己的 Cancel| C[点 Cancel, 下一帧重读货架]
+  B -->|藏品不在目录里| D[用页面印的标题当身份, 继续排名]
+  B -->|两样都没有| E[交给 9.3.8 的视角恢复阶梯]
+```
+
+用户口径（m08238）：「你能不能做事情结构化一点，框架化一点，这种东西明明有容错更高的上游实现方法」，并直接问「不会所有没有录入的藏品都会给我停了吧」。两处停止共享同一个上游事实：**页面上本来就有安全出口或安全默认值，是判据把它们当成了不可继续。**
+
+**买确认框：它自己的 Cancel 就是答案。** 实机 `dist/MaaLimbus/evidence/runtime/pi-20261015-202635` 停在新版购买框（`Purchase E.G.O Gifts` + `Purchase` / `✗ Cancel`），原因是 `the_shop_asked_about_a_purchase_and_its_confirm_was_not_read`。判据链 `matching_purchase_question`（`src/maalimbus/shop_vision.py:354`）要求礼物名、`before - after == price`、`balances[0] == coins` 三者严格相等；同一局商店刚读到 `1808`，对话框徽章读成 `1809`，一个 token 的漂移就否掉了这次购买。新的 `purchase_dialog_answer`（`shop_vision.py:408`）把这个模态当成有安全出口的问答：只有名字相邻（`close_to(..., 1)`）**且**正好花掉预留价格才回 `('purchase', box)`，其余一律回 `('cancel', box)`，货币容差 `COIN_DRIFT = 2`。`window.py:610` 在 `shop['cancel']` 存在时点它自己的 Cancel、下一帧重读货架，不再结束整局；只有 Cancel 也读不到时才保留原来的拒绝。
+
+**目录外的藏品：用页面自己印的名字当身份。** `floor_gifts.observe`（`src/maalimbus/floor_gifts.py`）以前在 `catalog.text_identity` 返回 `None` 时抛 `floor_gift_identity_unknown`，于是任何没进 `assets/resource/base/gift-catalog.json` 的藏品都会结束整局。现在 `identity_of` 在查不到目录条目时退回**页面自己印的标题**当身份：不发明字符串，藏品照样进排名与回执，只是关键字为空（`keywords_of`），而 `rank` 本来就把"没有关键字"当作没有队伍收益，学习也按它看到的这个名字记样本。
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 购买框读不出预留的那件商品 | 点它自己的 Cancel，下一帧重读货架 | `tests/test_shop_vision.py::test_the_dialogs_own_cancel_answers_a_question_it_cannot_authorize` |
+| 商店货币与对话框徽章差一两个 token | 仍按预留购买确认 | `COIN_DRIFT = 2`；`test_a_drifted_coin_counter_is_the_reader_not_another_purchase` |
+| 奖励页出现目录外的藏品 | 用页面印的标题当身份，继续参与排名 | `identity_of` / `keywords_of`；`tests/test_floor_gifts.py` 全绿 |
+
+验收口径：读不动的模态与目录外的藏品都不得单独结束整局；能结束整局的仍然只有「整条恢复阶梯花完」（9.3.8）。
+
+### 9.3.10 场景读数不是授权：购买页上的按钮，与退役的预留（2026-10-15）
+
+<a id="feature-9-3-10"></a>
+
+```mermaid
+flowchart TD
+  A[场景读出购买框上的 Purchase] --> B{这一局预留了这次购买吗?}
+  B -->|预留了, 且账目对得上| C[把按钮交给计划, 交易层再复核一次]
+  B -->|没预留 / 账目对不上| D[计划点对话框自己的 Cancel]
+  D --> E[退役这条预留, 货架下一帧重读]
+```
+
+用户口径（m08238）：「这怎么也会失败的？？？」，要的是**更上游的容错**。9.3.9 修的是"读不出来"，这一条修的是另一半：**读数被当成了授权**。实机 `dist/MaaLimbus/evidence/runtime/pi-20261015-212438` 在 21:24:38 启动、2 秒后停，理由是 `mirror_loop_failed; Full matching purchase title/price/question not proven`（`src/maalimbus/shop_transaction.py:384`）：上一局留下的 159 币预留，遇上一个自己徽章写着 390 的对话框，场景读到的按钮照样进了计划，交易层拒绝授权，整局就结束了。
+
+三处结构性改动：
+
+- **场景读数不再冒充授权。** `shop_state`（`src/maalimbus/runner.py:1111`）在 `SHOP_PURCHASE` 页面上不再交出 `confirm`：对话框的 `Purchase` 只当场景锚点，读到的结果（`readable`）只用来写 trace 理由。购买页唯一的授权来自 `_observe` 的 `SHOP_PURCHASE` 分支（`runner.py:2074`），它按预留意向的名字、价格与金币算出 `purchase_dialog_answer`；账目对不上就退成 `shop['cancel']`。
+- **没有预留的问答也有出口。** 页面上压根没有本局预留时（操作者自己点的购买框，或上一局死在框上），`native_purchase_dialog` 读到的 `Cancel` 就是唯一输入（理由 `a_purchase_question_this_run_never_reserved`）。
+- **预留必须跟着 Cancel 一起退役。** `ShopTransaction.retire_pending`（`shop_transaction.py:390`）在点 Cancel 前清掉 `pending`，并把原因记进本次访问（`visits[...]['retired']`）。不清掉的话，货架下一帧会因为"已有预留"拒绝任何新购买，整局就卡在同一个对话框上。
+- **换行的礼物名按词读，不按行的先后读。** 购买框把自己的礼物名折成两三行叠着印，识别器按框落点排序，读出来的顺序不是印刷顺序：实机 `pi-20261015-213416/frame-0001.json` 把 `Clear Mirror, Calm Water` 读成了 `Mirror, Calm`、`Clear`、`Water` 三个框，于是名字核对永远不成立，每一帧都拿对话框自己的 Cancel 作答，货架下一帧又挑同一个礼物 —— 21:34 那一局就这样在同一张卡上打了 5 次，最后停在 `the observation node recorded no page for this frame`。`names_match`（`src/maalimbus/shop_vision.py`）改成**词的多重集合**比较：行的先后不参与证明，客户端的单字滑落仍然宽容。同一条实机的 390 币预留，第一帧就被确认。
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 场景读到购买框上的 `Purchase` | 不交给计划，只有账目证明才交 | `tests/test_shop_vision.py::test_the_purchase_pages_own_button_is_never_an_authorization` |
+| 页面上有本局没预留的购买框 | 点它自己的 Cancel，不买也不结束整局 | `runner.py:2074` 的 `SHOP_PURCHASE` 分支 |
+| Cancel 之后 | 预留退役、货架可再次购买 | `tests/test_shop_transaction.py::test_a_reservation_the_modal_never_asked_about_is_retired` |
+| 礼物名折成多行、识别框顺序被打乱 | 仍按词认定为同一个礼物并确认购买 | `tests/test_shop_vision.py::test_a_wrapped_gift_name_is_read_in_whatever_order_its_lines_came` |
+
+验收口径：一次启动里，购买框无论是"读不出来"还是"没预留过"，都只走 Cancel 并继续跑；交易层拒绝不可授权的按钮时不再结束整局。**授权这一步也要认得新版对话框**：它不再要求那句 `Would you like to purchase …?`（新版根本不印），而是用与计划完全相同的证据 —— 礼物名按词、徽章正好花掉预留下价格、金币落在预留意向里（`ShopTransaction.reserve_confirm` 先问 `purchase_dialog_answer`，读不出来时才回落到旧版问句）。实机 `pi-20261015-214921`（21:49:21 启动，11 秒后停，inputs=1）就是死在旧问句上：计划已经授权了这一个购买框，交易层却找不到那句问句，于是整局结束。
+
+### 9.3.11 购买标签来自这一局自己后来的观测：价值模型的门控式参与（2026-10-15）
+
+<a id="feature-9-3-11"></a>
+
+**症状**：商店样本一直在记录（`dist/MaaLimbus/evidence/runtime/pi-*/agent-result.json` 里 `shop_purchase_learning_samples.neural_policy_applied=false`，日志写"购买学习样本已记录：7；价值神经模型尚未应用"），但运行目录 `assets/resource/base/model/shop-value` 根本不存在，因此 `shop_value_shadow.rank_preview` 每次都走 `purchase_value_model_missing_rule_fallback`。样本被记下，却没有任何东西给它们打标签；"人的复核"是一个没人执行的门。
+
+**规则**：一次购买的收益**不由人写**，就是这一局在它之后自己观测到的东西 —— `shop_value_training.label_from_outcomes()` 重新推导：过层按层数（一层 0.2）、通关 1.0、只拿到奖励或原路退出 0.1；标签摘要只覆盖被哈希绑定的那些位（`outcomes_digest`），所以证据到达的顺序不会改变标签。`review_sample()` 只在存在**被运行账本绑定过的后续观测**时才写 `review.json`/`outcome.json`（`approved_by=observed_run_return_in_scope`，`training_eligible=true`，`human_approved` 仍为 false）；没有后续观测的目录保持 pending 并计数（`delayed_outcome_evidence_missing`），不编造收益。加载侧（`load_reviewed_episodes`）不信任盘上的标签：它会重新推导，标称收益与证据不一致的样本以 `objective_label_mismatch` 排除，再次检查 `action_executed`、`training_eligible`、内容地址与账本绑定。
+
+**参与是门控的**：训练器用 `split_by_scope` 按整局留出，只有在留出对比里自己证明了排序能力（对数 ≥ 4 且准确率 ≥ 0.6）才把 `participation` 写成 `ranked`；否则写 `shadow`。`rank_preview` 每次加载都重验哈希链（`weights_sha256`、`dataset_sha256` 三处一致、`evidence_verified`、`reviewed_episodes` 与 `verified_episodes` 相等、权重有限且界内），再按参与方式返回：`ranked` 在**计划已经批准的候选内部**按分数排序，`shadow` 只报分数、顺序不动。两者都不会覆盖"计划指定的那个礼物"（`the_gift_plan_asked_for_this_offer`）——模型只在计划自己划出的集合里决定先买哪个。
+
+```mermaid
+flowchart TD
+    A["run's later observations<br/>floor_clear / final_victory"] --> B["label_from_outcomes<br/>floor 0.2, victory 1.0"]
+    B --> C["review_sample<br/>only if the ledger bound them"]
+    C -->|no bound observation| P["stays pending<br/>delayed_outcome_evidence_missing"]
+    C --> D["load_reviewed_episodes<br/>re-derives, rejects mismatch"]
+    D --> E["split_by_scope<br/>whole-run holdout"]
+    E -->|pairs>=4 and accuracy>=0.6| R["participation=ranked<br/>reorders the plan's own set"]
+    E -->|otherwise| S["participation=shadow<br/>scores only, order unchanged"]
+    R --> L["rank_preview re-verifies<br/>digest chain on every load"]
+    S --> L
+```
+
+| 现场 | 期望行为 | 证据要求 |
+| --- | --- | --- |
+| 购买后这一局过了一层 | 标签按层数推导，写入复核文件 | `tests/test_shop_value_review.py::test_the_label_is_the_runs_own_later_observation` |
+| 证据缺哈希绑定 | 不算标签 | `tests/test_shop_value_review.py::test_a_later_observation_without_a_bound_digest_is_not_a_label` |
+| 购买后没有被绑定的观测 | 保持 pending，不编造 | `tests/test_shop_value_review.py::test_a_purchase_the_run_never_followed_up_stays_pending` |
+| 候选证明不了留出排序 | 只做影子，顺序不变 | `tests/test_shop_value_review.py::test_a_promoted_candidate_reorders_the_offers_and_a_shadow_one_does_not` |
+| 盘上标签与证据不一致 | 加载时重新推导并排除 | `tests/test_shop_value_review.py::test_a_candidate_with_a_dataset_digest_that_does_not_re_derive_is_ignored` |
+
+验收口径：`python tools/shop_value_review.py --install` 会复核目录、训练、并把 `weights.json` 与 `modelcard.json` 装进 `assets/resource/base/model/shop-value`。2026-10-15 的实测状态：10 个目录中 7 个已按观测标注、3 个仍待核（缺后续观测）；已核样本 1 局 / 6 行，留出 0 对、准确率未知，因此参与方式为 **shadow**（分数已可见，顺序不变）。**这不是"神经网络已上线"**：要开始参与，需要第二个被核验的局形成留出对比；缺的就是能跑完的实机局数，而不是人的复核。
+
+**续（2026-10-16）：账本的 `abandoned` 也是账本；而标签只有一个值时，门控拒绝得对。** 上一段把缺口记成"缺的是能跑完的实机局数"。核对之后它分成两件不同的事。
+
+1. **当时被核样本不可能有两局，这是结构问题。** `_scope_evidence`（`src/maalimbus/shop_value_training.py:389`）只在 `active` 与 `receipts` 里找这一局的证据绑定，而 `run_wiring.expire()` 把到期或重开的旧局归入 `abandoned`——`f855ac82c2b1429aae9c747a122213b8` 就在那里（备注：画出选人页时镜牢里没有进行中的局）。它自己的 4 条 `floor_clear` 正是给那次商店购买打标签的后续观测，却因为不在前两个列表里被判 `delayed_outcome_scope_not_in_run_ledger` 排除。只读前两个列表意味着一次购买只在**自己那一局还是 active 的时候**才能被标注：语料永远只有一局，留出比较永远没有对可比，`ranked` 于是不是"还没到"，而是结构上到不了。`_ledger_runs()`（`:374`）现在把 `active`/`receipts`/`abandoned` 一起读，重复登记仍按 `run_ledger_scope_ambiguous` 拒绝；实机语料从 1 局 6 行变成 2 局 7 行、留出 6 行。
+
+2. **两局之后标签仍然只有一个值，而这一次门控拒绝得对。** `label_from_outcomes` 取的是**这一局**在购买之后观测到的最大收益，所以一次运行里每一行拿到的基本是同一个数：这局后来到过哪一层，就是这局所有购买的标签。实机 7 行的 `label_values` 是 `[0.6]`，`len(targets) > 1` 这道门因此照旧把它写成 shadow。这不是缺陷：只有单一取值的语料没有任何"谁更好"的对比可学，强行晋级只会得到一个把常数写在脸上的排序器。训练报告与 modelcard 现在直接写出 `label_values` 与原因（`candidate_shadow_blocked_because_every_row_in_the_corpus_carries_the_same_outcome_value_0.6`），不再只留一个 `shadow` 结论。
+
+   要让它真的开始参与，缺的不是更多次同样的购买，而是**结果有差别**的局：同一种礼物有时买、有时不买，且两局的后续不同。这里还有一个必须承认的混淆：因为标签是"这局后来到得多远"，跨局样本教出来的可能是"**哪些礼物出现在强队里**"，而不是"哪些礼物值得买"。在把 `ranked` 交给它之前，这条混淆要有对照（例如同一队伍下的购买对比），否则 `ranked` 只是把一条相关性写进顺序。
+
+### 9.3.12 重置弹窗与未确认输入的恢复
+
+计划：将兜底所有权判断放回party_vision.plan；重置恢复使用明确的reserve_clear_reopen intent API，沿用confirm_clear/observe读者；原pending保留，最多2次重开。135相关检查/1历史帧skip通过，含完整Runner保留帧、page分支ratchet和事务API分类。中间全量11 failed/2834 passed/710 skipped316.65s，其中4个新增集成失败（UNKNOWN检查增长、重开API未分类）已由上述改动及对应检查修复；原7个历史失败仍开放，没有声称新全量全绿。实施/局部状态图/实机出口见[4.16](4-business-flows.md#feature-4-16)。接下来安装并连续推进当前局；不再设置中间页面停点，仍保留消费授权与真实停滞/容量边界。
+
+<a id="feature-9-3-13"></a>
+
+### 9.3.13 Native failure cause and continuous execution
+
+Source plan: inject the actual guarded-callback latch into MaaObserver, check it around each native observation and preserve error type/message/node in the result. `ObservationCallbackFailed` has its own cause; an exhausted evidence budget must not become empty-page timeout retries.74 related callback/read tests passed; the later combined map/capture/cache group passed109. Existing transient read failures retain their bounded retry behavior. Current installed d6f61a7 has not yet received this source change.
+
+```mermaid
+sequenceDiagram
+  participant O as MaaObserver
+  participant M as Maa Context / guarded callback
+  participant F as Shared failure latch
+  participant L as MirrorRunner
+  M->>F: Store original error type / message / node
+  M-->>O: Failed native node without page event
+  O->>F: Read injected failure provider
+  F-->>O: Actual latched cause
+  O->>L: ObservationCallbackFailed
+  L->>L: Preserve cause in result, zero futile read retries
+```
+
+
+Continuous execution uses no stop_page; an actual stall, backend failure or unapproved cost remains a real ending. The controller is left running while independent source/Wiki work proceeds. Source changes are installed only after that controller has ended. The last continuous session ended on a real map-state defect, not a deliberate intermediate checkpoint; repair and state diagram are in[4.17](4-business-flows.md#feature-4-17).
+
+## 9.4 学习与策略的架构边界
+
+<a id="feature-9-4"></a>
+
+**启动器容量修复（已安装并核准备路径）**：`launcher_cache.stage_launcher` 按完整 bundle 内容哈希复用外置 helper，避免每次启动复制一整份。不同版本不覆盖使用中的旧 helper；首次复制前核项目峰值容量，损坏 cache 拒绝替换，失败时清理临时 stage。新 launcher 已独立安装；19 项 installer/cache/prepare/diagnostics 测试通过。实际成品连续两次 `--prepare-only` 的目录、62 个文件 hash/mtime 和总大小一致；私有状态及 Agent/MXU 不变。下一步仍需 GUI 正常启动/关闭与公开更新验收，准备路径证据不替代它们。部署局部图与证据见[6.2.4](6-deployment.md#launcher-lifetime-capacity)。
+
+**学习证据去重（2026-11-16）**：`persist_frame_proposals` 的 proposal 已包含原始 PNG/JSON 相对路径和两个 SHA256，`workspace.protected_evidence` 保护原件；新队列只保存 metadata/review，不再为同一观察复制图片。`review_storage.compaction_plan` / `compact` 只对 untouched pending、原件存在且哈希一致的旧 `frame.png/frame.json` 镜像做逐文件去重。已审核、有修改、缺原件或哈希不符的记录不处理；整份计划执行前和逐文件删除前重核，保留原件与标签字节。实测移除 164 个完全相同副本，释放 173,772,748 bytes，目录由约 1.96 GB 降为 1,788,261,000 bytes。56 项语义队列/容量相关测试通过，不是训练质量或游戏通关验收。入口 Back 的旧候选误称“到达编队配置”，原候选不改字节，另加 hash-bound correction 指明实际只到 MIRROR_ENTRY，尚未批准为训练标签。
+
+```mermaid
+erDiagram
+  CanonicalCapture ||--o{ SemanticProposal : referenced_by
+  SemanticProposal ||--|| HumanReview : awaits
+  CanonicalCapture {
+    string record_path
+    string record_sha256
+    string image_path
+    string image_sha256
+  }
+  SemanticProposal {
+    string content_id PK
+    string episode
+    string native_record
+    string native_record_sha256
+    boolean training_eligible
+  }
+  HumanReview {
+    string status
+    boolean approved
+    string corrected_scene
+  }
+```
+
+**可复现性缺口（2026-11-16）**：训练 ONNX 与部分权重仍在，不能笼统说所有权重丢失。根目录 `yolo11n.pt` 的 SHA256 `0ebbc80d…` 匹配初始化权重；`runs/detect/build/sinner-training-real-20261012-v2/train/weights/` 的 `best.pt`、`last.pt` 属于旧 **40 epoch**，不匹配当前 **120 epoch** model card 的 checkpoint `683b02a4…`。当前 **130 样本 manifest/annotation/120 epoch checkpoint 证据链仍未恢复**。原生 NN research 与 shop shadow 不等于闭环可复现或正式 policy。保留尚存模型/权重、模型卡与 review 引用；恢复原始材料或重采按 episode 隔离的数据后，重做原生留出评估与影子比较，不把旧训练报告写成当前已复现。
+
+下图中“晋级后的推理/策略”是**设计目标**，不能读成当前生产已启用。已有基础分别在 `src/maalimbus/unknown_exploration.py:1`、`src/maalimbus/semantic_labels.py:1`、`src/maalimbus/learning_dataset.py:1`、`src/maalimbus/neural_shadow.py:1`、`src/maalimbus/shop_learning.py:1`、`src/maalimbus/shop_value_shadow.py:1`。MaaFramework提供识别/控制/Pipeline；训练、标签复核和策略晋级是本项目扩展，不称作Maa自带训练器。
+
+已核对 pinned [MaaFramework v5.12.2 Pipeline 协议](https://github.com/MaaXYZ/MaaFramework/blob/v5.12.2/docs/en_us/3.1-PipelineProtocol.md)：NeuralNetworkDetect 在这一层加载检测模型并返回识别结果；本项目仍需独立实现训练与购买策略评估。购买 MLP 评分属于自定义策略扩展，不是 Maa 自带训练器或原生图像检测器。原先只凭 `ranked` 标记改变顺序的缺口已按下节修复并安装；留存候选仍未获得正式排序资格。
+
+
+
+#### 成品运行证据保护
+
+计划：同时解析仓库 `evidence/runtime` 与成品 `dist/MaaLimbus/evidence/runtime` 的证据引用。无法区分的应用相对路径保守保护两处对应文件。事务、账本、模型和复核记录引用的 JSON/PNG 成对保留；成品证据树存在受保护文件时不得整树回收。先验证两种根目录、相对路径与容量压力反例，再安装。本修复只改变保留规则，不授权游戏输入或模型晋升，也不执行实际清理。
+
+
+源码已实现：53项存储/语义测试、16项安装/指纹测试通过。实际只读前后枚举新增保护716条路径，成品证据树由可回收变为排除。未执行实际清理；安装与最新完整套件仍需分别验收。
+
+
+39b3aaf已安装，实际组件自检与私有文件保留通过。剩余容量工作：6次输入的星光路径除原始证据外又产生约32.7MB原生debug；优先在控制器宿主设置有界Maa SaveDraw/SaveOnError及学习代表帧采样，不能删除被引用原证据，也不能把AgentServer当作控制器宿主设置全局选项。未执行debug清理。
+
+
+### 宿主调试副本与原始证据
+
+计划：在真正的控制器宿主里，Toolkit默认配置加载后、任务创建设备前设置Maa全局图像输出选项。保留原生文本日志及Journal PNG/JSON/hash；原生接口必须确认设置成功，失败则在游戏输入前报告。AgentServer不能假装配置了另一个MXU进程。`native_evidence.configure_host`现接成品MirrorTask验证器及当前页只读观察器，尚未改造MXU宿主。
+
+```mermaid
+flowchart LR
+  Host[控制器宿主] -->|SaveDraw / SaveOnError / DebugMode false| Maa[Maa原生运行时]
+  Host -->|自身资源与冻结Agent| Task[MirrorTask]
+  Task --> Journal[原始PNG + JSON + SHA256]
+  Journal --> Queue[学习与事务证据引用]
+  Maa --> Text[原生文本日志保留]
+```
+
+11项宿主策略/成品判定/Journal检查通过。实际Null输入当前页观察器确认原生设置成功并捕获INITIAL_GIFTS；不等于游戏操作、GUI宿主接线或整局容量保证。未删除旧debug图或原始证据。下一步对重复学习候选采样、对无引用截图做有界保留，保护pending事务、有效标签与楼层/到账证明。
+
+
+### 有界入队与压力触发的截图保留（实现）
+
+目标：整条镜牢在用户最新授权的3,000,000,000字节内继续，保护pending/已审核复核材料和游戏事务证据。运行时语义入队按episode/locale分别限制两类候选：有对象/图鉴帧最多32份，无对象帧最多32份且同场景只留1份（最多64份新候选）；显式离线采集不采样。旧无对象记录不再挤占真实罪人检测框的配额。已有proposal/review不改写，采样拒绝不授权输入也不停止游戏；未知成功转移走独立证据链。
+
+Journal先为下一对文件预留容量。只有容量不足时，先生成只读保留计划，再选无引用中间PNG；保留JSON/hash历史、近期帧、首尾帧、页面变化、输入前后帧，以及状态/模型/复核/报告/源码测试引用。来源损坏或不完整即不具备回收资格。逐文件删除前先持久化清单，再核hash与引用；不回收其他活跃捕获流，不整目录删除。有效/受保护证据本身耗尽预算时明确报告，不能偷偷丢弃。
+
+出口证据：采样/幂等/人工复核不变、容量压力/证据变化/安装根路径的协议测试；真实只读计划及仅对合格文件的审计回收；成品从当前HUD继续而不重放提交。存储测试不证明模型晋升、通关或到账。
+
+`semantic_labels._frame_admission`已实现运行时配额，`capture_retention.plan/apply/reserve`接入Journal预留与审计回收。CLI `tools/capture_retention.py`默认只读，应用时需提供原计划并独立重核；复用现有controller lease排斥并发实机任务，不创建设备。包括嵌套报告引用在内，相关86例测试与43例Wiki检查通过。安装与实机续跑证据按实际完成情况另记。
+
+```mermaid
+flowchart TD
+  Frame[原生截图与OCR] --> Reserve{下一对PNG / JSON能否容纳于3GB?}
+  Reserve -->|能| Journal[写入canonical文件对与hash]
+  Reserve -->|不能| Plan[选择无引用中间PNG]
+  Plan --> Protect[保留事务 / 复核 / 模型 / 输入边界证据]
+  Protect --> Intent[持久化回收意图并重核hash与引用]
+  Intent --> Journal
+  Journal --> Admission{运行时提案是否入队?}
+  Admission -->|是| Queue[不可变待复核提案]
+  Admission -->|否| Sample[记录采样原因并继续]
+  Queue --> Review[人工或独立教师复核]
+```
+
+真实离线审计：仅回收46张无引用中间PNG，释放73,979,164字节；原JSON/hash记录及1,327份私有/复核/原生/引用文件保持不变。工作区1,903,771,882字节，设备输入0。报告`build/resume-20261117-capture-capacity-audit.json`；全量回归7 failed /2779 passed /710 skipped，290.42s，pytest原退出码1，同七项历史失败；后续installed5d84501实际从首战推进至VICTORY与MAP，incoming停页缺陷修复见4.14；长局容量、整层通关和领奖均未认证。
+
+<a id="feature-9-4-1"></a>
+
+**2026-11-17 观察时限与引用解析缓存（源码）**：真实引用扫描冷读约10秒，Journal容量压力下的重复扫描可能挤占单次30秒观察期限。`workspace.cached_references`每次重读文件并核SHA256，仅复用最多4096份文件的词法引用解析结果；每轮重新解析当前路径/链接，共用父目录只解析一次。新文件、同长度且mtime不变的内容修改仍立即生效；不缓存容量、回收许可或游戏事务。逐文件删除前的原JSON/PNG hash、引用重查和durable manifest保留。对象/无对象独立配额的回归保留所有旧proposal/review字节。68项相关测试已通过；当前源码尚未安装，真实压力回收时长、安装续跑及完整套件结果另记。
+
+Full regression:7 failed /2821 passed /710 skipped in344.46s, pytest exit1; same seven historical archive/count/next-node discrepancies (`build/resume-20261117-reference-admission-full-tests.log`). Later invalid-path and Windows newline guards are included in the final68 related passes. Actual old/new reference sets match exactly (5,242 paths);11.222s original versus4.239s cold /2.278s warm. Offline pressure reclamation retained1,439 protected/private/metadata hashes and removed only12 eligible intermediate PNGs (20,637,356bytes); all original JSON remains, workspace1,935,578,642bytes with64MB reserved for deployment. The12-file audit took34.614s outside a native observation; this is not a promise that arbitrary pressure work fits30seconds. Report `build/resume-20261117-correct-deployment-capacity-verification.json`.
+
+```mermaid
+sequenceDiagram
+  participant J as Journal
+  participant R as Reference scanner
+  participant C as Bounded parse cache
+  participant F as Current files
+  J->>R: Capacity pressure / revalidate before unlink
+  R->>F: Enumerate and read current bytes
+  R->>C: SHA256 + root/path/family
+  alt same bytes
+    C-->>R: Immutable lexical references
+  else new or changed bytes
+    R->>R: Parse and replace bounded entry
+  end
+  R->>F: Resolve current parents and links
+  R-->>J: Current protected paths
+  J->>J: Recheck PNG/JSON hashes before reclaim
+```
+
+### 9.4.1 购买排序的可复核参与凭据
+
+`verification_summary` 现在将 observation、target、实际 review 字节哈希并入 dataset digest，权重文件另绑定 train/holdout scope 划分。`shop_value_promotion.evaluate` 从这些绑定记录重编码、执行与 runtime 相同的 MLP forward，重新核 scope 不交叉、样本不重复、划分与训练协议一致、标签非恒定、≥4 个可比较留出对且准确率 ≥0.6。modelcard 的 `participation` 只是请求；手填留出成绩不会进入最终日志。旧候选缺少新凭据仍可影子预测，不能只改一个字段就晋级，也不会因此停止镜牢。
+
+`rank_preview` 只重排传入的计划候选，不添加报价或改变价格。日志按名称和价格绑定预测值，显示“影子预测值”或“神经排序值”，以及手动权重、规则队列分、实际重算留出指标和拒绝原因。`buy_learning_applied` 表示排序参与，`purchase_input_authorized=False` 表示评分没有消费授权；Maa 输入仍由原有交易、页面与玩家预算负责。新模型导出和复制前也检查 2 GB 项目容量。
+
+```mermaid
+flowchart TD
+  ROW["已核购买与延迟结果<br/>observation / target / review SHA"] --> DATA["dataset digest"]
+  DATA --> WEIGHT["weights：dataset digest + scope split"]
+  DATA --> R["Runtime：重编码、相同 forward、重算留出"]
+  WEIGHT --> R
+  CARD["modelcard：请求 ranked 或 shadow"] --> R
+  R --> Q{"独立 scope、非恒定标签<br/>pairs >= 4 / accuracy >= 0.6"}
+  Q -->|通过且请求 ranked| ORDER["仅重排计划候选"]
+  Q -->|不足或不一致| SHADOW["保留规则顺序；记录影子分与原因"]
+  ORDER --> TX["既有页面 / 交易 / 玩家预算"]
+  SHADOW --> TX
+  TX --> MAA["MaaFramework 输入与后继取证"]
+```
+
+本轮相关检查 **335 passed / 208 skipped**；随后评分诊断补充检查 **82 passed / 1 skipped**。前者初次 Wiki 导航行检查失败，修正导航位置后重跑通过，未隐藏失败退出码。新 Agent 已真实安装，自检在打包进程内运行当前模型，假设报价输入预测约 0.5441，与源码一致；98 份安装私有文件与 28 份项目配置不变，项目约 1.88 GB。证据：`build/resume-20261116-installed-shop-participation-verification.json`，其中 `packaged_prediction_verified=True`、`installed_matches_source=True`，没有 controller 或游戏输入；该数值不是实时商店报价，也不是礼物强度评分。
+
+留存模型卡记录 2 局 / 7 行，标签全为 0.6、可比较留出对为 0。当前 `build/learning-review/shop-purchases` 已缺失，读取结果为 0 条可复训样本；不能从留存模型卡反推原始证据仍存在。保留模型与影子功能，待重新取得真实差异结果与 episode 隔离数据再复训。隔离训练导出闭环和篡改反例证明代码协议，不证明真实购买策略质量。地图旧车头断言与后期一步规则冲突，原后继图缺失，仍保留该失败等待实机证明。
+
+<a id="feature-9-4-2"></a>
+
+### 9.4.2 自动事实标签与人工决定的优先关系
+
+2026-11-16 的隔离复现发现两条覆写路径：`review_sample` 会把人工拒绝/修改改回自动批准，`shop_outcomes.sync` 会重置已有的结果批准字段。修复计划包含三条交付：保护人工输入；让未修改的自动记录随同局新证据更新；把标注接回普通收集链且不影响游戏事务。三条源码交付、隔离闭环与 Agent 安装已完成：c997729、526 文件源码指纹、自检通过、98 安装私有文件与 28 项目配置哈希保留。`build/resume-20261116-auto-label-installed-verification.json` 另核评分源码/成品一致，未产生新实机标签。完整回归为 7 failed / 2707 passed / 710 skipped，258.75s；保留原七项失败。
+
+收集器先按现有交易规则核购买及延迟截图/账本，再合并新观察，保留人工批准与旧标签来源；没有当前 ledger 观察不等于旧结果为假，不会清掉旧结果。已归档 abandoned scope 也由共同的账本读者解析。新证据、标签、临时副本在写入前预留项目容量，证据用临时文件核 hash 后发布，途中出现的不同文件保留。
+
+`shop_review_state.review_problem` 区分未动的 pending、带内容指纹的自动记录、人工批准/拒绝和未知修改。内容指纹只识别正常自动写入及后续编辑，**不是权限凭证或人的身份认证**。人工记录不被自动改写。自动标签必须重新验证购买差额、原始 JSON/PNG、时序与同 scope 账本；未知结果只留待核，不猜一个低收益分。两个文件分别原子写入，整体不是原子事务；若中断，下一次从同一已核结果补全，遇到人工编辑则保留编辑。
+
+人工工具显式记录非自动教师的 `reviewed_by`，清理旧自动声明。训练器接受明确的人工 benefit，仍重验全部原始证据；人工批准不能使坏图或错误 scope 变真。旧人工工具遗留的自动 label_source 不会压过明确人工 reviewer。未明确接管的自动分数被改动后保留，但不能冒充已核的客观标签进入训练。
+
+```mermaid
+sequenceDiagram
+  participant C as MirrorRunner / collector
+  participant F as Sample folder
+  participant A as Automatic fact teacher
+  participant H as Manual review tool
+  participant L as Training loader
+  C->>F: 核购买与延迟证据，合并观察而不重置人工决定
+  C->>A: 当前 scope 与账本
+  alt 人工决定或未知修改
+    A-->>C: 保留原文件；返回原因
+  else 未修改自动记录或初始 pending
+    A->>A: 重验差额、截图 hash、时序、scope
+    A->>F: 已证事实标签；单文件原子写，来源标为自动
+  end
+  H->>F: 显式人工分数或拒绝；不改截图
+  L->>F: 重读 review、原始证据与账本
+  L->>L: 拒绝样本/坏证据排除；人工标签与自动事实分开
+  Note over C,L: 标签异常不否定已核游戏动作；训练、晋级另验
+```
+
+普通 SHOP 收集调用会触发事实标注，不再依赖外部手动复核 CLI。Runner 日志显示自动事实标签就绪数与人工保留数；不把“已标注”说成“模型已训练/参与排序”。此前相关检查 323 passed / 208 skipped；没有当前账户的新标签或实机购买质量证明。
+
+**延迟结果派发计划与实现（2026-11-16）**：最后一次购物后可能不再遇到商店，故不能只在 SHOP 收集。`record_ledger_event` 在真实账本写入完成后，把同 scope 的楼层/胜利结果交给 `shop_outcomes.refresh_scope`；`reward_task.finish` 在收据/HOME归档及交易完成写入之后归集，保留轮换前 scope。普通 Mirror 启动仅补一次遗漏标签；observe-only 不归集。若标签写入失败，保留已经成功的账本/领奖，下一次 Mirror 或已完成领奖的启动只补标签，不再次操作设备、领奖或轮换。没有同局购买事务时零写入；外来 scope 和路径穿越拒绝。收集器仍重验购买及延迟截图，人工优先关系不变。
+
+```mermaid
+flowchart LR
+  G["Maa观察/操作与后继核验"] --> B["账本先记真实楼层/胜利"]
+  P["独立收据与HOME核验"] --> A["领奖归档与完成交易"]
+  B --> C["同scope refresh_scope"]
+  A --> C
+  R["明确启动时补收；observe-only除外"] --> C
+  C --> V["购买与延迟证据重新核验"]
+  V --> L["事实标签或保留人工决定"]
+  V --> F["失败留pending；不撤销账本、不重发输入"]
+```
+
+新增隔离检查覆盖最后购物→胜利、领奖归档→标签、写入失败后仅补标签以及只读启动不写标签；相关集合 **174 passed / 75 skipped**，退出码0。收据审计在新增合成派发测试中显式隔离，真实审计由原测试负责，不能称为新实机收据。此变更已从 b62dbab 重建安装，实际自检与评分源码一致性通过，98 安装私有文件与28项目配置哈希保留，资源/模型未改；完整回归7 failed / 2720 passed / 710 skipped，保留原七项失败。详见PROJECT/acceptance和 `build/resume-20261116-delayed-dispatch-installed-verification.json`。安装不证明新实机标签或GUI派发。自动复训、私有模型发布仍需后续工作，不能把本节写成完整自学习闭环完成。
+
+```mermaid
+flowchart TB
+  PI["MXU与ProjectInterface配置"] --> RUN["MainTask / MirrorRunner"]
+  RUN --> MAA["MaaFramework Resource与Pipeline"]
+  MAA --> PER["OCR / Template / 原生神经识别"]
+  PER --> FACT["本帧事实与置信度"]
+  FACT --> RANK["规则、手动权重、晋级策略；分别标来源"]
+  RANK --> TX["预算、意图、后继、事务核账"]
+  TX --> INPUT["单Controller输入"]
+  FACT --> BUNDLE["episode证据与候选标签"]
+  TX --> BUNDLE
+  BUNDLE --> REVIEW["独立教师与人类复核"]
+  REVIEW --> TRAIN["离线分集和训练"]
+  TRAIN --> EVAL["模型卡、Maa原生留出评估、影子对照"]
+  EVAL --> GATE{"晋级条件通过？"}
+  GATE -->|否| SHADOW["保留shadow或规则回退"]
+  GATE -->|是，设计目标| PER
+  GATE -->|是，设计目标| RANK
+```
+
+首先列清当前哪些节点真正调用模型、哪些只写proposal、哪些为shadow/off，附模型hash和实际日志。识别和购买价值分别验收：买成功只证明交易，不证明藏品强度；重绘或赢一场不证明选择最优。商店手动优先级、保留金币、刷新上限、允许/禁止名单始终有效；模型不能扩大预算。
+
+感知模型至少按episode隔离训练/验证/测试；同一局连续帧不能同时充当训练与独立验收。模型晋级前固定类别、阈值、误识别指标和回退条件，并在新episode跑原生Maa评估。购买策略先做历史回放和影子排序，按实际效果指标与规则基线比较；证据不足就保持影子，不得把“模型加载了”写成“学习控制已应用”。
+
+## 9.5 标签、评分与证据的数据模型
+
+<a id="feature-9-5"></a>
+
+这是**逻辑模型**，不是声称所有实体已是一张数据库表。已有JSON/JSONL产物要做字段映射；缺字段先在规格写明，再实现。原图、OCR事实、动作结果、推断标签、人工裁决分开保存；标签更正保留版本。运行日志只展示真实参与决策的权重、各项加扣分、最终分、决胜规则、候选被排除的原因以及模型是否参与。
+
+```mermaid
+erDiagram
+  EPISODE ||--o{ OBSERVATION : contains
+  OBSERVATION ||--o{ DECISION : supports
+  DECISION ||--o{ SCORE_COMPONENT : explains
+  DECISION ||--o| INPUT_INTENT : may_send
+  INPUT_INTENT ||--o{ OUTCOME : observed_as
+  OBSERVATION ||--o{ LABEL_PROPOSAL : proposes
+  OUTCOME ||--o{ LABEL_PROPOSAL : constrains
+  LABEL_PROPOSAL ||--o{ REVIEW : versioned_review
+  DATASET_VERSION ||--o{ SAMPLE_REFERENCE : pins
+  SAMPLE_REFERENCE }o--|| EPISODE : grouped_by
+  MODEL_VERSION }o--|| DATASET_VERSION : trained_from
+  MODEL_VERSION ||--o{ EVALUATION : measured_by
+  EPISODE {
+    string scope
+    string build_hash
+    string policy_version
+  }
+  OBSERVATION {
+    string png_hash
+    string record_hash
+    string scene
+  }
+  SCORE_COMPONENT {
+    string source
+    float value
+    string direction
+  }
+  LABEL_PROPOSAL {
+    string status
+    string teacher_hash
+    string uncertainty
+  }
+```
+
+复核包至少含manifest、前后截图/OCR、动作意图与结果、评分轨迹、标签proposal与review状态；引用采用hash而非只靠可被覆盖的文件名。失败样本也收集，但“未知”不是负例，“无进展”不一定是按钮错误。模型训练资格由证据和复核状态决定；不能让自己的模型预测循环充当独立教师。
+
+## 9.6 资源监控部署与接口
+
+<a id="feature-9-6"></a>
+
+监控不创建控制器，不抢截图，不阻塞输入。采样关闭时停止后台任务；建议低频起步，具体间隔写入设置并测开销。读取总GPU、VRAM、脚本进程CPU/RAM；若提供进程GPU，必须写明供应商与归属算法。缺值用null和reason，不能显示为0。
+
+当前源码边界：`resource_diagnostics.sample` 已提供进程CPU/RAM和整卡GPU/VRAM采样，`NvidiaSmiProvider` 有固定参数和超时；`tools/resource_diagnostics.py` 是只读CLI。CPU以单核忙碌为100%，多核可超过100%。进程GPU只有可注入接口，默认 `unsupported / no_per_process_gpu_provider`，不是已实现归属。GUI异步调用、开关与实机同窗对照仍待验收。查询 `gpu` 路由查看当前符号和窄测试；结构检查通过不能证明这些行为已交付。
+
+```mermaid
+flowchart LR
+  subgraph Desktop["Windows本地部署"]
+    UI["MXU / Tauri GUI"] -->|只读命令，集成计划| COL["已有同步采样后端；GUI异步集成待实现"]
+    COL --> OS["操作系统进程指标"]
+    COL --> GPU["供应商GPU适配器，有超时"]
+    UI --> IPC["Maa Agent IPC"]
+    IPC --> AGENT["Python Agent"]
+    AGENT --> FW["MaaFramework 原生识别和控制"]
+    RES["Resource图片、字典、ONNX及模型卡"] --> FW
+    FW --> MUMU["MuMu / Limbus"]
+    AGENT --> PRIVATE["私有状态、日志、证据、复核包"]
+  end
+  GPU --> TOTAL["整卡负载，与MuMu/DSH共享"]
+  GPU --> ATTR["可用时的进程归属指标"]
+  COL --> SNAP["带时间戳与来源的结构化快照"]
+  SNAP --> UI
+```
+
+接口沿用[诊断契约](../../plan-20261014-recovery-diagnostics.md)：version、sampled_at、interval_ms，进程role/pid/cpu_percent/rss_bytes/status，GPU provider/device_name/util_percent/vram_used_bytes/vram_total_bytes/status；整体和进程指标分开。明确CPU百分比是否按逻辑核归一化。不得采集或公开GPU UUID、用户名、机器ID或原始命令输出；不改系统权限。
+
+P4验收包括同窗对照、非NVIDIA/无工具、超时、Agent退出、多GPU、开关开闭和游戏运行时采样。若运行中推理有GPU负载而面板无法归属，应显示“整卡可见、进程不可用”，不能伪造脚本占用。工具适配器具体实现由DSH选定并记入本节，架构边界不得改变。
+
+## 9.7 验收矩阵与回写纪律
+
+<a id="feature-9-7"></a>
+
+**本轮出口（2026-11-16）**：P0–P6、四任务、NN quality、真实 GUI Start 与原范围全部开放。原生坐标 callback 已通过；Agent TEMP+TCP 启动修复已安装并实测注册 15 actions/exit 0。下一层 controller 文件访问误判已在源码迁为既有控制权的 session mutex，成品重建中、尚未实机通过。两处只读 handoff 已让 team/entry 中间页可见，但遗留 MirrorHard 路由仍开放；Team2 重配没有成功证据。接着核 canonical old scope、队伍与入场后继，再按实际时钟/页面/账本继续，最终证明 **Hard 五层 → 实际 receipt → 独立 HOME → 一次 rotation → reentry**。完整套件仍为 47 failed / 2513 passed / 709 skipped，后续窄测试不替代全量；历史归档审计差异也仍保留，不能因缺帧调低门槛。
+
+- [ ] P0：原卡4意图有原生证据支持的明确归宿，成功/取消分别记录，没有重买或凭空到账。
+- [ ] P1：当前成品GUI点一次开始能进入正确管线，原生导航节点通过；证据绑定安装版本。
+- [ ] P2：脚本实际完成Hard五层；部署核对正确时不清空重编；每层奖励、商店购买/刷新均结算可追溯。
+- [ ] P3：Team1、Team2和Team22的指定体系/顺序/EGO配置逐项核对；离屏队伍滚动按新鲜行与选中标题验证；单队与轮换模式不串用。未实现的EGO装备不得勾选通过。
+- [ ] P3：头像/星光卡保存重开和参数应用一致；运行N局与步数/时间上限分开；日志展示候选、权重/分项、最终分、来源和理由。
+- [ ] P4：资源采样真实可对照、缺失正确显示、开关有效，运行不抢控制器。
+- [ ] P5：未知尝试、成功/失败标签包、人类复核、episode分集、原生模型评估、实际推理和策略晋级各有独立证据。
+- [ ] P6：最新合并代码完整测试无未解释失败；真实GUI→五层→到账→返回→一次轮换/再次入场，并核明确预算。
+- [ ] P6：双语wiki和局部图与实现/证据一致；新增计划组件已重新标注真实状态；隐私与发布门禁分别核验。
+
+每卡结束按“计划要求→实际代码/配置→验证命令→实际产物→差异→处置”回写，不只增加一段进度描述。未达到条件则保持部分完成，带下一步。打断/超时/用户操作造成的运行结束与程序异常分别归因；禁止把旧局截图当新局实证。最新状态放验收与PROJECT，本文保留稳定完成标准。
+
+```mermaid
+flowchart LR
+    W["阶段实施：卡号、依赖、变更文件"] --> E["证据：验证命令与实际产物"]
+    E --> R["回写：docs/acceptance.md、PROJECT.md、wiki"]
+    R --> V{"复核：关闭该卡的判据是否满足"}
+    V -->|满足| Done["阶段完成"]
+    V -->|不满足| H["保持部分完成：写下差异与下一步"]
+    H --> W
+    Done --> M{"P6：整套检查是否全绿"}
+    M -->|有未解释失败| H
+    M -->|无| Ship["提交并推送"]
+    B["打断、超时、用户操作"] --> X["与程序异常分别归因"]
+    X --> H
+```
+
+## 未验收 / 待核实
+
+本章新增的是可执行计划及设计视图，**不代表P0–P6已交付**。GPU面板、模型晋级、显式连续局数、Team22体系EGO和整轮闭环仍按各卡实际产物判断。DSH正在运行的任务只观察其结果；不得为补计划重启控制器或替换活跃应用。
+
+
+## 9.3.12 点击判定必须说明它看的是哪一帧，队伍位置必须能被读出
+
+`map_click_result` 的 `frame` 曾经恒为 `None`：代码写的是 `getattr(self,'frames',None)`，
+而 `frames` 只在 journal 上存在，`Runner` 上没有这个属性。现在点击派发时把帧名存进
+`state['map_click_frame']`，三条判定（拒绝 / 接受 / 页面未变）统一读取；并且补了"页面既没变也
+没移动时仍记一条"，避免意图被静默丢弃。真机验收：`packaged-mirror-20261022-075450` 388 事件、
+13 条判定、13/13 带帧名、0 条 `None`、0 条静默丢弃。
+
+`player_marker` 在直播帧上返回 `None`，循环无法只点相邻节点。新增 `map_vision.party_point()`
+用队伍自己的火把（两枚上下相邻的暖色高亮斑）定位，该局 14 个地图帧全部读出，相邻帧位移
+`(829,440)→(826,561)` 与一格步幅一致。
+
+被数据否掉的假设同样记在这里：徽章点并不在节点上方空白（`(1020,327)` 落在 `?` 六边格内，
+"下移 106"落在格子下方空地）；`GOLD_MARK_DROP` 全局改成 106 会让两条既有测试失败，说明偏移随
+页面变、全局常量在结构上就是错的；用面积阈值取橙色边取到的是徽章图标而非连线。检测器在
+`frame-0034` 上输出的中心与 `gold_marks` 重合，因为标签来自规则——这一项要改的是标注对象。
+
+
+## 9.3.13 推断格不再直接当节点；连续被拒要说出"探索未恢复"
+
+`lattice_step` 候选原先把格子推算点直接当节点中心。`packaged-mirror-20261022-080630` 的
+`frame-0057` 显示同一批点里有的落在节点内、有的落在空地，而循环无从分辨。现在每个格子点先吸附到
+120 px 内最近的徽章中心（徽章中心才是游戏提供的节点，见 `badge_mark` 一节），吸附不到就丢弃——
+宁可少点一次，不点空地。
+
+地图点击被拒有两种原因，帧上无法区分：候选错了，或探索尚未恢复。对照实验（同一设备、同一批候选）
+给出判据：恢复前九次点击只产生 300–2000 px 动画，恢复后第一次点击即弹出节点面板（107 860 px）。
+因此 `map_refusal_streak()` 在连续第三次被拒时记一条
+`map_clicks_refused_while_the_exploration_may_be_unresumed`，`accepted` 时清零。它只**命名**，
+不自动执行恢复——恢复导航仍未实现，这是已知的缺口。
+
+
+## 9.3.14 连续被拒的地图不再点节点，而是先恢复探索
+
+`map_refused_streak` 到达 3 时，runner 把地图页的进度控件放进 `plan_controls['map.progress_button']`
+（`MAP_PROGRESS_CONTROL`，`src/maalimbus/runner.py`），`window.plan_map` 见到它就先返回
+`the_exploration_must_be_resumed_before_a_node_click` 的计划，而不再点候选节点。未触发时行为不变。
+
+依据是 9.3.13 记下的对照实验：恢复前九次点击只产生 300–2000 px 动画，恢复后第一次点击即弹出节点面板
+（107 860 px）。所以"再点一个候选"在这种状态下是浪费，真正缺的是恢复。
+
+已知限制：`MAP_PROGRESS_CONTROL` 来自单帧目测，只在一个分辨率上验证过；`plan_map` 目前只发起
+"打开进度控件"这一步，`Dungeon Progress` 里的 `Resume` 仍由后续帧的常规计划处理。
+
+
+## 9.3.15 恢复链的最后一环：进度面板上的 Continue 要有锚点
+
+`window.plan_step` 对 `DUNGEON_PROGRESS` 早有分支，只按 `dungeon_progress.continue_button`
+并且"没有锚点就不猜"。但真机 `packaged-mirror-20261022-084358` 显示：恢复计划打开了面板，
+随后立刻 `continue_button_not_anchored`——分支在，**没人绑定**。
+
+现在 runner 在该页从本帧 OCR 里绑定文本为 `continue` 的那一行，`Forfeit` 一律不绑。
+面板上五个按钮里只有它继续当前探索，`Forfeit` 会结束这一局，`Config` 会中途改设置。
+
+这次修复本身也留下一条教训：新增页面前先检索是否已有分支。本轮为此多写了一个重复分支并回滚。
+
+
+## 9.3.16 只有一步之内的节点才能移动队伍
+
+`map_clicks` 的候选此前只排序、不做可达约束，于是循环反复点隔两格以上的节点，判定全为
+`rejected` 而队伍原地不动（`packaged-mirror-20261022-085428`：队伍在 `(1052,562)`，目标从
+`(576,361)` 起）。手测证明相距 219–395 px 的邻居可点、会开面板。
+
+现在 `map_vision.adjacent_to(party, boxes)` 只保留中心距队伍 150–430 px 的候选，并在
+`runner.candidates_of` 里接上。读不到队伍时不过滤，避免"读不到就不试"。
+
+先试格点精确匹配（`(384,0)/(192,110)/(0,220)`）会把真实邻居滤掉——实测偏移与任何单一格点
+向量都不吻合，所以改用距离带。
+
+
+## 9.3.17 读不到队伍就不许点节点
+
+`party_point` 的搜索带到 `0.79 × 宽` 为止，而队伍走到地图东侧时在 `x≈1628`（`packaged-mirror-20261022-090550`
+的 frame-0006/0010/0014 全部返回 `None`）。兜底是"读不到就不过滤"，于是相邻约束一次也没生效，
+循环把 6 次点击花在两格外的节点上，队伍不动。
+
+现在：带宽改到 `0.95 × 宽`（三帧均读到 `(1628,558)`），且**读不到队伍时 `candidates_of` 返回空候选**，
+让循环走具名停因/恢复，而不是猜测。
+
+
+**2026-11-17 capture retention refinement (source)**: HUD/UNKNOWN/LOADING oscillation is one storage segment, retaining each scene's first example, recent frames and input/unknown-exploration boundaries. This does not merge gameplay states. Only older successfully closed controller sessions may compact ordinary intermediate input boundaries, retaining their last causal pair; failed/uncertain sessions remain conservative. Confirmed Null-input read-only probes may compact repeated non-map captures only with complete task-stop/no-input proof. JSON/hash history and explicit business/model/review/report/source references remain protected.64 related tests passed. An actual read-only plan still found only about13MB eligible because legacy pending review records pin many captures; these policies do not magically reclaim that protected evidence. No new capture deletion was applied by this refinement.
+
+
+<a id="feature-9-4-3"></a>
+### 9.4.3 Supplier map classifier compatibility plan (not runtime integration)
+
+```mermaid
+flowchart LR
+  Source["Pinned supplier ONNX + preprocessing"] --> Adapter["Fixed batch + ImageNet graph adapter"]
+  Source --> Reference["CPU ORT reference"]
+  Adapter --> Native["Maa native top class and score"]
+  Adapter --> ORT["ORT full logits"]
+  Reference --> Compare["Numerical comparison / no quality claim"]
+  Native --> Compare
+  ORT --> Compare
+```
+
+
+Pinned source inspection found two external classifiers, not detectors: mirror_legend has RGB NCHW dynamic-batch3x110x130→8 logits; mirror_path has3x224x224→9 connection logits. Supplier preprocessing applies ImageNet mean/std; path outputs need independent sigmoid, whereas MaaFramework.NeuralNetworkClassify retains raw logits internally and applies softmax; the current public result exposes only top class/rounded score. Maa's pinned native implementation resizes with INTER_AREA, converts BGR→RGB and divides255, then uses the model's input shape directly. A dynamic batch and missing mean/std cannot be ignored.
+
+Plan: (1) bind supplier ONNX/classes/preprocessor hashes to the verified Git source cache; (2) create an explicit fixed-batch ONNX adapter with mean/std in graph and unchanged weights/logits; (3) compare actual CPU inference to Maa-native inference on retained real crops using the same resize and report differences; (4) keep all new outputs external-model shadow proposals, with input_authorized=False and no claim of local training or heldout quality. Crop/scale quality and later independent transition labels need their own tests before runtime participation. Temporary candidate output is bounded and removed; current game controller is not replaced. No detector or shop-policy quality is inferred from classifier numerical parity.
+
+
+Actual offline compatibility probe now passes6samples (two models×three real regions): fixed-batch/ImageNet graph adapters preserve full logits in CPU ORT, and Maa-native top class/score agree. Source model/label/preprocessor hashes are bound to the pinned Git snapshot. Native full logits are unavailable; no detector, local training, heldout quality or runtime control is accepted. Temporary models are removed after the probe.
+
+<a id="feature-9-4-4"></a>
+### 9.4.4 Measure a connected node instead of using a click-box ruler
+
+Actual continuous run bought two gifts/refreshed twice, then stopped naturally on MAP. The next red node is about384px from the train, while190px click-box width was treated as pitch; a badge/chevron won instead. The train flame also changes shape with animation: a fixed65px flame-to-node lift selected a body fragment.
+
+Plan: detect the train body by paired warm lamps, central clock body and independent flame; derive its node centre from lamp spacing. Admit a compact red node outline only when the visible outgoing line connects it to that anchor. Bind one-step reach to that measured segment, keep its full measurement in logs, and leave other frames on the existing reader. Negative tests remove each independent part/line, add ambiguity and cover scaled real frames. A fresh native NODE_PANEL successor is required for live acceptance; no manual node click or unconditional distance relaxation. Pending actions remain subject to the existing causal successor/rejection rules.
+
+```mermaid
+flowchart LR
+ Body["Paired lamps + clock + flame"] --> Anchor["Measured train node centre"]
+ Ring["Compact red outline"] --> Line["Visible connecting segment"]
+ Anchor --> Line
+ Line --> Reach["Measured pitch and candidate"]
+ Reach --> Native["Maa touch then fresh successor"]
+```
+
+Storage: preserve native frames/config/review state; retire only verified inactive downloadable WebView component cache. This does not accept long-run storage capacity or neural control.
+
+
+<a id="feature-9-4-5"></a>
+### 9.4.5 Outcome-owned evidence retention under pressure
+
+MAP裁决日志的`frame`是原输入，不是新捕获；存储游标现在只把它当裁决元数据。普通no-op只有在匹配目标／框内350–750ms输入、原始PNG绑定、新鲜完整同层MAP和显式rejected裁决一致时才可退役非关键诊断；当前最后输入对、closed最终MAP、未判断／其它输入打断和所有外部业务／学习引用继续保留。已回应视口手势遇到两份更晚、不同捕获的完整同层MAP后，可用最新读数替换旧诊断端点；未回应意图与跨模块required始终覆盖。134项相关检查通过，实际退役6份诊断图／6,775,901bytes，836份私有／复核文件、11组关键图、全部JSON不变；封存日志另无损压缩885,529bytes。
+
+视口诊断也由独立领域投影负责：`viewport_evidence.diagnostic_index`只接受显式zoom／drag意图后、同scope同floor／pack的原生MAP新读数；UNKNOWN、其它输入、缺失／变更图片、时间倒置或混合scope都不提供回收依据。保留最近两组读数及所有未回应意图。零输入`map_view_probe`不会把已证明冗余的帧变成永久输入边界。各投影的required取并集，视口诊断不能覆盖战斗退出证明；业务／model／review外部引用仍优先。它不证明手势已发送／移动成功／导航成功，不写游戏状态或学习批准。102项相关检查通过。
+
+规范复核存储已同时覆盖购买结果（`shop-purchases`）与普通刷新收益（`shop`）。显式且区分样本类型的sidecar绑定原始native JSON/PNG哈希；可移植数据集仍保留副本。创建前预留输出空间，重复归集保留人工决定与样本地址。实际四份刷新样本重验通过，删除16份逐字节相同的副本，回收7,619,730bytes；14份原始证据及823份私有／复核记录不变。封存native文本日志另行无损归档，回收9,054,375bytes。108项相关检查通过。这接受重复增长修复，不代表长循环容量已验收。最新控制器正常停在第三层第二场战斗HUD，不重放入场／部署；同Team2账本floors[1,2]，没有第三层完成／领奖／轮换。
+
+```mermaid
+flowchart TD
+  Sample["购买结果／刷新收益复核"] --> Sidecar["显式类型与原生哈希引用"]
+  Sidecar --> Keep
+  Classify["Evidence ownership"] --> Critical{"Critical business/model/review reference?"}
+  Critical -->|yes| Keep["Keep proof"]
+  Critical -->|no| View{"Answered ordinary viewport diagnostic?"}
+  View -->|yes| Candidates
+  View -->|no| Result{"Completed battle with matching native proof?"}
+  Result -->|yes| Candidates["Older ordinary intermediates"]
+  Result -->|no| HUD{"Allowlisted HUD diagnostic + verified later HUD?"}
+  HUD -->|no| Keep
+  HUD -->|yes| Candidates
+  Candidates --> Pins["Keep last two HUD pairs / scene boundaries / recent frames"]
+  Pins --> Audit["Durable intent + revalidate + reclaim under pressure"]
+```
+
+
+The continuous run reached floor2 while captures approached the2GB cap. Retaining every ordinary battle tap in a closed failed controller session forever wastes space even when that battle has an independently captured result. Plan: compact only older battle-input boundaries whose later BATTLE_RESULT JSON/PNG hashes remain valid; retain the last battle input pair, every scene boundary, unknown exploration, all business/model/review references and recent frames. Current/unfinished battles and missing/changed result proof remain conservative. Consider closed sessions even among the newest five; preserve each session's recent window rather than blanket-protecting whole directories. Metadata and durable reclamation history remain byte-exact. No game-state mutation or change to live input logic. Validate isolated missing/changed proof and reference controls, then inspect an actual read-only plan before any reclamation.
+
+
+<a id="feature-9-4-6"></a>
+<a id="runtime-migration"></a>
+
+### 9.4.6 正式架构迁移交付表
+
+2026-11-18重新基线：此前源码、安装、自检、截图回放和实机成绩全部保留为可行性材料，不能累加为这次收敛的完成证明。FrameRef/TransitionVerdict只有部分正式消费者，通用Observation、统一执行/裁决及完整容量读取链仍未完成。当前安装版本与新源码分开记录；本节以下旧“下一步”和运行数字均为历史切片，当前顺序以下表为准。
+
+| 顺序 | 当前产物与明确边界 | 退出证据 |
+| --- | --- | --- |
+| 0：Wiki接入 | project-wiki为唯一通用入口；项目路由独立，SessionStart保存索引桥接；用户已正常审核信任，主机触发尚待观察 | 新旧CLI/导入兼容、实际安装读取器送达、未知文件/超限/版本/越界反例；不冒称运行时完成 |
+| 1：契约核实 | 在第1–7章核实唯一生产者/消费者、单位、前景、scope、恢复与学习边界；所有提议类型标未实现 | 关键故障可从词典/路由定位到唯一判据，原未决事务不丢 |
+| 2：运行时收敛 | 统一新观察、前景分流、动作尝试和后继裁决；登录/覆盖层先处理自身控件，不能借背景MAP点击；退役被替代的旧分支 | 同一失败帧及擦除/错scope/旧帧/未发送反例通过统一正式入口；UNKNOWN可有界探索但不伪成功 |
+| 3：容量与串行回归 | 关键证据按同一读取接口保留，整目录3000000000字节（用户最新授权3GB）；维护、测试、构建、实机串行，测试期间不改源码 | 原引用逐字节读回、容量不足先拒绝输入、pytest自身退出码与所有失败原因；不以局部绿灯代替整套 |
+| 4：正式成品连续验收 | 核安装指纹与私有状态，从实际登录恢复当前Team2同一局；单个MainTask连续推进，不按观察超时重启 | 登录→HOME→同局→剩余楼层→授权范围内实际领奖→独立HOME完整链；若需新预算仅在fresh offer处明确处理 |
+| 5：独立学习质量 | 本轮不加功能、不自动推广shadow模型；已有教师/自标签/人工修订链先核来源 | 推理成功、策略参与、独立质量、收益分别有证据；无证据保持未验收 |
+
+hook上下文使用与任务回收见[8.7–8.8](8-agent-rules.md#project-wiki-hooks)。六类图按各段问题服务：第2章职责架构、第3章交互时序、第4章局部业务流与状态、第5章数据关系、第6章实际部署/容量、第7章验收；不能用一张总图代替局部生产者和消费者。计划变更写回对应正式段落，真正属于通用Skill而非项目接入的缺口才向上游提未合并PR。
+
+历史切片记录：
+
+下一切片：原生观察帧绑定（2026-11-18，实施计划）。保留原始帧重放已证明，事件指定战斗frame0011时，旧runner.observe仍能补入更新商店frame0055的OCR／哈希。把FrameRef实现为公共不可变身份（会话内原文件位置、frame_id、原捕获时间或显式未知、JSON／PNG哈希、实际尺寸）；原生MaaObserver及捕获策略共用原始字节校验和事件补全。命名文件缺失／变更／冲突不得借最新文件；具名UNKNOWN仍由领域有界探索。旧无名回放适配明确保留legacy，不能伪造FrameRef；同像素复用不等于新业务完成。先验证错帧／擦除／冲突／元数据反例和真实原帧，再验证源码及冻结原生入口；不改游戏事务、消费或模型授权，也不宣称整个Observation/kernel迁移完成。
+
+当前恢复／空间修复（2026-11-18实施）：恢复记录和执行共用规范拒绝类别，非MAP不执行地图缩放／拖动；具名控件探索保留。仅实际成功冷启动在同Agent／同设备建立一次最多180秒读取窗口，原总期限优先，不循环重置。容量拒绝保留原始错误和used／required／reclaimable／limit；不改2GB。先无损打包Git松散对象，原对象集合／refs／fsck不变；关键不确定恢复pair另有强引用，任何截图回收都遵循现有引用／原哈希／未决事务保护。已启动无损PNG归档的只读压缩可行性测量；未迁移／删除任何原图，只有实际收益和透明读取验证成立才集成。修复与验收后仅一控制器连续同局，不按观察超时重启。
+
+```mermaid
+flowchart LR
+  A["A: contracts + failure replay corpus"] --> B["B: one map-to-next-floor chain"]
+  B --> C["C: full Mirror + interrupted recovery"]
+  C --> D["D: shared task capabilities + validated learning"]
+```
+
+
+架构已接受，正式契约在第1–7章；[2.4](2.4-runtime-redesign.md)仅提供导航。以下记录真实交付状态，不将规范接受等同实现或安装。
+
+阶段B捕获切片（2026-11-18）：先验证Maa5.12.2反向SetOption，再复用统一读取入口实现战斗1280／独立1920回退及大图后继容量预留。源码／原生跨Agent已验证，安装／实机状态以顶部checkpoint为准。原生正式MirrorLoop只读也经实际入口验证，商店只读副作用已隔离。完整镜牢与模型独立质量仍开放；不能把尺寸优化当阶段B退出证据。见[6.8.1局部时序](6-deployment.md#battle-capture-profile)。
+
+| 阶段 | 交付 | 当前事实 | 退出证据 |
+| --- | --- | --- | --- |
+| A | 规范词典/核心契约与旧字段适配 | 正式规范已合入；统一类型/适配未完成 | 旧未决状态不变；反例回放与字段来源 |
+| B | 唯一地图闭环与容量预留 | 页名裁决已实现/安装；Mirror Agent容量首段源码已接，几何归并/全覆盖待做 | 成品连续地图→战斗→商店→下一层，3GB内 |
+| C | 镜牢全能力迁移 | 未完成；保留现有领域事务 | 固定队/轮换/实际到账/再入场与中断恢复 |
+| D | 跨任务与学习推广 | 未完成；NN仍shadow/独立结果不足 | 新任务复用接口；独立局质量和策略收益 |
+
+最新运行：0af685f 成品原生入口连续运行，在第二层商店后进入战斗，08:12 UTC 因受保护证据占满2GB而结束；未重启或清 pending。容量修复属于 B 的退出条件，不得靠多开控制器或删除关键证据通过。
+
+
+Historical first-slice implementation record (2026-11-17): use a small immutable MapTransition with accepted/rejected/unjudged outcomes, deriving allowed named successors from the existing planner rather than duplicating its table. Preserve UNKNOWN/loading/covered outcomes and the original pending; only an independently named allowed successor can promote it. Log before/after frame identities for later supervision. Replace the old `not MAP => accepted` path instead of adding another competing verdict. Also retire completed battle input boundaries by their actual BATTLE_RESULT evidence, even while the overall controller session continues: unfinished current battles remain protected. This removes the process-ended assumption that still forced capacity stops between battles. Validate missing/changed proof, active unfinished segments and deferred-then-late-success recovery before installation.
+
+
+Capacity follow-up: the next native session again hit the2GB cap mid-battle. Protect critical business/model/review evidence, but older ordinary HUD assignment/start/speed diagnostics need only their representative state and last two causal pairs once independent subsequent HUD reads exist. They are not receipts or proof of strategic benefit. Plan a narrow allowlist for those nonfinancial controls; unknown exploration, paid/EGO/other actions and unanswered latest input remain conservative. This stores fewer historical pixels without claiming the old action succeeded. Regression children must disable disposable bytecode, which otherwise grew the project beyond its cap during a full run; actual caches were removed with configuration hashes unchanged.
+
+
+First implemented slice (not completion of stage A): immutable `map_dispatch.MapTransition` derives named successors from the existing planner. UNKNOWN/loading/covered/unexpected pages remain unjudged; original pending survives, known successor retires only its matching target/commitment, and before/after frame identity is logged. Removed the competing step-tail `page != MAP => accepted` path and tightened the MAP dispatch ceiling30→29. Geometry-based displacement judgement remains a separate legacy path for stage B; this does not claim all map inference is unified.272 related tests pass. A verified retained MAP→NODE_PANEL pair and four explicitly synthetic uncertainty controls pass with31actual private files unchanged and zero input.
+
+Latest complete regression before the final outcome-owner consolidation:7 failed/2921 passed/709 skipped in333.00s, own pytest exit1; the original seven historical archive/count/next-target issues remain. The preceding10-failure run also exposed a new probe's nested replay import and two stale tests: the old normalization spelling and an assumption that a real sample queue must always contain pending items. These were repaired with behavior/evidence checks, preserving the10-independent-scope training minimum. Actual shop readiness is2verified rows from1scope, so training_ready=False/production_enabled=False.
+
+Retention now separates critical business proof from ordinary HUD diagnostics: earlier nonfinancial assignment/start/speed inputs with a fresh verified HUD read can compact while retaining the last two causal pairs, scene representatives/recent frames and all external references. Completed battles can compact inside a continuing controller session; unfinished or unverified business actions remain protected. Real offline reclamation27,980,768bytes preserved793referenced files,29top-level private JSON files and986native JSON files. During the earlier full regression Python regenerated11.3MB disposable bytecode and briefly exceeded the folder cap; that cache was removed, and the test runner now disables bytecode for its children. This overshoot is recorded as a defect, not long-run capacity acceptance.
+
+
+2026-11-17 offline contract migration: runtime_contracts.TransitionVerdict now owns the three canonical verdict values and validates immutable successor contracts/reasons. MapTransition is a compatibility alias and the production map judge uses this record; no second verdict owner or broader successor table added.50 related tests passed. This source is not installed/live verified. MuMu is reserved by the user for another game: no device connection, controller or native input during migration; retained-frame validation only.
+
+
+Contract-migration verification:65 Wiki/contract checks passed in37.72s; the broader related map/retention selection passed50 checks in5.61s. Retained native MAP→NODE_PANEL JSON/PNG hashes verified, four synthetic obscuration controls preserved original pending,31actual private configuration files unchanged,zero controller/input.48routes resolve current symbols. These are offline source/document checks, not new live/GUI/full-run acceptance; full-suite failures remain separately recorded.
+
+
+2026-11-17 阶段B容量迁移（源码）：EvidenceCapacity 占位空间、双槽resize恢复、Journal精确消费与停止报告释放已接入镜牢 Agent。16容量测试、84相关检查通过（另66历史fixture跳过）；历史帧真实Journal隔离满额写入/下一输入拒绝/31私有文件不变已核。完整套件快照为7 failed/2950 passed/709 skipped，349.34s；随后的动态scope/停止报告完善通过74项相关检查，未宣称当前源码全套通过。未安装；MuMu由用户挂其他游戏，本轮不连接控制器。剩余：原生复合节点内部逐输入、独立任务/CLI、任意补读/尺寸变化/超额元数据、整局压力与统一单份证据存储。
+
+
+2026-11-17 实机恢复前的容量阻塞：成品38823aa已安装、自检通过，98安装私有文件/31配置保留；MuMu已在线但前台为Android桌面，未点击。只读预演23MB准入仅有1.3MB可回收，故先迁移封存build报告的字节保持归档和引用扫描；不删除原始帧/收据或误放行资金预算。读取层源代码已接，归档需先验证新冻结程序能读取同一保护引用。
+
+
+2026-11-17 stage B startup/capacity implementation: immutable archive activation is installed and source/frozen pins match. Fresh HOME was incorrectly held at the title wait, yielding23 reads and zero input before failure. Declarative navigation checkpoints, exact-byte writers, CLI native debug suppression and sealed input-free HOME retention are now implemented and passed122 related checks. Installation/live continuous Mirror acceptance follow separately; no pending transaction, payout budget, victory or rotation changed. Seven earlier full-suite failures remain open.
+
+
+2026-11-17 live migration correction: installed1bd533a,98installed/31canonical files preserved; actual fresh HOME checkpoint completed with one observation/zero input. Installed MirrorTask then navigated HOME→DRIVE→MAP floor2/The Unconfronting in the existing Team2 scope. Reverse two-finger calls used an empty controller ID and blocked; the existing watchdog recorded the ending and Agent exited. Its orphan verifier host was closed only after actual producer absence and terminal evidence, not a timeout restart. Native MultiSwipe/task-context routing plus actual-producer-aware host cleanup now pass78 input/host checks; extended reference-review group95passed/11historical skips. Real Maa Resource accepted the new node with zero controller/input. Navigation review mirrors were retired by original hashes; original evidence and labels retained. New gesture installation/live acceptance follow separately.
+
+
+Native continuation4fab9e5 actually zoomed/panned on floor2, then declined a node input for evidence capacity (three recorded ordinary/exploration inputs; normalization gestures are additional). It ended normally, not a timeout. Audit found the normalizer still bypassed the new pinch owner; caller migration and59focused checks/9historical skips now cover this. A closed-session retention plan can reduce diagnostic tail8→2 while retaining all action/scene boundaries, private/model/review/report pins and JSON; apply only with original hash/reference checks and actual producer absence. This does not resolve game pending or approve a learning label.
+
+
+2026-11-17 target-role slice: installed448af15 used the shared device pinch and capacity gate, but progress-panel recovery was still tested against node reach and ended normally on map_target_outside_current_step. The planner now supplies an explicit node/page-control role and bound control ID; the dispatcher and node bookkeeping share map_dispatch.is_node_action. Zero-candidate progress recovery remains possible; unbound/legacy nodes retain reach checks. Whole-Runner retained-MAP plus synthetic-progress replay and negative role controls pass; actual opening remains to install/live verify. No abandonment, new resource grant or bookkeeping credit.
+
+
+2026-11-17 ownership slice: actual progress opening is verified, resume is not. Named-panel background probing and animation-induced MAP misclassification were separately exposed, then corrected in the shared foreground predicate/detector. Same-current-scope entered run may restore the resume goal, never completion or spend.103related checks pass/43historical skips; install/native acceptance follow. Closed-report archive now retains103reports with identical original bytes and reference pins; redundant derived containers retire only after member equality.621old diagnostic text files are losslessly archived;46inactive prototype WebView cache files rebuilt on demand were retired,857private/review files unchanged, no native frame deletion in that cache operation. These bounded migrations do not establish long-run capacity or trained-policy quality.
+
+
+2026-11-17 callback transport follow-up: actual named-panel recovery returned the same Team2 floor2 without blind-map probes; independent21pair audit:`build/native-existing-team2-navigation-real-verification.json`. Reverse swipe still inherited an empty Controller ID after the composite pinch; callback input now declares Context ownership for click/swipe/pinch instead of inferring route health from ID.85related checks pass; installation/live gesture/room progress remain next. This is not new clear, payout, GUI Start or neural quality.
+
+
+2026-11-17 occupied-room/viewport slice: native Context gestures work, but installed e11d082's pre-planning normalizer hid the current room before its new probe could dispatch. The repair moves complete sprite evidence ahead of legacy badge guesses, lets an admitted own-room control keep its viewport, and corrects the shared gesture direction/zero-motion contract.114related passes/11historical skips; full-run and current native room entry are still open. This applies accepted Observation→Capability→bounded action→independent successor semantics locally; it does not claim common LaunchSpec/ActionProposal/EvidenceStore migration is finished. The extra probe is one current-room inspection after three pans, not an unlimited retry or a model-approved training label.
+
+
+2026-11-17 native room acceptance: ca292fd independently opened the current room and reached PRE_BATTLE_TEAM. A read-only hash/geometry/native node-panel audit is build/current-room-native-real-verification.json. The real proposal remains human-review pending/training-ineligible; no model promotion, new floor clear or paid receipt is claimed. The continuous task then ended naturally for evidence capacity before deployment input. EvidenceStore migration now distinguishes pin inventories, unknown/loading observations and explicitly judged closed MAP diagnostics;78related checks pass. Global2GB pressure remains a runtime acceptance concern rather than permission to discard business or review proof.
+
+
+Image runtime profile b714aac is actually installed: optional video backend omitted, actual PNG/resize/native-library/EN-JP-resource self-test passed,98installed private and31canonical files preserved. Team2 remains a partial selection; count-commit producer→retention wiring is the next source slice, with native continuation still required. The slice implements domain-owned count acknowledgment consumed by shared evidence storage; it does not infer a correct team or self-approve labels.
+
+
+2026-11-17 logical-scope storage slice: de23609 proved actual automatic reclamation and8→9/12 continuation. Remaining capacity pressure exposed recorder-local tails. The next source slice projects verified selection commits across recorder restarts, with native page/reset/count barriers and preserved unknown/non-selection/external pins.91related checks pass. This is the accepted game-scope/recorder separation applied to EvidenceStore; native full deployment and battle remain unaccepted.
+
+
+旧40epoch训练产物保留形式更新：`runs/detect/build/sinner-training-real-20261012-v2/train/`的24份原始文件现保存在同级`sinner-training-real-20261012-v2-closed.zip`，每份原字节/路径/hash均核对后才移除松散副本。包括不同hash的best.pt与last.pt，未合并模型。当前运行ONNX/config/review不变。见`build/closed-research-training-archive-verification.json`；缺失120epoch链仍未恢复。
+
+
+最新训练保留容器：旧40epoch的24份原文件现为同级`sinner-training-real-20261012-v2-closed.tar.xz`（solid tar+xz）；前述ZIP是已退役的派生容器。24份原始payload/hash均再读核对，两个不同checkpoint未合并，运行ONNX/config/review未改。缺失120epoch链仍未恢复。
+
+2026-11-17 实际安装7263634后，第三层首次编队12/12徽标完整匹配保存顺序；只提交To Battle一次674ms，没有ClearSelection或逐张选择，并到达HUD。`build/team2-floor3-inherited-deployment-real-verification.json`保留原始before/HUD双哈希。此为槽位出战顺序证明，不是完整人格/EGO证明；独立caption教师仅6/12，真实原生神经推理11候选框仍shadow、qualityFalse、inputAuthorizedFalse。该场战斗运行中，尚无第三层通关/最终领奖/轮换。
+
+
+实际独立headless浏览器中Mermaid11解析266张Wiki图全部通过；新增中英导航／存储局部视图均实际渲染，独立原文件保护分支已看图核对。存储总览较密，既有readable模式保留矢量细节。见build/runtime-convergence-wiki-render-final.json；图示证据不代表游戏验收。

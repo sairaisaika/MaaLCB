@@ -1,0 +1,199 @@
+"""The event page's choice column and skill check (no device)."""
+import json
+from pathlib import Path
+import sys
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src'))
+
+from maalimbus.event_vision import (ODDS_TEMPLATE_DIR, OPTION_BAND,
+                                    best_check_choice, check_box, check_stage,
+                                    choice_options, gift_hints, odds_scores,
+                                    preferred_choice)  # noqa: E402
+
+SIZE = (1920, 1080)
+
+
+def test_factory_question_uses_no_label_instead_of_helper_caption():
+    from maalimbus.event_vision import cyborg_city_choice
+    recs=[dict(text='<DO YOU LOVE THE CITY YOU LIVE IN?>',box=[114,641,484,26],score=.98),
+          dict(text='Yes.',box=[1096,309,80,26],score=.99),
+          dict(text='Press the button to proceed.',box=[1096,333,290,26],score=.99),
+          dict(text='No.',box=[1096,464,60,26],score=.99),
+          dict(text='Press the button to stop.',box=[1096,494,270,26],score=.99)]
+    options=choice_options(recs,SIZE)
+    assert [text for _,text in options]==['Yes.','No.']
+    assert cyborg_city_choice(recs,SIZE,options)==1
+    with pytest.raises(ValueError):cyborg_city_choice(recs[1:],SIZE,options)
+    recs[0]['text']='<DIFFERENT QUESTION?>'
+    with pytest.raises(ValueError):cyborg_city_choice(recs,SIZE,options)
+    recs[0]['text']='<DO YOU LOVE THE CITY YOU LIVE IN?>';recs[3]['score']=.2
+    with pytest.raises(ValueError):cyborg_city_choice(recs,SIZE,options)
+
+
+def test_result_skip_requires_own_high_confidence_header_and_one_button():
+    from maalimbus.event_vision import result_skip
+    from maalimbus.vision import Text
+    from maalimbus.window import plan_step, successor_ok
+
+    locale={'result':r'^Result$', 'skip':r'^SKIP$'}
+    header=Text('Result',(1068,168,140,42),.99)
+    skip=Text('SKIP',(1620,923,152,93),.99)
+    assert result_skip([header,skip],SIZE,locale)==skip
+    assert result_skip([skip],SIZE,locale) is None
+    assert result_skip([header,skip,skip],SIZE,locale) is None
+    plan=plan_step('EVENT_RESULT',controls={'event_result.skip_button':skip.box,
+                                       'event_result.story_panel':[100,500,300,100]})
+    assert plan['target']==list(skip.box) and plan['control_id']=='event_result.skip_button'
+    assert successor_ok(plan,'EVENT_RESULT_READY') and not successor_ok(plan,'RUN_CLAIM')
+
+
+def test_unchanged_result_consumes_budget_only_after_a_dispatched_action():
+    from maalimbus.event_vision import result_stalled
+
+    records=[dict(text='A long blue tongue',box=[110,541,222,28])]
+    state={}
+    for _ in range(8):
+        assert not result_stalled(state,records,SIZE)
+    for attempt in range(1,4):
+        state['event_result_dispatched']=True
+        assert result_stalled(state,records,SIZE) is (attempt==3)
+    assert not result_stalled(state,[dict(records[0],text='A new result')],SIZE)
+
+
+def test_factory_result_panel_requires_exact_event_context():
+    from maalimbus.event_vision import factory_result_panel
+    recs=[dict(text='Result',box=[1068,168,138,42],score=.99),
+          dict(text='No.',box=[1062,317,44,32],score=.99),
+          dict(text='After a short notice, the factory exploded with a massive bang.',box=[110,573,740,30],score=.99),
+          dict(text='All Identities lose 30 HP.',box=[1090,470,320,28],score=.99)]
+    assert factory_result_panel(recs,SIZE)==(1090,470,320,28)
+    assert factory_result_panel(recs[1:],SIZE) is None
+    assert factory_result_panel(recs[:2]+recs[3:],SIZE) is None
+    recs[-1]['text']='All the Cyborgs have lost their [Upgrade'
+    assert factory_result_panel(recs,SIZE)==(1090,470,320,28)
+
+
+def test_rec_clock_does_not_count_as_event_result_progress():
+    from maalimbus.event_vision import event_result_content
+    records=[dict(text='Same resolved outcome',box=[1090,470,320,28],score=.99),
+             dict(text='00:00:25:32',box=[136,200,128,22],score=.99)]
+    first=event_result_content(records,SIZE)
+    records[1]['text']='00:00:31:00'
+    assert event_result_content(records,SIZE)==first
+    records[0]['text']='Next resolved outcome'
+    assert event_result_content(records,SIZE)!=first
+
+#: the lived skill check page, kept in the repository as evidence.
+CHECK_FRAME = ROOT / 'evidence/runtime/window-20261006-204421/frame-0001.png'
+
+
+def token(text, box, score=0.99):
+    return {'text': text, 'box': list(box), 'score': score}
+
+
+# evidence/runtime/window-20261006-044943/frame-0015.json, the lived page.
+LIVE = [token('00:00:07:96', (122, 200, 128, 22)),
+        token('45', (124, 1002, 28, 26)),
+        token('REC', (868, 200, 62, 22)),
+        token('Choices', (1050, 166, 168, 46), 1.0),
+        token('I think we will smile.', (1096, 311, 290, 28), 0.956),
+        token("Don't make any expression.", (1096, 464, 378, 28), 0.99),
+        token('Select to gain a Blunt E.G.O Gift', (1096, 500, 322, 26), 0.995),
+        token('Cry and cry until you sink.', (1096, 643, 366, 33), 0.997)]
+
+
+def test_the_live_choice_column_reads_three_rows_and_one_hint():
+    options = choice_options(LIVE, SIZE)
+    assert [text for _box, text in options] == ['I think we will smile.',
+                                                "Don't make any expression.",
+                                                'Cry and cry until you sink.']
+    # Top to bottom, so the boxes come back in screen order.
+    assert [box[1] for box, _text in options] == [311, 464, 643]
+    assert gift_hints(LIVE, SIZE) == [500]
+
+
+def test_the_hinted_row_is_the_one_taken():
+    options = choice_options(LIVE, SIZE)
+    hints = gift_hints(LIVE, SIZE)
+    # "Select to gain a Blunt E.G.O Gift" sits under "Don't make any expression.",
+    # so that row is the one whose reward is named.
+    assert preferred_choice(options, hints) == 1
+    # No hint, or no options at all: the first row is still one bounded input.
+    assert preferred_choice(options, []) == 0
+    assert preferred_choice([], hints) == 0
+    # A hint far below every row never claims one.
+    assert preferred_choice(options, [900]) == 0
+
+
+def test_short_tokens_and_rows_outside_the_column_are_not_choices():
+    outside = [token('Some long line of speech', (200, 311, 300, 28)),
+               token('Choices', (1050, 166, 168, 46), 1.0),
+               token('REC', (868, 200, 62, 22)),
+               token('23/45', (1096, 500, 100, 30))]
+    assert choice_options(outside, SIZE) == []
+    assert choice_options(LIVE, None) == []
+    x0, y0, x1, y1 = OPTION_BAND
+    inside = [token('A line that is long enough', (int(1920 * (x0 + x1) / 2),
+                                                   int(1080 * (y0 + y1) / 2), 300, 28))]
+    assert len(choice_options(inside, SIZE)) == 1
+
+
+def test_the_live_skill_check_row_reads_all_twelve_odds_and_picks_the_best():
+    cv2 = pytest.importorskip('cv2')
+    if not CHECK_FRAME.exists():
+        pytest.skip('the live check frame is not in this checkout')
+    image = cv2.imread(str(CHECK_FRAME))
+    scores = odds_scores(image, directory=ROOT / ODDS_TEMPLATE_DIR)
+    # Hand-read from the frame: VeryHigh, VeryLow, VeryHigh, VeryHigh, High, High,
+    # VeryLow, VeryLow, Normal, Normal, VeryLow, VeryLow.
+    assert [item['tier'] for item in scores] == [
+        'very_high', 'very_low', 'very_high', 'very_high', 'high', 'high',
+        'very_low', 'very_low', 'normal', 'normal', 'very_low', 'very_low']
+    # Every slot is read well clear of the trust threshold, so the tie-break below is
+    # the only thing that can move the choice.
+    assert all(item['score'] >= 0.9 for item in scores)
+    assert best_check_choice(scores) == 1
+
+
+def test_a_slot_with_unreadable_odds_is_never_chosen():
+    scores = [{'index': 1, 'tier': None, 'score': 0.71},
+              {'index': 2, 'tier': 'normal', 'score': 0.95},
+              {'index': 3, 'tier': 'high', 'score': 0.93}]
+    assert best_check_choice(scores) == 3
+    # A tie keeps the leftmost slot, and nothing trusted means no choice at all.
+    assert best_check_choice([{'index': 4, 'tier': 'high', 'score': 0.99},
+                              {'index': 5, 'tier': 'high', 'score': 0.97}]) == 4
+    assert best_check_choice([{'index': 1, 'tier': None, 'score': 0.9}]) is None
+    assert best_check_choice([]) is None
+    assert best_check_choice(None) is None
+
+
+def test_the_commence_button_names_the_stage_the_check_has_reached():
+    # Live proof: window-20261006-205435/frame-0002.json is the same check page after an
+    # identity was taken: it prints 'Predicted Odds: Very High' and 'Commence' where the
+    # untouched page (window-20261006-204421/frame-0001.json) still had SKIP.
+    frame = json.loads((ROOT / 'evidence/runtime/window-20261006-205435/frame-0002.json')
+                       .read_text(encoding='utf-8'))
+    assert check_stage(frame['ocr']) == 'commence'
+    before = json.loads((ROOT / 'evidence/runtime/window-20261006-204421/frame-0001.json')
+                        .read_text(encoding='utf-8'))
+    assert check_stage(before['ocr']) is None
+    # Plain strings work too, and nothing at all is not a stage.
+    assert check_stage([{'text': 'Commence'}]) == 'commence'
+    assert check_stage(['Commence']) == 'commence'
+    assert check_stage(['SKIP']) is None
+    assert check_stage(None) is None
+
+
+def test_every_check_box_sits_on_its_own_card():
+    first = check_box(1, (1920, 1080))
+    assert abs(first[0] + first[2] / 2 - 0.0617 * 1920) <= 2
+    last = check_box(12, (1920, 1080))
+    assert abs(last[0] + last[2] / 2 - (0.0617 + 0.05398 * 11) * 1920) <= 2
+    # The cards are the bright row under the captions (y 922-1035 of 1080).
+    assert first[1] >= 920 and first[1] + first[3] <= 1040
+    # A narrower frame scales: the same slot's box is half as wide at 960.
+    assert check_box(1, (960, 540))[2] == first[2] // 2

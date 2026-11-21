@@ -1,0 +1,1459 @@
+import numpy as np
+import pytest
+import cv2
+
+from pathlib import Path
+
+from maalimbus.map_vision import (BADGE_TO_CENTRE, HEADER_PATTERN, LATTICE_PITCH, MapHeader,
+                                  ORNAMENT_LIFT, advance_candidates, enter_target, floor_label,
+                                  highlighted_nodes, lattice_neighbours, lit_nodes, map_clicks,
+                                  map_header, map_page, node_markers, node_panel,
+                                  pre_battle_team_page, route_decision, yellow_flame_player,
+                                  clear_selection_caption)
+from maalimbus.vision import Text, classify
+
+SIZE = (1920, 1080)
+
+
+def frame(floor=1, pack='To be Cleaved', *, header=True, pack_line=True, extra=()):
+    records = []
+    if header:
+        records.append(Text('Exploring Floor %d' % floor, (58, 127, 332, 47), .9981))
+    if pack_line and pack:
+        records.append(Text(pack, (60, 186, 138, 28), .9888))
+    records.extend(extra)
+    image = np.zeros((1080, 1920, 3), dtype=np.uint8)
+    return records, image
+
+
+def test_header_identity_requires_floor_text_and_pack_line():
+    records, image = frame()
+    assert map_page(records, SIZE)
+    header = map_header(records, SIZE)
+    assert isinstance(header, MapHeader) and header.floor == 1
+    assert header.pack == 'To be Cleaved'
+    assert header.exploring_text.box == (58, 127, 332, 47)
+
+
+def test_before_entry_wording_also_identifies_floor():
+    records = [Text('Before Entry Floor 3', (58, 127, 332, 47), .99),
+               Text('The Forgotten', (60, 186, 138, 28), .95)]
+    header = map_header(records, SIZE)
+    assert header is not None and (header.floor, header.pack) == (3, 'The Forgotten')
+
+
+def test_missing_floor_or_pack_line_fails_closed():
+    assert map_page([], SIZE) is False
+    no_pack, _ = frame(pack_line=False)
+    assert map_page(no_pack, SIZE) is False
+    assert map_page([Text('Exploring Floor 1', (58, 127, 332, 47), .9981)], SIZE) is False
+
+
+def test_ambiguous_or_out_of_range_floor_fails_closed():
+    two = [Text('Exploring Floor 1', (58, 127, 332, 47), .9981),
+           Text('Exploring Floor 2', (60, 180, 332, 47), .99),
+           Text('To be Cleaved', (60, 240, 138, 28), .99)]
+    assert map_page(two, SIZE) is False
+    nine, _ = frame(floor=9)
+    assert map_page(nine, SIZE) is False
+    low, _ = frame()
+    assert map_page([Text(r.text, r.box, .5) for r in low], SIZE) is False
+
+
+def test_pack_line_must_sit_in_its_own_band():
+    # Foreign text below the panel must not be borrowed as the pack identity.
+    records, _ = frame(pack_line=False, extra=(Text('Claim Rewards', (60, 900, 200, 30), .99),))
+    assert map_page(records, SIZE) is False
+    records, _ = frame(pack_line=False, extra=(Text('Faith & Erosion', (60, 186, 138, 28), .4),))
+    assert map_page(records, SIZE) is False
+
+
+def test_header_pattern_matches_only_the_two_supported_wordings():
+    assert HEADER_PATTERN
+    import re
+    assert re.match(HEADER_PATTERN, 'Exploring Floor 1', re.I)
+    assert re.match(HEADER_PATTERN, 'Before Entry Floor 5', re.I)
+    assert not re.match(HEADER_PATTERN, 'Explore the Floor 1', re.I)
+    assert not re.match(HEADER_PATTERN, 'Exploring Floor 6', re.I)
+
+
+def test_battle_hud_identity_is_pinned_to_the_live_battle_frame():
+    """The HUD is the WAVE/TURN corner; bitmap values may be absent from OCR."""
+    import json
+    from pathlib import Path
+    from maalimbus.battle_vision import battle_hud
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/team-page-battle-20261006-010230/frame-0007.json'
+    if not path.exists():
+        pytest.skip('retained live battle evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    hud = battle_hud(records, tuple(data['size']))
+    assert hud is not None
+    assert hud['wave_box'] == (16, 39, 54, 30) and hud['turn_box'] == (18, 95, 44, 24)
+    assert hud['wave'] is None and hud['turn'] is None   # gold bitmap glyphs
+    assert hud['diagnostics'] == ['Damage', 'Rate', 'Win']
+    for other in ('live-20261005-231221/frame-0002.json',
+                  'map-settle-20261006-000930/frame-0001.json',
+                  'map-probe-20261006-000748/frame-0002.json'):
+        other_path = root / 'evidence/runtime' / other
+        if not other_path.exists():
+            continue
+        other_data = json.loads(other_path.read_text(encoding='utf-8'))
+        other_records = [Text(r['text'], tuple(r['box']), r['score']) for r in other_data['ocr']]
+        assert battle_hud(other_records, tuple(other_data['size'])) is None, other
+
+
+def test_node_panel_is_distinct_from_the_map_and_names_its_enter_action():
+    """Regression pinned to the actual post-click panel from the MuMu probe."""
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/map-probe-20261006-000748/frame-0002.json'
+    if not path.exists():
+        pytest.skip('retained live panel evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    size = tuple(data['size'])
+    assert data['scene'] == 'UNKNOWN'      # the production classifier missed it then
+    assert map_header(records, size) is None
+    panel = node_panel(records, size)
+    assert panel is not None
+    assert panel.title == 'To be Cleaved'
+    assert panel.clear_rewards.box == (1052, 744, 138, 32)
+    assert panel.enter.box == (1668, 780, 124, 63)
+    assert panel.cost_texts == ('85',)
+    assert enter_target(panel) == (1668, 780, 124, 63)
+    # A plain map page must never look like a panel.
+    map_path = root / 'evidence/runtime/live-20261005-231221/frame-0002.json'
+    if map_path.exists():
+        map_data = json.loads(map_path.read_text(encoding='utf-8'))
+        map_records = [Text(r['text'], tuple(r['box']), r['score']) for r in map_data['ocr']]
+        assert node_panel(map_records, tuple(map_data['size'])) is None
+
+
+def test_an_encounter_panel_without_clear_rewards_is_still_a_panel():
+    """The second panel shape names the encounter and hides only half the map.
+
+    Live run window-20261006-040751 clicked the map six times and reported every click
+    as opening no panel, because this shape carries no `Clear Rewards` caption: the
+    page fell back to MAP (its floor header stays legible behind the panel) and the
+    window walked on to the next candidate.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-041345/frame-0002.json'
+    if not path.exists():
+        pytest.skip('retained live encounter-panel evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    size = tuple(data['size'])
+    assert map_header(records, size) is not None     # the header really is still readable
+    panel = node_panel(records, size)
+    assert panel is not None
+    assert panel.title == 'Thick Rumbling Hum'
+    assert panel.clear_rewards is None               # this shape has no reward caption
+    assert panel.enter.box == (1670, 784, 122, 57)
+    assert enter_target(panel) == (1670, 784, 122, 57)
+    # ...and a page with an Enter but no floor header is still not a panel.
+    entry = [Text('Enter', (1670, 784, 122, 57), .99)]
+    assert node_panel(entry, size) is None
+
+
+def test_a_panel_whose_pack_line_was_dropped_is_still_a_panel():
+    """The encounter panel can arrive with its pack line read as nothing at all.
+
+    Live packaged run evidence/runtime/packaged-mirror-20261014-065112 opened this panel
+    on floor 2 (frame-0250): `Enter` at [1672,784,118,57] and the header label
+    'Exploring Floor 2' were read, but the small pack line below the label was not in
+    the OCR output at all. Identity that demands `Clear Rewards` said "not a panel", and
+    identity that demands the full map header said the same, so the frame stayed UNKNOWN
+    and the window waited the whole 90 s out and stopped with
+    `page_unreadable_after_waiting`. The label alone is enough for a panel; a map still
+    needs the pack line, and the entry page has neither.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/packaged-mirror-20261014-065112/frame-0250.json'
+    if not path.exists():
+        pytest.skip('retained live stall frame is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    size = tuple(data['size'])
+    assert data['scene'] == 'UNKNOWN'                     # what the shipped build saw
+    assert map_header(records, size) is None              # the pack line really is missing
+    assert floor_label(records, size).text == 'Exploring Floor 2'
+    panel = node_panel(records, size)
+    assert panel is not None
+    assert panel.title == 'Emotional Craving'
+    assert panel.clear_rewards is None
+    assert panel.enter.box == (1672, 784, 118, 57)
+    assert enter_target(panel) == (1672, 784, 118, 57)
+
+
+def test_the_marked_step_is_offered_before_the_badge_nodes():
+    """Live run window-20261006-040751: four badge nodes refused, the marked gate opened.
+
+    The gate is the pale hexagon the game draws around the step it will accept; the
+    ADB tap that landed on it (device 730,73) opened the encounter panel, while every
+    crescent-badge node around the player was a no-op.
+    """
+    import json
+    from pathlib import Path
+    pytest.importorskip('cv2')
+    from maalimbus.map_vision import NODE_BADGE_TEMPLATE, map_clicks
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-040938/frame-0001.png'
+    template_path = root / 'assets/resource/base' / NODE_BADGE_TEMPLATE
+    if not path.exists() or not template_path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import cv2
+    image = cv2.imread(str(path))
+    clicks = map_clicks(image, template=cv2.imread(str(template_path)))
+    assert clicks, 'the live map must offer at least one candidate'
+    assert clicks[0]['kind'] == 'highlighted_node'
+    point = clicks[0]['point']
+    assert abs(point[0] - 1088) <= 25 and abs(point[1] - 115) <= 45, point
+    assert all(item['kind'] in ('highlighted_node', 'chevron_target', 'lattice_step',
+                                'node_away_from_player', 'badge_mark', 'lit_node',
+                                'lit_ring', 'lit_icon', 'bright_lit_icon', 'cyan_node', 'path_node', 'neutral_outline_candidate', 'gold_badge_node',
+                                    'boss_node')
+               for item in clicks)
+
+
+def test_the_cyan_lit_node_is_the_first_candidate_on_the_floor_that_stalled():
+    """Live evidence/runtime/window-20261006-201831/frame-0065.png.
+
+    Run build/window-run64.json stalled on this floor: six clicks on the badge and
+    lattice candidates opened no panel, then no_candidate_node_observed. The node the
+    game was offering is the cyan-lit one at (1087,737) in 1920-space; naming it from
+    its own pixels puts the accepted click first.
+
+    The cyan line leaving the player ends 66 px short of that centre, so the path reading
+    is offered first and snapped onto the ring -- the path names the node, the ring names
+    the pixel, and both name the node the panel really opened on.
+    """
+    import json
+    from pathlib import Path
+    pytest.importorskip('cv2')
+    from maalimbus.map_vision import NODE_BADGE_TEMPLATE, highlighted_nodes, map_clicks
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-201831/frame-0065.png'
+    template_path = root / 'assets/resource/base' / NODE_BADGE_TEMPLATE
+    if not path.exists() or not template_path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import cv2
+    image = cv2.imread(str(path))
+    lit = highlighted_nodes(image)
+    assert len(lit) == 1, lit
+    assert abs(lit[0][0] - 1087) <= 12 and abs(lit[0][1] - 737) <= 12, lit
+    clicks = map_clicks(image, template=cv2.imread(str(template_path)))
+    assert clicks[0]['kind'] == 'path_node'
+    point = clicks[0]['point']
+    assert abs(point[0] - 1087) <= 12 and abs(point[1] - 737) <= 12, point
+    # The badge nodes are still offered behind it, so a refused click can fall back.
+    assert any(item['kind'] == 'node_away_from_player' for item in clicks)
+    assert all(item['kind'] in ('cyan_node', 'highlighted_node', 'chevron_target',
+                                'node_away_from_player', 'lattice_step', 'badge_mark',
+                                'lit_node', 'lit_icon', 'bright_lit_icon', 'path_node', 'lit_ring', 'neutral_outline_candidate', 'gold_badge_node')
+               for item in clicks)
+
+
+def test_the_offered_question_node_outranks_the_lifted_badge_boxes():
+    """Live evidence/runtime/window-20261007-023156/frame-0053.png, floor 1.
+
+    Run build/window-run107.json stalled here: every click went to a lifted badge box
+    ((578,14), (194,334), (232,14) -- ordinary nodes the floor does not connect to the
+    player) and the panel never opened, while the one step the floor offers is the red
+    "?" hexagon. Its own icon is read at (1087,409); a manual 1920-space tap on
+    (1080,428) opened that node's panel, so the icon is offered before the lift.
+    """
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    image, template = live_map(root, 'window-20261007-023156/frame-0053.png')
+    clicks = map_clicks(image, template=template)
+    assert clicks[0]['kind'] in ('lit_icon','bright_lit_icon'), clicks[:3]
+    point = clicks[0]['point']
+    assert abs(point[0] - 1087) <= 12 and abs(point[1] - 409) <= 12, point
+    lifted = [item for item in clicks if item['kind'] == 'node_away_from_player']
+    assert lifted, 'the badge nodes are still offered behind it'
+    assert min(index for index, item in enumerate(clicks)
+               if item['kind'] == 'node_away_from_player') >= 2
+    assert all(item['kind'] in ('cyan_node', 'highlighted_node', 'chevron_target',
+                                'node_away_from_player', 'lattice_step', 'badge_mark',
+                                'lit_node', 'lit_icon', 'bright_lit_icon', 'path_node', 'lit_ring', 'gold_badge_node')
+               for item in clicks)
+
+
+def test_the_ring_is_read_in_whatever_colour_the_floor_draws_it():
+    """Live evidence/runtime/window-20261006-214057/frame-0025.png, floor 3.
+
+    Every click the run tried on this floor (build/window-run78.json: nine of them,
+    badge nodes and lattice steps) opened nothing, because the reader only ever knew
+    the cyan ring of floor 1. This floor lights the offered node with an orange ring:
+    the cyan reader returns nothing on this frame, while the saturated-blob reader
+    returns the ring itself first, ahead of the node icons and the path's glow.
+    """
+    import cv2
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-214057/frame-0025.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    image = cv2.imread(str(path))
+    assert highlighted_nodes(image) == []
+    lit = lit_nodes(image)
+    assert abs(lit[0][0] - 318) <= 20 and abs(lit[0][1] - 140) <= 20, lit
+    clicks = map_clicks(image)
+    kinds = [item['kind'] for item in clicks]
+    # The lit path is the strongest reading and may lead it (it does on the zoomed
+    # frames), but the ring must still come before every badge and lattice guess.
+    ring = next(item for item in clicks if item['kind'] == 'lit_node')
+    assert abs(ring['point'][0] - 318) <= 20 and abs(ring['point'][1] - 140) <= 20, ring
+    for kind in ('node_away_from_player', 'badge_mark', 'lattice_step'):
+        if kind in kinds:
+            assert kinds.index('lit_node') < kinds.index(kind)
+
+
+def test_the_lattice_offers_the_diagonals_before_the_straight_neighbours():
+    """The hexagon rows are offset half a column, so the live step is a diagonal.
+
+    Run 79 and run 80 (build/window-run79.json, build/window-run80.json) clicked the
+    two nodes the lattice believed were straight below and straight above the player
+    and neither moved the run; the player's lit path runs up and to the right.
+    """
+    first, second = lattice_neighbours((500, 400))[:2]
+    assert first == (500 + LATTICE_PITCH[0] // 2, 400 - LATTICE_PITCH[1])
+    assert second == (500 - LATTICE_PITCH[0] // 2, 400 - LATTICE_PITCH[1])
+    # the straight neighbours are still offered, just behind every diagonal
+    assert (500, 400 - LATTICE_PITCH[1]) in lattice_neighbours((500, 400))
+    assert lattice_neighbours((500, 400))[-1] == (500, 400 - LATTICE_PITCH[1])
+    assert lattice_neighbours(None) == []
+
+
+def test_the_lit_path_leaving_the_player_names_the_next_node():
+    """Live evidence/runtime/window-20261006-233633/frame-0001.png (floor 3).
+
+    The run had been clicking the ring the game lit around a node and every badge
+    candidate (build/window-run81.json: six clicks, all no-ops), while the path the run
+    may still walk -- drawn bright violet, against the dull grey of the paths already
+    spent -- leaves the player at (960,672) up and to the right. An ADB tap on its far
+    end (1920 1162,607) opened the node panel, which is what the reader now offers first.
+    """
+    import cv2
+    from pathlib import Path
+    from maalimbus.map_vision import path_end
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-233633/frame-0001.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    image = cv2.imread(str(path))
+    point = path_end(image, (960, 672))
+    assert point is not None
+    assert abs(point[0] - 1162) <= 60 and abs(point[1] - 625) <= 60, point
+    clicks = map_clicks(image, player=(960, 672))
+    assert clicks[0]['kind'] == 'path_node'
+    assert abs(clicks[0]['point'][0] - point[0]) <= 40
+    assert abs(clicks[0]['point'][1] - point[1]) <= 40
+
+
+def test_the_cyan_path_of_the_factory_floor_still_names_the_next_node():
+    """Live evidence/runtime/window-20261007-172225/frame-0406.png, floor 2.
+
+    "Automated Factory" draws the walkable path bright cyan over a dim teal grid, where
+    floors 1 and 3 draw it violet, so the violet mask alone read nothing: ``path_end`` was
+    None, the run fell back to the lattice steps around the player's own node, both clicks
+    were no-ops, and it stopped with ``no_candidate_node_observed``
+    (build/window-run-continue-13.json step 113). The node the line points at -- the cyan
+    "?" hexagon whose centre is (1054,124) -- was never offered at all.
+    """
+    import cv2
+    from pathlib import Path
+    from maalimbus.map_vision import path_end
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-172225/frame-0406.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    image = cv2.imread(str(path))
+    point = path_end(image, (694, 384))
+    assert point is not None
+    assert abs(point[0] - 1054) <= 70 and abs(point[1] - 124) <= 70, point
+    clicks = map_clicks(image, player=(694, 384))
+    assert clicks[0]['kind'] == 'path_node'
+    assert abs(clicks[0]['point'][0] - point[0]) <= 40
+    assert abs(clicks[0]['point'][1] - point[1]) <= 40
+
+
+def test_the_locomotive_names_the_player_when_no_badge_node_does():
+    """Live floor-2 evidence/runtime/window-20261006-050106/frame-0003.json.
+
+    The badge scan finds a single node on that frame, so the player cannot be scored
+    from badge nodes at all; the locomotive pair (a small flame above a lit body)
+    names it instead, and the step it is connected to by a path is offered first.
+    """
+    from pathlib import Path
+    pytest.importorskip('cv2')
+    from maalimbus.map_vision import NODE_BADGE_TEMPLATE, map_clicks, train_player
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-050106/frame-0003.png'
+    template_path = root / 'assets/resource/base' / NODE_BADGE_TEMPLATE
+    if not path.exists() or not template_path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import cv2
+    image = cv2.imread(str(path))
+    player = train_player(image)
+    assert player is not None, 'the live floor-2 frame must name the player'
+    assert abs(player[0] - 694) <= 25 and abs(player[1] - 384) <= 25, player
+    clicks = map_clicks(image, template=cv2.imread(str(template_path)))
+    assert clicks, 'the live floor-2 map must offer at least one candidate'
+    # The train's own node is never a candidate, and the first candidate is the step
+    # the page's chevron points at rather than a badge node four columns away.
+    first = clicks[0]
+    assert first['kind'] == 'chevron_target'
+    assert (first['point'][0] - player[0]) ** 2 + (first['point'][1] - player[1]) ** 2 \
+        >= 300 * 300
+    assert all(item['kind'] != 'highlighted_node' for item in clicks[:1])
+
+
+def test_map_observe_node_is_a_bounded_read_only_continuation():
+    """The stopped-session continuation must observe the map and never click."""
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    nodes = json.loads((root / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
+    node = nodes['MapObserve']
+    assert node['recognition'] == 'DirectHit'
+    assert node['action'] == 'Custom' and node['custom_action'] == 'limbus_map_observe'
+    assert node['max_hit'] == 1 and node['next'] == []
+    assert node['on_error'] == ['LimbusUnknown']
+    # It must not be reachable from the theme-pack drag, which stays a stop point.
+    drag = nodes['ThemePackDrag']
+    assert 'MapObserve' not in drag['next']
+    run_native = (root / 'tools/run_native.py').read_text(encoding='utf-8')
+    assert "'limbus_map_observe'" in run_native
+
+
+def test_live_231221_terminal_records_identify_the_map_page():
+    """Regression pinned to the retained actual session, not a derived frame."""
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/live-20261005-231221/frame-0002.json'
+    if not path.exists():
+        pytest.skip('retained live session evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    size = tuple(data['size'])
+    assert data['scene'] == 'UNKNOWN'
+    header = map_header(records, size)
+    assert header is not None
+    assert (header.floor, header.pack) == (1, 'To be Cleaved')
+    assert header.exploring_text.box == (58, 127, 332, 47)
+
+
+def test_the_split_floor_header_still_identifies_the_map_page():
+    """Regression pinned to the retained actual frame, not a derived one.
+
+    On the floor-1 map the game renders 'Exploring' and 'Floor' as two OCR tokens
+    and the stylised floor digit is not read at all
+    (evidence/runtime/window-20261006-033107/frame-0005.json), which used to leave
+    the page at UNKNOWN and stop the window in front of it.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-033107/frame-0005.json'
+    if not path.exists():
+        pytest.skip('retained live session evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    header = map_header(records, tuple(data['size']))
+    assert header is not None
+    assert (header.floor, header.pack) == (None, 'To be Cleaved')
+    assert map_page(records, tuple(data['size'])) is True
+
+
+def test_the_map_survives_a_frame_where_ocr_drops_the_floor_token():
+    """The same live page, one frame later, with the "Floor" token missing.
+
+    evidence/runtime/window-20261006-033259/frame-0002.json carries only
+    "Exploring" and the pack line; the window used to fall back to UNKNOWN there
+    and treat a harmless unreachable-node click as a broken successor.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-033259/frame-0002.json'
+    if not path.exists():
+        pytest.skip('retained live session evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    header = map_header(records, tuple(data['size']))
+    assert header is not None
+    assert (header.floor, header.pack) == (None, 'To be Cleaved')
+
+
+def test_the_map_survives_a_label_whose_tail_ocr_dropped():
+    """Live run window-20261007-030756: the label read as 'Explorin' on every frame.
+
+    The run sat on floor 3 "To be Cleaved" with the truncated label, so map_header
+    returned None, the page stayed UNKNOWN and the window stopped after five rounds
+    (build/window-run111.json). The pack line below is still what gates identity.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-030756/frame-0096.json'
+    if not path.exists():
+        pytest.skip('retained live session evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    assert data['scene'] == 'UNKNOWN'
+    assert not any(r.text.strip().startswith('Exploring') for r in records)
+    header = map_header(records, tuple(data['size']))
+    assert header is not None
+    assert header.exploring_text.text.strip() == 'Explorin'
+    assert header.pack == 'To be Cleaved'
+    assert map_page(records, tuple(data['size'])) is True
+
+
+def test_the_map_survives_a_header_that_lost_the_space_before_floor():
+    """Live run window-20261007-034308: OCR merged the label and the floor word.
+
+    frame-0198 reads the whole floor-5 line as 'ExploringFloor5' [56,121,356,63] 0.95
+    with no space, so the strict separator in HEADER_PATTERN left the page UNKNOWN and
+    build/window-run114.json stopped on page_unreadable_after_waiting right after the
+    floor-4 battle. The pack line below still gates identity.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-034308/frame-0198.json'
+    if not path.exists():
+        pytest.skip('retained live session evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    assert data['scene'] == 'UNKNOWN'
+    assert any(r.text.strip() == 'ExploringFloor5' for r in records)
+    header = map_header(records, tuple(data['size']))
+    assert header is not None
+    assert header.floor == 5
+    assert header.pack == 'Twining Threads'
+    assert map_page(records, tuple(data['size'])) is True
+
+
+def test_other_scene_text_is_not_promoted_to_map():
+    assert map_page([Text('Drive', (100, 100, 60, 20), .99)], SIZE) is False
+    # The entry page carries `Exploring` in the upper right without a floor header.
+    import json
+    from pathlib import Path
+    locale = json.loads((Path(__file__).resolve().parents[1] /
+                         'assets/resource/en/locale.json').read_text(encoding='utf-8'))
+    records = [Text('Exploring', (1600, 200, 80, 20), .99), Text('Enter', (1600, 700, 80, 30), .99)]
+    assert classify(records, locale, SIZE) == 'MIRROR_ENTRY'
+    assert map_page(records, SIZE) is False
+
+
+def test_route_decision_refuses_without_proven_evidence():
+    records, image = frame()
+    header = map_header(records, SIZE)
+    assert route_decision(None, SIZE)['reason'] == 'map_header_not_identified'
+    assert route_decision(header, SIZE)['reason'] == 'current_position_not_proven'
+    assert route_decision(header, SIZE, current='entry')['reason'] == 'no_unvisited_candidate_observed'
+    assert route_decision(header, SIZE, current='entry', candidates=())['next_node'] is None
+    assert route_decision(header, SIZE, current='entry', cleared=('entry', 'a'),
+                          candidates=('entry', 'a'))['reason'] == 'no_unvisited_reachable_node'
+    assert route_decision(header, SIZE, current='entry', candidates=('a', 'b'))['reason'] == \
+        'ambiguous_unvisited_candidates'
+    only = route_decision(header, SIZE, current='entry', cleared=('entry',), candidates=('a',))
+    assert only == dict(next_node='a', reason='single_unvisited_candidate')
+
+
+def shipped_policy():
+    from pathlib import Path
+
+    from maalimbus.route_plan import load_policy
+
+    root = Path(__file__).resolve().parents[1]
+    return load_policy(root / 'assets' / 'resource' / 'base' / 'route-policy.json')
+
+
+def test_a_policy_orders_the_candidates_nobody_else_could_separate():
+    records, image = frame()
+    header = map_header(records, SIZE)
+    ranked = route_decision(header, SIZE, current='entry', candidates=('a', 'b', 'c'),
+                            kinds={'a': 'empty', 'b': 'elite', 'c': 'event'},
+                            policy=shipped_policy())
+    assert ranked['next_node'] == 'b'
+    assert ranked['reason'] == 'policy_ranked_candidate'
+    assert ranked['plan']['score'] == 2.4
+    assert [entry['id'] for entry in ranked['plan']['ranked']] == ['b', 'c', 'a']
+
+
+def test_a_policy_refuses_rather_than_ranking_a_kind_nobody_read():
+    records, image = frame()
+    header = map_header(records, SIZE)
+    blind = route_decision(header, SIZE, current='entry', candidates=('a', 'b'),
+                           kinds={}, policy=shipped_policy())
+    assert blind['next_node'] is None
+    assert blind['reason'] == 'route_kind_unknown'
+    assert blind['plan']['refused'] == 'route_kind_unknown'
+    readable = route_decision(header, SIZE, current='entry', candidates=('a', 'b'),
+                              kinds={'b': 'regular'}, policy=shipped_policy())
+    assert readable['next_node'] == 'b'
+
+
+def test_a_policy_does_not_change_a_single_candidate_or_the_evidence_first_path():
+    records, image = frame()
+    header = map_header(records, SIZE)
+    single = route_decision(header, SIZE, current='entry', cleared=('entry',),
+                            candidates=('a',), kinds={'a': 'boss'}, policy=shipped_policy())
+    assert single == dict(next_node='a', reason='single_unvisited_candidate')
+    ambiguous = route_decision(header, SIZE, current='entry', candidates=('a', 'b'),
+                               kinds={'a': 'empty', 'b': 'boss'})
+    assert ambiguous == dict(next_node=None, reason='ambiguous_unvisited_candidates')
+
+
+def test_header_pattern_matches_only_the_two_supported_wordings():
+    assert HEADER_PATTERN
+    import re
+    assert re.match(HEADER_PATTERN, 'Exploring Floor 1', re.I)
+    assert re.match(HEADER_PATTERN, 'Before Entry Floor 5', re.I)
+    assert not re.match(HEADER_PATTERN, 'Explore the Floor 1', re.I)
+    assert not re.match(HEADER_PATTERN, 'Exploring Floor 6', re.I)
+
+def test_pre_battle_page_survives_the_captions_it_actually_renders():
+    # Live proof: evidence/runtime/window-20261006-030941/frame-0022.json (a team of
+    # 12/12) reads the button as "To" + "Battle!" under a Chain badge and the clear
+    # action as " Clear Selection" with a leading space, which the strict patterns
+    # missed and the page fell back to TEAM_LIBRARY.
+    recs = [Text('To', (1622, 865, 54, 36), 1.0),
+            Text('Battle!', (1674, 859, 144, 44), 1.0),
+            Text(' Clear Selection', (1616, 704, 214, 26), .975),
+            Text('12/12', (1698, 754, 128, 57), .993)]
+    page = pre_battle_team_page(recs, SIZE)
+    assert page is not None
+    assert page.participants == ('12/12',)
+    # The disabled state renders as a single Battle! caption.
+    disabled = [Text('Battle!', (1678, 857, 136, 46), 1.0),
+                Text('Clear Selection', (1640, 702, 190, 26), .997)]
+    assert pre_battle_team_page(disabled, SIZE) is not None
+    # Both captions stay required together.
+    assert pre_battle_team_page([Text('Battle!', (1678, 857, 136, 46), 1.0)], SIZE) is None
+    # A second Battle! inside the button band makes the page ambiguous, while one
+    # outside it is just another page's caption and is ignored.
+    in_band = [Text('Battle!', (1678, 857, 136, 46), 1.0),
+               Text('Battle!', (1700, 870, 100, 40), 1.0),
+               Text('Clear Selection', (1640, 702, 190, 26), .997)]
+    assert pre_battle_team_page(in_band, SIZE) is None
+    off_band = in_band[:1] + [Text('Battle!', (200, 100, 136, 46), 1.0)] + in_band[2:]
+    assert pre_battle_team_page(off_band, SIZE).battle.box == (1678, 857, 136, 46)
+
+
+def test_the_clear_caption_is_read_when_ocr_splits_it_into_its_two_words():
+    # Live proof: evidence/runtime/window-20261008-030555/frame-0015.json reads the
+    # clear action as two tokens on one line, 'Clear' [1640,706,74,22] and
+    # 'Selection' [1706,706,122,22], where every earlier frame read it whole. The
+    # split alone left the page named TEAM_LIBRARY and run-continue-26 stopped on it.
+    recs = [Text('Battle!', (1678, 857, 134, 48), .999384),
+            Text('Clear', (1640, 706, 74, 22), 1.0),
+            Text('Selection', (1706, 706, 122, 22), .99976),
+            Text('0/12', (1710, 758, 114, 52), .876134)]
+    page = pre_battle_team_page(recs, SIZE)
+    assert page is not None
+    assert page.participants == ('0/12',)
+    # The synthesised caption spans both words on the line the game drew them.
+    assert page.clear_selection.box == (1640, 706, 188, 22)
+    assert clear_selection_caption(recs, SIZE).text == 'Clear Selection'
+    # One word alone is not the caption: the pair stays required.
+    assert clear_selection_caption(recs[:1] + recs[2:], SIZE) is None
+    assert pre_battle_team_page(recs[:1] + recs[2:], SIZE) is None
+    # The two words must share a line, and the earlier one must come first.
+    stacked = recs[:2] + [Text('Selection', (1706, 940, 122, 22), .99)]
+    assert clear_selection_caption(stacked, SIZE) is None
+    reversed_pair = recs[:1] + [Text('Selection', (1706, 706, 122, 22), .99),
+                                Text('Clear', (1640, 706, 74, 22), .99)]
+    assert clear_selection_caption(reversed_pair, SIZE).box == (1640, 706, 188, 22)
+    # Two pairs in the band is ambiguous and must not promote the page.
+    twice = recs + [Text('Clear', (1660, 730, 74, 22), .99),
+                    Text('Selection', (1730, 730, 122, 22), .99)]
+    assert clear_selection_caption(twice, SIZE) is None
+
+
+def live_map(root, name):
+    """The retained map frame and its badge template, or a skip."""
+    cv2 = pytest.importorskip('cv2')
+    image = root / 'evidence/runtime' / name
+    template = root / 'assets/resource/base/image/map/node_badge.png'
+    if not (image.exists() and template.exists()):
+        pytest.skip('retained live map evidence is not present')
+    return cv2.imread(str(image)), cv2.imread(str(template))
+
+
+def test_the_node_badge_enumerates_every_node_on_the_page():
+    """The badge under each hexagon is the complete node list; the old scan was not.
+
+    Pinned to the frame that stopped the run: the bright-ornament scan saw only the
+    leftmost node there (1 of 5) and the window then exhausted its candidates
+    (evidence/runtime/window-20261006-035828). The orange path line runs through
+    y 428 and the badges hang at y 506, so a node is BADGE_TO_CENTRE above its badge.
+    """
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    image, template = live_map(root, 'window-20261006-035828/frame-0008.png')
+    markers = node_markers(image, template=template)
+    centres = [(m.node[0] + m.node[2] // 2, m.node[1] + m.node[3] // 2) for m in markers]
+    assert centres == [(327, 109), (711, 109), (1364, 109), (327, 429), (711, 429)]
+    assert {m.node[2] for m in markers} == {190}
+    # The badge box itself is the template, scaled to the frame.
+    badge = markers[-1].ornament
+    assert badge[2] == round(template.shape[1] * image.shape[1] / 1280)
+    assert badge[1] + badge[3] // 2 - BADGE_TO_CENTRE == 429
+
+
+def test_the_player_is_the_node_burning_a_yellow_flame():
+    """Only the player's locomotive is lit yellow: 211 px against 0-17 everywhere else."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    image, template = live_map(root, 'window-20261006-035828/frame-0008.png')
+    markers = node_markers(image, template=template)
+    assert yellow_flame_player(markers, image) == (711, 429)
+
+
+def test_map_candidates_never_offer_the_players_own_node():
+    """The player's node is dropped by radius, and the rest are ordered nearest first.
+
+    A far chest two columns away opened the panel live while its neighbour did not, so
+    the list is only an order; what it must never do is hand the player's own node back
+    as the sole candidate (that is what made an unreachable-node retry loop pointless).
+    """
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    image, template = live_map(root, 'window-20261006-033107/frame-0005.png')
+    markers = node_markers(image, template=template)
+    player = yellow_flame_player(markers, image)
+    assert player == (711, 429)
+    centres = [(m.node[0] + m.node[2] // 2, m.node[1] + m.node[3] // 2)
+               for m in advance_candidates(markers, player)]
+    assert player not in centres
+    assert centres[0] == (1095, 429)
+    # Without a player reading the list is still complete, just ordered topmost first.
+    topmost = [(m.node[0] + m.node[2] // 2, m.node[1] + m.node[3] // 2)
+               for m in advance_candidates(markers)]
+    assert topmost[0] == (327, 109)
+    assert len(topmost) == len(markers)
+
+
+def test_the_ornament_fallback_lifts_the_node_box_below_the_glyph():
+    """A bright interior orbit sits near the top of the hexagon, not at its centre."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    image, _ = live_map(root, 'window-20261006-035828/frame-0008.png')
+    markers = node_markers(image)
+    assert len(markers) == 1
+    ornament, node = markers[0].ornament, markers[0].node
+    # The component's centroid is not exactly its bounding-box centre (the glyph is
+    # irregular), so this only has to show the box was lifted, not by a pixel-exact 70.
+    lifted = node[1] + node[3] // 2 - (ornament[1] + ornament[3] // 2)
+    assert abs(lifted - ORNAMENT_LIFT) <= 4
+
+
+def test_the_map_survives_a_header_ocr_merges_into_one_token():
+    """The third live shape: 'Exploring Floor' as a single token, digit dropped.
+
+    evidence/runtime/window-20261006-040651/frame-0001.json reads the header as
+    'Exploring Floor' [60,133,330,41] with no floor number anywhere, which neither the
+    combined pattern (it demanded a digit) nor the split one (it demanded the token be
+    exactly 'Exploring') accepted, so the live page fell back to UNKNOWN.
+    """
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-040651/frame-0001.json'
+    if not path.exists():
+        pytest.skip('retained live session evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    header = map_header(records, tuple(data['size']))
+    assert header is not None
+    assert (header.floor, header.pack) == (None, 'To be Cleaved')
+    assert header.exploring_text.box == (60, 133, 330, 41)
+    assert map_page(records, tuple(data['size'])) is True
+
+
+def test_a_panel_frame_carries_no_node_badges():
+    """The reward-card panel's bright art must not read as a map (0.695 at the same ROI)."""
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    cv2 = pytest.importorskip('cv2')
+    image = root / 'evidence/runtime/window-20261006-034714/frame-0022.png'
+    template = root / 'assets/resource/base/image/map/node_badge.png'
+    if not (image.exists() and template.exists()):
+        pytest.skip('retained live panel evidence is not present')
+    frame, badge = cv2.imread(str(image)), cv2.imread(str(template))
+    size = (round(badge.shape[1] * frame.shape[1] / 1280),
+            round(badge.shape[0] * frame.shape[0] / 1280))
+    scaled = cv2.resize(badge, size, interpolation=cv2.INTER_LINEAR)
+    assert float(cv2.matchTemplate(frame, scaled, cv2.TM_CCOEFF_NORMED).max()) < 0.80
+
+
+def test_a_read_node_outranks_a_guessed_lattice_step():
+    """The badge node must never be deduplicated away by a lattice guess.
+
+    Live run build/window-run35 (floor 3) clicked four lattice points and stopped with
+    no_candidate_node_observed: the one badge on that floor (center 1095,429) sat 48 px
+    from the third guess, inside the 50 px dedupe radius, so the verified node was
+    dropped from the list entirely.
+    """
+    from pathlib import Path
+    from maalimbus.map_vision import map_clicks
+    root = Path(__file__).resolve().parents[1]
+    image, template = live_map(root, 'window-20261006-052530/frame-0020.png')
+    clicks = map_clicks(image, template=template)
+    assert clicks, 'the floor had one badge node to offer'
+    # Readings taken off the frame come first, guesses last: the node the frame reads is
+    # in front of every lattice step, whether the reading is the node's badge or a ring
+    # the game lit around it.
+    centre = (1000 + 190 // 2, 334 + 190 // 2)
+    covers = [index for index, item in enumerate(clicks)
+              if (item['point'][0] - centre[0]) ** 2
+              + (item['point'][1] - centre[1]) ** 2 <= 45 * 45]
+    assert covers, 'the node the frame reads is offered'
+    reading = clicks[covers[0]]
+    assert reading['kind'] in ('node_away_from_player', 'lit_node', 'badge_mark',
+                               'lit_icon', 'highlighted_node', 'cyan_node', 'lit_ring')
+    first_guess = min(index for index, item in enumerate(clicks)
+                      if item['kind'] == 'lattice_step')
+    assert covers[0] < first_guess, 'the read node outranks every guessed step'
+    # The guess that used to swallow it is gone: every remaining lattice step keeps
+    # clear of the node the frame actually read.
+    for item in clicks[first_guess:]:
+        x, y, w, h = item['box']
+        assert ((x + w // 2 - centre[0]) ** 2 + (y + h // 2 - centre[1]) ** 2) > 50 * 50
+
+
+def test_the_shop_node_survives_a_badge_hit_that_is_not_a_node():
+    """Neither node source alone enumerates a floor, so the read keeps both.
+
+    Live run build/window-run76 (floor 4, evidence/runtime/window-20261006-212950/
+    frame-0058.png): the badge template matched the player's own crescent and one arc
+    of the lit orange ring, whose box (232,14,190,190) sits off the top of the map, so
+    the only candidate left was that empty spot and the run clicked it eight times --
+    each time opening the gift tray over the map -- while the ornament scan still saw
+    the shop node at (263,338,190,190).
+    """
+    from pathlib import Path
+    from maalimbus.map_vision import map_clicks, node_markers
+    root = Path(__file__).resolve().parents[1]
+    image, template = live_map(root, 'window-20261006-212950/frame-0058.png')
+    markers = node_markers(image, template=template)
+    boxes = [marker.node for marker in markers]
+    assert (263, 338, 190, 190) in boxes, 'the ornament scan read the shop node'
+    clicks = map_clicks(image, template=template)
+    # The off-screen spot the badge lift produced is never the whole offer any more: the
+    # ring the game lit around that node names it from its own pixels.
+    assert clicks[0]['box'] != (232, 14, 190, 190)
+    shop = [item for item in clicks if item['box'] == (263, 338, 190, 190)]
+    assert shop, 'the shop node is offered once the empty spot has had its turn'
+    assert shop[0]['kind'] in ('highlighted_node', 'node_away_from_player')
+    # The crescent hanging inside the lit ring is that node's badge, and the badge's own
+    # centre (327,187) is the point the game answers to -- the registered lift put it off
+    # the top of the map. The lit ring names that same node from its own pixels, so the
+    # node is offered whether the badge lift lands on it or not, and the two reads of one
+    # node are collapsed by the 50 px dedupe inside ``map_clicks``.
+    offered = [item for item in clicks
+               if (item['point'][0] - 327) ** 2 + (item['point'][1] - 187) ** 2 <= 60 * 60]
+    assert offered, 'the lit ring node is offered'
+    assert offered[0]['kind'] in ('lit_node', 'badge_mark', 'node_away_from_player')
+    assert len(offered) == 1, 'one node, one candidate'
+
+
+def test_the_battle_hud_survives_the_red_backdrop_reading_nave():
+    """The WAVE caption loses a stroke once the floor is drawn in red.
+
+    Live evidence/runtime/window-20261006-053000/frame-0030.json (floor 3's battle)
+    reads "NAVE" beside a clean "TURN" while every other token of the HUD is present,
+    and the driver then sat on an UNKNOWN page for a whole turn.
+    """
+    from pathlib import Path
+    import json
+    from maalimbus.battle_vision import battle_hud
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-053000/frame-0030.json'
+    if not path.exists():
+        pytest.skip('retained live battle evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    hud = battle_hud(records, tuple(data['size']))
+    assert hud is not None
+    assert hud['wave_box'] == (28, 41, 38, 24)
+    assert hud['diagnostics'] == ['Damage', 'Rate', 'Win']
+
+
+def test_the_battle_hud_survives_a_counter_that_lost_its_first_digit():
+    """Live window-20261007-151655/frame-0529.json, floor 5's battle.
+
+    The corner reads "/10" [98,39,34,24] 0.99 and "TURN" [20,97,42,22] 1.0, with
+    START [1402,740,62,30] and the Win/Rate/Damage labels all readable, yet the page
+    fell back to UNKNOWN: the wave pattern wanted a digit before the slash. The window
+    then waited ten rounds on the battle and stopped the run.
+    """
+    from pathlib import Path
+    import json
+    from maalimbus.battle_vision import battle_hud
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-151655/frame-0529.json'
+    if not path.exists():
+        pytest.skip('retained live battle evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    hud = battle_hud(records, tuple(data['size']))
+    assert hud is not None
+    assert hud['turn_box'] == (20, 97, 42, 22)
+    assert hud['wave'] == '/10'
+    # A page whose corner holds neither caption nor counter is still not the HUD.
+    assert battle_hud([Text('TURN', (20, 97, 42, 22), 1.0),
+                       Text('WS', (24, 182, 34, 91), 0.385)], tuple(data['size'])) is None
+
+
+def test_the_battle_hud_survives_a_frame_that_drops_the_wave_caption():
+    """The red floor can cost the whole WAVE word, not just a stroke.
+
+    Live evidence/runtime/window-20261006-053923/frame-0056.json reads "TURN" and the
+    wave value "0/10" while the caption itself is missing ("WS" is the left skill
+    column), and the driver sat on UNKNOWN until it gave up.
+    """
+    from pathlib import Path
+    import json
+    from maalimbus.battle_vision import battle_hud
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-053923/frame-0056.json'
+    if not path.exists():
+        pytest.skip('retained live battle evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    hud = battle_hud(records, tuple(data['size']))
+    assert hud is not None
+    assert hud['turn_box'] == (20, 97, 42, 22)
+    assert hud['wave'] == '0/10'
+    # A page with neither caption nor a wave counter in that corner is not the HUD.
+    made_up = [Text('TURN', (20, 97, 42, 22), 1.0), Text('WS', (24, 182, 34, 91), 0.385)]
+    assert battle_hud(made_up, tuple(data['size'])) is None
+
+
+def test_the_start_control_is_read_at_the_right_edge_of_the_band():
+    """The START banner's own centre sits at x=0.806 on a live floor-3 frame.
+
+    Live evidence/runtime/window-20261006-103550/frame-0044.json reads "START"
+    [1518,738,60,28] beside the Win/Damage labels; a band that ended at 0.80 dropped
+    it, and the driver re-assigned skills for eight turns without submitting one.
+    """
+    from pathlib import Path
+    import json
+    import cv2
+    import pytest as _pytest
+    cv2 = _pytest.importorskip('cv2')
+    from maalimbus.battle_vision import start_button
+    root = Path(__file__).resolve().parents[1]
+    json_path = root / 'evidence/runtime/window-20261006-103550/frame-0044.json'
+    png_path = json_path.with_suffix('.png')
+    if not json_path.exists():
+        pytest.skip('retained live battle evidence is not present')
+    data = json.loads(json_path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    size = tuple(data['size'])
+    label = start_button(records, size)
+    assert label == (1518, 738, 60, 28)
+    if not png_path.exists():
+        return
+    control = start_button(records, size, cv2.imread(str(png_path)))
+    assert control is not None
+    x, y, w, h = control
+    assert (x, y, w, h) == (1495, 772, 122, 134)
+    # The banner is drawn above its button, so the control hangs under the label.
+    assert y >= label[1] + label[3] - 10
+    assert abs((x + w / 2) - (label[0] + label[2] / 2)) < 40
+
+
+def test_the_map_survives_the_header_word_being_misread():
+    """OCR turns "Floor" into "Flaor" and the whole map page fell back to UNKNOWN.
+
+    Live evidence/runtime/window-20261006-104857/frame-0080.json reads the header as
+    'Exploring Flaor' [56,127,310,53] with the pack 'Repressed Wrath' below it.
+    """
+    from pathlib import Path
+    import json
+    from maalimbus.map_vision import map_header
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261006-104857/frame-0080.json'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    data = json.loads(path.read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in data['ocr']]
+    header = map_header(records, tuple(data['size']))
+    assert header is not None
+    assert header.floor is None
+    assert header.pack == 'Repressed Wrath'
+
+
+def test_the_player_is_the_reading_the_flame_agrees_with():
+    """Live evidence/runtime/window-20261007-174525/frame-0002.png, caught mid-fade.
+
+    The readings of that frame disagree: the locomotive pair lands at (636,510) and the
+    badge lift at (751,425) while the flame burns at (694,384). map_clicks believed the
+    locomotive first, so the path reading started from a point 137 px off -- outside
+    PATH_REACH -- and returned nothing, and the run's first click went to the hexagon
+    between them (window-run-continue-14, step 0: MAP [852,276,40,40], passed false, the
+    panel only opened on the retry from the next observation).
+    """
+    from pathlib import Path
+    pytest.importorskip('cv2')
+    from maalimbus.map_vision import flame_count, node_markers, player_of, train_player
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-174525/frame-0002.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import cv2
+    image = cv2.imread(str(path))
+    markers = node_markers(image)
+    player = player_of(image, markers)
+    assert player is not None
+    # The badge lift is the reading the flame stands under, and the locomotive's own
+    # lamp is why the flame score, not the reading order, has to settle it.
+    assert abs(player[0] - 751) <= 25 and abs(player[1] - 425) <= 25, player
+    locomotive = train_player(image)
+    assert locomotive is not None, 'the live mid-fade frame must still offer the pair'
+    assert abs(locomotive[0] - 636) <= 30 and abs(locomotive[1] - 510) <= 30, locomotive
+    assert flame_count(image, player) > flame_count(image, locomotive)
+
+
+def test_the_cyan_path_is_walked_even_when_the_player_is_read_mid_fade():
+    """The same mid-fade frame: the path candidate has to survive the wrong player.
+
+    ``player_of`` settles the reading above, and this pins what the caller gets: the node
+    the cyan line points at (1054,124) is the first candidate, ahead of the hexagon the
+    run actually clicked.
+    """
+    from pathlib import Path
+    pytest.importorskip('cv2')
+    from maalimbus.map_vision import map_clicks
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-174525/frame-0002.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import cv2
+    image = cv2.imread(str(path))
+    clicks = map_clicks(image)
+    assert clicks, 'the live factory floor must offer candidates'
+    first = clicks[0]
+    assert first['kind'] == 'path_node', clicks[:3]
+    point = first['point']
+    assert abs(point[0] - 1054) <= 40 and abs(point[1] - 124) <= 40, point
+
+
+def test_bright_offered_icon_remains_a_candidate_when_ring_merges():
+    from pathlib import Path
+    cv2 = pytest.importorskip('cv2')
+    from maalimbus.map_vision import map_clicks
+    path=Path(__file__).resolve().parents[1]/'evidence/runtime/window-20261009-053703/frame-0102.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    clicks=map_clicks(cv2.imread(str(path)))
+    offered=[(i,c) for i,c in enumerate(clicks) if abs(c['point'][0]-1087)<20 and abs(c['point'][1]-409)<20]
+    assert offered and offered[0][0]<8
+    assert offered[0][1]['kind']=='bright_lit_icon'
+
+
+def test_the_offered_ring_is_named_first_on_a_floor_painted_the_same_gold():
+    """Live evidence/runtime/window-20261007-175552/frame-0052.png, floor 3.
+
+    "Emotional Indolence" paints its background in the offer's own gold, so the ring every
+    other floor shows is merged into the web behind it and the page yields eight ordinary
+    nodes' icons instead. The run spent eight clicks on them (run-continue-15, 21:59:18 to
+    22:00:27) before the offered node's own box (1064,472,190,190) finally took one, which
+    is what a map that runs out of ``--map-tries`` looks like from the inside. The ring is
+    still there once the threshold clears the web: centre (1147,443).
+    """
+    from pathlib import Path
+    pytest.importorskip('cv2')
+    from maalimbus.map_vision import LIT_RING_MIN_VALUE, lit_rings, map_clicks
+    root = Path(__file__).resolve().parents[1]
+    path = root / 'evidence/runtime/window-20261007-175552/frame-0052.png'
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import cv2
+    image = cv2.imread(str(path))
+    rings = lit_rings(image, min_value=LIT_RING_MIN_VALUE)
+    assert len(rings) == 1, rings
+    assert abs(rings[0][0] - 1147) <= 20 and abs(rings[0][1] - 443) <= 20, rings
+    clicks = map_clicks(image)
+    assert clicks[0]['kind'] == 'lit_ring', clicks[:3]
+    point = clicks[0]['point']
+    assert abs(point[0] - 1147) <= 20 and abs(point[1] - 443) <= 20, point
+    # The icons that used to be offered first are still on the page, behind the ring.
+    icons = [index for index, item in enumerate(clicks) if item['kind'] == 'lit_icon']
+    assert icons and min(icons) > 0, clicks[:3]
+
+
+def test_the_offer_mark_is_read_by_its_gold_not_by_one_stored_bitmap():
+    """The ring is the game's mark on a node it offers, and it is the same gold on
+    every floor; a stored badge bitmap is only ever one floor's art.
+
+    Live pi-20261021-185251/frame-0119: five rings 24 px across at (863,404),
+    (1055,403), (1247,403), (1247,564) and (1055,723), each drawn BGR (21,140,223),
+    over the nodes at (863,448), (1055,447), (1247,447), (1247,608) and (1055,767) --
+    while the template matched none of them, which is why the run had no candidate to
+    click but the player's own icon, a path chevron and two guesses in the empty panel.
+    """
+    pytest.importorskip('cv2')
+    import cv2
+    import numpy as np
+    from maalimbus.map_vision import GOLD_MARK_DROP, gold_marks
+    image = np.full((1080, 1920, 3), (62, 54, 58), dtype=np.uint8)
+    rng = np.random.default_rng(7)
+    image = cv2.add(image, rng.integers(0, 14, image.shape, dtype=np.int16).astype(np.uint8))
+    # The badge as the game draws it: the same gold, a ring 24 px across.
+    cv2.circle(image, (800, 400), 11, (21, 140, 223), 4)
+    # A gold that is not the mark must not be read as one: the reward bar's plate.
+    cv2.rectangle(image, (40, 20), (120, 60), (21, 140, 223), -1)
+    assert gold_marks(image) == [(800, 400)]
+    # The badge is drawn above its node, so the click is lifted onto the hexagon.
+    assert GOLD_MARK_DROP == 44
+
+
+def test_the_live_floor_one_offers_the_five_gold_badged_nodes():
+    """The frame the 2026-10-21 run stopped on, read back."""
+    pytest.importorskip('cv2')
+    import cv2
+    from pathlib import Path
+    from maalimbus.map_vision import gold_marks, map_clicks
+    root = Path(__file__).resolve().parents[1]
+    path = None
+    for candidate in (root / 'evidence/runtime/pi-20261021-185251/frame-0119.png',
+                      root / 'dist/MaaLimbus/evidence/runtime/pi-20261021-185251/frame-0119.png'):
+        if candidate.exists():
+            path = candidate
+            break
+    if path is None:
+        pytest.skip('retained live map evidence is not present')
+    image = cv2.imread(str(path))
+    marks = gold_marks(image)
+    assert len(marks) == 5, marks
+    clicks = map_clicks(image)
+    nodes = [item for item in clicks if item['kind'] == 'gold_badge_node']
+    assert len(nodes) == 5, clicks
+    # D345: the click point is the hexagon, 0.18 of the box above its centre, so every
+    # one of these is the old reading minus 34 px on this 190 px box.
+    expected = {(863, 414), (1055, 413), (1247, 413), (1247, 574), (1055, 733)}
+    found = {(item['point'][0], item['point'][1]) for item in nodes}
+    assert found == expected, found
+    # The page's only other candidates were the player's own icon, a path chevron and
+    # two lattice guesses in the empty panel, so the five nodes are the whole head of
+    # the list: the run now has a real node to click before it wastes a turn on them.
+    assert [item['kind'] for item in clicks[:5]] == ['gold_badge_node'] * 5, clicks[:6]
+
+
+def test_a_gold_ring_off_the_lattice_is_not_a_node_the_map_offers():
+    """The ring is the game's word; the lattice is how we know it is this map's ring.
+
+    Measured on `evidence/runtime/pi-20261021-185251/frame-0119.png`: five rings at
+    (863,404), (1055,403), (1247,403), (1247,564), (1055,723), 192 px apart across and
+    160 down. A mark that shares no such spacing with any other belongs to other gold
+    artwork caught by the same hue, not to this node grid.
+    """
+    from maalimbus.map_vision import lattice_consistent
+
+    floor = [(863, 404), (1055, 403), (1247, 403), (1247, 564), (1055, 723)]
+    assert lattice_consistent(floor) == floor
+    assert lattice_consistent(floor + [(404, 701)]) == floor
+
+
+def test_a_lone_mark_is_kept_because_one_ring_cannot_be_judged():
+    """Dropping every candidate is the failure this reader exists to prevent."""
+    from maalimbus.map_vision import lattice_consistent
+
+    assert lattice_consistent([(700, 300)]) == [(700, 300)]
+    assert lattice_consistent([(100, 200), (1400, 900)]) == [(100, 200), (1400, 900)]
+    assert lattice_consistent([(1000, 300), (1192, 300)]) == [(1000, 300), (1192, 300)]
+
+
+def test_the_players_own_gold_token_is_not_a_pair_of_nodes():
+    """The party marker is gold too, and two nodes cannot be 90 px apart.
+
+    Measured on the held-out run: `pi-20261021-185251/frame-0039` answered with two rings
+    68 px apart, both on the player's own token, and the exporter turned them into two
+    label boxes -- a false positive straight into the training set.
+    """
+    from maalimbus.map_vision import lattice_consistent
+
+    assert lattice_consistent([(705, 299), (694, 384)]) == []
+    assert lattice_consistent([(704, 297), (702, 365), (669, 403), (738, 403)]) == []
+
+
+def test_two_marks_sharing_no_lattice_step_are_kept_but_not_as_a_pair():
+    """Tolerance scales with the step it judges, never with the frame width.
+
+    36 px across and 143 down does not reproduce the 192x160 diagonal, so these are not
+    a lattice pair -- but they are also far enough apart to be two separate objects, and
+    deleting every candidate is the failure this reader exists to prevent, so they are
+    handed on rather than dropped.
+    """
+    from maalimbus.map_vision import lattice_consistent
+
+    # 143 px apart is under the tight mark: in that frame these are the player's torch
+    # and the stand under it, so nothing survives.
+    assert lattice_consistent([(1124, 678), (1088, 821)]) == []
+
+
+def test_the_floor_header_survives_a_dot_where_the_space_should_be():
+    from maalimbus.map_vision import normalise_header_text
+    assert normalise_header_text('Exploring\u00b7Floor') == 'Exploring Floor'
+    assert normalise_header_text('Exploring  \u2022  Floor') == 'Exploring Floor'
+    assert normalise_header_text('Exploring Floor 3') == 'Exploring Floor 3'
+
+
+def test_the_live_map_frame_that_read_as_a_dot_is_still_the_map():
+    import pathlib
+    path = (pathlib.Path(__file__).resolve().parents[1]
+            / 'evidence/runtime/packaged-mirror-20261022-045608'
+            / 'frame-0006.json')
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    import json
+    payload = json.loads(path.read_text(encoding='utf-8'))
+    rows = [Text(t['text'], t['box'], t['score']) for t in payload['ocr']]
+    header = map_header(rows, payload['size'])
+    assert header is not None, 'this frame is the floor-3 map and must still classify as one'
+    assert header.pack == 'Sinking Pang'
+    assert header.floor is None, 'the stylised digit was not read and must not be invented'
+
+
+class _Row:
+    """A bare OCR row with the three attributes the readers use."""
+
+    __slots__ = ('text', 'box', 'score')
+
+    def __init__(self, text, box, score):
+        self.text, self.box, self.score = text, box, score
+
+
+def test_the_gold_mark_the_game_draws_outranks_the_inferred_ring_guesses():
+    """Live run evidence/runtime/packaged-mirror-20261022-050759.
+
+    The map named its two 40x40 `lit_ring` guesses first -- the player's own token and a
+    chevron -- and all six clicks were rejected while three real `gold_badge_node` boxes
+    sat unclicked in the same list.  The walked path (`path_node`) still leads, because a
+    live tap on the lit path's far end is what opened the panel; the game's own gold mark
+    leads everything that is only inferred.
+    """
+    import cv2
+    import pathlib
+    path = (pathlib.Path(__file__).resolve().parents[1]
+            / 'evidence/runtime/packaged-mirror-20261022-050759/frame-0004.png')
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    clicks = map_clicks(cv2.imread(str(path)))
+    kinds = [c['kind'] for c in clicks]
+    assert 'gold_badge_node' in kinds
+    first_gold = kinds.index('gold_badge_node')
+    for later in ('lit_ring', 'lit_node', 'neutral_outline_candidate', 'lit_icon'):
+        if later in kinds:
+            assert kinds.index(later) > first_gold, (later, kinds)
+    if 'path_node' in kinds:
+        assert kinds.index('path_node') < first_gold
+
+
+def test_the_party_is_located_without_the_crescent_badge_template():
+    """Live frame evidence/runtime/packaged-mirror-20261022-051350/frame-0010.png.
+
+    `node_markers` reads zero badges on this palette, so `yellow_flame_player` returned
+    None and the reachability ranking had no input at all.  The party's own node is still
+    the largest solid warm structure on the page, and that is what locates it.
+    """
+    import cv2
+    import pathlib
+    path = (pathlib.Path(__file__).resolve().parents[1]
+            / 'evidence/runtime/packaged-mirror-20261022-051350/frame-0010.png')
+    if not path.exists():
+        pytest.skip('retained live map evidence is not present')
+    from maalimbus.map_vision import player_by_ring
+    point = player_by_ring(cv2.imread(str(path)))
+    assert point is not None, 'the party is on this page and must be located'
+    assert abs(point[0] - 972) <= 40 and abs(point[1] - 428) <= 40, point
+
+
+def test_a_page_without_markers_has_no_player_instead_of_raising():
+    import numpy as np
+    from maalimbus.map_vision import flame_player
+    assert flame_player(None, np.zeros((10, 10, 3), dtype=np.uint8)) is None
+    assert flame_player([], np.zeros((10, 10, 3), dtype=np.uint8)) is None
+
+
+def test_a_node_two_steps_away_is_not_a_candidate():
+    """A click only moves the party from an adjacent node.
+
+    Live evidence (evidence/runtime/packaged-mirror-20261022-085428) had the party at
+    (1052,562) and every rejected target around (576,361): two lattice steps away.
+    A hand click on an adjacent node opened its panel, so the candidate list has to
+    keep one step and drop the rest.
+    """
+    from maalimbus.map_vision import adjacent_to
+    party = (1052.0, 562.0)
+    near = [(576, 361, 190, 190), (576, 521, 190, 190), (768, 357, 190, 190)]
+    far = [(192, 342, 190, 190), (192, 162, 190, 190), (0, 342, 190, 190)]
+    kept = adjacent_to(party, near + far)
+    for box in near:
+        assert box in kept, box
+    for box in far:
+        assert box not in kept, box
+
+
+def test_without_a_party_every_candidate_is_kept():
+    from maalimbus.map_vision import adjacent_to
+    boxes = [(576, 361, 190, 190)]
+    assert adjacent_to(None, boxes) == boxes
+
+
+def test_a_neighbour_is_judged_against_this_frames_pitch():
+    from maalimbus.map_vision import adjacent_to, pitch_of
+
+    def box(cx, cy):
+        return (cx - 95, cy - 95, 190, 190)
+
+    party = (1052, 562)
+    # A 219 px pitch floor: the far box below is two steps and must be dropped.
+    near_map = [box(1052 + 189, 562 + 110), box(1052 - 189, 562 + 110),
+                box(1052 + 381, 562 + 106)]
+    across, down = pitch_of(party, near_map)
+    assert across == 189 and abs(down - 110) <= 26, (across, down)
+    kept = adjacent_to(party, near_map)
+    assert box(1052 + 189, 562 + 110) in kept
+    assert box(1052 + 381, 562 + 106) not in kept
+
+    # The same offsets on a 396 px pitch floor are all one step.
+    far_map = [box(1052 + 381, 562 + 106), box(1052 - 381, 562 + 106)]
+    assert pitch_of(party, far_map) == (381, 106)
+    assert adjacent_to(party, far_map) == far_map
+
+
+def test_an_unprovable_pitch_falls_back_and_never_invents_one():
+    from maalimbus.map_vision import adjacent_to, pitch_of
+
+    party = (1052, 562)
+    lone = [(1052 + 381 - 95, 562 + 106 - 95, 190, 190)]
+    assert pitch_of(party, lone) is None
+    assert adjacent_to(party, lone) == lone
+
+
+def test_the_camera_moving_is_not_the_party_walking():
+    from maalimbus.map_vision import movement_between
+
+    # Whole page translated by the same delta as the party: the camera moved.
+    before = {'party': (700, 300), 'badges': [(900, 400), (500, 300)]}
+    after = {'party': (1050, 422), 'badges': [(1250, 522), (850, 422)]}
+    assert movement_between(before, after) == 'the_view_moved'
+
+    # Badges hold still while the party moves one step: the party walked.
+    still = {'party': (700, 300), 'badges': [(900, 400), (500, 300)]}
+    walked = {'party': (889, 410), 'badges': [(900, 400), (500, 300)]}
+    assert movement_between(still, walked) == 'moved'
+
+    # The live case: a different badge set, so neither is provable.
+    old = {'party': (703, 316), 'badges': [(888, 432), (318, 680)]}
+    new = {'party': (1052, 439), 'badges': [(671, 290), (671, 450), (288, 610)]}
+    assert movement_between(old, new) == 'the_view_changed'
+
+
+def test_a_missing_reading_is_unknown_not_a_movement():
+    from maalimbus.map_vision import movement_between
+
+    assert movement_between(None, {'party': (1, 2), 'badges': [(3, 4)]}) == 'unknown'
+    assert movement_between({'party': None, 'badges': [(3, 4)]},
+                            {'party': (1, 2), 'badges': [(3, 4)]}) == 'unknown'
+    unchanged = {'party': (700, 300), 'badges': [(900, 400)]}
+    assert movement_between(unchanged, dict(unchanged)) == 'unknown'
+
+
+def test_the_party_reader_accepts_the_frameworks_channel_order():
+    """A reader that only understands BGR reports "no party" on every RGB frame.
+
+    Measured live 2026-10-23 (`packaged-mirror-20261023-162903`): the packaged agent
+    handed `party_point` the framework's RGB `cached_image`; all six map frames carried
+    `image_mean 126.8` with `map_player None`, while 88 of 90 offline frames read a
+    position.  The same real frame is fed back in both orders, so the test cannot pass
+    by inventing a blobby fixture the reader happens to like.
+    """
+    from maalimbus.map_vision import party_point
+
+    path = Path('evidence/runtime/packaged-mirror-20261023-161759/frame-0004.png')
+    if not path.exists():
+        pytest.skip('retained frame is not in this checkout')
+    frame = cv2.imread(str(path))
+    bgr = party_point(frame)
+    rgb = party_point(frame[:, :, ::-1].copy())
+    rgba = party_point(np.dstack([frame[:, :, ::-1], np.full(frame.shape[:2], 255, np.uint8)]))
+    assert bgr is not None, 'the BGR case must keep working'
+    assert rgb == bgr, 'the RGB order the agent passes must give the same point'
+    assert rgba == bgr, 'and RGBA when the controller adds alpha'
+
+def _archived(path):
+    import json, pathlib as _p
+    from maalimbus.vision import Text
+    data = json.loads(_p.Path(path).read_text(encoding='utf-8'))
+    records = [Text(r['text'], tuple(r['box']), r['score']) for r in (data.get('ocr') or [])]
+    return records, tuple(data.get('size') or (1920, 1080))
+
+
+def test_a_two_character_fragment_is_not_a_pack_line():
+    """The node panel's noise read as "Su" (26x18, score .99) and the panel became MAP."""
+    import pathlib as _p, pytest
+    path = 'evidence/runtime/packaged-mirror-20261025-012549/frame-0001.json'
+    if not _p.Path(path).exists():
+        pytest.skip('the retained panel frame is not in this checkout')
+    records, size = _archived(path)
+    assert floor_label(records, size) is not None, 'the header is readable there'
+    assert map_header(records, size) is None
+
+
+def test_a_real_pack_line_still_maps():
+    import pathlib as _p, pytest
+    path = 'evidence/runtime/packaged-mirror-20261024-171103/frame-0008.json'
+    if not _p.Path(path).exists():
+        pytest.skip('the retained map frame is not in this checkout')
+    records, size = _archived(path)
+    header = map_header(records, size)
+    assert header is not None and header.pack == 'Sunk Gloom'
+
+
+def test_a_split_caption_whose_first_half_was_dropped_is_still_the_floor():
+    """The 1280x720 variant renders 'Exploring' and 'Floor N' in two boxes and OCR can
+    return only the second: frame-0009 of packaged-mirror-20261025-045045 holds
+    ('Floor', (246,135,120,35), 0.99) with no 'Exploring' anywhere, and the page stayed
+    UNKNOWN for a whole 300 s run because of it."""
+    import json
+    from pathlib import Path
+    from maalimbus.vision import Text
+    frame = Path('evidence/runtime/packaged-mirror-20261025-045045/frame-0009.json')
+    if not frame.exists():
+        import pytest
+        pytest.skip('the retained frame is not in this checkout')
+    record = json.loads(frame.read_text(encoding='utf-8'))
+    size = tuple(record.get('size') or (1920, 1080))
+    rows = [Text(r['text'], tuple(r['box']), r.get('score') or 0.0)
+            for r in (record.get('ocr') or []) if r.get('text')]
+    from maalimbus import map_vision
+    label = map_vision.floor_label(rows, size)
+    assert label is not None, 'a bare Floor token in the header band is the label'
+    assert label.text.strip() == 'Floor'
+
+
+def test_a_stray_floor_word_outside_the_band_is_not_a_label():
+    """The bare token is accepted inside the header band only; a panel prints Floor rows
+    mid-screen and those must not make a page look like a map header."""
+    from maalimbus.vision import Text
+    size = (1920, 1080)
+    from maalimbus import map_vision
+    rows = [Text('Floor', (900, 700, 120, 35), .99)]
+    assert map_vision.floor_label(rows, size) is None

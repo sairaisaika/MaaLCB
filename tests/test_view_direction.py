@@ -1,0 +1,71 @@
+"""拖动方向与“别把我方推过头”都是测量（m19160/m19189）。"""
+import pathlib, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'src'))
+from maalimbus import runner
+
+
+def _run(series, *, rounds=4):
+    cursor = {'i': 0}
+    drags = []
+
+    def measure():
+        index = min(cursor['i'], len(series) - 1)
+        cursor['i'] += 1
+        return series[index], (1920, 1080)
+
+    def zoom():
+        return None
+
+    def drag(dx, dy):
+        drags.append((dx, dy))
+
+    out = runner.normalise_view(measure, zoom, drag, rounds=rounds)
+    return out, drags
+
+
+def test_a_party_at_the_top_is_pulled_down_not_pushed_further_up():
+    # Maa moves content with the finger: downward means increasing endpoint y.
+    _, drags = _run([(960, 120), (960, 120), (960, 300), (960, 520)])
+    assert drags and drags[0][1] > 0, drags
+
+
+def test_a_party_at_the_bottom_is_pulled_up():
+    _, drags = _run([(960, 1020), (960, 1000), (960, 800), (960, 620)])
+    assert drags and drags[0][1] < 0, drags
+
+
+def test_it_stops_once_the_party_is_inside_the_band():
+    out, drags = _run([(960, 120), (960, 600), (960, 620), (960, 625)])
+    assert drags == []
+    assert out['dragged'] == 0
+
+
+def test_the_band_is_never_the_whole_frame():
+    source = (pathlib.Path(runner.__file__)).read_text(encoding='utf-8')
+    body = source[source.index('def normalise_view'):source.index('def pinch_out')]
+    assert 'band = (0.22, 0.88)' in body
+
+
+def test_a_lattice_in_the_left_corner_is_pulled_across_too():
+    # x=200/1920 = 0.10, left of the horizontal band: the drag must have a horizontal part.
+    _, drags = _run([(200, 600), (200, 610), (900, 615), (960, 615)])
+    assert drags[0][0] > 0, drags
+
+
+def test_a_zoom_that_loses_the_party_is_named_not_silent():
+    series = [None]  # an unreadable party is None, not a pair of Nones
+    cursor = {'i': 0}
+
+    def measure():
+        index = min(cursor['i'], len(series) - 1)
+        cursor['i'] += 1
+        return series[index], (1920, 1080)
+
+    drags = []
+
+    def drag(dx, dy):
+        drags.append((dx, dy))
+
+    out = runner.normalise_view(measure, lambda: None, drag, rounds=4)
+    assert out['scale_lost_party'] is True
+    assert out['dragged'] == 0 and drags == [], 'a lost party must not be dragged on'

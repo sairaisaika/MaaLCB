@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "mirror": {
+    "difficulty": "hard",
+    "team_mode": "rotation",
+    "teams": [1, 2]
+  },
+  "luxcavation": {
+    "experience_team": 1,
+    "thread_team": 1
+  }
+}

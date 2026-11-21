@@ -1,0 +1,3369 @@
+{
+  "version": 1,
+  "reference_width": 1280,
+  "reference_height": 720,
+  "note": "每个由画面推导出来的假设都在这里登记，并由 tools/verify_anchors.py 用留档观测离线复检。roi 是 maalimbus.vision.find 使用的中心归一化框；geometry 锚点是「在某一帧上被证明过」的控件几何（用 image_sha256 对齐，换帧即报 stale，绝不静默沿用）。",
+  "pages": [
+    {
+      "id": "map",
+      "title": "楼层地图（Exploring Floor N）",
+      "evidence": [
+        "evidence/runtime/map-advance-20261006-014737/frame-0001.json",
+        "evidence/runtime/battle-step-20261006-014432/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "map.floor",
+          "kind": "ocr",
+          "pattern": "^(?:Exploring|Before\\s+Entry)\\s+Floor\\s*([1-5])\\b",
+          "roi": [
+            0.0,
+            0.06,
+            0.3,
+            0.22
+          ],
+          "threshold": 0.85,
+          "note": "楼层号＝捕获组 1；OCR 退化（Exploring FloorT）会失配，故必须与 map.pack_name 同时成立"
+        },
+        {
+          "id": "map.pack_name",
+          "kind": "ocr",
+          "pattern": "\\S",
+          "roi": [
+            0.0,
+            0.14,
+            0.3,
+            0.28
+          ],
+          "threshold": 0.8,
+          "note": "抬头下方一行＝本层主题包名（随包变化，故只要求存在文本）"
+        }
+      ],
+      "controls": [],
+      "live_derived": [
+        "map_vision.node_markers(image)：节点框＝亮连通域现算，不写死坐标",
+        "map_vision.flame_player(markers, image)：玩家位置＝金色火焰（mean G>120 且 G-B 最大）现算",
+        "map_vision.route_decision()：无可达候选时给出拒绝原因，而不是猜一个坐标"
+      ]
+    },
+    {
+      "id": "node_panel",
+      "title": "节点信息面板（Clear Rewards + Enter）",
+      "evidence": [
+        "evidence/runtime/map-probe-20261006-000748/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "node_panel.rewards",
+          "kind": "ocr",
+          "pattern": "^Clear\\s+Rewards$",
+          "roi": [
+            0.5,
+            0.64,
+            0.68,
+            0.75
+          ],
+          "threshold": 0.85,
+          "note": "打卡片节点成功打开的面板；同时说明「点地图节点＝打开信息面板」而不是直接进战斗"
+        },
+        {
+          "id": "node_panel.enter",
+          "kind": "ocr",
+          "pattern": "^Enter$",
+          "roi": [
+            0.82,
+            0.68,
+            0.95,
+            0.8
+          ],
+          "threshold": 0.85,
+          "note": "面板确认键；用 inset 随机落点（勿点边缘）"
+        }
+      ],
+      "controls": [
+        {
+          "id": "node_panel.enter_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/map-probe-20261006-000748/frame-0002.json",
+            "box": [
+              1668,
+              780,
+              124,
+              63
+            ],
+            "source": "tools/map_panel_enter.py：enter_box inset 后落点 (1705,815)，实测进入 CONNECTING 过渡态"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pre_battle_team",
+      "title": "出战前队伍页（Preset + Clear Selection + Battle!）",
+      "evidence": [
+        "evidence/runtime/map-settle-20261006-000930/frame-0001.json",
+        "evidence/runtime/team-page-battle-20261006-010230/frame-0001.json",
+        "evidence/runtime/window-20261006-030750/frame-0001.json",
+        "evidence/runtime/window-20261006-030941/frame-0022.json",
+        "evidence/runtime/window-20261008-030555/frame-0015.json"
+      ],
+      "identity": [
+        {
+          "id": "pre_battle.clear_selection",
+          "kind": "ocr",
+          "pattern": "^\\s*Clear(?:\\s+Selection)?\\s*$",
+          "roi": [
+            0.86,
+            0.62,
+            0.95,
+            0.71
+          ],
+          "threshold": 0.8,
+          "note": "实机在队伍选满后读成带前导空格的 ' Clear Selection'（window-20261006-030941/frame-0022.json）；window-20261008-030555/frame-0015.json 把同一句读成同一行的两个词 'Clear' + 'Selection'，正则因此收下首词，两词必须同行的配对规则在 maalimbus.map_vision.clear_selection_caption 里"
+        },
+        {
+          "id": "pre_battle.battle",
+          "kind": "ocr",
+          "pattern": "^\\s*(?:Chain\\s+)?(?:To\\s+)?Battle!?\\s*$",
+          "roi": [
+            0.86,
+            0.77,
+            0.96,
+            0.86
+          ],
+          "threshold": 0.8,
+          "note": "两个角标同时成立才认页：这一页与「Sinners 图鉴」共用大量视觉元素。按钮禁用时 OCR 只读 'Battle!'，选满人后读成 'To' + 'Battle!'（上方多一个 Chain 角标）"
+        },
+        {
+          "id": "pre_battle.preset",
+          "kind": "ocr",
+          "pattern": "^\\s*Preset\\s*#\\s*\\d+\\s*$",
+          "roi": [
+            0.04,
+            0.19,
+            0.16,
+            0.3
+          ],
+          "threshold": 0.8,
+          "note": "当前选中预设队号＝选队路径 0 的入口证据"
+        }
+      ],
+      "controls": [
+        {
+          "id": "pre_battle.battle_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/map-settle-20261006-000930/frame-0001.json",
+            "box": [
+              1674,
+              859,
+              144,
+              44
+            ],
+            "source": "tools/team_page_battle.py：battle_box inset 后落点 (1755,883)，实测进入战斗 HUD"
+          }
+        },
+        {
+          "id": "pre_battle.card_grid",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              355,
+              236,
+              1173,
+              544
+            ],
+            "source": "12 张人格卡的整体网格（1920×1080 帧像素）。列边界由金色竖线峰值给出 ≈355/545/750/935/1140/1345/1520，行 y 236–484 与 531–782；单卡 190×248。实测点任一张卡只切换参与/不参与（SELECTED/BACKUP 徽章），不改人格"
+          }
+        },
+        {
+          "id": "pre_battle.card_01",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              355,
+              236,
+              190,
+              248
+            ],
+            "source": "实机点击命中 SELECTED 徽章 [384,357,120,36]、计数 0/12→1/12（window-20261006-030901）"
+          }
+        },
+        {
+          "id": "pre_battle.card_02",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              553,
+              236,
+              190,
+              248
+            ],
+            "source": "SELECTED 徽章实测在 [582,357,120,36]"
+          }
+        },
+        {
+          "id": "pre_battle.card_03",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              748,
+              236,
+              190,
+              248
+            ],
+            "source": "SELECTED 徽章实测在 [780,357,122,36]"
+          }
+        },
+        {
+          "id": "pre_battle.card_04",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              943,
+              236,
+              190,
+              248
+            ],
+            "source": "SELECTED 徽章实测在 [978,357,120,36]"
+          }
+        },
+        {
+          "id": "pre_battle.card_05",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              1148,
+              236,
+              190,
+              248
+            ],
+            "source": "SELECTED 徽章实测在 [1176,355,120,36]"
+          }
+        },
+        {
+          "id": "pre_battle.card_06",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              1338,
+              236,
+              190,
+              248
+            ],
+            "source": "SELECTED 徽章实测在 [1376,357,118,36]"
+          }
+        },
+        {
+          "id": "pre_battle.card_07",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              355,
+              532,
+              190,
+              248
+            ],
+            "source": "第 7 张在 12/12 帧上仍是 SELECTED（红条）[382,655,120,35]，即 7 名出战之一"
+          }
+        },
+        {
+          "id": "pre_battle.card_08",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              553,
+              532,
+              190,
+              248
+            ],
+            "source": "BACKUP 徽章实测在 [590,651,104,41]"
+          }
+        },
+        {
+          "id": "pre_battle.card_09",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              748,
+              532,
+              190,
+              248
+            ],
+            "source": "BACKUP 徽章实测在 [788,651,104,41]"
+          }
+        },
+        {
+          "id": "pre_battle.card_10",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              943,
+              532,
+              190,
+              248
+            ],
+            "source": "BACKUP 徽章实测在 [986,651,104,41]"
+          }
+        },
+        {
+          "id": "pre_battle.card_11",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              1148,
+              532,
+              190,
+              248
+            ],
+            "source": "BACKUP 徽章实测在 [1184,651,104,41]"
+          }
+        },
+        {
+          "id": "pre_battle.card_12",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030941/frame-0022.json",
+            "box": [
+              1338,
+              532,
+              190,
+              248
+            ],
+            "source": "BACKUP 徽章实测在 [1386,653,98,37]"
+          }
+        }
+      ]
+    },
+    {
+      "id": "battle_hud",
+      "title": "战斗 HUD（WAVE/TURN + Win Rate/Damage）",
+      "evidence": [
+        "evidence/runtime/team-page-battle-20261006-010230/frame-0007.json"
+      ],
+      "identity": [
+        {
+          "id": "battle.wave",
+          "kind": "ocr",
+          "pattern": "^[WN]AVE$",
+          "roi": [
+            0.0,
+            0.02,
+            0.07,
+            0.09
+          ],
+          "threshold": 0.8,
+          "note": "红场地背景下 W 少一横被读成 NAVE（evidence/runtime/window-20261006-053000/frame-0030.json [28,41,38,24] 0.888），WAVE 与 NAVE 都收；与 battle.turn 必须同时命中"
+        },
+        {
+          "id": "battle.turn",
+          "kind": "ocr",
+          "pattern": "^TURN$",
+          "roi": [
+            0.0,
+            0.06,
+            0.07,
+            0.14
+          ],
+          "threshold": 0.8,
+          "note": "回合数本身是位图（OCR 读不出），所以「回合是否推进」必须靠 START/结算页等别的证据判定"
+        },
+        {
+          "id": "battle.win_rate_glyph",
+          "kind": "template",
+          "template": "image/battle/win_rate.png",
+          "roi": [
+            0.6,
+            0.65,
+            1.0,
+            1.0
+          ],
+          "threshold": 0.8,
+          "note": "模板在 1280 基准下采集，验证时按帧宽等比放大；这条同时验证「模板锚点」通路"
+        },
+        {
+          "id": "battle.damage",
+          "kind": "ocr",
+          "pattern": "^Damage$",
+          "roi": [
+            0.56,
+            0.74,
+            0.72,
+            0.88
+          ],
+          "threshold": 0.8
+        }
+      ],
+      "controls": [
+        {
+          "id": "battle.start_control",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/battle-step-20261006-012951/frame-0006.json",
+            "box": [
+              1038,
+              771,
+              121,
+              133
+            ],
+            "source": "battle_vision.warm_control()：START 标签(1060,738,66,30) 下方暖色圆钮＝真正按钮；submit 一次使 turn1→turn2"
+          }
+        },
+        {
+          "id": "battle.win_rate_label",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/team-page-battle-20261006-010230/frame-0007.json",
+            "box": [
+              1198,
+              796,
+              48,
+              41
+            ],
+            "source": "battle_vision.auto_assign_buttons()：Win+Rate 两行并成一块，点它触发游戏自带评估"
+          }
+        }
+      ]
+    },
+    {
+      "id": "battle_tip",
+      "title": "战斗中的技能说明浮层（Skill Effects；遮住 WAVE/TURN，自身没有关闭控件）",
+      "why": "在战斗棋盘上点到技能卡会弹出该技能的说明，盖住画面左半边并压掉 WAVE/TURN，于是 vision 判 UNKNOWN、驱动在 floor 5 等了 20 轮停机（build/window-run99.json，实机 window-20261007-014613/frame-0094.json 读到 'Skill Effects' [420,83,142,28] 1.0 与 Keywords/Haste/Dokkaebi Arms 等条目，全帧没有任何 Close/Back/✕）。浮层自己在棋盘上留出的空处是右下的暗区：(1700,950) 一带 mean (0,3,14)、std 6.6，所以本页只做「点棋盘把那块说明点掉」，不做任何其它输入。",
+      "evidence": [
+        "evidence/runtime/window-20261007-014613/frame-0094.json"
+      ],
+      "identity": [
+        {
+          "id": "battle_tip.title",
+          "kind": "ocr",
+          "pattern": "^Skill Effects$",
+          "roi": [
+            0.19,
+            0.06,
+            0.35,
+            0.13
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [420,83,142,28] score 1.0；同帧还有 'Reywords'(Keywords 被 OCR 读错) 与 'Rending Arts'，只有这条 1.0 可钉"
+        }
+      ],
+      "controls": [
+        {
+          "id": "battle_tip.dismiss_point",
+          "kind": "geometry",
+          "box": [
+            1660,
+            910,
+            80,
+            80
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-014613/frame-0094.json",
+            "box": [
+              1660,
+              910,
+              80,
+              80
+            ],
+            "source": "实机帧 (1700,950) 邻域 80×80 的 mean (0,3,14)、std 6.6＝没有 UI 的暗背景；点它只关掉技能说明，不碰 Win Rate/Damage 与任何技能卡"
+          },
+          "note": "只点这块空棋盘；绝不点技能卡（会再开一层说明）、也不点右下 Win Rate/Damage"
+        }
+      ]
+    },
+    {
+      "id": "battle_result",
+      "title": "战斗结果演出（fatal blow / Gain / TOTAL）",
+      "evidence": [
+        "evidence/runtime/battle-step-20261006-013320/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "result.gain",
+          "kind": "ocr",
+          "pattern": "^Gain\\s+Corpus\\s+Ingredient$",
+          "roi": [
+            0.16,
+            0.36,
+            0.31,
+            0.5
+          ],
+          "threshold": 0.8,
+          "note": "掉落行；不同敌人掉落物名会变，需按包扩展"
+        },
+        {
+          "id": "result.total",
+          "kind": "ocr",
+          "pattern": "^TOTAL$",
+          "roi": [
+            0.05,
+            0.7,
+            0.18,
+            0.86
+          ],
+          "threshold": 0.8,
+          "note": "演出页，不是可交互的结算页；两者必须分开识别"
+        }
+      ],
+      "controls": []
+    },
+    {
+      "id": "battle_victory",
+      "title": "战斗胜利结算页（Victory / EX-CLEAR / Confirm；不会自己消失）",
+      "why": "这是与掉落演出页（battle_result）不同的另一种胜利画面：右上是 Victory 与 EX-CLEAR，右下是 Confirm，左边是 Most Valued Employee/Damage Contributed 与一句台词。2026-10-07 实机上它不会像演出动画那样自己走掉——驱动把它当动画等了 30 轮后停机（build/window-run100.json），所以它必须有自己的页名与「点 Confirm」的计划。",
+      "evidence": [
+        "evidence/runtime/window-20261007-015542/frame-0130.json",
+        "evidence/runtime/window-20261007-201340/frame-0220.json"
+      ],
+      "identity": [
+        {
+          "id": "victory.banner",
+          "kind": "ocr",
+          "pattern": "^Victory$",
+          "roi": [
+            0.75,
+            0.06,
+            0.95,
+            0.3
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1486,146,276,100] score 1.0；注意与全大写的 '^VICTORY$' 演出页是两套规则"
+        },
+        {
+          "id": "victory.clear",
+          "kind": "ocr",
+          "pattern": "^EX-CLEAR$",
+          "roi": [
+            0.66,
+            0.12,
+            0.82,
+            0.26
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1338,164,174,82] score 0.96；掉落演出页同帧没有这两个词（battle-step-20261006-013320/frame-0001.json）"
+        }
+      ],
+      "controls": [
+        {
+          "id": "battle_victory.confirm_button",
+          "kind": "geometry",
+          "box": [
+            1638,
+            831,
+            164,
+            48
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-015542/frame-0130.json",
+            "box": [
+              1638,
+              831,
+              164,
+              48
+            ],
+            "source": "实机 OCR 'Confirm' 1.0 的框；右下的唯一前进控件"
+          },
+          "note": "只点这一个 Confirm；绝不点队伍头像（那是查看）"
+        }
+      ]
+    },
+    {
+      "id": "battle_defeat",
+      "title": "团灭后的关卡对话框（Retry Stage / Return to Stage Select / Accept results）",
+      "why": "全员阵亡时游戏不结束这一局，而是问这一局怎么继续：Return to Stage Select（可先改部署顺序）、Retry Stage（从本关第一波重来）、Accept results and return to Stage select（接受 sinner 死亡并回关卡选择），三者都要再按 Confirm。2026-10-07 实机在镜牢 5 层 boss 团灭后，驱动把这一页读成 UNKNOWN 并停机（build/window-after-defeat-*.png），所以它必须有自己的页名。",
+      "evidence": [
+        "evidence/runtime/window-20261007-044408/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "defeat.floor_label",
+          "kind": "ocr",
+          "pattern": "^Floor\\s*In\\s*Progress$",
+          "roi": [
+            0.3,
+            0.35,
+            0.42,
+            0.41
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 读成 'FloorIn Progress' [608,397,168,27] 0.98（词与字之间丢空格）；暂停对话框也印层号，所以这一条不能单独定页"
+        },
+        {
+          "id": "defeat.casualties",
+          "kind": "ocr",
+          "pattern": "^All participating Sinners have been$",
+          "roi": [
+            0.26,
+            0.5,
+            0.46,
+            0.55
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR [528,555,330,28] 0.99，下一行是 'killed.' [662,581,62,28]"
+        },
+        {
+          "id": "defeat.remaining_units",
+          "kind": "ocr",
+          "pattern": "^Remaining\\s+Units",
+          "roi": [
+            0.26,
+            0.57,
+            0.42,
+            0.64
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 'Remaining Units: 0/12' [526,627,252,48] 0.98；分母恒为 12，分子会变"
+        }
+      ],
+      "controls": [
+        {
+          "id": "defeat.retry_button",
+          "kind": "geometry",
+          "box": [
+            946,
+            480,
+            144,
+            34
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-044408/frame-0001.json",
+            "box": [
+              946,
+              480,
+              144,
+              34
+            ],
+            "source": "实机 OCR 'Retry Stage' [946,480,144,34] 0.99 的框；点它高亮该行"
+          },
+          "note": "默认选择：从本关第一波重来，是唯一能让这一局活下去的输入"
+        },
+        {
+          "id": "defeat.return_button",
+          "kind": "geometry",
+          "box": [
+            948,
+            343,
+            262,
+            28
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-044408/frame-0001.json",
+            "box": [
+              948,
+              343,
+              262,
+              28
+            ],
+            "source": "实机 OCR 'Return to Stage Select' [948,343,262,28] 1.0 的框"
+          },
+          "note": "登记但默认不点：回关卡选择要先改部署顺序，脚本还没读那一页"
+        },
+        {
+          "id": "defeat.accept_button",
+          "kind": "geometry",
+          "box": [
+            952,
+            625,
+            362,
+            20
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-044408/frame-0001.json",
+            "box": [
+              952,
+              625,
+              362,
+              20
+            ],
+            "source": "实机 OCR 'Accept results and return to Stage select' [952,625,362,20] 0.98 的框"
+          },
+          "note": "登记但不自动点：接受全员阵亡是玩家的决定，脚本在重试次数用尽后停下等人"
+        },
+        {
+          "id": "defeat.confirm_button",
+          "kind": "geometry",
+          "box": [
+            930,
+            770,
+            126,
+            36
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-044408/frame-0001.json",
+            "box": [
+              930,
+              770,
+              126,
+              36
+            ],
+            "source": "实机 OCR 'Confirm' [930,770,126,36] 1.0 的框"
+          },
+          "note": "只在已经点过某一行之后按它"
+        }
+      ]
+    },
+    {
+      "id": "run_claim",
+      "title": "镜牢通关结算（Exploration Complete / Total Progress 100% / Claim Rewards）",
+      "why": "五层打完后的总结算页：左边列 Floor1..Floor5 各 6/6 与 Total Progress 100%，右边是 Starlight 明细与 Net Amount，底部是 Previous/Next 与唯一的前进控件 Claim Rewards。2026-10-07 实机第一次走到这里（build/window-run101.json 之后），此前脚本从未领过奖。Previous/Next 只是翻页、不能证明任何进度，所以本页只发 Claim。",
+      "evidence": [
+        "evidence/runtime/window-20261007-020715/frame-0006.json"
+      ],
+      "identity": [
+        {
+          "id": "run.complete_title",
+          "kind": "ocr",
+          "pattern": "^Exploration$",
+          "roi": [
+            0.10,
+            0.11,
+            0.28,
+            0.2
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [234,138,238,48] score 1.0；'Complete' 是同一标题的第二行，另有独立锚点"
+        },
+        {
+          "id": "run.complete_title_2",
+          "kind": "ocr",
+          "pattern": "^Complete$",
+          "roi": [
+            0.11,
+            0.16,
+            0.25,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [250,188,202,50] score 1.0"
+        },
+        {
+          "id": "run.total_progress",
+          "kind": "ocr",
+          "pattern": "^Total Progress$",
+          "roi": [
+            0.1,
+            0.63,
+            0.26,
+            0.72
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [234,704,232,44] score 1.0；100% 是位图，靠它证明这一页是通关结算"
+        },
+        {
+          "id": "run.claim_label",
+          "kind": "ocr",
+          "pattern": "^Claim$",
+          "roi": [
+            0.86,
+            0.78,
+            0.93,
+            0.85
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1682,865,82,30] score 1.0"
+        },
+        {
+          "id": "run.rewards_label",
+          "kind": "ocr",
+          "pattern": "^Rewards$",
+          "roi": [
+            0.85,
+            0.81,
+            0.96,
+            0.88
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1662,901,124,28] score 1.0；Claim+Rewards 两行合成一个按钮"
+        }
+      ],
+      "controls": [
+        {
+          "id": "run.claim_button",
+          "kind": "geometry",
+          "box": [
+            1638,
+            855,
+            180,
+            80
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-020715/frame-0006.json",
+            "box": [
+              1638,
+              855,
+              180,
+              80
+            ],
+            "source": "实机 OCR 'Claim'[1682,865,82,30] 与 'Rewards'[1662,901,124,28] 合成的按钮框；同帧 'Next'[1382,895,80,36] 是灰的、'Previous'[1096,895,148,36] 是亮的，所以只点这一块"
+          },
+          "note": "只点 Claim Rewards；绝不点 Previous/Next（翻页不产生任何进度）"
+        }
+      ]
+    },
+    {
+      "id": "run_reward",
+      "title": "通关奖励弹窗（Exploration Reward：Give Up Rewards / To Window / Claim）",
+      "why": "结算页的 Claim Rewards 点下去会弹出这个模态窗：左边是 Floor 5 [NORMAL] 6/6、Starlight 15、Battle Pass XP x30、Projection Rate x25、Manager EXP 100，底部三个控件分别是 Give Up Rewards（放弃＝丢掉整局奖励）、To Window（离开）、Claim（左下带一个绿色感叹号角标）。2026-10-07 实机第一次走到这里：弹窗盖住结算页的中心，而结算页自己的 'Claim Rewards' 仍读得到，所以驱动把 70 步全点在弹窗背后的死按钮上（build/window-run102.json）；本页必须先于 run_claim 判定。",
+      "evidence": [
+        "evidence/runtime/window-20261007-021150/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "run_reward.title",
+          "kind": "ocr",
+          "pattern": "^Exploration Reward$",
+          "roi": [
+            0.36,
+            0.1,
+            0.64,
+            0.2
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [792,156,338,42] score 1.0"
+        },
+        {
+          "id": "run_reward.to_window",
+          "kind": "ocr",
+          "pattern": "^To Window$",
+          "roi": [
+            0.42,
+            0.71,
+            0.58,
+            0.78
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [874,800,172,33] score 1.0"
+        },
+        {
+          "id": "run_reward.claim_label",
+          "kind": "ocr",
+          "pattern": "^Claim$",
+          "roi": [
+            0.61,
+            0.7,
+            0.7,
+            0.77
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1238,796,98,41] score 1.0；同帧结算页背后还有一个 [1682,865,82,30] 的 Claim，靠 ROI 分开"
+        },
+        {
+          "id": "run_reward.give_up_label",
+          "kind": "ocr",
+          "pattern": "^\\s*Give\\s?Up\\s?Rewards$",
+          "roi": [
+            0.2,
+            0.7,
+            0.42,
+            0.78
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 把两行读成 ' GiveUpRewards' [450,796,278,39] score 0.99，所以正则允许空格缺失；这条只用于核对该页，永不作为点击目标"
+        }
+      ],
+      "controls": [
+        {
+          "id": "run_reward.claim_button",
+          "kind": "geometry",
+          "box": [
+            1200,
+            780,
+            200,
+            60
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-021150/frame-0002.json",
+            "box": [
+              1200,
+              780,
+              200,
+              60
+            ],
+            "source": "实机 OCR 'Claim'[1238,796,98,41] 所在按钮的框；中心 (1300,810) 稳落在按钮内、又远离 To Window 与 Give Up Rewards"
+          },
+          "note": "只点这一块＝领取奖励；绝不点左边的 Give Up Rewards"
+        },
+        {
+          "id": "run_reward.give_up_button",
+          "kind": "geometry",
+          "box": [
+            430,
+            780,
+            320,
+            75
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-021150/frame-0002.json",
+            "box": [
+              430,
+              780,
+              320,
+              75
+            ],
+            "source": "实机 OCR ' GiveUpRewards'[450,796,278,39] 的框；登记出来只为让 FORBIDDEN_CONTROLS 认得出它"
+          },
+          "note": "登记但不许点：这是「放弃奖励」，等于把五层通关的奖励丢掉"
+        }
+      ]
+    },
+    {
+      "id": "run_reward_confirm",
+      "title": "领奖确认弹窗（Claim the rewards?：Cancel / Confirm）",
+      "why": "奖励弹窗的 Claim 不是直接发奖，而是先弹出这一问：'Claim the rewards?' 下面只有 Cancel 与 Confirm，后面是变暗的奖励弹窗和结算页。2026-10-07 实机第一次走到这里：这一帧的 'To Window' 读不到（被压暗），而结算页的 Exploration/Complete/Claim/Rewards 四个词仍在同一帧可读，于是被误判成 run_claim，驱动在弹窗的 Claim 与结算页的 Claim Rewards 之间来回点 20 步（build/window-run103.json）；本页必须先于 run_claim 与 run_reward 判定。",
+      "evidence": [
+        "evidence/runtime/window-20261007-021916/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "run_reward_confirm.prompt",
+          "kind": "ocr",
+          "pattern": "^Claim the rewards\\?$",
+          "roi": [
+            0.40,
+            0.43,
+            0.60,
+            0.53
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [828,502,262,34] score 0.988"
+        },
+        {
+          "id": "run_reward_confirm.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.56,
+            0.65,
+            0.66,
+            0.73
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1114,722,112,34] score 1.0"
+        },
+        {
+          "id": "run_reward_confirm.cancel_label",
+          "kind": "ocr",
+          "pattern": "Cancel$",
+          "roi": [
+            0.34,
+            0.64,
+            0.46,
+            0.73
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 把按钮读成 '× Cancel' [704,718,142,42] score 0.93；这条只用于核对该页，永不作为点击目标"
+        }
+      ],
+      "controls": [
+        {
+          "id": "run_reward_confirm.confirm_button",
+          "kind": "geometry",
+          "box": [
+            1114,
+            722,
+            112,
+            34
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-021916/frame-0002.json",
+            "box": [
+              1114,
+              722,
+              112,
+              34
+            ],
+            "source": "实机 OCR 'Confirm'[1114,722,112,34] 所在按钮的框；中心 (1170,739) 落在按钮内、离左边的 Cancel 有 300 px 以上"
+          },
+          "note": "只点这一块＝确认领取；绝不点左边的 Cancel"
+        },
+        {
+          "id": "run_reward_confirm.cancel_button",
+          "kind": "geometry",
+          "box": [
+            704,
+            718,
+            142,
+            42
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-021916/frame-0002.json",
+            "box": [
+              704,
+              718,
+              142,
+              42
+            ],
+            "source": "实机 OCR '× Cancel'[704,718,142,42] 的框；登记出来只为让 FORBIDDEN_CONTROLS 认得出它"
+          },
+          "note": "登记但不许点：取消这一问就等于不领这次奖励"
+        }
+      ]
+    },
+    {
+      "id": "run_reward_bonus",
+      "title": "领奖的第二问（Spend your 'Weekly Bonuses, to claim the / bonus rewards?：Cancel / Confirm）",
+      "why": "奖励弹窗的 Claim 之后还可以再问一次：2026-10-07 实机领一局被每周重置作废的奖励时读到 'Spend your \\'Weekly Bonuses, to claim the'[660,484,598,34] 与 'bonus rewards?'[842,524,234,27]，下面只有 '× Cancel'[702,724,140,36] 与 'Confirm'[1116,720,112,40]，背后是变暗的 Exploration Reward。周奖励每週只有 3 次且不会累积（Steam 讨论 597403944640085425：bonus 每周重置、没领的奖励留到以后领、跨周进行中的一局会被自动判负并丢掉当周 bonus），所以这一问花掉的是有限资源，必须由外部账本决定，而不是看见 Confirm 就点。",
+      "evidence": [
+        "evidence/runtime/window-20261007-171228/frame-0003.json"
+      ],
+      "identity": [
+        {
+          "id": "run_reward_bonus.prompt",
+          "kind": "ocr",
+          "pattern": "^Spend your '?Weekly Bonuses,? to claim the$",
+          "roi": [
+            0.35,
+            0.42,
+            0.65,
+            0.5
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [660,484,598,34] score 0.98（1920×1080）"
+        },
+        {
+          "id": "run_reward_bonus.question_tail",
+          "kind": "ocr",
+          "pattern": "^bonus rewards\\?$",
+          "roi": [
+            0.42,
+            0.47,
+            0.58,
+            0.53
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [842,524,234,27] score 0.99；问题被折成两行，两行都核"
+        },
+        {
+          "id": "run_reward_bonus.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.56,
+            0.64,
+            0.66,
+            0.73
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1116,720,112,40] score 1.0"
+        },
+        {
+          "id": "run_reward_bonus.cancel_label",
+          "kind": "ocr",
+          "pattern": "Cancel$",
+          "roi": [
+            0.34,
+            0.65,
+            0.46,
+            0.72
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 把按钮读成 '× Cancel' [702,724,140,36] score 0.92"
+        }
+      ],
+      "controls": [
+        {
+          "id": "run_reward_bonus.confirm_button",
+          "kind": "geometry",
+          "box": [
+            1116,
+            720,
+            112,
+            40
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-171228/frame-0003.json",
+            "box": [
+              1116,
+              720,
+              112,
+              40
+            ],
+            "source": "实机 OCR 'Confirm'[1116,720,112,40] 所在按钮的框；中心 (1172,740) 落在按钮内，离左边 Cancel 有 400 px 以上"
+          },
+          "note": "只有账本说这一局真的打完了才点它：这一下花掉 3 次周奖励里的一次"
+        },
+        {
+          "id": "run_reward_bonus.cancel_button",
+          "kind": "geometry",
+          "box": [
+            702,
+            724,
+            140,
+            36
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-171228/frame-0003.json",
+            "box": [
+              702,
+              724,
+              140,
+              36
+            ],
+            "source": "实机 OCR '× Cancel'[702,724,140,36] 的框；这一问的保守答案是它——不花周奖励，奖励按官方说法仍可留到以后领"
+          },
+          "note": "被作废/放弃的那一局走这一支：省下当周的 3 次 bonus，留给真正打完的局"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "title": "主界面大厅（底部 Window/Sinners/Inventory/Drive 导航）",
+      "evidence": [
+        "evidence/runtime/window-20261006-023206/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "home.drive",
+          "kind": "ocr",
+          "pattern": "^Drive$",
+          "roi": [
+            0.73,
+            0.86,
+            0.81,
+            0.96
+          ],
+          "threshold": 0.9,
+          "note": "vision.classify 的 HOME 规则要求底部导航三格同时在位且右上无 Inferno 标题"
+        },
+        {
+          "id": "home.sinners",
+          "kind": "ocr",
+          "pattern": "^Sinners$",
+          "roi": [
+            0.67,
+            0.86,
+            0.74,
+            0.96
+          ],
+          "threshold": 0.9
+        },
+        {
+          "id": "home.window",
+          "kind": "ocr",
+          "pattern": "^Window$",
+          "roi": [
+            0.61,
+            0.86,
+            0.68,
+            0.96
+          ],
+          "threshold": 0.9
+        }
+      ],
+      "controls": [
+        {
+          "id": "home.drive_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-023206/frame-0001.json",
+            "box": [
+              1438,
+              968,
+              68,
+              28
+            ],
+            "source": "实测 OCR 框＝底部 Drive 导航标签；点它只进镜牢入口菜单，不消耗资源、不切换难度"
+          }
+        }
+      ]
+    },
+    {
+      "id": "drive",
+      "title": "镜牢入口菜单（Drive 导航后的 MIRROR OF NAMES AND SPIDERS / Dungeons 卡片）",
+      "evidence": [
+        "evidence/runtime/window-20261006-023525/frame-0003.json"
+      ],
+      "identity": [
+        {
+          "id": "drive.dungeons",
+          "kind": "ocr",
+          "pattern": "^Dungeons$",
+          "roi": [
+            0.3,
+            0.42,
+            0.4,
+            0.49
+          ],
+          "threshold": 0.9,
+          "note": "locale.mirror_menu = '^Mirro(?:r)?$|Mirror\\s*Dungeons?|^Dungeons$' 在 roi[.23,.25,.46,.55] 命中它，识别自带的命中框就是点击框"
+        },
+        {
+          "id": "drive.inferno",
+          "kind": "ocr",
+          "pattern": "^Inferno$",
+          "roi": [
+            0.82,
+            0.16,
+            0.96,
+            0.25
+          ],
+          "threshold": 0.9
+        }
+      ],
+      "controls": [
+        {
+          "id": "drive.dungeons_label",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-023525/frame-0003.json",
+            "box": [
+              605,
+              477,
+              148,
+              30
+            ],
+            "source": "实测 OCR 框＝入口卡片标题；WindowDrive 节点用 limbus_scene 的 mirror_menu 命中框点击"
+          }
+        }
+      ]
+    },
+    {
+      "id": "before_entry",
+      "title": "镜牢进入页 Before Entry（本赛季门口，Enter 免费开局）",
+      "evidence": [
+        "evidence/runtime/window-20261006-023549/frame-0003.json"
+      ],
+      "identity": [
+        {
+          "id": "entry.enter",
+          "kind": "ocr",
+          "pattern": "^Enter$",
+          "roi": [
+            0.78,
+            0.64,
+            0.88,
+            0.72
+          ],
+          "threshold": 0.9
+        },
+        {
+          "id": "entry.before_entry",
+          "kind": "ocr",
+          "pattern": "^Before Entry$",
+          "roi": [
+            0.78,
+            0.24,
+            0.87,
+            0.29
+          ],
+          "threshold": 0.9,
+          "note": "Lobbies 下的状态；显示 Before Entry 表示当前没有进行中的镜牢"
+        },
+        {
+          "id": "entry.season_title",
+          "kind": "ocr",
+          "pattern": "^Mirror of Names and Spiders$",
+          "roi": [
+            0.1,
+            0.02,
+            0.5,
+            0.1
+          ],
+          "threshold": 0.9
+        }
+      ],
+      "controls": [
+        {
+          "id": "entry.enter_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-023549/frame-0003.json",
+            "box": [
+              1534,
+              716,
+              96,
+              36
+            ],
+            "source": "实测 OCR 框＝右侧 Enter 按钮文字；屏幕原话 Select the door or the \"Enter\" button to begin your Mirror Dungeon run.；开局免费，不消耗脑啡肽"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tutorial",
+      "title": "镜牢教学/说明浮层（压在 Before Entry 之上，底层 Enter 失效）",
+      "evidence": [
+        "evidence/runtime/window-20261006-023714/frame-0001.json",
+        "evidence/runtime/window-20261006-025839/frame-0001.json",
+        "evidence/runtime/window-20261006-024050/frame-0002.json",
+        "evidence/runtime/window-20261006-030152/frame-0014.json"
+      ],
+      "identity": [
+        {
+          "id": "tutorial.carousel_dots",
+          "kind": "ocr",
+          "pattern": "^[0-9Oo●•· ]{6,}$",
+          "roi": [
+            0.28,
+            0.82,
+            0.72,
+            0.9
+          ],
+          "threshold": 0.3,
+          "note": "浮层自己的轮播圆点行＝最可靠身份：OCR 把一圈圆点读成一长串数字（`●0000000`[420,909,348,28] score .39；`000000000000000●0`[698,909,524,28] score .89）。在 22 张留档帧上完全可分——浮层页（023714/frame-0001、024050/frame-0001・0002、030152/frame-0001..0014）全部有，战斗页与真实进入页（031546/frame-0001..0005、031643/frame-0001..0004、025520/frame-0001、025617/frame-0001・0002）全没有。阈值必须低（.3），因为圆点 OCR 分数天然低；判别力来自「图案＋位置」而不是分数"
+        },
+        {
+          "id": "tutorial.next_glyph",
+          "kind": "template",
+          "template": "image/navigation/tutorial_next.png",
+          "roi": [
+            0.89,
+            0.44,
+            1.0,
+            0.55
+          ],
+          "threshold": 0.9,
+          "note": "橙色 ▶ 继续控件本身：浮层每张卡片的文案都会换，只有这个控件不变。阈值 .90（真实浮层卡 0.9981–0.9984）。这个 ROI 与战斗 HUD 右侧的 E.G.O 图标列重叠，实测战斗页在同一 ROI 能到 0.706–0.858（evidence/runtime/window-20261006-035540/frame-0023.json 上 0.858 越过了旧的 .85 阈值，把真实战斗页误判成浮层并拒绝为 tutorial_next_button_not_anchored），所以 window_step.overlay_hit 还要求「画面上真的存在翻页控件（◀ 或 ▶）」才把这条模板算作浮层身份"
+        },
+        {
+          "id": "tutorial.season_intro",
+          "kind": "ocr",
+          "pattern": "^Season 7's Mirror Dungeon is called$",
+          "roi": [
+            0.64,
+            0.42,
+            0.92,
+            0.48
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "tutorial.enter_hint",
+          "kind": "ocr",
+          "pattern": "^Select the door or the \"Enter\" button to$",
+          "roi": [
+            0.62,
+            0.51,
+            0.92,
+            0.57
+          ],
+          "threshold": 0.85,
+          "note": "这句话属于浮层而不是可操作的进入页；实测在此状态下点底层 Enter 完全无效（帧 sha 逐字节不变）"
+        }
+      ],
+      "controls": [
+        {
+          "id": "tutorial.next_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-025839/frame-0001.json",
+            "box": [
+              1787,
+              517,
+              39,
+              44
+            ],
+            "source": "橙色 ▶ 三角的橙色像素包围盒（R>190,G>140,B<160,R-B>60 取 bbox）：在 024050/frame-0002 与 025839/frame-0001 上都是 (1787,517,39,44)。旧框 [1782,505,76,52] 来自 023714 那一帧，把整块卡片底色也算成橙色，导致 inset 落点常常落在三角右侧空白（实测点击后浮层一动不动）"
+          }
+        },
+        {
+          "id": "tutorial.book_close",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-030152/frame-0014.json",
+            "box": [
+              83,
+              27,
+              114,
+              77
+            ],
+            "source": "教学书自己的抬头 ⟵（标题 Creating your Team 左侧、整屏左上角）。实机点它＝关掉书、露出底下页面：在 033650 那次运行之后用 --click-box 83,27,114,77 得到 page_after=PRE_BATTLE_TEAM；书只剩「上一页 ◀」时这是唯一的出口，不消耗资源"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mirror_entry",
+      "title": "镜牢入口页（Mirror of Names and Spiders：Rental / Enter，页面自带 20 页说明浮层）",
+      "evidence": [
+        "evidence/runtime/window-20261006-192906/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "entry.dungeon_title",
+          "kind": "ocr",
+          "pattern": "^Mirror of Names and Spid\\w*$",
+          "roi": [
+            0.44,
+            0.15,
+            0.62,
+            0.22
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "entry.before_entry_tab",
+          "kind": "ocr",
+          "pattern": "^Before Entry$",
+          "roi": [
+            0.8,
+            0.17,
+            0.9,
+            0.24
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "entry.enter_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-192906/frame-0001.json",
+            "box": [
+              1606,
+              718,
+              112,
+              44
+            ],
+            "source": "实测 OCR 框＝Enter。说明浮层（TUTORIAL）盖住这一页时整块面板变暗、点了不动（build/live-md.png 量到按钮区均值 6.3），浮层撤掉后同框均值 76.0，点它弹出 ENTRY_CONFIRM（build/live-entry3.png → build/observe-enter.json）"
+          }
+        },
+        {
+          "id": "entry.rental_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-192906/frame-0001.json",
+            "box": [
+              1372,
+              726,
+              102,
+              36
+            ],
+            "source": "实测 OCR 框＝Rental；登记只为识别页面，租借人格不在本次授权范围，计划里永不作为落点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "entry_confirm",
+      "title": "镜牢入场确认弹窗（Will you enter Mirror of Names and Spiders?：X Cancel / Enter）",
+      "evidence": [
+        "evidence/runtime/window-20261006-192917/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "entry_confirm.prompt",
+          "kind": "ocr",
+          "pattern": "^Will you enter Mirror of Names and Spiders\\?$",
+          "roi": [
+            0.3,
+            0.42,
+            0.7,
+            0.52
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "entry_confirm.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-192917/frame-0001.json",
+            "box": [
+              1124,
+              704,
+              90,
+              42
+            ],
+            "source": "实测 OCR 框＝弹窗右侧那个 Enter（和背景页面的 [1606,718,112,44] 是两个不同控件）；点它才真的开始一局"
+          }
+        },
+        {
+          "id": "entry_confirm.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-192917/frame-0001.json",
+            "box": [
+              708,
+              704,
+              152,
+              42
+            ],
+            "source": "实测 OCR 框＝X Cancel；登记只为识别页面，并进 FORBIDDEN_CONTROLS 永不许当落点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "resume_dialog",
+      "title": "中途再入场确认（Dungeon Progress：Resume / Halt Exploration / Cancel）",
+      "evidence": [
+        "evidence/runtime/window-20261006-025617/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "resume.progress_title",
+          "kind": "ocr",
+          "pattern": "^Dungeon Progress$",
+          "roi": [
+            0.42,
+            0.29,
+            0.58,
+            0.35
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "resume.resume_label",
+          "kind": "ocr",
+          "pattern": "^Resume$",
+          "roi": [
+            0.45,
+            0.52,
+            0.55,
+            0.58
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "resume.halt_label",
+          "kind": "ocr",
+          "pattern": "^Halt Exploration$",
+          "roi": [
+            0.43,
+            0.58,
+            0.57,
+            0.64
+          ],
+          "threshold": 0.85,
+          "note": "这行字存在只用来确认「这是中途再入场弹窗」；它上面的按钮永远不许点"
+        }
+      ],
+      "controls": [
+        {
+          "id": "resume.resume_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-025617/frame-0002.json",
+            "box": [
+              902,
+              579,
+              114,
+              34
+            ],
+            "source": "实测 OCR 框＝Resume；点它回到进行中的那一局（F1 / To be Cleaved [HARD]），不消耗脑啡肽"
+          }
+        },
+        {
+          "id": "resume.halt_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-025617/frame-0002.json",
+            "box": [
+              848,
+              647,
+              222,
+              33
+            ],
+            "source": "Halt Exploration＝放弃当前这一局；登记它只为让 window.FORBIDDEN_CONTROLS 拒点，绝不允许任何计划以它为落点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "window_reset",
+      "title": "周记录重置通知（The weekly record has been reset / Moving over to the Window.；Cancel 留下，Confirm 去 Window 永不点）",
+      "why": "实机 run-continue-8 step 64：在 NODE_PANEL 按 Enter 后盖到地图上的两按钮确认框，驱动把它判成 UNKNOWN_DIALOG 并停机 unexpected_successor。它盖住地图但地图仍透出来，所以必须先给它命名，再让计划点 Cancel 留下这一局。",
+      "evidence": [
+        "evidence/runtime/window-20261007-164753/frame-0252.json"
+      ],
+      "identity": [
+        {
+          "id": "window_reset.weekly_reset_label",
+          "kind": "ocr",
+          "pattern": "^The weekly record has been reset\\.?$",
+          "roi": [
+            0.36,
+            0.40,
+            0.64,
+            0.47
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "window_reset.moving_label",
+          "kind": "ocr",
+          "pattern": "^Moving over to the Window\\.?$",
+          "roi": [
+            0.39,
+            0.44,
+            0.60,
+            0.49
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "window_reset.cancel_label",
+          "kind": "ocr",
+          "pattern": "Cancel$",
+          "roi": [
+            0.36,
+            0.61,
+            0.47,
+            0.68
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "window_reset.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.53,
+            0.61,
+            0.65,
+            0.68
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "window_reset.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-164753/frame-0252.json",
+            "box": [
+              730,
+              673,
+              148,
+              45
+            ],
+            "source": "实测 OCR 框＝× Cancel；点它拒绝这次周记录重置通知，留在正在打的那一局里"
+          }
+        },
+        {
+          "id": "window_reset.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-164753/frame-0252.json",
+            "box": [
+              1050,
+              678,
+              150,
+              36
+            ],
+            "source": "Confirm＝离开地牢去 Window，会把进行中的一局扔掉；登记它只为让 window.FORBIDDEN_CONTROLS 拒点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "reward_card",
+      "title": "遭遇奖励卡（Select Encounter Reward Card：选 1 张后 Confirm；X Cancel 永不点）",
+      "evidence": [
+        "evidence/runtime/window-20261006-034714/frame-0022.json"
+      ],
+      "identity": [
+        {
+          "id": "reward.title",
+          "kind": "ocr",
+          "pattern": "^Select Encounter Reward Card$",
+          "roi": [
+            0.2,
+            0.12,
+            0.85,
+            0.25
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "reward.selectable",
+          "kind": "ocr",
+          "pattern": "^Selectable(?:\\s*\\d{1,2}\\s*/\\s*\\d{1,2})?$",
+          "roi": [
+            0.66,
+            0.13,
+            0.82,
+            0.25
+          ],
+          "threshold": 0.85,
+          "note": "实测：未选卡时 OCR 分别给出 Selectable 与 0/1；一旦选中，OCR 会把两者并成一个 token「Selectable 1/1」(evidence/runtime/window-20261006-035257/frame-0002.json)，所以模式必须同时容下带计数的写法，否则页面会掉进通用 UNKNOWN_DIALOG"
+        },
+        {
+          "id": "reward.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.56,
+            0.68,
+            0.72,
+            0.78
+          ],
+          "threshold": 0.85,
+          "note": "这行字同时说明「这是奖励卡页」；它与 X Cancel 成对出现，缺一不可"
+        }
+      ],
+      "controls": [
+        {
+          "id": "reward_card.card_01",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-034714/frame-0022.json",
+            "box": [
+              700,
+              300,
+              270,
+              370
+            ],
+            "source": "实测帧上第一张卡（E.G.O Resource +6 for 2 of the least-owned Affinities）的卡面内区；点卡面任一处＝选中该卡，Selectable 0/1→1/1，不消耗任何资源"
+          }
+        },
+        {
+          "id": "reward_card.card_02",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-034714/frame-0022.json",
+            "box": [
+              1000,
+              300,
+              270,
+              370
+            ],
+            "source": "实测帧上第二张卡（Gain 45~68 Cost / 33% chance to gain a random Tier 1~2 Bleed E.G.O Gift）；m02 只用它作为备选，m01 优先"
+          }
+        },
+        {
+          "id": "reward_card.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-034714/frame-0022.json",
+            "box": [
+              1128,
+              764,
+              168,
+              49
+            ],
+            "source": "实测 OCR 框＝Confirm；选满后点它领取卡片（这是这一页唯一的前进输入）"
+          }
+        },
+        {
+          "id": "reward_card.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-034714/frame-0022.json",
+            "box": [
+              688,
+              768,
+              154,
+              45
+            ],
+            "source": "X Cancel＝拒绝这张奖励卡；登记它只为让 window.FORBIDDEN_CONTROLS 拒点，绝不允许任何计划以它为落点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": "商店页（Shop；节点内容之一，Boss 前常见）",
+      "evidence": [
+        "evidence/runtime/window-20261006-042123/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "shop.title",
+          "kind": "ocr",
+          "pattern": "^Shop$",
+          "roi": [
+            0.1,
+            0.1,
+            0.3,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "左侧面板抬头；实测 [334,154,98,54] score 1.0"
+        },
+        {
+          "id": "shop.super_shop",
+          "kind": "ocr",
+          "pattern": "^Super Shop$",
+          "roi": [
+            0.42,
+            0.11,
+            0.7,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "「Super Shop / On Next Floor? N%」概率行；实测 [1000,176,128,28] 0.997"
+        },
+        {
+          "id": "shop.leave",
+          "kind": "ocr",
+          "pattern": "^Leave$",
+          "roi": [
+            0.78,
+            0.82,
+            0.97,
+            0.96
+          ],
+          "threshold": 0.85,
+          "note": "右下 Leave＝离开商店；实测 [1622,945,150,53] score 1.0"
+        }
+      ],
+      "controls": [
+        {
+          "id": "shop.leave_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-042123/frame-0001.json",
+            "box": [
+              1622,
+              945,
+              150,
+              53
+            ],
+            "source": "实测 OCR 框＝Leave；本页唯一被允许的落点（模块预算 0/pending，任何购买/Refresh/Heal 都是越权支出），离开后回到 MAP"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shop_leave",
+      "title": "离开商店的确认框（Leave the shop?；X Cancel / Confirm）",
+      "evidence": [
+        "evidence/runtime/window-20261006-042529/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "shop.leave_question",
+          "kind": "ocr",
+          "pattern": "^Leave the shop\\?$",
+          "roi": [
+            0.4,
+            0.4,
+            0.6,
+            0.56
+          ],
+          "threshold": 0.85,
+          "note": "实测 [846,496,224,40] score 0.992"
+        },
+        {
+          "id": "shop.leave_confirm",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.55,
+            0.63,
+            0.67,
+            0.74
+          ],
+          "threshold": 0.85,
+          "note": "实测 [1116,722,110,34] score 1.0；同排 X Cancel [706,720,138,36] 只作识别，绝不作为落点"
+        }
+      ],
+      "controls": [
+        {
+          "id": "shop.leave_confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-042529/frame-0002.json",
+            "box": [
+              1116,
+              722,
+              110,
+              34
+            ],
+            "source": "实测 OCR 框＝确认离开商店的 Confirm；点它才真的退出商店回到 MAP（Cancel 会留在商店，故本页只有这一个落点）"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gift_get",
+      "title": "获得 E.G.O 礼物的公示页（E.G.O Gift GET!，压在奖励卡页之上）",
+      "evidence": [
+        "evidence/runtime/window-20261006-042956/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "gift.get_title",
+          "kind": "ocr",
+          "pattern": "^E\\.?G\\.?O Gift GET!$",
+          "roi": [
+            0.4,
+            0.21,
+            0.62,
+            0.29
+          ],
+          "threshold": 0.85,
+          "note": "实测 [828,250,258,41] score 0.966"
+        },
+        {
+          "id": "gift.get_confirm",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.44,
+            0.7,
+            0.58,
+            0.78
+          ],
+          "threshold": 0.85,
+          "note": "实测 [922,774,136,45] score 0.999；礼物本身已在上一步 reward_card 的 Confirm 领取，这里只是公示"
+        }
+      ],
+      "controls": [
+        {
+          "id": "gift_get.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-042956/frame-0001.json",
+            "box": [
+              922,
+              774,
+              136,
+              45
+            ],
+            "source": "实测 OCR 框＝Confirm；点它关掉公示、露出底下的奖励卡页（不改变任何资源归属）"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gift_pick",
+      "title": "层礼物选择页（Acquire E.G.O Gift ×4 + Select N/2；Refuse Gift 禁止）",
+      "evidence": [
+        "evidence/runtime/window-20261006-043102/frame-0003.json"
+      ],
+      "identity": [
+        {
+          "id": "gift.pick_label",
+          "kind": "ocr",
+          "pattern": "^Acq\\S{2,4}re E\\.?G\\.?O Gift$",
+          "roi": [
+            0.06,
+            0.13,
+            0.95,
+            0.26
+          ],
+          "threshold": 0.85,
+          "note": "四张卡顶部的 Acquire E.G.O Gift 标签；实测 [382,232,150,28] 0.965 / [778,232,148,28] 0.978 / [1176,232,144,28] 0.915 / [1572,232,148,28] 0.987"
+        },
+        {
+          "id": "gift.pick_select",
+          "kind": "ocr",
+          "pattern": "^Select$",
+          "roi": [
+            0.78,
+            0.74,
+            0.96,
+            0.88
+          ],
+          "threshold": 0.85,
+          "note": "右下 Select 按钮文字；实测 [1620,851,100,36] score 1.0（0/2 时灰、选满才亮）"
+        },
+        {
+          "id": "gift.pick_counter",
+          "kind": "ocr",
+          "pattern": "^\\d{1,2}\\s*/\\s*\\d{1,2}$",
+          "roi": [
+            0.84,
+            0.74,
+            1.0,
+            0.9
+          ],
+          "threshold": 0.85,
+          "note": "实测 [1740,841,62,50] score 1.0＝0/2；reward_vision.counter_state(band=GIFT_COUNTER_BAND) 读它"
+        }
+      ],
+      "controls": [
+        {
+          "id": "gift_pick.card_01",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-043102/frame-0003.json",
+            "box": [
+              337,
+              300,
+              240,
+              200
+            ],
+            "source": "第一张卡（Phlebotomy Pack）卡面内区；点卡面＝选中该礼物，计数 0/2→1/2，不弹任何确认"
+          }
+        },
+        {
+          "id": "gift_pick.card_02",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-043102/frame-0003.json",
+            "box": [
+              732,
+              300,
+              240,
+              200
+            ],
+            "source": "第二张卡（Bloody Gadget）卡面内区"
+          }
+        },
+        {
+          "id": "gift_pick.card_03",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-043102/frame-0003.json",
+            "box": [
+              1128,
+              300,
+              240,
+              200
+            ],
+            "source": "第三张卡（Layered Bandages）卡面内区"
+          }
+        },
+        {
+          "id": "gift_pick.card_04",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-043102/frame-0003.json",
+            "box": [
+              1526,
+              300,
+              240,
+              200
+            ],
+            "source": "第四张卡（Golden Urn）卡面内区"
+          }
+        },
+        {
+          "id": "gift_pick.select_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-043102/frame-0003.json",
+            "box": [
+              1620,
+              851,
+              100,
+              36
+            ],
+            "source": "实测 OCR 框＝Select；选满 required 张后点它领取（这一页唯一的前进输入）"
+          }
+        },
+        {
+          "id": "gift_pick.refuse_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-043102/frame-0003.json",
+            "box": [
+              1350,
+              851,
+              150,
+              34
+            ],
+            "source": "Refuse Gift＝放弃本层礼物（用户明确禁止「拒绝」）；登记它只为让 window.FORBIDDEN_CONTROLS 拒点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gift_warning",
+      "title": "层礼物页的「还有剩余礼物」警告（Confirm＝拿随机 Trials 换掉礼物，禁止；Cancel 才是唯一输入）",
+      "evidence": [
+        "evidence/runtime/window-20261006-052152/frame-0003.json"
+      ],
+      "identity": [
+        {
+          "id": "gift.warning_remaining",
+          "kind": "ocr",
+          "pattern": "^You have remaining E\\.?G\\.?O Gift choices\\.$",
+          "roi": [
+            0.34,
+            0.34,
+            0.68,
+            0.46
+          ],
+          "threshold": 0.85,
+          "note": "实测 [750,424,416,36] 0.962"
+        },
+        {
+          "id": "gift.warning_proceed",
+          "kind": "ocr",
+          "pattern": "^Will you proceed without selecting an E\\.?G\\.?O Gift\\?$",
+          "roi": [
+            0.32,
+            0.38,
+            0.72,
+            0.52
+          ],
+          "threshold": 0.85,
+          "note": "实测 [700,486,518,34] 0.991"
+        }
+      ],
+      "controls": [
+        {
+          "id": "gift_warning.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-052152/frame-0003.json",
+            "box": [
+              704,
+              718,
+              142,
+              42
+            ],
+            "source": "实测 OCR 框 '× Cancel' [704,718,142,42] 0.93；按下＝回到礼物选择页继续选，不丢任何奖励"
+          }
+        },
+        {
+          "id": "gift_warning.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-052152/frame-0003.json",
+            "box": [
+              1068,
+              718,
+              156,
+              36
+            ],
+            "source": "实测 OCR 框 'Confirm' [1068,718,156,36] 0.996；它把剩余礼物换成随机 Trials＝用户禁止的「拒绝领奖」，登记它只为让 window.FORBIDDEN_CONTROLS 拒点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "theme_packs",
+      "title": "下一层主题包选择页（SELECT FLOOR n THEME PACK；拖动卡包往下「Pull」才生效）",
+      "evidence": [
+        "evidence/runtime/window-20261006-044113/frame-0001.json",
+        "evidence/runtime/window-20261006-044113/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "theme_packs.title",
+          "kind": "ocr",
+          "pattern": "^SELECT FLOOR \\d THEME PACK$",
+          "roi": [
+            0.35,
+            0.1,
+            0.65,
+            0.22
+          ],
+          "threshold": 0.85,
+          "note": "实测 [766,154,386,42] 0.95（第 1 层清完后的换层入口）"
+        },
+        {
+          "id": "theme_packs.prompt",
+          "kind": "ocr",
+          "pattern": "^Select a Pack$",
+          "roi": [
+            0.15,
+            0.64,
+            0.3,
+            0.76
+          ],
+          "threshold": 0.85,
+          "note": "左侧提示 'Select a Pack And Pull'；实测 [354,746,122,20] 0.999 与 'And Pull' [376,770,76,22] 0.96 → 这一页的输入是「拖下去」而不是「点一下」（点击只播 hover 动画，见 build/theme-probe-click.json）"
+        },
+        {
+          "id": "theme_packs.pack_search",
+          "kind": "ocr",
+          "pattern": "^Pack Search$",
+          "roi": [
+            0.08,
+            0.02,
+            0.28,
+            0.1
+          ],
+          "threshold": 0.85,
+          "note": "左上 Pack Search；实测 [268,53,90,26] 0.905"
+        }
+      ],
+      "controls": [
+        {
+          "id": "theme_packs.pack_01",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-044113/frame-0001.json",
+            "box": [
+              520,
+              390,
+              250,
+              300
+            ],
+            "source": "最左侧卡包（To be Crushed）卡面中段：从 1280 截图 build/live-now.png 的卡面包 (340,180)-(520,540) 按 1.5× 换算到 1920，避开右上角放大镜与底部标题；拖动起点落在这里"
+          }
+        },
+        {
+          "id": "theme_packs.pull_to",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-044113/frame-0001.json",
+            "box": [
+              600,
+              900,
+              90,
+              60
+            ],
+            "source": "非 OCR 框：卡包下方传送带下沉区（1280 空间 (400,600)-(460,640) ×1.5）；终点只决定手势方向，松手不会点到罪人血条"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cutscene",
+      "title": "异想体/事件过场（REC 角标 + SKIP；不受输入就不会自己走）",
+      "evidence": [
+        "evidence/runtime/window-20261006-044556/frame-0023.json"
+      ],
+      "identity": [
+        {
+          "id": "cutscene.skip",
+          "kind": "ocr",
+          "pattern": "^SKIP$",
+          "roi": [
+            0.78,
+            0.82,
+            0.99,
+            0.98
+          ],
+          "threshold": 0.85,
+          "note": "右下 SKIP 按钮文字；实测 [1620,919,152,99] score 1.0"
+        },
+        {
+          "id": "cutscene.rec",
+          "kind": "ocr",
+          "pattern": "^REC$",
+          "roi": [
+            0.42,
+            0.14,
+            0.52,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "过场左上角红点 REC；实测 [870,192,64,28] score 1.0（同一帧还有 '00:00:02:12' 计时器 [124,194,126,22]）"
+        }
+      ],
+      "controls": [
+        {
+          "id": "cutscene.skip_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-044556/frame-0023.json",
+            "box": [
+              1620,
+              919,
+              152,
+              99
+            ],
+            "source": "SKIP 按钮（实测 OCR 框即按钮外框）；过场文字已播完却停在原地超过一分钟（run22 的 12 轮 UNKNOWN 等待），说明它等输入，SKIP 是这一页唯一的前进控件"
+          }
+        }
+      ]
+    },
+    {
+      "id": "event_choice",
+      "title": "异想体事件选项页（右侧 Choices 列，2–4 行口头选项；可选奖励行是提示不是选项）",
+      "live_derived": "选项行的框不写死：它们的条数会改变版式，所以每帧从 OCR 现读（src/maalimbus/event_vision.py 的 choice_options/gift_hints，框取自 .52–.99 × .24–.72 波段内长度 ≥8 的非提示行）。带 'Select to gain … E.G.O Gift' 的提示行落在它上面那一行的下方，故优先点被提示的那一行（preferred_choice）。",
+      "evidence": [
+        "evidence/runtime/window-20261006-044943/frame-0015.json"
+      ],
+      "identity": [
+        {
+          "id": "event_choice.heading",
+          "kind": "ocr",
+          "pattern": "^Choices$",
+          "roi": [
+            0.5,
+            0.11,
+            0.68,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "右上 Choices 标题；实测 [1050,166,168,46] score 1.0"
+        },
+        {
+          "id": "event_choice.rec",
+          "kind": "ocr",
+          "pattern": "^REC$",
+          "roi": [
+            0.42,
+            0.14,
+            0.52,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "左上 REC 角标；实测 [868,200,62,22] score 1.0（这一页不是 cutscene：没有 SKIP，所以 CUTSCENE 分支不会命中）"
+        }
+      ]
+    },
+    {
+      "id": "event_check",
+      "title": "事件技能检定页（Who should do it?）",
+      "evidence": [
+        "evidence/runtime/window-20261006-204421/frame-0001.json",
+        "evidence/runtime/window-20261006-204143/frame-0002.json",
+        "evidence/runtime/window-20261006-205435/frame-0002.json",
+        "evidence/runtime/window-20261007-000045/frame-0097.json",
+        "evidence/runtime/window-20261007-001108/frame-0004.json"
+      ],
+      "identity": [
+        {
+          "id": "event_check.prompt",
+          "kind": "ocr",
+          "pattern": "^Who should do it\\?$",
+          "roi": [
+            0.62,
+            0.23,
+            0.82,
+            0.3
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1294,275,232,28]；与下面一行共同命名本页"
+        },
+        {
+          "id": "event_check.choose",
+          "kind": "ocr",
+          "pattern": "^Choose a character to perform$",
+          "roi": [
+            0.63,
+            0.38,
+            0.9,
+            0.47
+          ],
+          "threshold": 0.85,
+          "note": "实机 OCR 框 [1278,442,402,36]；第二行「the check with:」被 OCR 单独成 token，故只钉第一行"
+        }
+      ],
+      "controls": [
+        {
+          "id": "event_check.skip_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-204143/frame-0002.json",
+            "box": [
+              1628,
+              929,
+              138,
+              83
+            ],
+            "source": "SKIP＝没人去做这次检定，等于直接放弃；登记它只为让 window.FORBIDDEN_CONTROLS 拒点（204421 那帧按钮太暗没读出，故用 204143 的实测框）"
+          }
+        },
+        {
+          "id": "event_check.commence_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-205435/frame-0002.json",
+            "box": [
+              1578,
+              946,
+              240,
+              48
+            ],
+            "source": "选完罪人后同一页把右下 SKIP 换成 Commence（实机 OCR 'Commence' [1578,946,240,48] 1.0，同帧还有 'Predicted Odds: Very High' [1204,718,394,40]）；点它才真正掷检定"
+          }
+        },
+        {
+          "id": "event_check.story_panel",
+          "kind": "geometry",
+          "box": [
+            206,
+            181,
+            756,
+            325
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-001108/frame-0004.json",
+            "box": [
+              206,
+              181,
+              756,
+              325
+            ],
+            "source": "检定页的剧情阶段：右侧已印出 'Who will give it a try?'，但赔率行与罪人卡还没淡入，底部只有灰的 SKIP（build/window-run88.json 在这里连拒四次），左侧小屏幕与结算页同框；按用户 m10140 的规则连点它把剧情推完，右下控件（Commence 或赔率行）才会出现"
+          },
+          "note": "只点左侧剧情面板，绝不点右下 SKIP（那是放弃检定）"
+        }
+      ],
+      "live_derived": [
+        "event_vision.odds_scores(image)＋best_check_choice(...)：12 张罪人卡上的赔率 caption 用模板读出（OCR 会把整行并成一个 token），选赔率最高那一格的卡片框现算点击"
+      ]
+    },
+    {
+      "id": "event_check_result",
+      "title": "技能检定结算页（Check Passed/Failed，左侧剧情面板，右下控件在剧情走完前仍是灰的 SKIP 槽位）",
+      "why": "检定掷完后同一页把「Who should do it?」换成检定结果：右侧出 'Check Passed'/'Check Failed' 与 Outcome 数字，剧情写进左侧面板，右下槽位在剧情走完前读不出字。实机 window-20261006-205922 的 43 帧里只有 frame-0001 的 OCR 够到 SKIP [1620,923,152,93]（点它确实推进到剧情字幕），其余 42 帧只有 'Check Passed'＋剧情字幕。用户 m10140 的规则：这里要一直点小屏幕，直到右下角亮起来，所以本页只做「点剧情面板」，亮起来的形态由 cutscene 分支接管。",
+      "evidence": [
+        "evidence/runtime/window-20261006-210803/frame-0001.json",
+        "evidence/runtime/window-20261006-205922/frame-0025.json"
+      ],
+      "identity": [
+        {
+          "id": "check_result.outcome",
+          "kind": "ocr",
+          "pattern": "^Check (?:Passed|Failed)$",
+          "roi": [
+            0.66,
+            0.65,
+            0.8,
+            0.72
+          ],
+          "threshold": 0.85,
+          "note": "右下结算条；实测 'Check Passed' [1294,722,212,34] score 0.964，同帧还有 'E.G.O Gift Crown of Roses obtained!' [114,508,424,28] 0.994 与 '14' [1564,589,70,78]"
+        }
+      ],
+      "controls": [
+        {
+          "id": "event_check_result.story_panel",
+          "kind": "geometry",
+          "box": [
+            206,
+            181,
+            756,
+            325
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-205922/frame-0025.json",
+            "box": [
+              206,
+              181,
+              756,
+              325
+            ],
+            "source": "左侧小屏幕的亮区连通域（area 179515，fill 0.731）；用户 m10140 要求点它把剧情推完，直到右下角亮起来"
+          },
+          "note": "点剧情面板本身；右下 SKIP 在剧情走完前是灰的、读不出字"
+        }
+      ]
+    },
+    {
+      "id": "event_check_ready",
+      "title": "技能检定结算页·剧情走完（右下槽位变亮 Continue）",
+      "why": "同一页的剧情点完后右下槽位变亮：实机 window-20261006-210803 的 frame-0001 是灰的（只有 'Check Passed'，读不出任何右下控件），点小屏幕后 frame-0002 起连续 27 帧都读出 'Continue' [1588,941,220,59] score 1.0。这一页的前进输入就是它自己的 Continue，和定检定前的 SKIP（＝放弃检定）不是同一个形态，所以单独登记。",
+      "evidence": [
+        "evidence/runtime/window-20261006-210803/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "check_ready.outcome",
+          "kind": "ocr",
+          "pattern": "^Check (?:Passed|Failed)$",
+          "roi": [
+            0.66,
+            0.65,
+            0.8,
+            0.72
+          ],
+          "threshold": 0.85,
+          "note": "结算条仍在页上；实测 [1294,722,212,34] score 0.999"
+        },
+        {
+          "id": "check_ready.continue",
+          "kind": "ocr",
+          "pattern": "^(?:Continue|Proceed)$",
+          "roi": [
+            0.78,
+            0.82,
+            0.99,
+            0.98
+          ],
+          "threshold": 0.85,
+          "note": "亮起来的右下控件；实测 'Continue' [1588,941,220,59] score 1.0，亮前同槽位读不出字"
+        }
+      ],
+      "controls": [
+        {
+          "id": "event_check_ready.continue_button",
+          "kind": "geometry",
+          "box": [
+            1588,
+            941,
+            220,
+            59
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-210803/frame-0002.json",
+            "box": [
+              1588,
+              941,
+              220,
+              59
+            ],
+            "source": "亮起的 Continue 实测 OCR 框；与异想体结算页的 Continue 同槽位（[1588,943,218,55]）"
+          },
+          "note": "点它离开检定结算；这里点它不是放弃检定（检定已经掷完）"
+        }
+      ]
+    },
+    {
+      "id": "deployment",
+      "title": "出战部署页（队伍页的部署视图：每张卡带部署序号，右下仍是 To Battle!）",
+      "why": "点 To Battle! 有时先落到这一页（实机 build/window-run29.json 的 step2：PRE_BATTLE_TEAM → DEPLOYMENT），它的前进控件与队伍页同一个按钮；点一次后战斗自行开始（实机截图显示 WAVE 1/1、TURN 1）。识别沿用 src/maalimbus/deployment.py:deployment_page（计数 12/12 + 恰一条 Details）。",
+      "evidence": [
+        "evidence/runtime/window-20261006-050402/frame-0006.json"
+      ],
+      "identity": [
+        {
+          "id": "deployment.counter",
+          "kind": "ocr",
+          "pattern": "^\\s*\\d{1,2}\\s*/\\s*\\d{1,2}\\s*$",
+          "roi": [
+            0.882,
+            0.69,
+            0.966,
+            0.77
+          ],
+          "threshold": 0.85,
+          "note": "队伍人数计数；实测 [1702,758,118,52] score 0.946"
+        },
+        {
+          "id": "deployment.details",
+          "kind": "ocr",
+          "pattern": "^Details$",
+          "roi": [
+            0.05,
+            0.02,
+            0.98,
+            0.3
+          ],
+          "threshold": 0.8,
+          "note": "队伍页的 Details 按钮；实测 [1362,176,74,22] score 0.932"
+        }
+      ],
+      "controls": [
+        {
+          "id": "deployment.battle_button",
+          "kind": "geometry",
+          "box": [
+            1674,
+            859,
+            144,
+            44
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-050402/frame-0006.json",
+            "box": [
+              1674,
+              859,
+              144,
+              44
+            ],
+            "source": "与队伍页同一个 To Battle! 按钮；这一页实测文字框 [1614,857,206,48]，落在 [1674,859,144,44] 内"
+          },
+          "note": "点它开始战斗；不点别的（COST/Support/Details 都不点）"
+        }
+      ]
+    },
+    {
+      "id": "event_result",
+      "title": "异想体事件结算页（左侧剧情回放 + 右侧 Result 面板，右下控件仍是灰的 SKIP 槽位）",
+      "why": "这一页的右下槽位在剧情走完前是**灰的**（`window-20261006-045319/frame-0002.json` 只有 REC/SKIP，`frame-0017.json` 与 `window-20261006-045451/frame-0001.json` 连按钮字都读不出），点剧情面板一次就把它点亮成 Continue。所以「点剧情面板」是这一页唯一被证明的前进输入（advance=True：判定靠帧变化，不靠页面变化）。",
+      "evidence": [
+        "evidence/runtime/window-20261006-045451/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "event_result.heading",
+          "kind": "ocr",
+          "pattern": "^Result$",
+          "roi": [
+            0.48,
+            0.11,
+            0.66,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "右上 Result 标题；实测 [1068,168,138,42] score 1.0"
+        },
+        {
+          "id": "event_result.rec",
+          "kind": "ocr",
+          "pattern": "^REC$",
+          "roi": [
+            0.42,
+            0.14,
+            0.52,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "左上 REC 角标，证明这是剧情回放而不是通用结算页；实测 [876,200,60,22] score 0.998"
+        }
+      ],
+      "controls": [
+        {
+          "id": "event_result.story_panel",
+          "kind": "geometry",
+          "box": [
+            300,
+            400,
+            500,
+            250
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-045451/frame-0001.json",
+            "box": [
+              300,
+              400,
+              500,
+              250
+            ],
+            "source": "点它推进剧情：实机 window-20261006-045451 的 frame-0001 → frame-0002，右下由灰 SKIP 变亮 Continue"
+          },
+          "note": "剧情面板左半的空白处，避开文本行与右侧 Result 面板"
+        }
+      ]
+    },
+    {
+      "id": "event_result_ready",
+      "title": "异想体事件结算页·剧情走完（右下槽位变亮 Continue）",
+      "evidence": [
+        "evidence/runtime/window-20261006-045451/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "event_result_ready.heading",
+          "kind": "ocr",
+          "pattern": "^Result$",
+          "roi": [
+            0.48,
+            0.11,
+            0.66,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "同上；同一页的两个形态，用右下按钮的 token 区分"
+        },
+        {
+          "id": "event_result_ready.rec",
+          "kind": "ocr",
+          "pattern": "^REC$",
+          "roi": [
+            0.42,
+            0.14,
+            0.52,
+            0.24
+          ],
+          "threshold": 0.85,
+          "note": "左上 REC 角标；实测 [868,188,60,22] score 1.0"
+        },
+        {
+          "id": "event_result_ready.continue",
+          "kind": "ocr",
+          "pattern": "^Continue$",
+          "roi": [
+            0.78,
+            0.82,
+            0.99,
+            0.98
+          ],
+          "threshold": 0.85,
+          "note": "右下亮起的 Continue；实测 [1588,943,218,55] score 1.0"
+        }
+      ],
+      "controls": [
+        {
+          "id": "event_result.continue_button",
+          "kind": "geometry",
+          "box": [
+            1588,
+            943,
+            218,
+            55
+          ],
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-045451/frame-0002.json",
+            "box": [
+              1588,
+              943,
+              218,
+              55
+            ],
+            "source": "亮起的 Continue 按钮本体；点它离开事件结算页"
+          },
+          "note": "与 CUTSCENE 的 skip_button [1620,919,152,99] 同一槽位，靠亮/灰与 token 区分"
+        }
+      ]
+    },
+    {
+      "id": "dungeon_team",
+      "title": "镜牢队伍载入页（左侧 TEAMS #1..#7、右下 Starlight Bonus 与 Confirm）",
+      "evidence": [
+        "evidence/runtime/window-20261006-193439/frame-0002.json"
+      ],
+      "identity": [
+        {
+          "id": "team.starlight_label",
+          "kind": "ocr",
+          "pattern": "^Starlight$",
+          "roi": [
+            0.81,
+            0.7,
+            0.9,
+            0.77
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "team.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.82,
+            0.76,
+            0.95,
+            0.86
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "team.slot_01",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              152,
+              454,
+              88,
+              22
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #1 标签，标签整体在按钮面内，故直接当落点；#2..#7 同列向下每格约 54 px"
+          }
+        },
+        {
+          "id": "team.slot_02",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              150,
+              508,
+              90,
+              22
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #2 标签"
+          }
+        },
+        {
+          "id": "team.slot_03",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              150,
+              561,
+              90,
+              22
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #3 标签"
+          }
+        },
+        {
+          "id": "team.slot_04",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              150,
+              617,
+              90,
+              22
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #4 标签"
+          }
+        },
+        {
+          "id": "team.slot_05",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              152,
+              673,
+              88,
+              21
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #5 标签；轮换 5,4,1,6,2,7,3 当前指向它"
+          }
+        },
+        {
+          "id": "team.slot_06",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              152,
+              726,
+              90,
+              22
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #6 标签"
+          }
+        },
+        {
+          "id": "team.slot_07",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              148,
+              778,
+              92,
+              26
+            ],
+            "source": "实测 OCR 框＝左列 TEAMS #7 标签"
+          }
+        },
+        {
+          "id": "team.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193439/frame-0002.json",
+            "box": [
+              1632,
+              853,
+              170,
+              52
+            ],
+            "source": "实测 OCR 框＝右下 Confirm（按钮面比字更大，框本身就在按钮内）；点它才带着选中的队进局"
+          }
+        }
+      ]
+    },
+    {
+      "id": "level_warning",
+      "title": "等级警告弹窗（The current average level … Proceed anyway?：X Cancel / Confirm）",
+      "evidence": [
+        "evidence/runtime/window-20261006-193730/frame-0003.json"
+      ],
+      "identity": [
+        {
+          "id": "level_warning.prompt",
+          "kind": "ocr",
+          "pattern": "^Proceed anyway\\?$",
+          "roi": [
+            0.4,
+            0.36,
+            0.6,
+            0.46
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "level_warning.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193730/frame-0003.json",
+            "box": [
+              1116,
+              720,
+              112,
+              40
+            ],
+            "source": "实测 OCR 框＝弹窗右侧 Confirm；弹窗底下还露着载入页自己的 Confirm [1634,855,168,48]，两个不能混"
+          }
+        },
+        {
+          "id": "level_warning.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193730/frame-0003.json",
+            "box": [
+              744,
+              728,
+              96,
+              30
+            ],
+            "source": "实测 OCR 框＝弹窗左侧 X Cancel；登记只为识别页面与 FORBIDDEN 拒点（取消就等于不按轮换进局）"
+          }
+        }
+      ]
+    },
+    {
+      "id": "star_graces",
+      "title": "Grace of the Star 页（十张 Grace 卡各带 ⭐价格与 +/++，右下 Enter）",
+      "evidence": [
+        "evidence/runtime/window-20261006-193843/frame-0004.json"
+      ],
+      "identity": [
+        {
+          "id": "graces.title",
+          "kind": "ocr",
+          "pattern": "^Grace of the Star of Names$",
+          "roi": [
+            0.08,
+            0.01,
+            0.34,
+            0.07
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "graces.enter_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-193843/frame-0004.json",
+            "box": [
+              1740,
+              986,
+              102,
+              42
+            ],
+            "source": "实测 OCR 框＝右下 Enter；不买任何 Grace 时用它进局"
+          }
+        }
+      ]
+    },
+    {
+      "id": "star_confirm",
+      "title": "Select Grace of Stars 确认弹窗（Continue with selected effects?）",
+      "evidence": [
+        "evidence/runtime/window-20261006-194533/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "star_confirm.title",
+          "kind": "ocr",
+          "pattern": "^Select Grace of Stars$",
+          "roi": [
+            0.38,
+            0.2,
+            0.62,
+            0.28
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "star_confirm.prompt",
+          "kind": "ocr",
+          "pattern": "^Continue with selected effects\\?$",
+          "roi": [
+            0.38,
+            0.27,
+            0.62,
+            0.35
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "star_confirm.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-194533/frame-0001.json",
+            "box": [
+              1040,
+              778,
+              148,
+              35
+            ],
+            "source": "实测 OCR 框 [1040,778,148,35]；左同排是 ×Cancel [740,774,148,41]，永不点"
+          }
+        },
+        {
+          "id": "star_confirm.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-194533/frame-0001.json",
+            "box": [
+              740,
+              774,
+              148,
+              41
+            ],
+            "source": "只登记以拒点：Cancel 会退回 Grace 页"
+          }
+        }
+      ]
+    },
+    {
+      "id": "initial_gifts",
+      "title": "开局初始 E.G.O Gift 选择页（八列关键词、Selected E.G.O Gift 托盘、Select 0/1）",
+      "evidence": [
+        "evidence/runtime/window-20261006-194741/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "initial_gifts.title",
+          "kind": "ocr",
+          "pattern": "^Selected E\\.?G\\.?O Gift$",
+          "roi": [
+            0.58,
+            0.18,
+            0.78,
+            0.26
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "initial_gifts.bleed_column",
+          "kind": "ocr",
+          "pattern": "^Bleed$",
+          "roi": [
+            0.24,
+            0.19,
+            0.32,
+            0.26
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "initial_gifts.select_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-194741/frame-0001.json",
+            "box": [
+              1524,
+              859,
+              110,
+              42
+            ],
+            "source": "实测 OCR 框；计数 0/1 在它右边 [1684,851,62,52]"
+          }
+        },
+        {
+          "id": "initial_gifts.refuse_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-194741/frame-0001.json",
+            "box": [
+              1256,
+              865,
+              150,
+              28
+            ],
+            "source": "只登记以拒点：Refuse Gift 会放弃开局礼物"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gift_search",
+      "title": "E.G.O Gift Search 页（关键词列＋搜索池＋Selected E.G.O Gift ⭐0＋Select 0/3）",
+      "evidence": [
+        "evidence/runtime/window-20261006-195803/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "gift_search.title",
+          "kind": "ocr",
+          "pattern": "^E\\.?G\\.?O Gift Search$",
+          "roi": [
+            0.09,
+            0.02,
+            0.32,
+            0.1
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "gift_search.tray_label",
+          "kind": "ocr",
+          "pattern": "^Selected E\\.?G\\.?O Gift$",
+          "roi": [
+            0.62,
+            0.2,
+            0.85,
+            0.27
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "gift_search.select_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-195803/frame-0001.json",
+            "box": [
+              1568,
+              845,
+              88,
+              30
+            ],
+            "source": "实测 OCR 框；0/3 计数在右边 [1670,843,50,32]。搜索礼物要花星标（面板写 ⭐0），故默认 0 花费离页"
+          }
+        },
+        {
+          "id": "gift_search.refuse_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-195803/frame-0001.json",
+            "box": [
+              1302,
+              843,
+              152,
+              34
+            ],
+            "source": "只登记以拒点：Refuse Gift 会放弃本阶段的搜索机会"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gift_search_forgo",
+      "title": "Forgo E.G.O Gift Search? 确认弹窗（右下 Confirm，左下 X Cancel）",
+      "evidence": [
+        "evidence/runtime/window-20261006-200357/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "gift_search_forgo.prompt",
+          "kind": "ocr",
+          "pattern": "^Forgo E\\.?G\\.?O Gift Search\\?$",
+          "roi": [
+            0.36,
+            0.43,
+            0.64,
+            0.52
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "gift_search_forgo.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-200357/frame-0001.json",
+            "box": [
+              1116,
+              722,
+              112,
+              38
+            ],
+            "source": "实测 OCR 框；同排左边是 X Cancel [700,720,142,40]，永不点"
+          }
+        },
+        {
+          "id": "gift_search_forgo.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-200357/frame-0001.json",
+            "box": [
+              700,
+              720,
+              142,
+              40
+            ],
+            "source": "只登记以拒点：Cancel 会退回礼物搜索页"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ego_gift_popup",
+      "title": "E.G.O Gifts 拾取弹窗（地图上浮层：礼物名＋View Desc.＋底部 Confirm）",
+      "evidence": [
+        "evidence/runtime/window-20261006-201621/frame-0001.json"
+      ],
+      "identity": [
+        {
+          "id": "ego_gift_popup.title",
+          "kind": "ocr",
+          "pattern": "^E\\.?G\\.?O Gifts$",
+          "roi": [
+            0.42,
+            0.14,
+            0.6,
+            0.23
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "ego_gift_popup.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261006-201621/frame-0001.json",
+            "box": [
+              916,
+              825,
+              126,
+              40
+            ],
+            "source": "实测 OCR 框；同一浮层里的 + 是强化入口，永不点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "expired_session",
+      "title": "上一局会话过期（The previous session has expired. / Please claim your rewards.；Confirm 领奖，× Cancel 永不点）",
+      "why": "实机 run-continue-9 step 2：周记录重置把进行中的一局作废，再从 Drive 进镜牢时弹出它。Confirm 是唯一把这一局残余奖励领走的入口，Cancel 会把奖励留在桌上不退，因此 Cancel 登记为锚点但禁止落点。",
+      "evidence": [
+        "evidence/runtime/window-20261007-170653/frame-0009.json"
+      ],
+      "identity": [
+        {
+          "id": "expired_session.expired_label",
+          "kind": "ocr",
+          "pattern": "previous session has expired",
+          "roi": [
+            0.35,
+            0.43,
+            0.65,
+            0.50
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "expired_session.claim_label",
+          "kind": "ocr",
+          "pattern": "^Please claim your rewards\\.?$",
+          "roi": [
+            0.38,
+            0.47,
+            0.61,
+            0.53
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "expired_session.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.56,
+            0.65,
+            0.67,
+            0.72
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "expired_session.cancel_label",
+          "kind": "ocr",
+          "pattern": "Cancel$",
+          "roi": [
+            0.35,
+            0.65,
+            0.45,
+            0.72
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "expired_session.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-170653/frame-0009.json",
+            "box": [
+              1112,
+              720,
+              116,
+              40
+            ],
+            "source": "实测 OCR 框＝Confirm；点它领走上一局过期的奖励"
+          }
+        },
+        {
+          "id": "expired_session.cancel_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-170653/frame-0009.json",
+            "box": [
+              702,
+              724,
+              140,
+              36
+            ],
+            "source": "实测 OCR 框＝× Cancel；它只是把提示关掉、奖励留在桌上，登记它只为让 window.FORBIDDEN_CONTROLS 拒点"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pass_level_up",
+      "title": "通行证升级通知（Pass Level Up；Confirm 是唯一出口）",
+      "why": "实机 run-continue-12 step 1：在领奖第二问点 Confirm（花掉一次周奖励）后，游戏在 Before Entry 之上盖出本通知（Pass Level 67 / Battle Pass XP 十格 / Confirm）。因为它是盖在镜牢入口页上的浮层，必须先于 MIRROR_ENTRY 命名，否则驱动会对着被盖住的 Enter 空点（那一帧两个页面的词同时可读）而 `unexpected_successor` 停机。证据 evidence/runtime/window-20261007-171928/frame-0005.json。",
+      "evidence": [
+        "evidence/runtime/window-20261007-171928/frame-0005.json"
+      ],
+      "identity": [
+        {
+          "id": "pass_level_up.title",
+          "kind": "ocr",
+          "pattern": "^Pass Level Up$",
+          "roi": [
+            0.4,
+            0.3,
+            0.6,
+            0.38
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "pass_level_up.xp_label",
+          "kind": "ocr",
+          "pattern": "^Battle Pass XP$",
+          "roi": [
+            0.38,
+            0.41,
+            0.56,
+            0.49
+          ],
+          "threshold": 0.85
+        },
+        {
+          "id": "pass_level_up.confirm_label",
+          "kind": "ocr",
+          "pattern": "^Confirm$",
+          "roi": [
+            0.44,
+            0.61,
+            0.57,
+            0.7
+          ],
+          "threshold": 0.85
+        }
+      ],
+      "controls": [
+        {
+          "id": "pass_level_up.confirm_button",
+          "kind": "geometry",
+          "verified_on": {
+            "frame": "evidence/runtime/window-20261007-171928/frame-0005.json",
+            "box": [
+              884,
+              682,
+              160,
+              46
+            ],
+            "source": "实测 OCR 框＝Confirm [884,682,160,46]；这一页只有它可点，点完回到 Before Entry"
+          }
+        }
+      ]
+    }
+  ],
+  "pending": [
+    {
+      "id": "identity_filter",
+      "what": "人格选择页的 filter（按状态关键词多选）与列表排序",
+      "why": "自动配队 §6.1 的前提；必须现场证明「多选关键词 + 等级排序」"
+    },
+    {
+      "id": "reward_settle",
+      "what": "结算领奖页（Enkephalin 5、周加成 3 档、按已清层数比例）",
+      "why": "P0 的终点；确认后可关闭整轮"
+    },
+    {
+      "id": "run_end_entry_return",
+      "what": "一局结束后的结算出口与回到镜牢入口再入场",
+      "why": "收据＋轮换 index 推进的终点；「中途再入场」的 Dungeon Progress 弹窗已在 resume_dialog 页证明，仍缺一局结束后的出口路径"
+    }
+  ]
+}

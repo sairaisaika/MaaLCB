@@ -1,0 +1,112 @@
+"""A battle animation is not an unknown page (D126).
+
+The measured archive shows 9-17 consecutive unreadable reads right after `BATTLE_HUD`,
+each costing one read plus one wait, while the game plays the fight and offers nothing to
+click.  Polling that phase at the page's own pace spends reads for no information, so the
+wait takes its interval from the page that came before it -- and says which wait it was.
+"""
+import json
+from types import SimpleNamespace
+
+from maalimbus import runner
+
+UNKNOWN_PLAN = {'page': 'UNKNOWN', 'action': 'wait', 'target': None, 'node': None,
+                'expect': (), 'reason': 'the_page_could_not_be_named', 'advance': False}
+
+
+class _Journal:
+    def __init__(self, directory):
+        self.path = directory / 'events.jsonl'
+
+    def record(self, event, **fields):
+        row = {'event': event}
+        row.update(fields)
+        with self.path.open('a', encoding='utf-8') as handle:
+            handle.write(json.dumps(row, ensure_ascii=False) + '\n')
+
+
+class _Observer:
+    def __init__(self, scene='UNKNOWN', *, controls=()):
+        self.scene = scene
+        self.controls = list(controls)
+
+    def record(self):
+        return {'scene': self.scene, 'image_sha256': 'same', 'size': [1920, 1080],
+                'ocr': self.controls}
+
+
+def _waits(tmp_path, monkeypatch, *, before, controls=(), **settings):
+    loop = runner.MirrorRunner(runner.FakeDevice(), settings={'rounds': 1, 'interval': 0,
+                                                             **settings},
+                               directory=tmp_path, journal=_Journal(tmp_path))
+    loop.observer = _Observer(controls=controls)
+    sleeps = []
+    monkeypatch.setattr(runner, 'plan_step', lambda page, **kw: dict(UNKNOWN_PLAN))
+    monkeypatch.setattr(runner, 'observe', lambda observer, deadline=None: observer.record())
+    base = runner.time
+    start = base.monotonic()
+    elapsed = [0.0]
+    def sleep(seconds):
+        sleeps.append(seconds)
+        elapsed[0] += seconds
+    monkeypatch.setattr(runner, 'time', SimpleNamespace(
+        monotonic=lambda: start + elapsed[0], sleep=sleep, time=base.time))
+    loop.state['last_named_page'] = before
+    loop.run(steps=1, interval=0, round_limit=1)
+    rows = [json.loads(line) for line in (tmp_path / 'events.jsonl').read_text(
+        encoding='utf-8').splitlines()]
+    waits = [row for row in rows if row['event'] == 'window_unknown_wait']
+    return waits, sleeps
+
+
+def test_a_battle_phase_wait_uses_its_own_interval(tmp_path, monkeypatch):
+    """D129 superseded the mechanism, not the rule.
+
+    D126 gave an unreadable battle frame its own *unknown* wait.  D129 measured that the
+    unknown budget was still polling the same animation 10-14 times because one frame
+    carried a control word, so a battle frame now goes to the transition clock -- one
+    poller, with the measured backoff.  The rule D126 wrote ("not at the page's pace")
+    still has to hold: no unknown wait is spent, and the pause is the transition's.
+    """
+    waits, sleeps = _waits(tmp_path, monkeypatch, before='BATTLE_HUD',
+                           battle_phase_interval=2.5, unknown_interval=1.5)
+    assert not waits, 'a battle frame may not spend the unknown budget any more'
+    rows = [json.loads(line) for line in (tmp_path / 'events.jsonl').read_text(
+        encoding='utf-8').splitlines()]
+    transitions = [row for row in rows if row['event'] == 'window_transition_wait']
+    assert transitions, 'the frame was not waited on at all'
+    assert transitions[0]['after'] == 'BATTLE_HUD'
+    assert transitions[0]['interval_s'] <= runner.settings().interval
+
+
+def test_an_unreadable_non_battle_page_keeps_the_page_interval(tmp_path, monkeypatch):
+    # A control-bearing page that classification cannot name is different from an
+    # empty first read, which satisfies looks_like_transition by design.
+    controls = [dict(text='Cancel', box=[700, 760, 120, 34], score=.99)]
+    waits, sleeps = _waits(tmp_path, monkeypatch, before='MAP',
+                           controls=controls, battle_phase_interval=2.5, unknown_interval=1.5)
+    assert waits[0]['interval_s'] == 1.5
+    assert waits[0]['battle_phase'] is False
+    assert 1.5 in sleeps and 2.5 not in sleeps, sleeps[:3]
+
+
+def test_an_empty_first_frame_after_a_non_battle_page_uses_transition_wait(tmp_path, monkeypatch):
+    waits, sleeps = _waits(tmp_path, monkeypatch, before='MAP',
+                           battle_phase_interval=2.5, unknown_interval=1.5)
+    rows = [json.loads(line) for line in (tmp_path / 'events.jsonl').read_text(
+        encoding='utf-8').splitlines()]
+    transitions = [row for row in rows if row['event'] == 'window_transition_wait']
+    assert transitions
+    assert transitions[0]['after'] == 'MAP'
+    assert transitions[0]['battle'] is False
+    assert transitions[0]['input_sent'] is False
+
+
+def test_the_battle_phase_interval_is_a_bounded_setting():
+    assert 1.0 <= runner.settings().battle_phase_interval <= 10.0
+    for bad in (0, -1, 31):
+        try:
+            runner.settings({'battle_phase_interval': bad})
+        except ValueError:
+            continue
+        raise AssertionError(f'{bad} was accepted')

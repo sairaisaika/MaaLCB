@@ -1,0 +1,192 @@
+import json
+import os
+from types import SimpleNamespace
+import pytest
+from maalimbus.startup_update import startup_update, update_enabled
+from maalimbus.storage import write_json
+from maalimbus.update_stage import StageError
+from maalimbus.controller_lease import lease_path
+from maalimbus.update_install import closed_app
+
+
+@pytest.mark.parametrize('status,tag,expected', [('available','v0.2.0','update_available'),
+    ('cached','v0.1.0','current'),('available','maalimbus','unsupported_release_tag'),
+    ('rate_limited','v0.2.0','rate_limited'),('network_error','', 'network_error')])
+def test_settings_check_never_downloads_installs_or_starts_game(tmp_path,status,tag,expected):
+    from maalimbus.startup_update import check_project_update
+    app=app_fixture(tmp_path)
+    result=check_project_update(app,client_factory=client(status,tag))
+    assert result['status']==expected and result['current_version']=='v0.1.0'
+    assert not result['installed'] and not result['downloaded'] and not result['game_input_sent']
+    assert json.loads((app/'config/user-update-check-result.json').read_text())==result
+
+
+def app_fixture(tmp_path):
+    app = tmp_path/'app'
+    write_json(app/'interface.json', dict(name='MaaLimbus', interface_version=2,
+        github='https://github.com/sairaisaika/MaaLCB', version='v0.1.0'))
+    return app
+
+
+def test_manual_check_serializes_iso_retry_time_for_native_ui(tmp_path):
+    from maalimbus.startup_update import check_project_update
+    class Client:
+        def __init__(self,path):pass
+        def check(self):return dict(status='rate_limited',requested=False,retry_at='2026-10-09T05:21:18+00:00')
+    result=check_project_update(app_fixture(tmp_path),client_factory=Client)
+    assert result['retry_at']==1791523278
+    assert result['status']=='rate_limited' and result['installed'] is False
+
+
+def client(status='available', tag='v0.2.0'):
+    class Client:
+        def __init__(self, path): pass
+        def check(self):
+            return dict(status=status, requested=True, retry_at=42,
+                        release={'tag_name':tag,'assets':[]})
+    return Client
+
+
+@pytest.mark.parametrize('status', ['network_error','rate_limited','no_release'])
+def test_offline_launch_uses_local_app_without_staging(tmp_path, status):
+    app = app_fixture(tmp_path)
+    def forbidden(*a, **kw): raise AssertionError('Unexpected install/download')
+    result = startup_update(app, tmp_path/'work', client_factory=client(status),
+                            stage=forbidden, install=forbidden)
+    assert result['status'] == status and not result['installed']
+    assert result['version_after'] == 'v0.1.0' and result['game_input_sent'] is False
+
+
+def test_native_disabled_preference_makes_no_network_request(tmp_path):
+    app = app_fixture(tmp_path)
+    write_json(app/'config/mxu-MaaLimbus.json', {'globalOptionValues':{
+        'software_auto_update': {'type':'select','caseName':'disabled'}}})
+    def forbidden(*a, **kw): raise AssertionError('Unexpected network request')
+    assert startup_update(app,tmp_path/'work',client_factory=forbidden,install=forbidden)['status']=='disabled'
+
+
+def test_newer_release_installs_before_open_and_records_actual_metadata(tmp_path):
+    app=app_fixture(tmp_path); calls=[]
+    def stage(release,root,**kw):
+        calls.append('stage');return {'status':'staged','stage':str(root/'x')}
+    def install(path,target):
+        calls.append('install');info=json.loads((target/'interface.json').read_text())
+        info['version']='v0.2.0';write_json(target/'interface.json',info)
+        return {'status':'installed','installed':True}
+    result=startup_update(app,tmp_path/'work',client_factory=client(),stage=stage,install=install)
+    assert calls==['stage','install'] and result['version_after']=='v0.2.0'
+
+
+@pytest.mark.parametrize('error',[StageError('secret package failure'),TimeoutError('secret timeout'),
+                                 OSError('secret network failure')])
+def test_staging_failure_uses_unchanged_local_app_without_install(tmp_path,error):
+    app=app_fixture(tmp_path);original=(app/'interface.json').read_bytes()
+    def stage(*a,**kw):raise error
+    def install(*a):pytest.fail('An invalid stage cannot reach installation')
+    result=startup_update(app,tmp_path/'work',client_factory=client(),stage=stage,install=install)
+    assert result['status']=='update_unavailable' and not result['install_attempted']
+    assert result['local_app_preserved'] and result['version_after']=='v0.1.0'
+    assert (app/'interface.json').read_bytes()==original
+    assert 'secret' not in (app/'build/startup-update-result.json').read_text()
+
+
+def test_published_tag_without_assets_does_not_block_old_local_app(tmp_path):
+    app=app_fixture(tmp_path)
+    def install(*a):pytest.fail('No release assets means no installation')
+    # Exercise the real stage selector, which rejects before HTTP or writes.
+    result=startup_update(app,tmp_path/'work',client_factory=client(),install=install)
+    assert result['status']=='update_unavailable' and result['local_app_preserved']
+    assert not (tmp_path/'work/stages').exists()
+
+
+def test_staging_cannot_hide_a_changed_local_interface(tmp_path):
+    app=app_fixture(tmp_path)
+    def stage(*a,**kw):
+        body=json.loads((app/'interface.json').read_text());body['version']='v9.0.0'
+        write_json(app/'interface.json',body)
+        raise StageError('injected concurrent modification')
+    with pytest.raises(StageError,match='identity changed'):
+        startup_update(app,tmp_path/'work',client_factory=client(),stage=stage,install=lambda *a:None)
+
+
+def test_install_exception_still_blocks_unproven_application(tmp_path):
+    app=app_fixture(tmp_path)
+    def install(*a):raise OSError('injected after possible swap')
+    with pytest.raises(OSError):
+        startup_update(app,tmp_path/'work',client_factory=client(),
+            stage=lambda *a,**kw:dict(status='staged',stage=str(tmp_path/'stage')),install=install)
+    result=json.loads((app/'build/startup-update-result.json').read_text())
+    assert result['status']=='blocked' and not result['installed']
+
+
+@pytest.mark.parametrize('preserved',[True,False])
+def test_capacity_preparation_fallback_requires_exact_local_preservation(tmp_path,preserved):
+    app=app_fixture(tmp_path)
+    def install(*a):
+        return dict(status='aborted_before_replace',installed=False,
+                    local_app_preserved=preserved,replacement_started=False)
+    kwargs=dict(client_factory=client(),stage=lambda *a,**kw:dict(status='staged',stage='fixture'),
+                install=install)
+    if preserved:
+        result=startup_update(app,tmp_path/'work',**kwargs)
+        assert result['status']=='update_unavailable' and result['version_after']=='v0.1.0'
+    else:
+        with pytest.raises(StageError):startup_update(app,tmp_path/'work',**kwargs)
+
+
+@pytest.mark.parametrize('status', ['rolled_back','rollback_failed'])
+def test_rollback_can_launch_only_when_old_app_is_restored(tmp_path,status):
+    app=app_fixture(tmp_path)
+    kwargs=dict(client_factory=client(), stage=lambda *a,**kw:{'status':'staged','stage':str(tmp_path/'stage')},
+                install=lambda *a:{'status':status,'installed':False})
+    if status=='rolled_back':
+        assert startup_update(app,tmp_path/'work',**kwargs)['version_after']=='v0.1.0'
+    else:
+        with pytest.raises(StageError):startup_update(app,tmp_path/'work',**kwargs)
+
+
+@pytest.mark.parametrize('tag',['v0.1.0','v0.0.9','invalid'])
+def test_same_older_or_invalid_version_never_installs(tmp_path,tag):
+    app=app_fixture(tmp_path)
+    def forbidden(*a,**kw):raise AssertionError('Unexpected install')
+    result=startup_update(app,tmp_path/'work',client_factory=client(tag=tag),stage=forbidden,install=forbidden)
+    assert result['status']==('unsupported_release_tag' if tag=='invalid' else 'current')
+
+
+def test_source_and_installed_controller_locks_are_the_same(tmp_path):
+    assert lease_path(tmp_path/'source/build/controller.lock') == lease_path(tmp_path/'installed/build/controller.lock')
+    assert lease_path(tmp_path/'launcher.lock') != lease_path(tmp_path/'controller.lock')
+
+
+@pytest.mark.skipif(os.name!='nt',reason='Windows CIM process identity')
+def test_external_launcher_ignores_only_its_own_outside_process(tmp_path,monkeypatch):
+    app=app_fixture(tmp_path)
+    own={'ProcessId':os.getpid(),'Name':'MaaLimbusLauncher.exe',
+         'ExecutablePath':str(tmp_path/'helper/MaaLimbusLauncher.exe'),
+         'CommandLine':'helper --app '+str(app/'MaaLimbus.exe')}
+    def records(items):
+        monkeypatch.setattr('maalimbus.update_install.subprocess.run',
+            lambda *a,**kw:SimpleNamespace(returncode=0,stdout=json.dumps(items)))
+    records([own])
+    closed_app(app,external_launcher_pid=os.getpid())
+    records([own,{'ProcessId':99999,'Name':'MaaLimbus.exe',
+                  'ExecutablePath':str(app/'MaaLimbus.exe'),'CommandLine':''}])
+    with pytest.raises(StageError):closed_app(app,external_launcher_pid=os.getpid())
+    own['ExecutablePath']=str(app/'launcher/MaaLimbusLauncher.exe')
+    records([own])
+    with pytest.raises(StageError):closed_app(app,external_launcher_pid=os.getpid())
+
+
+@pytest.mark.skipif(os.name!='nt',reason='Windows CIM process identity')
+def test_a_process_that_only_mentions_the_path_is_not_the_application(tmp_path,monkeypatch):
+    # The freeze compares command lines, so a process that merely carries the folder
+    # in its own arguments used to look like a running app: on 2026-10-15 the harness
+    # that started the freeze blocked it with no app process alive.
+    app=app_fixture(tmp_path)
+    def records(items):
+        monkeypatch.setattr('maalimbus.update_install.subprocess.run',
+            lambda *a,**kw:SimpleNamespace(returncode=0,stdout=json.dumps(items)))
+    records([{'ProcessId':99998,'Name':'DeepSeek Harness.exe',
+              'ExecutablePath':r'C:\Program Files\Harness\Harness.exe',
+              'CommandLine':'Harness.exe --workspace '+str(app/'MaaLimbus.exe')}])
+    closed_app(app)

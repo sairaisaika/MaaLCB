@@ -1,0 +1,54 @@
+{
+  "source": "evidence\\runtime\\window-20261008-144554\\frame-0458.png",
+  "source_png_sha256": "56b8071717be1e76941d3d5e055361e3ebcf4bdcda5bdcbe13121268102bff78",
+  "templates": [
+    {
+      "template": "assets\\resource\\base\\image\\reward\\module-currency.png",
+      "roi": [
+        1374,
+        790,
+        57,
+        55
+      ],
+      "sha256": "863cca9d59a49c881cd47b3ac3bddd6577a9e07d6c33c77988b51c1cdf73bf15"
+    },
+    {
+      "template": "assets\\resource\\base\\image\\reward\\deduction-sign.png",
+      "roi": [
+        1431,
+        807,
+        17,
+        26
+      ],
+      "sha256": "4724ab3a2781d6eb73f5bbb5660ecef8c86e6e207cd895675c0d99782f962d1d"
+    }
+  ],
+  "semantic": "Observed Enkephalin Module icon and deduction sign at paid Claim; not gift artwork",
+  "two_digit_cost": {
+    "source": "dist\\MaaLimbus\\evidence\\runtime\\pi-20261120-193352\\frame-0269.png",
+    "source_png_sha256": "41440970da1110456dd220f59e5af7bbe0073a4df48d707c31553e34f3a595b4",
+    "templates": [
+      {
+        "template": "assets\\resource\\base\\image\\reward\\module-currency-two-digit.png",
+        "roi": [
+          1368,
+          790,
+          57,
+          55
+        ],
+        "sha256": "63914aeb337541c6d3f4f268dbbed1bca791ba53339e61fc8c32b4a6991db1fa"
+      },
+      {
+        "template": "assets\\resource\\base\\image\\reward\\deduction-sign-two-digit.png",
+        "roi": [
+          1425,
+          807,
+          17,
+          26
+        ],
+        "sha256": "27f191f25b099b35af5015c48a3f97f9928a04f782f6e82bf071a9caebf5b0ad"
+      }
+    ],
+    "semantic": "Same icon and sign on the 18-module, weekly 3/3 Claim: a second cost digit moves both six pixels left"
+  }
+}
