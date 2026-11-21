@@ -519,7 +519,7 @@ Key anchors in `assets/interface.json`:
 
 | Anchor | Content |
 | --- | --- |
-| `assets/interface.json:2-5` | `interface_version: 2`, `name: MaaLimbus`, `version: v0.1.2` |
+| `assets/interface.json:2-5` | `interface_version: 2`, `name: MaaLimbus`, `version: v0.1.3` |
 | `assets/interface.json:9-13` | `languages`: `zh_cn` / `en_us` / `ja_jp` |
 | `assets/interface.json:14` | the `controller` array, see below |
 | `assets/interface.json:69-86` | `resource`: `en` → `./resource/base` + `./resource/en`; `jp` → `./resource/base` |
