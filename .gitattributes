@@ -1,6 +1,13 @@
 # Preserve upstream Markdown's intentional hard line break in its license text.
 THIRD_PARTY_NOTICES/MaaFramework-LGPL-3.0.md whitespace=-blank-at-eol
 
+# Licence and notice texts keep their upstream bytes in every checkout. The Windows
+# package builder binds the retained notice to the runtime and source archives byte for
+# byte; with core.autocrlf=true, the Git for Windows default, a converted working copy
+# no longer matches and the build stops at "Runtime/source/notice bytes differ".
+/LICENSE -text
+/THIRD_PARTY_NOTICES/** -text
+
 # Apply the local-state boundary to GitHub's generated source archives too.
 /.codex/** export-ignore
 /config/** export-ignore

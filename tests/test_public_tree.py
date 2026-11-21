@@ -125,6 +125,26 @@ def test_a_directory_is_checked_file_by_file(tmp_path):
     assert check_public_tree.main(['--dir', str(tmp_path)]) == 1
 
 
+def test_licence_texts_keep_their_committed_bytes_in_the_working_copy():
+    """The package builder binds these files to upstream archives byte for byte.
+
+    With ``core.autocrlf=true`` an unmarked text file is checked out with CRLF, and the
+    first full release build from a Windows clone stopped on exactly that.
+    """
+    import subprocess
+
+    if not (ROOT / '.git').exists():
+        pytest.skip('not a git checkout: attributes and committed bytes cannot be read')
+
+    def git(*arguments):
+        return subprocess.run(['git', '-C', str(ROOT), *arguments], capture_output=True, check=True).stdout
+    names = ['LICENSE'] + git('ls-files', '--', 'THIRD_PARTY_NOTICES').decode('utf-8').split()
+    assert len(names) >= 7
+    for name in names:
+        assert git('check-attr', 'text', '--', name).decode('utf-8').strip().endswith('text: unset'), name
+        assert (ROOT / name).read_bytes() == git('cat-file', 'blob', ':' + name), name
+
+
 def test_the_files_this_checkout_tracks_are_publishable():
     if not (ROOT / '.git').exists():
         pytest.skip('not a git checkout: tracking cannot be read from an unpacked source archive')
