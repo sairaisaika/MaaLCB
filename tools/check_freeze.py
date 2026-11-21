@@ -32,8 +32,16 @@ BUILD_INFO = ROOT / 'dist' / 'MaaLimbus' / 'build-info.json'
 
 
 def head():
-    return subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=str(ROOT), capture_output=True,
-                          text=True, check=True).stdout.strip()
+    """HEAD of this checkout, or ``None`` where the folder is not a git checkout.
+
+    A source archive downloaded from the repository has no ``.git``: there is no HEAD to
+    compare a frozen app with, and that is an answer, not an error.
+    """
+    try:
+        done = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=str(ROOT), capture_output=True, text=True)
+    except OSError:
+        return None
+    return done.stdout.strip() if done.returncode == 0 and done.stdout.strip() else None
 
 
 def frozen():
@@ -72,6 +80,12 @@ def verdict(head_sha=_UNSET, frozen_sha=_UNSET):
     if not frozen_sha:
         return {'state': 'missing', 'head': head_sha, 'frozen': None,
                 'reason': 'no dist build-info; run build/refreeze_agent.py'}
+    if head_sha is None:
+        # A frozen app sits beside sources that are not a git checkout: its commit cannot
+        # be compared with anything here, so it is neither current nor stale.
+        return {'state': 'missing', 'head': None, 'frozen': frozen_sha,
+                'reason': 'this folder is not a git checkout, so the frozen app cannot be '
+                          'compared with HEAD'}
     if frozen_sha == head_sha:
         return {'state': 'current', 'head': head_sha, 'frozen': frozen_sha, 'reason': None}
     behind = subprocess.run(['git', 'rev-list', '--count', f'{frozen_sha}..{head_sha}'],

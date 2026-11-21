@@ -28,6 +28,20 @@ def test_a_stale_freeze_is_reported_with_the_gap():
     assert 'old code' in report['reason']
 
 
+def test_a_folder_that_is_not_a_git_checkout_has_no_head(tmp_path, monkeypatch):
+    """A downloaded source archive has no ``.git``; asking for HEAD answers None, not an error."""
+    monkeypatch.setattr(check_freeze, 'ROOT', tmp_path)
+    monkeypatch.setenv('GIT_CEILING_DIRECTORIES', str(tmp_path.parent))
+    assert check_freeze.head() is None
+
+
+def test_without_a_git_checkout_the_freeze_is_missing_not_stale():
+    report = check_freeze.verdict(head_sha=None, frozen_sha=None)
+    assert report['state'] == 'missing' and 'refreeze' in report['reason']
+    report = check_freeze.verdict(head_sha=None, frozen_sha='a' * 40)
+    assert report['state'] == 'missing' and 'not a git checkout' in report['reason']
+
+
 def test_the_repository_is_current_right_now():
     """Skips instead of failing when the checkout is not a full git history."""
     report = check_freeze.verdict()
