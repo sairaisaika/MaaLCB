@@ -171,6 +171,30 @@ def zero_only_corroborated(records, size, *, band=AVAILABLE_BAND):
             and available_starlight(records,size,band=band,expect_zero=True)==0)
 
 
+#: The scene name of this page, for the one check that belongs to the page itself.
+GRACES_PAGE = 'STAR_GRACES'
+
+
+def zero_successor(first, observe):
+    """Two separate observations of a lone zero after a purchase that spent everything.
+
+    ``first`` is the settled observation the caller already has; ``observe`` takes one
+    more without sending input. The zero is proven only when both are this page and both
+    show the weak zero with nothing contrary in the counter's place. The second
+    observation is returned so the caller records the frame it was read from.
+    """
+    from .vision import Text
+
+    def weak(record):
+        texts=[Text(t['text'],tuple(t['box']),t['score']) for t in record.get('ocr',[])]
+        return (record.get('scene')==GRACES_PAGE
+                and zero_only_corroborated(texts,record.get('size') or (1920,1080)))
+    again=observe()
+    one,two=weak(first),weak(again)
+    return dict(settled=again,on_page=again.get('scene')==GRACES_PAGE,
+                first=one,second=two,zero=one and two)
+
+
 def plus_points(records, size):
     """``{card index: (x, y)}`` for every card title this frame reads."""
     points = {}

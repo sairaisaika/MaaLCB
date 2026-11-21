@@ -164,7 +164,7 @@ class GraceTransaction:
         d['pending']=dict(card=card,cost=cost,before=available,proof=str(proof))
         write_json(self.path,d)
 
-    def expects_zero(self):
+    def is_zero_expected(self):
         """Whether these books say the page's balance must be exactly zero right now."""
         d=self.data
         if not d:return False
