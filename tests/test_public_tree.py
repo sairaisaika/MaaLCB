@@ -20,6 +20,9 @@ sys.path.insert(0, str(ROOT / 'tools'))
 
 import check_public_tree  # noqa: E402
 
+#: The icon the maintainer chose, as the original file with its embedded Content Credentials.
+ORIGINAL_ICON_SHA256 = 'cf98483772171e983c9b85181c3edab5c26e0c6adf9bee129fbe2ce37cbe50b3'
+
 
 def png(extra_chunk=None):
     ok, data = cv2.imencode('.png', np.full((4, 4, 3), 200, dtype=np.uint8))
@@ -66,10 +69,22 @@ def test_the_json_beside_the_bitmaps_is_public():
     assert categories('tests/fixtures/frames/map-1/frame-0001.json', b'{}') == []
 
 
-def test_the_icon_is_allowed_only_without_metadata():
+def test_the_icon_keeps_its_content_credentials_and_nothing_else():
+    """The icon is the original file: its signed provenance block stays, free-form metadata does not."""
     assert categories('assets/misc/Don-Quixote.png', png()) == []
+    assert categories('assets/misc/Don-Quixote.png', png((b'caBX', b'x' * 40))) == []
     assert categories('assets/misc/Don-Quixote.png', png((b'tEXt', b'Software\x00somewhere'))) == ['image_metadata']
-    assert categories('assets/misc/Don-Quixote.png', png((b'caBX', b'x' * 40))) == ['image_metadata']
+    assert categories('assets/misc/Don-Quixote.png', png((b'eXIf', b'x' * 12))) == ['image_metadata']
+    # The allowance belongs to this one file, not to images in general.
+    assert check_public_tree.PROVENANCE_CHUNKS == {'assets/misc/Don-Quixote.png': {'caBX'}}
+
+
+def test_the_tracked_icon_is_the_original_file():
+    import hashlib
+
+    data = (ROOT / 'assets/misc/Don-Quixote.png').read_bytes()
+    assert hashlib.sha256(data).hexdigest() == ORIGINAL_ICON_SHA256
+    assert check_public_tree.png_extra_chunks(data) == ['caBX']
 
 
 def test_an_image_encoded_into_source_is_found_and_a_bare_prefix_is_not():

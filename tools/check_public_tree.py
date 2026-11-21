@@ -12,7 +12,7 @@ on its own: a file can be ignored and still sit in an archive.  The check refuse
   binary           an image, model, archive or executable that is not on the short list
   unknown_type     a file type nobody has classified yet
   embedded_image   an image encoded into a text file
-  image_metadata   a PNG chunk beyond the pixels (text, EXIF, provenance blobs)
+  image_metadata   a PNG chunk beyond the pixels (text, EXIF, unlisted provenance blobs)
   private_text     a local user path, player or device identifier, or credential
 
 It prints the category and the member path, never the matched text.  Exit status 0 when
@@ -52,6 +52,11 @@ TEXT_NAMES = {'LICENSE', '.gitignore', '.gitattributes'}
 PACKAGING_NAMES = {'PKG-INFO', 'METADATA', 'WHEEL', 'RECORD', 'SOURCES.txt', 'top_level.txt',
                    'requires.txt', 'dependency_links.txt', 'setup.cfg', 'entry_points.txt'}
 PNG_PIXEL_CHUNKS = {'IHDR', 'IDAT', 'IEND', 'PLTE', 'tRNS'}
+#: The icon is published as the maintainer's original file. It carries the Content
+#: Credentials (C2PA, chunk ``caBX``) its generator signed into it: a provenance record
+#: that names the generator and the time, with no account or machine data. Free-form
+#: text, EXIF and every other chunk are still refused, for this file as for any other.
+PROVENANCE_CHUNKS = {'assets/misc/Don-Quixote.png': {'caBX'}}
 EMBEDDED_IMAGE = re.compile(rb'data:image/[a-z+.-]+;base64,[A-Za-z0-9+/=]{200,}')
 
 
@@ -82,7 +87,8 @@ def examine(name, read):
         if name not in ALLOWED_BINARIES:
             return [('binary', name)]
         if suffix == '.png':
-            extra = png_extra_chunks(read())
+            extra = [kind for kind in png_extra_chunks(read())
+                     if kind not in PROVENANCE_CHUNKS.get(name, ())]
             if extra:
                 found.append(('image_metadata', '%s (%s)' % (name, ' '.join(extra))))
         return found
