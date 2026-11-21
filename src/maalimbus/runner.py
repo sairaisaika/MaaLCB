@@ -6448,7 +6448,8 @@ class MirrorRunner:
         if page in ('STAR_GRACES','STAR_CONFIRM') and transaction is not None:
             try:
                 records=[Text(t['text'],tuple(t['box']),t['score']) for t in record.get('ocr',[])]
-                available=available_starlight(records,record.get('size') or (1920,1080))
+                available=available_starlight(records,record.get('size') or (1920,1080),
+                                              expect_zero=transaction.expects_zero())
                 if page=='STAR_GRACES' and transaction.data and transaction.data.get('pending'):
                     recovered=transaction.recover(self.run_id,state['grace_wanted'],settings.grace_budget,
                                                   available,frame_file(directory))
@@ -6479,7 +6480,9 @@ class MirrorRunner:
         if page == 'STAR_GRACES':
             records = [Text(item['text'], tuple(item['box']), item['score'])
                        for item in record.get('ocr') or []]
-            available = available_starlight(records, record.get('size') or (1920, 1080))
+            available = available_starlight(records, record.get('size') or (1920, 1080),
+                                            expect_zero=(transaction is not None
+                                                         and transaction.expects_zero()))
             if available is None:
                 retry = self._unread_grace_retry(state, page,
                                                  'starlight_available_balance_not_proven')
@@ -7313,6 +7316,23 @@ class MirrorRunner:
                     after_available=available_starlight(observed,settled.get('size') or (1920,1080))
                     entry.update(settled=settled,page_after=settled_page,scene_after=settled_page)
                 if settled_page!='STAR_GRACES':raise ValueError('Grace purchase left selection unexpectedly')
+                if after_available is None and transaction.expects_zero():
+                    # The purchase spent everything, so the counter is a lone zero that only
+                    # reads weakly. Book it when two separate observations both show zero
+                    # and nothing else in the counter's place. No input is sent.
+                    from .grace_vision import zero_only_corroborated
+                    first=zero_only_corroborated(observed,settled.get('size') or (1920,1080))
+                    again=self._observe();again_page=again.get('scene')
+                    again_texts=[Text(t['text'],tuple(t['box']),t['score']) for t in again.get('ocr',[])]
+                    second=(again_page=='STAR_GRACES' and
+                            zero_only_corroborated(again_texts,again.get('size') or (1920,1080)))
+                    self.note('grace_zero_balance_corroborated',first=first,second=second,
+                              input_sent=False,pending_card=transaction.data['pending']['card'])
+                    settled=again;settled_page=again_page
+                    entry.update(settled=settled,page_after=settled_page,scene_after=settled_page)
+                    if settled_page!='STAR_GRACES':
+                        raise ValueError('Grace purchase left selection unexpectedly')
+                    if first and second:after_available=0
                 transaction.observe(after_available,frame_file(directory))
             except ValueError as error:
                 entry.update(passed=False,reason=str(error),stopped='unverified_grace_purchase')

@@ -164,6 +164,13 @@ class GraceTransaction:
         d['pending']=dict(card=card,cost=cost,before=available,proof=str(proof))
         write_json(self.path,d)
 
+    def expects_zero(self):
+        """Whether these books say the page's balance must be exactly zero right now."""
+        d=self.data
+        if not d:return False
+        if d.get('pending'):return d['pending']['before']-d['pending']['cost']==0
+        return d.get('available')==0 and bool(d.get('selected'))
+
     def observe(self,available,proof):
         d=self.data;p=d['pending']
         if not p or available!=p['before']-p['cost']:
@@ -201,7 +208,10 @@ class GraceTransaction:
                 or pending['card'] in d['selected'] or d['spent']+pending['cost']>budget):
             raise ValueError('Grace retained purchase intent not independently proven')
         after,_,texts=frame(proof)
-        if available_starlight(texts,after['size'])!=available:
+        # A purchase that spends everything leaves a lone zero, which reads weakly. It is
+        # accepted only because this retained intent itself expects exactly zero.
+        expects_zero=pending['before']-pending['cost']==0
+        if available_starlight(texts,after['size'],expect_zero=expects_zero)!=available:
             raise ValueError('Grace recovery current balance differs')
         self.observe(available,proof)
         return pending

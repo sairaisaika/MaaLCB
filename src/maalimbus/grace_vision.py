@@ -59,6 +59,13 @@ AVAILABLE_LABEL = r'^Ava[l1i]{1,3}ab[l1i]e$'
 AVAILABLE_PATTERN = r'^[^\d]{0,3}\d{1,5}[^\d]{0,2}$'
 AVAILABLE_DIGITS = re.compile(r'\d{1,5}')
 DIGIT_FLOOR = 0.70
+#: A balance of exactly zero is one lone glyph beside the starlight icon. The detector
+#: that reads 50 and 30 at 1.0 finds nothing there, and the full-frame read comes back
+#: as '0' at .60 or '*0' at .47 (live packaged-mirror-20261121-131525, frames 0035 to
+#: 0038, after cards 2, 4 and 5 spent the whole 60). Such a reading counts only where
+#: the caller's own arithmetic expects zero, and only when nothing in the counter's
+#: place reads as any other number.
+ZERO_FLOOR = 0.40
 
 #: from a card title's centre to its ``+`` button centre, in 1920x1080 pixels.
 PLUS_OFFSET = (-118, 250)
@@ -125,8 +132,16 @@ def read_cost(records, box, size):
     return agreeing_number(values)
 
 
-def available_starlight(records, size, *, band=AVAILABLE_BAND):
-    """The number beside "Available", or None when this frame does not read it."""
+def available_starlight(records, size, *, band=AVAILABLE_BAND, expect_zero=False):
+    """The number beside "Available", or None when this frame does not read it.
+
+    ``expect_zero`` is set by a caller whose own books say the balance must now be zero
+    (a purchase that spends everything, or a balance already booked as zero). Only then
+    may the weak reading of a lone zero stand: every token in the counter's place, from
+    ``ZERO_FLOOR`` up, must read exactly zero, and none may read anything else. It never
+    turns an unread or a contrary balance into zero, and it changes nothing for a caller
+    that does not expect zero.
+    """
     import maalimbus.vision as vision
 
     records=list(records)
@@ -134,14 +149,26 @@ def available_starlight(records, size, *, band=AVAILABLE_BAND):
     if len(labels)!=1:return None
     x,y,w,h=labels[0].box
     scale=size[0]/1920
-    hits=[]
+    hits=[];weak=[]
     for item in records:
         bx,by,bw,bh=item.box
-        if (item.score>=DIGIT_FLOOR and re.fullmatch(AVAILABLE_PATTERN,item.text or '')
-            and bx>=x+w-10*scale and bx+bw/2<=x+w+200*scale
-            and abs((by+bh/2)-(y+h/2))<=25*scale):
+        if not (re.fullmatch(AVAILABLE_PATTERN,item.text or '')
+                and bx>=x+w-10*scale and bx+bw/2<=x+w+200*scale
+                and abs((by+bh/2)-(y+h/2))<=25*scale):
+            continue
+        if item.score>=DIGIT_FLOOR:
             hits.append(int(AVAILABLE_DIGITS.search(item.text).group()))
-    return agreeing_number(hits)
+        elif item.score>=ZERO_FLOOR:
+            weak.append(AVAILABLE_DIGITS.search(item.text).group())
+    if hits or not expect_zero:
+        return agreeing_number(hits)
+    return 0 if weak and all(digits=='0' for digits in weak) else None
+
+
+def zero_only_corroborated(records, size, *, band=AVAILABLE_BAND):
+    """Whether this frame shows the weak zero: no strict read, and zero where expected."""
+    return (available_starlight(records,size,band=band) is None
+            and available_starlight(records,size,band=band,expect_zero=True)==0)
 
 
 def plus_points(records, size):
