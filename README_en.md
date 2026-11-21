@@ -64,7 +64,7 @@ Python source package and wheel:
 .venv\Scripts\python -m build --outdir build/python-package
 ```
 
-The Windows desktop app is assembled by `tools/build_windows_package.py` from MXU and MaaFramework archives you download yourself; the tool checks its inputs against the hashes recorded in [Windows package](docs/windows-package.md) and downloads nothing. A release package takes committed files only and is refused when it carries game assets. **This path has not been verified on a public checkout without the private directories**, and this repository publishes no prebuilt desktop package.
+The Windows desktop app is assembled by `tools/build_windows_package.py` from MXU and MaaFramework archives you download yourself; the tool checks its inputs against the hashes recorded in [Windows package](docs/windows-package.md) and downloads nothing. A release package takes committed files only and is refused when it carries game assets. This path has been built once from a fresh clone with no private directory and no game asset: the package carries no game asset, its manifest verifies, and the packaged Agent self-test names the missing asset groups. This repository publishes no prebuilt desktop package. Keep the build folder at a short path, or the packaged Agent stops because its socket path is too long.
 
 ## Run Mirror Dungeon
 
@@ -79,7 +79,7 @@ If the task stops, check the MXU log and the stop reason in the result. A useful
 ## Verified scope
 
 - English Mirror Dungeon on MuMu has separate live records for Hard floor five, payout and team rotation, made on the maintainer's machine with the assets in place. See [acceptance records](docs/acceptance.md) for the versions and scope.
-- What has been verified on a public checkout is installation, the wiki guard, the public tests and the Python package build. The whole flow after importing assets as [local game assets](docs/local-assets.md) describes, and the desktop app build, have not been re-verified by a third party on a public checkout.
+- What has been verified on a public checkout is installation, the wiki guard, the public tests and the Python package build. The desktop release package has also been built and inspected once from a fresh clone. The whole live flow after importing assets as [local game assets](docs/local-assets.md) describes has not been re-verified by a third party on a public checkout.
 - The shop buys gifts using the saved team strategy and supports bounded refreshes and receipt reconciliation. Automated skill purchases are in development. A continuous full run on the latest build, Japanese gameplay and Windows game input have separate acceptance paths.
 - MXU lists additional task entry points. See [design and task options](docs/design.md) for their implementation status.
 

@@ -8406,8 +8406,8 @@
         {
           "path": "tools/check_public_tree.py",
           "symbol": "examine",
-          "line": 71,
-          "sha256": "175ed8bb9568092744eaa35d0fd7b2108ae6cdc4b56c90ebf2c36ae8be3793d0"
+          "line": 76,
+          "sha256": "71949159aef295878f9479d9254b89b7693c470b7d453fb2e7531ee4e4ae0daa"
         }
       ]
     },

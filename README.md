@@ -64,7 +64,7 @@ Python 源码包和 wheel：
 .venv\Scripts\python -m build --outdir build/python-package
 ```
 
-Windows 桌面应用由 `tools/build_windows_package.py` 用你自己下载的 MXU 与 MaaFramework 归档组装，工具按 [Windows 开发包](docs/windows-package.md)里登记的哈希核对输入，不联网下载。发行包只取已提交的文件，带着游戏素材就拒绝导出。**这条路径还没有在不含私有目录的公开 checkout 上验证过**，本仓库也不发布预构建的桌面包。
+Windows 桌面应用由 `tools/build_windows_package.py` 用你自己下载的 MXU 与 MaaFramework 归档组装，工具按 [Windows 开发包](docs/windows-package.md)里登记的哈希核对输入，不联网下载。发行包只取已提交的文件，带着游戏素材就拒绝导出。这条路径在不含私有目录、不含游戏素材的全新克隆上构建通过过一次：包里没有游戏素材，清单校验一致，打包后的 Agent 自检按组写明缺哪些素材。本仓库不发布预构建的桌面包；构建目录要放在较短的路径下，否则打包后的 Agent 会因为套接字路径过长而停下。
 
 ## 运行镜牢
 
@@ -79,7 +79,7 @@ Windows 桌面应用由 `tools/build_windows_package.py` 用你自己下载的 M
 ## 当前验收范围
 
 - MuMu 的英语镜牢路径有独立的困难五层、领奖和轮换实机记录，是在维护者备齐素材的本机环境里做的。具体版本和范围见[验收文档](docs/acceptance.md)。
-- 公开 checkout 上验证过的是安装、Wiki 守卫、公开测试和 Python 包构建。按[本地游戏素材](docs/local-assets.md)导入素材之后的整条流程，以及桌面应用构建，尚未由第三方在公开 checkout 上复验。
+- 公开 checkout 上验证过的是安装、Wiki 守卫、公开测试和 Python 包构建。桌面发行包也从全新克隆构建并检查过一次。按[本地游戏素材](docs/local-assets.md)导入素材之后的整条实机流程，尚未由第三方在公开 checkout 上复验。
 - 商店支持按保存体系购买藏品、有限刷新和对账。自动购买技能仍在开发。最新版本的整局连续运行、日语游戏画面和 Windows 游戏输入分别验收。
 - 桌面任务列表包含镜牢之外的入口。各入口的完成范围见[设计与任务选项](docs/design.md)。
 
