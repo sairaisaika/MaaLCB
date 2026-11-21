@@ -2500,7 +2500,12 @@
         "Grace purchase successor balance not proven",
         "grace",
         "star balance",
-        "pending card4"
+        "pending card4",
+        "余额为0",
+        "零余额",
+        "zero balance",
+        "lone zero",
+        "grace_zero_balance_corroborated"
       ],
       "sources": [
         {
@@ -2514,6 +2519,18 @@
         {
           "path": "src/maalimbus/mirror_starlight.py",
           "symbol": "resolve"
+        },
+        {
+          "path": "src/maalimbus/grace_vision.py",
+          "symbol": "available_starlight"
+        },
+        {
+          "path": "src/maalimbus/grace_vision.py",
+          "symbol": "zero_successor"
+        },
+        {
+          "path": "src/maalimbus/grace_transaction.py",
+          "symbol": "GraceTransaction.is_zero_expected"
         }
       ],
       "docs": [
@@ -2523,7 +2540,8 @@
       "tests": [
         "tests/test_grace_balance_native.py",
         "tests/test_grace_transaction.py",
-        "tests/test_mirror_starlight.py"
+        "tests/test_mirror_starlight.py",
+        "tests/test_grace_zero_balance.py"
       ],
       "checks": [
         "python -m pytest -q tests/test_grace_balance_native.py tests/test_grace_transaction.py tests/test_mirror_starlight.py"

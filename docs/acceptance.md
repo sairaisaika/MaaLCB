@@ -1,3 +1,19 @@
+## Public build, cold start to the floor 1 map (2026-11-21 UTC)
+
+The first live run of the public tree. The desktop app was assembled from a clone of the public repository with locally imported game assets (`dd3b3c2` for the first run below, `781c564` for the other two), and driven through the headless entry with the frozen Agent on the MuMu ADB controller. The emulator was not running when this started.
+
+Accepted by these runs:
+
+- **Emulator pretask.** The frozen Agent, called as MXU calls a pretask (`--pretask launch_emulator` with the option JSON), started the emulator instance through the emulator's own manager program and returned `emulator_reachable_after_launch` after 10.3 s. A separate read then showed Android booted and the launcher in front.
+- **Open game.** `OpenGameTask` in the packaged pipeline started the game and proved the foreground on the first start (`game_foreground_after_native_launch`). The one-time repair was not needed and so was not exercised.
+- **Cold start to the dungeon.** Run `packaged-mirror-20261121-131525` went from the title through login, HOME, Drive, the Mirror entry, the entry confirmation and the team page to the grace page, and bought cards 2 and 4 with the balance read as 60, 50 and 30.
+- **Zero balance.** The third purchase spent the remaining 30. The balance then read only as a weak lone zero and the run stopped with `Grace purchase successor balance not proven` after 9 inputs. With the rule that a lone zero stands where the books expect zero, run `packaged-mirror-20261121-140432` booked that purchase from the retained intent without input (`grace_purchase_recovered`, card 5, cost 30, available 0).
+- **Floor 1 play.** The same run confirmed the graces, took the initial gifts with their receipts, declined the gift search, chose a theme pack, entered floor 1 and won two battles: 47 inputs, ended by its time bound. Run `packaged-mirror-20261121-141507` won two more battles and took a reward card and its gift receipt.
+
+Not accepted by these runs: a floor clear, a completed run and a payout. No Claim was sent; the reward budget stayed scoped to the previous run. A start from MXU's own window, the pretask run by MXU itself and the open-game repair path were not observed.
+
+Found by these runs: on the floor 1 map the party stood one step before a node of the shop kind, drawn without a badge under it. Seven node clicks were not taken and the node reader returned no candidate. The run left and resumed the exploration as its recovery prescribes, still found no candidate, and stopped with `map_resume_did_not_restore_navigation` after 42 inputs. The dungeon run is still active in the game and in the ledger. This is the map reader's limit, not a missing asset: every local asset group was present.
+
 ## Floor 5 cleared from MXU Start; payout offer above the saved cap (2026-11-21 UTC)
 
 Installed `b112566`, started from MXU's Start button on the MuMu ADB controller, continued the same Team2 hard run from the floor 5 map: boss node, 11 turns, victory. The ledger holds floors 1–5 and the final victory, both bound to the 100% summary page `frame-0267` of run `pi-20261120-193352`. 49 inputs, 13 min 07 s, no capacity stop.

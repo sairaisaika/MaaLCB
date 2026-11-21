@@ -424,7 +424,7 @@ sequenceDiagram
 
 ### 4.3.5 Initial gifts, search and floor themes
 
-Starlight has a separate same-run visible-cost and budget gate; this diagram grants no spending. Initial named GET receipts, search-refusal confirmation and theme swipes are separate transactions and cannot replay merely because the next page is slow. This summarizes stages, not live acceptance of every search branch.
+Starlight has a separate same-run visible-cost and budget gate; this diagram grants no spending. When a purchase spends the starlight exactly, the page shows a lone 0 beside the starlight icon: detection finds nothing there and the full-frame OCR returns only a low-confidence reading. Such a reading stands only where the books themselves compute a balance of zero, with no other number in the counter's place, and booking the purchase also needs two separate observations that agree (`available_starlight` and `zero_successor` in `src/maalimbus/grace_vision.py`, `is_zero_expected` in `src/maalimbus/grace_transaction.py`). A balance that reads properly is unaffected. Initial named GET receipts, search-refusal confirmation and theme swipes are separate transactions and cannot replay merely because the next page is slow. This summarizes stages, not live acceptance of every search branch.
 
 ```mermaid
 flowchart TD

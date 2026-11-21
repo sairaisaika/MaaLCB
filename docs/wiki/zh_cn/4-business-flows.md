@@ -424,7 +424,7 @@ sequenceDiagram
 
 ### 4.3.5 初始礼物、搜索与楼层主题
 
-星光消费另受本局可见成本与预算门禁约束，图不授予消费。初始礼物 GET 回执、搜索 Refuse 确认和主题 Swipe 是三个独立事务，不能因页面稍慢而重放上一动作。图概括阶段，不代表所有搜索分支已有实机验收。
+星光消费另受本局可见成本与预算门禁约束，图不授予消费。一次购买把星光正好花完时，页面上只剩星光图标旁的一个 0，检测读不到它，整帧 OCR 也只给出低置信度的读数；这样的读数只在账面自己算出余额必须为 0 时才成立，并且计数位置上不能有任何别的数字，买卡后的入账还要两次独立观察一致（`src/maalimbus/grace_vision.py` 的 `available_starlight` 与 `zero_successor`，`src/maalimbus/grace_transaction.py` 的 `is_zero_expected`）。读数正常的余额不受影响。初始礼物 GET 回执、搜索 Refuse 确认和主题 Swipe 是三个独立事务，不能因页面稍慢而重放上一动作。图概括阶段，不代表所有搜索分支已有实机验收。
 
 ```mermaid
 flowchart TD
