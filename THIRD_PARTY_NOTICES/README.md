@@ -77,8 +77,10 @@ every transitive dependency's corresponding source or establish artwork rights;
 those remain distinct release requirements.
 
 The Windows builder copies the build interpreter's Python license and installed
-wheel metadata license bundles for NumPy, opencv-python, psutil, pywin32, PyYAML,
-maafw, pyreadline3 and PyInstaller into `Python-runtime/`. It records component
+wheel metadata license bundles for NumPy, opencv-python, maafw and PyInstaller into
+`Python-runtime/`. psutil, pywin32, PyYAML and pyreadline3 are not imported by this
+project; their bundles are retained only when they are installed in the build
+interpreter, and `provenance.json` lists the ones that were not. It records component
 versions, original wheel members and byte hashes in `provenance.json` and
 build-info. Missing or empty notices fail before those files are materialized.
 

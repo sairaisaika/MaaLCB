@@ -5,8 +5,13 @@ import json
 from pathlib import Path, PurePosixPath
 import sys
 
-DISTRIBUTIONS = ('numpy', 'opencv-python', 'psutil', 'pywin32', 'PyYAML',
-                 'maafw', 'pyreadline3', 'pyinstaller')
+#: What the project declares and freezes: a build without one of these is not a build.
+DISTRIBUTIONS = ('numpy', 'opencv-python', 'maafw', 'pyinstaller')
+#: Packages the project does not import. PyInstaller bundles them only when they happen
+#: to be installed in the build interpreter, so their notices are retained when they are
+#: there and their absence is recorded, not required. A locked, clean environment has
+#: none of them; requiring them stopped the first build from a fresh clone.
+OPTIONAL = ('psutil', 'pywin32', 'PyYAML', 'pyreadline3')
 
 
 def collect(output, *, distribution=importlib.metadata.distribution,
@@ -14,8 +19,15 @@ def collect(output, *, distribution=importlib.metadata.distribution,
     output = Path(output)
     records = {}
     pending = []
-    for name in DISTRIBUTIONS:
-        dist = distribution(name)
+    absent = []
+    for name in DISTRIBUTIONS + OPTIONAL:
+        try:
+            dist = distribution(name)
+        except importlib.metadata.PackageNotFoundError:
+            if name not in OPTIONAL:
+                raise
+            absent.append(name)
+            continue
         notices = []
         for item in dist.files or ():
             path = PurePosixPath(str(item).replace('\\', '/'))
@@ -51,6 +63,7 @@ def collect(output, *, distribution=importlib.metadata.distribution,
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
     proof = dict(components=records, scope='installed build-environment notice bytes',
+                 not_installed=absent,
                  complete_dependency_audit=False, frozen_binary_origin_verified=False)
     (output/'provenance.json').write_text(json.dumps(proof, indent=2)+'\n', encoding='utf-8')
     return proof
