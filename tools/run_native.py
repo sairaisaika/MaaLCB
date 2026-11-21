@@ -10,6 +10,10 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'src'), str(ROOT / 'agent')]
 from maalimbus.runtime_paths import ROOT
+if getattr(sys, 'frozen', False):
+    # maa opens its native library at import. The package keeps it in maafw/ beside the
+    # runner, not inside the frozen bundle; without this the packaged runner cannot start.
+    os.environ['MAAFW_BINARY_PATH'] = str(ROOT / 'maafw')
 
 from maa.controller import Win32Controller, AdbController
 from maa.define import MaaAdbInputMethodEnum, MaaAdbScreencapMethodEnum

@@ -68,10 +68,21 @@ def agent_binaries(explicit=None, *, prepared=PREPARED):
     return None
 
 
+def packaged_pretasks(interface):
+    """Point every pretask at the frozen Agent: the package has no Python and no agent/main.py."""
+    for pretask in interface.get('pretask', []):
+        if pretask.get('exec') != 'python' or pretask.get('args', [None])[0] != '../agent/main.py':
+            raise ValueError('Unknown pretask program: only the Agent entry is packaged')
+        pretask['exec'] = './agent/MaaLimbusAgent.exe'
+        pretask['args'] = pretask['args'][1:]
+    return interface
+
+
 def packaged_interface(root=ROOT):
     """The repository interface.json, rewritten for the flat app layout."""
     interface = json.loads((root/'assets/interface.json').read_text(encoding='utf-8'))
     interface['agent'] = {'child_exec': './agent/MaaLimbusAgent.exe', 'child_args': []}
+    packaged_pretasks(interface)
     interface['license'] = './LICENSE'
     interface['icon'] = 'assets/' + interface['icon'].replace('./', '')
     interface['welcome'] = './README.md'

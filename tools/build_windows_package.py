@@ -201,6 +201,8 @@ def main():
         shutil.copytree(freeze(ROOT/entry, name, stage/name), app/target)
     interface = json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
     interface['agent'] = {'child_exec': './agent/MaaLimbusAgent.exe', 'child_args': []}
+    from make_local_app import packaged_pretasks
+    packaged_pretasks(interface)
     interface['license'] = './LICENSE'
     interface['icon'] = 'assets/' + interface['icon']
     interface['welcome'] = './README.md'

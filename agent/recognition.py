@@ -2214,7 +2214,8 @@ class MainTaskAction(CustomAction):
                     from maalimbus.game_launch import open_game
                     result=open_game(context.tasker.controller,data_directory(ROOT),journal)
                     if (result.get('passed') and result.get('input_sent') is True
-                            and result.get('reason')=='game_foreground_after_native_launch'):
+                            and result.get('reason') in ('game_foreground_after_native_launch',
+                                                         'game_foreground_after_recovery')):
                         self.recognition.startup_window=dict(until=time.monotonic()+180,
                             serial=context.tasker.controller.info['adb_serial'])
             else:

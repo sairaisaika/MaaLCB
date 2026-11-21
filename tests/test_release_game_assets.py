@@ -93,6 +93,19 @@ def test_release_resources_come_from_the_commit_not_from_the_working_tree(tmp_pa
     assert local_assets.packaged_game_assets(app) == []
 
 
+@pytest.mark.parametrize('entry', ['agent/main.py', 'tools/run_native.py'])
+def test_a_frozen_entry_points_at_the_packaged_framework_before_importing_it(entry):
+    """``maa`` opens its native library at import, and the package keeps it in ``maafw/``.
+
+    The packaged runner lacked this and could not even print its help: the first full
+    release build from a clean clone stopped there.
+    """
+    text = (ROOT / entry).read_text(encoding='utf-8')
+    setting = text.index("os.environ['MAAFW_BINARY_PATH']")
+    first_import = min(text.index(marker) for marker in ('\nfrom maa.', '\nimport maa') if marker in text)
+    assert "getattr(sys, 'frozen', False)" in text[:setting] and setting < first_import
+
+
 def test_the_package_lists_the_absent_game_assets_as_pending():
     pending = package_tool().pending_items(verified_dungeon_clear=True)
     assert any('game assets are not included' in item and 'docs/local-assets.md' in item for item in pending)

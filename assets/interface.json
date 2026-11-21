@@ -100,6 +100,25 @@
       "label": "$daily_group"
     }
   ],
+  "pretask": [
+    {
+      "name": "launch_emulator",
+      "label": "$launch_emulator",
+      "description": "$launch_emulator_description",
+      "controller": [
+        "mumu-adb"
+      ],
+      "exec": "python",
+      "args": [
+        "../agent/main.py",
+        "--pretask",
+        "launch_emulator"
+      ],
+      "option": [
+        "launch_emulator"
+      ]
+    }
+  ],
   "task": [
     {
       "name": "open_game",
@@ -168,6 +187,41 @@
     }
   ],
   "option": {
+    "launch_emulator": {
+      "type": "input",
+      "label": "$launch_emulator",
+      "description": "$launch_emulator_description",
+      "inputs": [
+        {
+          "name": "program",
+          "label": "$launch_emulator_program",
+          "default": "",
+          "verify": "^.{0,400}$",
+          "pipeline_type": "string"
+        },
+        {
+          "name": "arguments",
+          "label": "$launch_emulator_arguments",
+          "default": "",
+          "verify": "^.{0,200}$",
+          "pipeline_type": "string"
+        },
+        {
+          "name": "address",
+          "label": "$launch_emulator_address",
+          "default": "127.0.0.1:16384",
+          "verify": "^(127\\.0\\.0\\.1|localhost):\\d{2,5}$",
+          "pipeline_type": "string"
+        },
+        {
+          "name": "wait_seconds",
+          "label": "$launch_emulator_wait",
+          "default": "180",
+          "verify": "^\\d{2,3}$",
+          "pipeline_type": "string"
+        }
+      ]
+    },
     "reward_module_budget": {
       "type": "select",
       "label": "$reward_module_budget",

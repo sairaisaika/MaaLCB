@@ -5140,6 +5140,64 @@
         "python tools/run_tests.py -q tests/test_local_assets.py tests/test_local_prerequisites.py"
       ],
       "boundary": "No game bitmap is tracked, packaged or uploaded; the manifest keeps paths, sizes and SHA-256 only. A missing group stops the Mirror task before input and is named. Tools read local files and never download. A self-cropped template is checked by size only: a live run is the proof that the crop is right."
+    },
+    {
+      "id": "unattended-start",
+      "title": "无人值守启动：模拟器预任务与打开游戏 / unattended start: emulator pretask and open game",
+      "aliases": [
+        "启动模拟器",
+        "自动开游戏",
+        "打开游戏",
+        "启动游戏",
+        "预任务",
+        "无人值守",
+        "开机自启",
+        "launch emulator",
+        "start emulator",
+        "open game",
+        "start game",
+        "pretask",
+        "unattended",
+        "autostart",
+        "emulator_not_reachable",
+        "emulator_program_not_configured",
+        "launch_foreground_not_proven",
+        "game_foreground_after_recovery",
+        "second start"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/emulator_launch.py",
+          "symbol": "launch"
+        },
+        {
+          "path": "src/maalimbus/emulator_launch.py",
+          "symbol": "main"
+        },
+        {
+          "path": "src/maalimbus/game_launch.py",
+          "symbol": "open_game"
+        },
+        {
+          "path": "agent/main.py",
+          "needle": "if sys.argv[1:2] == ['--pretask']:"
+        },
+        {
+          "path": "tools/make_local_app.py",
+          "symbol": "packaged_pretasks"
+        }
+      ],
+      "docs": [
+        "docs/native-control.md#unattended-start"
+      ],
+      "tests": [
+        "tests/test_emulator_launch.py",
+        "tests/test_game_launch.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_emulator_launch.py tests/test_game_launch.py"
+      ],
+      "boundary": "The pretask proves that the ADB address accepts a connection, not that Android has booted. It starts only the program the user configured and accepts only a local address. Open game repairs an unproven start once and then refuses another. Starting MXU at login and auto-running a configuration are MXU settings, outside this project. Synthetic tests only: a live start of an emulator is a separate acceptance."
     }
   ]
 }

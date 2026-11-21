@@ -29,6 +29,12 @@ def main():
         from maalimbus.capture_retention import storage_diagnostic
         print(json.dumps(storage_diagnostic(ROOT)))
         return
+    if sys.argv[1:2] == ['--pretask']:
+        # ProjectInterface pretask: MXU runs this before it connects a controller.
+        if sys.argv[2:3] != ['launch_emulator'] or len(sys.argv) > 4:
+            raise SystemExit('Expected --pretask launch_emulator [options JSON]')
+        from maalimbus import emulator_launch
+        raise SystemExit(emulator_launch.main(sys.argv[3:]))
     if sys.argv[1:] == ['--local-assets-check']:
         # Which game bitmaps this installation has. Reads files; exit status 2 when incomplete.
         from maalimbus import local_assets

@@ -73,7 +73,7 @@
   "software_update_enabled": "起動時に確認してインストール",
   "software_update_disabled": "自動更新を無効にする",
   "main_open_game": "ゲームを開く",
-  "main_open_game_description": "AndroidはMaaで起動して前面のゲームを確認します。起動済みの場合は再起動しません。Windowsは先にゲームへ接続してください。",
+  "main_open_game_description": "AndroidはMaaで起動して前面のゲームを確認します。起動済みの場合は再起動しません。前面に出てこない場合は、一度終了してもう一度だけ起動します。Windowsは先にゲームへ接続してください。",
   "main_mirror": "鏡ダンジョン",
   "main_mirror_description": "全体設定の保存チームと出撃順を使用。単一またはローテーションを選択。既定はハード、消費には予算設定が必要です。",
   "main_experience": "経験値採光",
@@ -167,5 +167,11 @@
   "mirror_shop_reserve_100": "100 コイン残す",
   "mirror_shop_reserve_200": "200 コイン残す",
   "mirror_shop_reserve_300": "300 コイン残す",
-  "mirror_shop_reserve_500": "500 コイン残す"
+  "mirror_shop_reserve_500": "500 コイン残す",
+  "launch_emulator": "エミュレーターを起動",
+  "launch_emulator_description": "デバイスに接続する前にエミュレーターを起動し、ADB アドレスが応答するまで待ちます。起動済みの場合は何もしません。プログラムを空欄にすると、エミュレーターは自分で開きます。ゲーム本体は「ゲームを開く」タスクが起動します。",
+  "launch_emulator_program": "エミュレーターのプログラムのフルパス",
+  "launch_emulator_arguments": "起動引数（例：起動するインスタンス）",
+  "launch_emulator_address": "エミュレーターの ADB アドレス",
+  "launch_emulator_wait": "最大待機秒数（10〜600）"
 }

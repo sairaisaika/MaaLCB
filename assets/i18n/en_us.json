@@ -73,7 +73,7 @@
   "software_update_enabled": "Check and install on startup",
   "software_update_disabled": "Disable automatic updates",
   "main_open_game": "Open game",
-  "main_open_game_description": "Launch Android through Maa and verify the foreground; leave an already open game running. Connect the game window first on Windows.",
+  "main_open_game_description": "Launch Android through Maa and verify the foreground; leave an already open game running; when the game does not come to the front, close it and start it once more. Connect the game window first on Windows.",
   "main_mirror": "Mirror Dungeon",
   "main_mirror_description": "Use global saved builds and deployment order. Choose one team or a rotation here. Hard by default; spending requires a configured budget.",
   "main_experience": "Experience Luxcavation",
@@ -167,5 +167,11 @@
   "mirror_shop_reserve_100": "Keep 100 coins",
   "mirror_shop_reserve_200": "Keep 200 coins",
   "mirror_shop_reserve_300": "Keep 300 coins",
-  "mirror_shop_reserve_500": "Keep 500 coins"
+  "mirror_shop_reserve_500": "Keep 500 coins",
+  "launch_emulator": "Start the emulator",
+  "launch_emulator_description": "Before the device is connected, start the emulator and wait until its ADB address answers. An emulator that is already running is left alone. Leave the program empty to open the emulator yourself. The Open game task then starts the game itself.",
+  "launch_emulator_program": "Full path of the emulator program",
+  "launch_emulator_arguments": "Arguments (for example, which instance to start)",
+  "launch_emulator_address": "ADB address of the emulator",
+  "launch_emulator_wait": "Longest wait in seconds (10-600)"
 }
