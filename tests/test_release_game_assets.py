@@ -110,3 +110,21 @@ def test_the_package_lists_the_absent_game_assets_as_pending():
     pending = package_tool().pending_items(verified_dungeon_clear=True)
     assert any('game assets are not included' in item and 'docs/local-assets.md' in item for item in pending)
     assert json.dumps(pending)  # plain strings: the list goes into build-info.json as it is
+
+
+def test_the_published_self_test_carries_no_build_machine_path(tmp_path):
+    """build-info.json travels with the package; where it was built is nobody's business."""
+    from maalimbus import public_privacy
+
+    app = tmp_path / 'Users' / 'someone' / 'build' / 'MaaLimbus-win-x64'
+    (app / 'config').mkdir(parents=True)
+    reported = dict(passed=True, application_root=str(app), runner_root=str(app),
+                    private_state_directory=str(app / 'config'), locales=['en', 'jp'])
+    record = package_tool().portable_self_test(reported, app)
+    assert record == dict(passed=True, application_root='.', runner_root='.',
+                          private_state_directory='config', locales=['en', 'jp'])
+    assert reported['application_root'] == str(app)  # the caller's own record is untouched
+    text = json.dumps(dict(self_test=record), indent=2)
+    assert public_privacy.text_findings('build-info.json', text.encode()) == []
+    with pytest.raises(ValueError):
+        package_tool().portable_self_test(dict(application_root=str(tmp_path / 'elsewhere')), app)

@@ -122,6 +122,26 @@ def copy_committed(names, destination, *, root=None):
     return written
 
 
+PACKAGE_PATHS = ('application_root', 'runner_root', 'private_state_directory')
+
+
+def portable_self_test(self_test, app):
+    """The Agent's self-test as it is published: paths relative to the package, never absolute.
+
+    The frozen Agent reports where it found itself on the build machine. build-info.json
+    travels with the package, so a build folder under a user profile would publish that
+    user's name; the privacy gate refused exactly that on the first full build from a clone.
+    A path outside the package is a defect and stops the build.
+    """
+    base = Path(app).resolve()
+    record = dict(self_test)
+    for key in PACKAGE_PATHS:
+        if key in record:
+            relative = Path(record[key]).resolve().relative_to(base).as_posix()
+            record[key] = relative if relative != '.' else '.'
+    return record
+
+
 def freeze(entry, name, work):
     subprocess.run([sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '--onedir',
                     '--name', name, '--paths', str(ROOT/'src'), '--paths', str(ROOT/'agent'),
@@ -231,7 +251,8 @@ def main():
             'verified_dungeon_clear':bool(args.verified_dungeon_clear),
             'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
             'source_dirty':bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True)),
-            'built_at':datetime.now(timezone.utc).isoformat(), 'self_test':self_test,
+            'built_at':datetime.now(timezone.utc).isoformat(),
+            'self_test':portable_self_test(self_test, app),
             'inputs':{k:{'sha256':digest(path),'source':ARCHIVES[k][1]} for k,path in inputs.items()},
             'mxu_modified':custom_proof is not None, 'maa_modified':False,
             'mxu_source_sha256':custom_proof['source_sha256'] if custom_proof else None,
@@ -241,7 +262,7 @@ def main():
             'pending':pending}
     if args.verified_dungeon_clear:
         # The claim is only as good as the record it points at, so hash that record.
-        info['clear_evidence'] = {'path':str(args.clear_evidence.resolve()),
+        info['clear_evidence'] = {'path':args.clear_evidence.resolve().relative_to(ROOT.resolve()).as_posix(),
                                   'sha256':digest(args.clear_evidence)}
     (app/'build-info.json').write_text(json.dumps(info,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     manifest = {p.relative_to(app).as_posix():digest(p) for p in sorted(app.rglob('*'))
