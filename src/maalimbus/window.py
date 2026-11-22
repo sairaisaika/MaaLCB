@@ -1054,7 +1054,9 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
         if (gift or {}).get('refuse_owned'):
             box=(gift or {}).get('refuse_target')
             if not box:return _refuse(page,'owned_gift_refuse_control_missing')
-            return _plan(page,CLICK,target=box,expect=('MAP','REWARD_CARD','GIFT_WARNING','UNKNOWN'),
+            # Refuse Gift asks "Continue without choosing an E.G.O Gift?" first; the
+            # runner answers that exact question with `confirm_proven_owned_gift_refusal`.
+            return _plan(page,CLICK,target=box,expect=('UNKNOWN_DIALOG','MAP','REWARD_CARD','GIFT_WARNING','UNKNOWN'),
                          reason='refuse_proven_owned_single_free_gift')
         # The floor hands out its gifts here: a row of cards and a Select button that
         # stays dark until the pick is satisfied. Two live variants exist — a

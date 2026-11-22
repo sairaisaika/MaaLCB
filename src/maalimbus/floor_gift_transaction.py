@@ -388,9 +388,21 @@ class FloorGiftTransaction:
         d['pending']=dict(kind='refuse_owned',title=offers[0].title,proof=str(proof))
         write_json(self.path,d)
 
-    def observe_refusal(self, page, proof, *, map_floor=None, next_reward_offer=None):
+    def observe_refusal(self, page, proof, *, map_floor=None, next_reward_offer=None,
+                        confirm_question=False):
+        """Book what Refuse Gift (or its Confirm) led to; return whether the refusal is done.
+
+        Refuse Gift first asks "Continue without choosing an E.G.O Gift?". That exact
+        question, with both of its controls (`refusal_confirm_target`), is the proven
+        successor of the Refuse press: the refusal stays pending for its own Confirm
+        (live: pi-20261121-234709 frame-0507 stopped here before this was accepted).
+        After the Confirm only the map or the encounter reward card completes it.
+        """
         d=self.data;p=d['pending']
         if not p or p['kind']!='refuse_owned':raise ValueError('floor_gift_refusal_intent_missing')
+        if page=='UNKNOWN_DIALOG' and confirm_question and not p.get('confirm_sent'):
+            p['question_proof']=str(proof);write_json(self.path,d)
+            return False
         known_map=page=='MAP' and map_floor in range(1,6)
         known_reward=(page=='REWARD_CARD' and next_reward_offer
             and next_reward_offer.get('count')=={'chosen':0,'required':1}
@@ -399,6 +411,7 @@ class FloorGiftTransaction:
         d['refusal']=dict(title=p['title'],before=p['proof'],successor=str(proof))
         d['completed']=True;d['pending']=None
         write_json(self.path,d)
+        return True
 
     def refusal_confirm_intent(self, scope, proof):
         d=self.data;p=d.get('pending')

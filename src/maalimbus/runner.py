@@ -7379,9 +7379,11 @@ class MirrorRunner:
                           successor=str(frame_file(directory)),input_sent=False)
         if plan.get('reason') in ('refuse_proven_owned_single_free_gift','confirm_proven_owned_gift_refusal'):
             try:
+                from .floor_gift_transaction import refusal_confirm_target
                 self.floor_gift_transaction.observe_refusal(settled_page,frame_file(directory),
                     map_floor=settled.get('floor'),
-                    next_reward_offer=unselected_reward_successor(settled) if settled_page=='REWARD_CARD' else None)
+                    next_reward_offer=unselected_reward_successor(settled) if settled_page=='REWARD_CARD' else None,
+                    confirm_question=refusal_confirm_target(settled) is not None)
             except ValueError as error:
                 entry.update(passed=False,reason=str(error),stopped='unverified_floor_gift_refusal')
         if floor_receipt:
