@@ -470,6 +470,13 @@ def connected_hexagons(image,*,template=None):
     """
     from . import map_hexagons, map_vision
     if image is None or getattr(image,'ndim',0)!=3:return []
+    # The train sprite's lamp gap measures the map zoom without any node colour;
+    # badge columns can be guesses (the zoomed-in floor 3 of pi-20261122-003304
+    # offered three 192px `lattice_step` boxes where nothing was drawn).
+    body=train_body(image)
+    if body is not None:
+        _,nodes=map_hexagons.sprite_neighbours(image,tuple(body['party']),body['lamp_gap'])
+        if nodes:return nodes
     party=map_vision.locomotive_marker(image)
     if party is None:return []
     rows=map_vision.map_clicks(image,template=template,player=party)

@@ -103,7 +103,11 @@ def read_cell(image, centre, pitch, *, masks=None):
             measure = _cell(masks, point, pitch)
             if measure is None:
                 continue
-            key = (measure['cream']['sectors'], measure['cream']['ring'])
+            # Cream first, as the lit reading was measured; a hexagon with no cream at
+            # all (a red boss approach) is centred on its own red, then gold, ring
+            # instead of keeping the first, corner-most nudge.
+            key = tuple(measure[name][part] for name in ('cream', 'red', 'gold')
+                        for part in ('sectors', 'ring'))
             if best is None or key > best[0]:
                 best = (key, point, measure)
     if best is None:
@@ -118,8 +122,8 @@ def read_cell(image, centre, pitch, *, masks=None):
                 node_type=None)
 
 
-def next_nodes(image, party, pitch, *, rows=2):
-    """Every lit hexagon one column ahead of the party, nearest row first.
+def next_nodes(image, party, pitch, *, rows=2, states=('lit',)):
+    """Every hexagon in ``states`` one column ahead of the party, nearest row first.
 
     ``party`` is the occupied node's centre and ``pitch`` the measured column spacing.
     Returns rows in the shape the map planner consumes (``target``, ``party``, ``step``,
@@ -132,7 +136,7 @@ def next_nodes(image, party, pitch, *, rows=2):
     found = []
     for k in range(-rows, rows + 1):
         cell = read_cell(image, (column, party[1] + k * ROW_RATIO * pitch), pitch, masks=masks)
-        if cell is None or cell['state'] != 'lit':
+        if cell is None or cell['state'] not in states:
             continue
         if cell['point'][0] <= party[0] + .5 * pitch:
             continue  # never at or behind the party's own column
@@ -174,6 +178,35 @@ def lit_neighbours(image, party, measured_pitch):
         if nodes:
             return pitch, nodes
     return None, []
+
+
+#: Column pitch per train lamp gap. The train sprite is drawn at the map's own zoom,
+#: so the spacing of its two lamps (``map_node_geometry.train_body``) is a ruler that
+#: needs no node colour. Measured 2026-11-22 over the GUI runs' MAP frames: lamp gap
+#: 34.0-35.3 px where the columns are 192 px apart, 69.2-70.5 px where they are 384.
+PITCH_PER_LAMP_GAP = 384 / 70.09
+
+
+def sprite_neighbours(image, party, lamp_gap):
+    """``(pitch, nodes)`` one column ahead, with the pitch taken from the train sprite.
+
+    The hexagon states stay colour readings, but the spacing does not: on floor 3 of
+    ``pi-20261122-003304`` (``frame-0073``) the whole run up to the boss glows red, so
+    the party's own hexagon read as ``boss`` and the colour self-check in
+    :func:`lit_neighbours` refused the right spacing. With the spacing measured from
+    the sprite, the boss hexagon one column ahead (beyond the ``>>``) is offered too:
+    every path on a floor ends there.
+    """
+    if image is None or party is None or not lamp_gap or lamp_gap <= 0:
+        return None, []
+    pitch = lamp_gap * PITCH_PER_LAMP_GAP
+    if not .05 * image.shape[1] <= pitch <= .30 * image.shape[1]:
+        return None, []
+    nodes = next_nodes(image, party, pitch, states=('lit', 'boss'))
+    for node in nodes:
+        node.update(source='hexagon_one_column_ahead_at_the_train_sprite_pitch',
+                    lamp_gap=round(float(lamp_gap), 2))
+    return (pitch, nodes) if nodes else (None, [])
 
 
 def column_pitch(party, boxes, width):

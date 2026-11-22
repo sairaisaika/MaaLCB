@@ -118,8 +118,55 @@ def test_the_column_spacing_comes_from_distinct_node_columns():
     assert hx.column_pitch((952, 446), [], 1920) is None
 
 
+def red_floor(pitch=384, party=(739, 818)):
+    """The approach to a boss: the party's own hexagon glows red too, then `>>`, then the boss."""
+    image = np.zeros((1080, 1920, 3), np.uint8)
+    image[:] = BOARD
+    hexagon(image, party, pitch, RED)
+    boss = (party[0] + pitch, party[1])
+    hexagon(image, boss, pitch, RED, icon=RED)
+    return image, party, boss
+
+
+def test_the_train_sprite_measures_the_spacing_without_any_node_colour():
+    image, party, boss = red_floor()
+    assert hx.lit_neighbours(image, party, 384) == (None, [])     # the colour self-check refuses a red party
+    pitch, nodes = hx.sprite_neighbours(image, party, 70.09)
+    assert round(pitch) == 384 and len(nodes) == 1
+    assert nodes[0]['state'] == 'boss' and nodes[0]['candidate_kind'] == 'lit_hexagon'
+    assert math.hypot(nodes[0]['point'][0] - boss[0], nodes[0]['point'][1] - boss[1]) <= 10
+    assert nodes[0]['lamp_gap'] == 70.09
+
+
+def test_the_sprite_spacing_never_reaches_two_columns():
+    image, party, _ = red_floor()
+    # A lamp gap of 35 px is the zoomed-out map: the boss drawn 384 px away is two
+    # columns ahead there, and nothing sits one column ahead.
+    assert hx.sprite_neighbours(image, party, 35.1) == (None, [])
+    assert hx.sprite_neighbours(image, party, None) == (None, [])
+    assert hx.sprite_neighbours(image, None, 70.09) == (None, [])
+
+
+def test_the_two_measured_zooms_give_their_column_pitch():
+    assert round(70.09 * hx.PITCH_PER_LAMP_GAP) == 384
+    assert round(35.11 * hx.PITCH_PER_LAMP_GAP) == 192
+
+
 RUN = 'evidence/runtime/packaged-mirror-20261121-141507'
 EARLIER = 'evidence/runtime/packaged-mirror-20261121-140432'
+BOSS = 'dist/MaaLimbus/evidence/runtime/pi-20261122-003304'
+
+
+@pytest.mark.needs_local(BOSS + '/frame-0073.png', BOSS + '/frame-0068.png')
+@pytest.mark.parametrize('frame, boss', [('frame-0073', (1115, 818)), ('frame-0068', (532, 829))])
+def test_the_live_floor_three_boss_is_the_next_node(frame, boss):
+    """Floor 3 of pi-20261122-003304 stopped with no candidate one `>>` short of its boss."""
+    from maalimbus.map_node_geometry import connected_nodes
+    from maalimbus.runner import node_badge_template
+    rows = connected_nodes(live(BOSS, frame), template=node_badge_template())
+    assert len(rows) == 1 and rows[0]['state'] == 'boss'
+    assert math.hypot(rows[0]['point'][0] - boss[0], rows[0]['point'][1] - boss[1]) <= 12
+    assert 340 <= rows[0]['step'] <= 420                     # one column at the 384 px zoom
 
 
 def live(run, frame):
