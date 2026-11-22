@@ -166,7 +166,7 @@ def test_the_two_census_tools_count_the_same_archive_the_same_way():
         pytest.skip('no retained runs in this checkout')
     counts, _paths, _failed, _floors = _tool().census(runs)
     silent_report = module.summarise(str(REPO / 'evidence' / 'runtime'))['runs']
-    assert silent_report['silent'] == counts['died']
+    assert silent_report.get('silent', 0) == counts['died']     # a Counter omits a zero
     assert silent_report.get('stop', 0) == counts['stop']
     assert silent_report.get('error', 0) == counts['error']
     assert sum(silent_report.values()) == len(runs)

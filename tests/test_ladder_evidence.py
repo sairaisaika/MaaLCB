@@ -183,10 +183,18 @@ def test_a_fixed_layout_wait_is_marked_by_design_even_without_current_live_sampl
 
 def test_the_tool_reports_clean_and_names_the_weak_rung():
     tool = _tool_module('audit_ladder')
-    if not run_metrics._archives():
+    archives = run_metrics._archives()
+    if not archives:
         pytest.skip('no retained archive on this machine')
+    problems = tool.report()['problems']
+    # `stale` means a declared rung has no sample in the archive. On the archive the
+    # declarations were measured on (well over 100 runs) that is drift; on a user's own
+    # handful of runs it only says the gesture has not come up yet.
+    if len(archives) <= 100 and problems and all(p['problem'] == 'stale' for p in problems):
+        pytest.skip('%d retained runs do not sample %d declared rungs; the stale check needs '
+                    'the full archive' % (len(archives), len(problems)))
     assert tool.main([]) == 0
-    assert tool.report()['problems'] == []
+    assert problems == []
 
 
 def _tool_module(name):

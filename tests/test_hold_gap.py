@@ -19,7 +19,11 @@ HOLD_BASELINE = 0
 @pytest.mark.skipif(not CORPUS, reason='no retained runs in this checkout')
 def test_the_number_of_failures_that_still_hold_only_falls():
     result = measure(CORPUS)
-    assert result['total'] > 100, 'the corpus shrank, so the number would be vacuous'
+    if result['total'] <= 100:
+        # A user's own archive (a public checkout that has run the app a few times) is
+        # small by nature. Too few failures make the number vacuous, which is not a pass.
+        pytest.skip('only %d named failures in %d retained runs; the ratchet needs more than '
+                    '100 to mean anything' % (result['total'], len(CORPUS)))
     assert result['classified'] >= result['literal'], 'the fallback lost ground'
     assert result['unresolved'] <= HOLD_BASELINE, (
         f'{result["unresolved"]} failures still hold (baseline {HOLD_BASELINE}): '
