@@ -9,7 +9,7 @@ import json
 import shutil
 from pathlib import Path
 from .storage import read_json,write_json
-from .shop_transaction import _verify,_coins,_shelf,_key
+from .shop_transaction import _verify,_coins,_shelf,_key,refreshed_gifts
 
 
 def _fingerprint(rows):
@@ -28,9 +28,14 @@ def sync_receipts(transaction,root,wanted,keywords):
     data=transaction.data or {}
     for visit_id,visit in data.get('visits',{}).items():
         for receipt in visit.get('refresh_receipts',[]):
+            # A free refresh (shop_transaction.reconcile_refresh) has no coin delta
+            # to verify, so it is not a yield-per-cost sample.
+            if receipt.get('free'):continue
             before,btexts,bsize=_verify(receipt['before'])
             after,atexts,asize=_verify(receipt['successor'])
-            a,b=_shelf(atexts,asize),_shelf(btexts,bsize)
+            # Gift slots only, as the runtime reconciles them: Super Shop services
+            # are not restocked and print `??`.
+            a,b=refreshed_gifts(_shelf(atexts,asize)),refreshed_gifts(_shelf(btexts,bsize))
             cost=receipt['price'];coins=_coins(btexts,bsize)
             if (type(cost) is not int or cost<=0 or before['scene']!='SHOP'
                     or after['scene']!='SHOP' or _coins(atexts,asize)!=coins-cost

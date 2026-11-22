@@ -810,13 +810,22 @@ class ShopTransaction:
         shelf = refreshed_gifts(_shelf(texts, size))
         before = refreshed_gifts(_baseline(pending) or pending['shelf'])
         fingerprint = lambda rows: sorted((_key(o['name']), o['price']) for o in rows)
-        if (record.get('scene') != 'SHOP' or _coins(texts, size) != pending['coins'] - pending['price']
+        coins = _coins(texts, size)
+        paid = None if coins is None else pending['coins'] - coins
+        # A refresh can also be free: floor 4 of pi-20261122-004911 restocked the Super
+        # Shop for 0 coins (2383 before and after) while the button's own price rose
+        # 15 -> 30, as a paid refresh does. Zero is accepted only with that rise as proof
+        # the press registered; any other delta still stops the run.
+        next_price = refreshes(texts, size)['regular'].cost
+        free = paid == 0 and next_price is not None and next_price > pending['price']
+        if (record.get('scene') != 'SHOP' or not (paid == pending['price'] or free)
                 or not shelf or fingerprint(shelf) == fingerprint(before)
                 or len(shelf) != len(before)):
             raise ValueError('Fresh refresh currency delta and complete changed shelf not proven')
         data = copy.deepcopy(self.data)
         data['visits'][visit].setdefault('refresh_receipts', []).append(
-            dict(before=pending['before'], successor=proof, price=pending['price']))
+            dict(before=pending['before'], successor=proof, price=pending['price'], paid=paid,
+                 **({'free': True, 'next_price': next_price} if free else {})))
         data['pending'] = None
         self._save(data)
         return True
