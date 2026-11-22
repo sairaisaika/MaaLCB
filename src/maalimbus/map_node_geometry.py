@@ -460,10 +460,30 @@ def connected_compact_nodes(image):
     return found
 
 
+def connected_hexagons(image,*,template=None):
+    """Lit hexagons one column ahead, read from the hexagon alone (map_hexagons).
+
+    The other lanes need a ring, path or glyph in a colour they know. A node the game
+    lights in pale cream (the super shop of live ``-141507``, hue 16, saturation 80)
+    falls between their masks, and the planner then fell back to badge nodes behind
+    the party. This lane reads the outer hexagon's state and leaves the icon apart.
+    """
+    from . import map_hexagons, map_vision
+    if image is None or getattr(image,'ndim',0)!=3:return []
+    party=map_vision.locomotive_marker(image)
+    if party is None:return []
+    rows=map_vision.map_clicks(image,template=template,player=party)
+    boxes=[r['box'] for r in rows if r.get('kind') in ('gold_badge_node','lattice_step')]
+    measured=map_hexagons.column_pitch(party,boxes,image.shape[1])
+    _,nodes=map_hexagons.lit_neighbours(image,party,measured)
+    return nodes
+
+
 def connected_nodes(image,*,template=None):
-    """Existing red/ring precedence; otherwise independent compact alternatives."""
+    """Existing red/ring precedence; then compact alternatives; then lit hexagons."""
     legacy=connected_red_node(image) or connected_ring_node(image,template=template)
-    return [legacy] if legacy is not None else connected_compact_nodes(image)
+    if legacy is not None:return [legacy]
+    return connected_compact_nodes(image) or connected_hexagons(image,template=template)
 
 
 def connected_node(image,*,template=None):

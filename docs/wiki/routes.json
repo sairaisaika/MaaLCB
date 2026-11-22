@@ -1910,7 +1910,19 @@
         "white connected node",
         "384px",
         "白色相邻节点",
-        "neutral ring pitch"
+        "neutral ring pitch",
+        "六边形",
+        "节点状态",
+        "节点类型",
+        "图标",
+        "超级商店",
+        "高级商店",
+        "super shop",
+        "hexagon",
+        "node state",
+        "node icon",
+        "lit_hexagon",
+        "map_resume_did_not_restore_navigation"
       ],
       "sources": [
         {
@@ -1940,6 +1952,18 @@
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "_connected_white_outline"
+        },
+        {
+          "path": "src/maalimbus/map_hexagons.py",
+          "symbol": "lit_neighbours"
+        },
+        {
+          "path": "src/maalimbus/map_hexagons.py",
+          "symbol": "state_of"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_hexagons"
         }
       ],
       "docs": [
@@ -1953,7 +1977,8 @@
         "tests/test_one_step_reach.py",
         "tests/test_train_next_point.py",
         "tests/test_neutral_glyph_candidates.py",
-        "tests/test_white_connected_node.py"
+        "tests/test_white_connected_node.py",
+        "tests/test_map_hexagons.py"
       ],
       "checks": [
         "python tools/run_tests.py -q tests/test_party_anchor_lit.py tests/test_one_step_reach.py",

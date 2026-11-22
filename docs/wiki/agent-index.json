@@ -948,7 +948,7 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "occupied_node",
           "line": 149,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/unknown_exploration.py",
@@ -2242,13 +2242,13 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "train_body",
           "line": 80,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_red_node",
           "line": 192,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/runner.py",
@@ -2266,7 +2266,7 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_ring_node",
           "line": 343,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/map_vision.py",
@@ -2296,13 +2296,13 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "_supported_path",
           "line": 7,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_node",
-          "line": 469,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "line": 489,
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/runner.py",
@@ -2313,14 +2313,14 @@
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_nodes",
-          "line": 463,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "line": 482,
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_compact_nodes",
           "line": 402,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         }
       ]
     },
@@ -3216,7 +3216,19 @@
         "white connected node",
         "384px",
         "白色相邻节点",
-        "neutral ring pitch"
+        "neutral ring pitch",
+        "六边形",
+        "节点状态",
+        "节点类型",
+        "图标",
+        "超级商店",
+        "高级商店",
+        "super shop",
+        "hexagon",
+        "node state",
+        "node icon",
+        "lit_hexagon",
+        "map_resume_did_not_restore_navigation"
       ],
       "sources": [
         {
@@ -3246,6 +3258,18 @@
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "_connected_white_outline"
+        },
+        {
+          "path": "src/maalimbus/map_hexagons.py",
+          "symbol": "lit_neighbours"
+        },
+        {
+          "path": "src/maalimbus/map_hexagons.py",
+          "symbol": "state_of"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_hexagons"
         }
       ],
       "docs": [
@@ -3259,7 +3283,8 @@
         "tests/test_one_step_reach.py",
         "tests/test_train_next_point.py",
         "tests/test_neutral_glyph_candidates.py",
-        "tests/test_white_connected_node.py"
+        "tests/test_white_connected_node.py",
+        "tests/test_map_hexagons.py"
       ],
       "checks": [
         "python tools/run_tests.py -q tests/test_party_anchor_lit.py tests/test_one_step_reach.py",
@@ -3304,13 +3329,31 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_ring_node",
           "line": 343,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "_connected_white_outline",
           "line": 257,
-          "sha256": "e030c70d9bd16c4d834aa3ff0d47bfb762d1914cf72b71b49c7592e2759bd77b"
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
+        },
+        {
+          "path": "src/maalimbus/map_hexagons.py",
+          "symbol": "lit_neighbours",
+          "line": 153,
+          "sha256": "28a78b16ec499210b4fc39add4e15d2914cd6301d62bf1f14fe09d378265732b"
+        },
+        {
+          "path": "src/maalimbus/map_hexagons.py",
+          "symbol": "state_of",
+          "line": 82,
+          "sha256": "28a78b16ec499210b4fc39add4e15d2914cd6301d62bf1f14fe09d378265732b"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_hexagons",
+          "line": 463,
+          "sha256": "ebffa84801dd9a512ecc7014c422f6b825420b49ecd30e96d3b0cafce7d56ac0"
         }
       ]
     },
