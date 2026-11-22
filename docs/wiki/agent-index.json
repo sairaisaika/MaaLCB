@@ -4560,7 +4560,11 @@
         "shop execution teacher",
         "购买执行教师",
         "canonical purchase evidence",
-        "商店样本重复截图"
+        "商店样本重复截图",
+        "高级商店刷新",
+        "超级商店刷新",
+        "super shop refresh",
+        "Fresh refresh currency delta and complete changed shelf not proven"
       ],
       "sources": [
         {
@@ -4610,6 +4614,10 @@
         {
           "path": "src/maalimbus/shop_evidence.py",
           "symbol": "reference_root"
+        },
+        {
+          "path": "src/maalimbus/shop_transaction.py",
+          "symbol": "refreshed_gifts"
         }
       ],
       "docs": [
@@ -4629,7 +4637,8 @@
         "tests/test_shop_transaction.py",
         "tests/test_theme_identity.py",
         "tests/test_shop_execution_teacher.py",
-        "tests/test_shop_canonical_evidence.py"
+        "tests/test_shop_canonical_evidence.py",
+        "tests/test_super_shop_refresh.py"
       ],
       "checks": [
         "python -m pytest -q tests/test_shop_transaction.py tests/test_shop_actual_purchase.py",
@@ -4646,14 +4655,14 @@
         {
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "ShopTransaction.reconcile_purchase",
-          "line": 674,
-          "sha256": "94c2c10b32b39cf5de9d25f16210f147aeb691448271a71e97198cf14e4a43f7"
+          "line": 688,
+          "sha256": "e5e6bab96d6c45ac3cd93378a7f1849ea106fba5fb156546ec3944e37ef8f8dc"
         },
         {
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "ShopTransaction.reconcile_refresh",
-          "line": 794,
-          "sha256": "94c2c10b32b39cf5de9d25f16210f147aeb691448271a71e97198cf14e4a43f7"
+          "line": 808,
+          "sha256": "e5e6bab96d6c45ac3cd93378a7f1849ea106fba5fb156546ec3944e37ef8f8dc"
         },
         {
           "path": "assets/resource/en/locale.json",
@@ -4683,7 +4692,7 @@
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "purchase_execution_witness",
           "line": 204,
-          "sha256": "94c2c10b32b39cf5de9d25f16210f147aeb691448271a71e97198cf14e4a43f7"
+          "sha256": "e5e6bab96d6c45ac3cd93378a7f1849ea106fba5fb156546ec3944e37ef8f8dc"
         },
         {
           "path": "src/maalimbus/shop_outcomes.py",
@@ -4708,6 +4717,12 @@
           "symbol": "reference_root",
           "line": 43,
           "sha256": "4372be75bfaac3b198c90e9f67673f944e60111d0e80745cb2215a77684b66ad"
+        },
+        {
+          "path": "src/maalimbus/shop_transaction.py",
+          "symbol": "refreshed_gifts",
+          "line": 238,
+          "sha256": "e5e6bab96d6c45ac3cd93378a7f1849ea106fba5fb156546ec3944e37ef8f8dc"
         }
       ]
     },

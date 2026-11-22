@@ -235,6 +235,20 @@ def purchase_execution_witness(prior, following, name, price, coins_before, coin
     return 'removed_offer'
 
 
+def refreshed_gifts(rows):
+    """The shelf rows a refresh restocks: the gifts, without the Super Shop's services.
+
+    The Super Shop's first row also sells services ("ID Skill Search", "Replace <sinner>'s
+    Skill"). They are not restocked like gifts (ID Skill Search stays put), and their
+    price prints as ``??``, which full-frame OCR sometimes reads as ``77`` and sometimes
+    not at all. Counting them made the same shelf read 6 rows before a refresh and 7
+    after it (live ``pi-20261121-200305``, frames 0043 and 0045), and a correct refresh
+    with an exact 15-coin delta was refused.
+    """
+    from .shop_skill_vision import is_skill_service
+    return [row for row in rows or () if not is_skill_service(row['name'])]
+
+
 def _baseline(pending):
     """The pre-action shelf as the *current* reader sees the retained frame.
 
@@ -793,8 +807,8 @@ class ShopTransaction:
 
     def reconcile_refresh(self, scope, visit, frame_path):
         pending, record, texts, size, proof = self._pending(scope, visit, 'refresh', frame_path)
-        shelf = _shelf(texts, size)
-        before = _baseline(pending) or pending['shelf']
+        shelf = refreshed_gifts(_shelf(texts, size))
+        before = refreshed_gifts(_baseline(pending) or pending['shelf'])
         fingerprint = lambda rows: sorted((_key(o['name']), o['price']) for o in rows)
         if (record.get('scene') != 'SHOP' or _coins(texts, size) != pending['coins'] - pending['price']
                 or not shelf or fingerprint(shelf) == fingerprint(before)
