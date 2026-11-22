@@ -260,8 +260,15 @@ def _named_cards(image,records,catalog,cards,new=()):
             if lines and abs(cy-lines[-1][0])<=12*scale:
                 lines[-1][1].append(text)
             else:lines.append((cy,[text]))
-        texts=[t for cy,line in lines for t in sorted(line,key=lambda t:t.box[0])]
-        name=catalog.identity(' '.join(t.text for t in texts)) if texts else None
+        # Some packs print a decorative heading above their catalog title (floor 5
+        # of pi-20261122-033932: "Masquerade" over "Line 4 - Section #4"). The whole
+        # band is tried first; only when it names nothing are leading lines dropped
+        # one at a time, so a title the catalog already read whole keeps its reading.
+        name=None
+        for start in range(len(lines)):
+            texts=[t for cy,line in lines[start:] for t in sorted(line,key=lambda t:t.box[0])]
+            name=catalog.identity(' '.join(t.text for t in texts))
+            if name:break
         is_new=any(x<=nx+nw/2<=x+bw and y<=ny+nh/2<=y+70*scale for nx,ny,nw,nh in new)
         candidates.append(PackCandidate(name,(x,y,bw,bh),is_new))
     # Duplicate titles are not sufficient evidence of distinct selectable identities.
