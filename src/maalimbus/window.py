@@ -164,10 +164,30 @@ def plan_step(page, *, controls=None, start_box=None, auto_assign=None, battle_a
                      page=='STAR_CONFIRM' and name=='star_confirm.cancel_button'
                      and plan.get('reason')=='incomplete_graces_return_to_selection') and not (
                      page=='GIFT_PICK' and name=='gift_pick.refuse_button'
-                     and plan.get('reason')=='refuse_proven_owned_single_free_gift')}
+                     and plan.get('reason')=='refuse_proven_owned_single_free_gift')
+                 and not _another_pages_control(page, plan, name)}
     if plan.get('target') and tuple(plan['target']) in forbidden:
         return _refuse(page, 'control_is_forbidden')
     return plan
+
+
+def _another_pages_control(page, plan, name):
+    """True when forbidden ``name`` belongs to another page than the plan's own control.
+
+    The driver hands over every registered control of every page, so two pages
+    that print a button in the same corner share one box.  The Skill Check's
+    SKIP gives the check up and is forbidden; the event Result page prints its
+    own SKIP at the same pixels, and that one only skips the story (live:
+    ``pi-20261121-221745`` stopped on floor 2 at ``frame-0448``).  Only a plan
+    that names a non-forbidden control of the page being acted on is let past a
+    forbidden box registered for a different page; a misregistered control of
+    the same page is still refused.
+    """
+    own = plan.get('control_id')
+    if not own or own in FORBIDDEN_CONTROLS:
+        return False
+    prefix = own.split('.', 1)[0]
+    return prefix == page.lower() and name.split('.', 1)[0] != prefix
 
 
 def dispatch_facts(source=None):
