@@ -19,6 +19,10 @@ from maalimbus.storage import write_json
 
 FIXTURES = Path(__file__).parent / 'fixtures/floor-gift-ocr-drift'
 ROOT = Path(__file__).resolve().parents[1]
+# The recovery proof reopens the captured frames; they are game screenshots, so a
+# public checkout has only the JSON beside them (docs/local-assets.md).
+FRAMES = pytest.mark.needs_local('tests/fixtures/floor-gift-ocr-drift/before.png',
+                                 'tests/fixtures/floor-gift-ocr-drift/after.png')
 
 
 def observations():
@@ -45,6 +49,7 @@ def reserved(tmp_path, *, legacy=False):
     return tx, catalog, after
 
 
+@FRAMES
 @pytest.mark.parametrize('legacy', [False, True])
 def test_real_pick_recovers_in_a_new_process_directory(tmp_path, legacy):
     tx, catalog, (after, count, proof) = reserved(tmp_path, legacy=legacy)
@@ -82,7 +87,8 @@ def test_a_subsequent_read_refreshes_trials_without_resetting_picks(tmp_path):
     assert tx.data['offer_revisions'][-1]['proof']==str(proof)
 
 
-@pytest.mark.parametrize('defect', ['target_trial', 'other_title', 'counter', 'required', 'scope'])
+@pytest.mark.parametrize('defect', [pytest.param(d, marks=FRAMES) for d in
+                                    ('target_trial', 'other_title', 'counter', 'required')] + ['scope'])
 def test_drift_recovery_keeps_real_mismatches_pending(tmp_path, defect):
     tx, catalog, (offers, count, proof) = reserved(tmp_path)
     scope = 'game'
