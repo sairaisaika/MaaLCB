@@ -2434,6 +2434,414 @@
               }
             }
           }
+        },
+        {
+          "name": "95",
+          "label": "A Beautiful Voice",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "A Beautiful Voice"
+              }
+            }
+          }
+        },
+        {
+          "name": "96",
+          "label": "A Midspring Night's Dream 2",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "A Midspring Night's Dream 2"
+              }
+            }
+          }
+        },
+        {
+          "name": "97",
+          "label": "An Anarchy of Colors",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "An Anarchy of Colors"
+              }
+            }
+          }
+        },
+        {
+          "name": "98",
+          "label": "Bearers of Weight",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Bearers of Weight"
+              }
+            }
+          }
+        },
+        {
+          "name": "99",
+          "label": "Blade and Artwork",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Blade and Artwork"
+              }
+            }
+          }
+        },
+        {
+          "name": "100",
+          "label": "Blessed Carnival",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Blessed Carnival"
+              }
+            }
+          }
+        },
+        {
+          "name": "101",
+          "label": "Bloodtinged Ichthyic Odor",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Bloodtinged Ichthyic Odor"
+              }
+            }
+          }
+        },
+        {
+          "name": "102",
+          "label": "Bridle of Infinity",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Bridle of Infinity"
+              }
+            }
+          }
+        },
+        {
+          "name": "103",
+          "label": "Chachihu",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Chachihu"
+              }
+            }
+          }
+        },
+        {
+          "name": "104",
+          "label": "Charm, Wander, Doubt",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Charm, Wander, Doubt"
+              }
+            }
+          }
+        },
+        {
+          "name": "105",
+          "label": "Code Purple",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Code Purple"
+              }
+            }
+          }
+        },
+        {
+          "name": "106",
+          "label": "Complete & Total Extermination",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Complete & Total Extermination"
+              }
+            }
+          }
+        },
+        {
+          "name": "107",
+          "label": "Creed of Preservation",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Creed of Preservation"
+              }
+            }
+          }
+        },
+        {
+          "name": "108",
+          "label": "Efflorescing Greenery",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Efflorescing Greenery"
+              }
+            }
+          }
+        },
+        {
+          "name": "109",
+          "label": "Fairy Tale",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Fairy Tale"
+              }
+            }
+          }
+        },
+        {
+          "name": "110",
+          "label": "Impenetrable Path",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Impenetrable Path"
+              }
+            }
+          }
+        },
+        {
+          "name": "111",
+          "label": "Into a Certain Library's Book",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Into a Certain Library's Book"
+              }
+            }
+          }
+        },
+        {
+          "name": "112",
+          "label": "Line 1 : MADNESS",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Line 1 : MADNESS"
+              }
+            }
+          }
+        },
+        {
+          "name": "113",
+          "label": "Line 3 - Terminus",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Line 3 - Terminus"
+              }
+            }
+          }
+        },
+        {
+          "name": "114",
+          "label": "N Corp. New League of Nine Littérateurs",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "N Corp. New League of Nine Littérateurs"
+              }
+            }
+          }
+        },
+        {
+          "name": "115",
+          "label": "Nagel und Hammer",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Nagel und Hammer"
+              }
+            }
+          }
+        },
+        {
+          "name": "116",
+          "label": "Nocturnal Sweeping BokGak",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Nocturnal Sweeping BokGak"
+              }
+            }
+          }
+        },
+        {
+          "name": "117",
+          "label": "Pilgrimage of Compassion",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Pilgrimage of Compassion"
+              }
+            }
+          }
+        },
+        {
+          "name": "118",
+          "label": "Readvent of Gluttony",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Readvent of Gluttony"
+              }
+            }
+          }
+        },
+        {
+          "name": "119",
+          "label": "S.E.A.",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "S.E.A."
+              }
+            }
+          }
+        },
+        {
+          "name": "120",
+          "label": "S.E.A. C.R",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "S.E.A. C.R"
+              }
+            }
+          }
+        },
+        {
+          "name": "121",
+          "label": "Storefront Campout",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Storefront Campout"
+              }
+            }
+          }
+        },
+        {
+          "name": "122",
+          "label": "Textbook",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Textbook"
+              }
+            }
+          }
+        },
+        {
+          "name": "123",
+          "label": "The B.E.",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "The B.E."
+              }
+            }
+          }
+        },
+        {
+          "name": "124",
+          "label": "The Dawn of Green",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "The Dawn of Green"
+              }
+            }
+          }
+        },
+        {
+          "name": "125",
+          "label": "The Master of La Manchaland",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "The Master of La Manchaland"
+              }
+            }
+          }
+        },
+        {
+          "name": "126",
+          "label": "The Unsevering",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "The Unsevering"
+              }
+            }
+          }
+        },
+        {
+          "name": "127",
+          "label": "The Wedge in the Wake of Dawnbreak",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "The Wedge in the Wake of Dawnbreak"
+              }
+            }
+          }
+        },
+        {
+          "name": "128",
+          "label": "Who Couldn't Be Bloodfiends",
+          "pipeline_override": {
+            "ThemePackPreference": {
+              "custom_action_param": {
+                "mode": "pack",
+                "name": "Who Couldn't Be Bloodfiends"
+              }
+            }
+          }
         }
       ]
     },

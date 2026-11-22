@@ -56,16 +56,20 @@ def names(records):
 
 
 def test_the_title_under_a_decorative_heading_is_read():
-    # "The Wedge in the Wake of Dawnbreak" is not in the catalog and "Line 1" lost its
-    # digit to OCR twice: those two stay unnamed rather than guessed.
-    assert names(FLOOR_FIVE) == [None, 'Line 4 Section#4', None]
+    # "The Wedge in the Wake of Dawnbreak" came into the catalog from the wiki name list
+    # (tools/import_wiki_theme_names.py) and is read under its "Walpurgis" heading
+    # despite OCR's "Wetge". The "Line 1" card lost its digit to OCR twice and stays
+    # unnamed rather than guessed.
+    assert names(FLOOR_FIVE) == ['The Wedge in the Wake of Dawnbreak', 'Line 4 Section#4', None]
     assert names(FLOOR_FOUR) == ['Timekilling Time', 'Abnormal Seismi Zone', 'Crawling Abyss']
 
 
-def test_the_floor_five_choice_is_the_named_pack():
+def test_the_floor_five_choice_is_a_named_pack():
     team = Team(slot=2, keywords=frozenset())
     choice, ranking = recommend_pack(_named_cards(IMAGE, FLOOR_FIVE, catalog(), CARDS), team)
-    assert choice['name'] == 'Line 4 Section#4' and [r['name'] for r in ranking] == ['Line 4 Section#4']
+    # Equal neutral weights keep the leftmost named card; the unnamed one is never offered.
+    assert [r['name'] for r in ranking] == ['The Wedge in the Wake of Dawnbreak', 'Line 4 Section#4']
+    assert choice['name'] == 'The Wedge in the Wake of Dawnbreak'
 
 
 def test_a_heading_alone_still_names_nothing():

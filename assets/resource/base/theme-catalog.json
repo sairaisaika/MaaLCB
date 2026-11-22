@@ -425,6 +425,176 @@
     {
       "name": "粉碎者们",
       "reference_weight": 10
+    },
+    {
+      "name": "A Beautiful Voice",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "A Midspring Night's Dream 2",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "An Anarchy of Colors",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Bearers of Weight",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Blade and Artwork",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Blessed Carnival",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Bloodtinged Ichthyic Odor",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Bridle of Infinity",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Chachihu",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Charm, Wander, Doubt",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Code Purple",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Complete & Total Extermination",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Creed of Preservation",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Efflorescing Greenery",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Fairy Tale",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Impenetrable Path",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Into a Certain Library's Book",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Line 1 : MADNESS",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Line 3 - Terminus",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "N Corp. New League of Nine Littérateurs",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Nagel und Hammer",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Nocturnal Sweeping BokGak",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Pilgrimage of Compassion",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Readvent of Gluttony",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "S.E.A.",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "S.E.A. C.R",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Storefront Campout",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Textbook",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "The B.E.",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "The Dawn of Green",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "The Master of La Manchaland",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "The Unsevering",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "The Wedge in the Wake of Dawnbreak",
+      "reference_weight": 10,
+      "source": "wiki"
+    },
+    {
+      "name": "Who Couldn't Be Bloodfiends",
+      "reference_weight": 10,
+      "source": "wiki"
     }
   ],
   "name_source": "lalc_backend/config/theme_pack_cfg.json",
@@ -432,5 +602,15 @@
   "note": "Reference weights are provenance only. Active defaults are neutral 10; team overrides apply.",
   "aliases": {
     "Vield My Flesh to Claim Their Bones BokGak": "Yield My Flesh to Claim Their Bones"
+  },
+  "wiki_names": {
+    "url": "https://limbuscompany.wiki.gg/wiki/Category:Floor_Theme_Pack_Pages",
+    "category": "Category:Floor Theme Pack Pages",
+    "retrieved_utc": "2026-11-22T09:09:38+00:00",
+    "titles_sha256": "cdec7e39f4898b745827ec56ad992e14fd8d746f88464c3ade606145742a19ab",
+    "listed": 122,
+    "added": 34,
+    "covered_by_existing": 88,
+    "folded": {}
   }
 }
