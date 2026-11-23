@@ -14,10 +14,10 @@ from maalimbus.vision import Text
 SIZE = (1920, 1080)
 
 
-def page(count='4/4', score=.821):
+def page(count='4/4', score=.821, leave=('To Window', (880, 798, 164, 38))):
     return [Text('Exploration Reward', (794, 160, 334, 42), .99), Text('Floor 5', (480, 621, 84, 30), .986),
             Text('[HARD]', (480, 645, 82, 37), .999), Text(count, (490, 678, 64, 52), score),
-            Text('To Window', (880, 798, 164, 38), .99), Text('Claim', (1238, 796, 98, 41), .99),
+            Text(leave[0], leave[1], .99), Text('Claim', (1238, 796, 98, 41), .99),
             Text('Weekly', (440, 339, 116, 42), 1.0), Text('Bonuses', (440, 375, 132, 39), 1.0)]
 
 
@@ -26,7 +26,16 @@ def test_a_finished_floor_count_identifies_the_page(count):
     assert page_anchors(page(count), SIZE) is True
 
 
-@pytest.mark.parametrize('count, score', [('3/4', .99), ('6/7', .99), ('4/', .99), ('4/4', .5), ('44', .99)])
+def test_the_dialog_reopened_from_the_dungeon_list_is_the_same_page():
+    # pi-20261123-180315/frame-0032: the game was restarted on the reward dialog; entering
+    # the Mirror Dungeon again reopened it with 'To List' in place of 'To Window' and the
+    # same 4/4 at score 0.65. Both gates refused it and an authorised claim stopped.
+    rows = page(score=.65, leave=('To List', (904, 798, 112, 35)))
+    assert page_anchors(rows, SIZE) is True
+    assert page_anchors(page(leave=('To Lobby', (904, 798, 112, 35))), SIZE) is False
+
+
+@pytest.mark.parametrize('count, score', [('3/4', .99), ('6/7', .99), ('4/', .99), ('4/4', .4), ('44', .99)])
 def test_an_unfinished_or_unreadable_count_does_not(count, score):
     assert page_anchors(page(count, score), SIZE) is False
 

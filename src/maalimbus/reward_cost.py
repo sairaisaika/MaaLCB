@@ -26,9 +26,14 @@ def page_anchors(records,size):
            (r'^\[HARD\]$',(.24,.59,.31,.64)),
            # The floor's own count, not a constant: 7/7 on the October runs, 4/4 on
            # pi-20261123-133044, whose stylised digits scored 0.82. Numerator and
-           # denominator must be equal (the floor is finished).
-           (r'^(\d{1,2})/\1$',(.25,.62,.31,.69),.8),
-           (r'^To Window$',(.43,.72,.56,.79)),
+           # denominator must be equal (the floor is finished). The same dialog reopened
+           # from the dungeon list after a game restart scored 0.65 for the same 4/4
+           # (pi-20261123-180315/frame-0032): the score follows what is behind the
+           # modal, so the equal-count structure carries the identity, not the score.
+           (r'^(\d{1,2})/\1$',(.25,.62,.31,.69),.5),
+           # 'To Window' right after the final victory; 'To List' when the dialog is
+           # reopened from the dungeon list (same frame: [904,798,112,35]).
+           (r'^To (?:Window|List)$',(.43,.72,.56,.79)),
            (r'^Claim$',(.62,.72,.71,.79)),
            (r'^Weekly$',(.22,.29,.31,.35)),
            (r'^Bonuses$',(.22,.33,.31,.38))]
