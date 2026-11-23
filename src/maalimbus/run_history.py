@@ -57,10 +57,13 @@ def checkpoints(rows, floors):
     """
     events = collections.Counter(row.get('event') for row in rows if row.get('event'))
     refused = sum(n for name, n in events.items() if 'refused' in name)
+    # A reading the program asked for and did not get: `map_party_unread`, `battle_frame_unreadable`, ...
+    unread = sum(n for name, n in events.items() if name.endswith('_unread') or 'unreadable' in name)
     return dict(
         waits=sum(events[name] for name in WAITS),
         rereads=sum(events[name] for name in REREADS),
         refusals=refused,
+        unread=unread,
         inputs=events['window_intent'],
         observations=events['step_observation'],
         steps=events['step_finished'],

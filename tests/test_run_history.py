@@ -29,6 +29,8 @@ def journal(scope='a84a716214c04968', *, floor_seconds=700):
             dict(event='battle_turn_advanced', utc=stamp(200)),
             dict(event='capture_profile_full_reread', utc=stamp(300)),
             dict(event='party_plan_refused', utc=stamp(400)),
+            dict(event='map_party_unread', utc=stamp(400)),
+            dict(event='battle_frame_unreadable', utc=stamp(400)),
             dict(event='step_finished', utc=stamp(100 + floor_seconds), page='SHOP'),
             dict(event='mirror_loop_stopped', utc=stamp(100 + floor_seconds), reason='shop_stopped', passed=False)]
     # A real journal has a row every few seconds; a silence of two minutes is a person.
@@ -48,7 +50,7 @@ def test_a_row_holds_times_counts_and_the_stop_and_nothing_that_names_the_machin
     assert row['program_seconds'] == 800.0 and row['floors'] == {1: 100.0, 2: 700.0}
     assert row['battle'] == {2: 700.0} and row['pages'] == {'MAP': 90.0, 'BATTLE_HUD': 700.0, 'SHOP': 0.0}
     assert row['passed'] is False and row['reason'] == 'shop_stopped'
-    assert row['checkpoints'] == dict(waits=1, rereads=1, refusals=1, inputs=1, observations=0, steps=3,
+    assert row['checkpoints'] == dict(waits=1, rereads=1, refusals=1, unread=2, inputs=1, observations=0, steps=3,
                                       battle_turns=1, purchases=0, floors_over_target=[2])
     assert row['events']['step_finished'] == 3
     assert row['storage'] == dict(moved=3, moved_bytes=30_000, after_bytes=1, archive_bytes=2, reached=True,
