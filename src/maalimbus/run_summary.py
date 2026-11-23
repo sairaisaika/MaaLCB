@@ -15,6 +15,8 @@ def completed_hard_summary(record):
         left=(150+(floor-1)*80)/1920;right=(232+(floor-1)*80)/1920
         if len(find(texts,rf'^Floor\s*{floor}$',(left,.325,right,.365),size,.9))!=1:return None
         if len(find(texts,r'^\[HARD\]$',(left,.35,right,.38),size,.9))!=1:return None
-    if len(find(texts,r'^7/7$',(.25,.38,.285,.425),size,.9))!=1:return None
+    # Floor 5's own encounter count (7/7 in October, 4/4 on pi-20261123-133044), finished.
+    count=find(texts,r'^(\d{1,2})/\1$',(.25,.38,.285,.425),size,.8)
+    if len(count)!=1:return None
     return dict(floors=[1,2,3,4,5],difficulty='hard',progress=100,
-                floor_five_encounters='7/7',reward_received=False)
+                floor_five_encounters=count[0].text.strip(),reward_received=False)

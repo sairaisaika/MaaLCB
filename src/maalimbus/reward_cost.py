@@ -24,12 +24,15 @@ def page_anchors(records,size):
     gates=[(r'^Exploration Reward$',(.39,.12,.60,.20)),
            (r'^Floor 5$',(.24,.56,.31,.61)),
            (r'^\[HARD\]$',(.24,.59,.31,.64)),
-           (r'^7/7$',(.25,.62,.31,.69)),
+           # The floor's own count, not a constant: 7/7 on the October runs, 4/4 on
+           # pi-20261123-133044, whose stylised digits scored 0.82. Numerator and
+           # denominator must be equal (the floor is finished).
+           (r'^(\d{1,2})/\1$',(.25,.62,.31,.69),.8),
            (r'^To Window$',(.43,.72,.56,.79)),
            (r'^Claim$',(.62,.72,.71,.79)),
            (r'^Weekly$',(.22,.29,.31,.35)),
            (r'^Bonuses$',(.22,.33,.31,.38))]
-    return all(len(find(records,p,band,size,.9))==1 for p,band in gates)
+    return all(len(find(records,gate[0],gate[1],size,gate[2] if len(gate)>2 else .9))==1 for gate in gates)
 
 def combine_evidence(readings):
     """All independently gated native results must be unique and agree.
