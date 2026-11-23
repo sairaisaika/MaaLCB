@@ -5583,6 +5583,14 @@
     },
     "next": []
   },
+  "MirrorRewardClaim": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "modules": "saved"
+    },
+    "next": []
+  },
   "MirrorSchedule": {
     "recognition": "DirectHit",
     "action": "DoNothing",

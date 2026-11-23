@@ -144,6 +144,7 @@
         "mirror_shop_skill_mode",
         "mirror_run_bounds",
         "mirror_run_count",
+        "mirror_reward_claim",
         "mirror_schedule",
         "mirror_preferences",
         "mirror_battle_assignment"
@@ -62850,6 +62851,69 @@
             "MirrorShopCoinReserve": {
               "attach": {
                 "shop_reserve_coins": 500
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_reward_claim": {
+      "type": "select",
+      "label": "$mirror_reward_claim",
+      "description": "$mirror_reward_claim_description",
+      "default_case": "saved",
+      "cases": [
+        {
+          "name": "saved",
+          "label": "$mirror_reward_claim_saved",
+          "pipeline_override": {
+            "MirrorRewardClaim": {
+              "attach": {
+                "modules": "saved"
+              }
+            }
+          }
+        },
+        {
+          "name": "off",
+          "label": "$mirror_reward_claim_off",
+          "pipeline_override": {
+            "MirrorRewardClaim": {
+              "attach": {
+                "modules": 0
+              }
+            }
+          }
+        },
+        {
+          "name": "5",
+          "label": "$mirror_reward_claim_5",
+          "pipeline_override": {
+            "MirrorRewardClaim": {
+              "attach": {
+                "modules": 5
+              }
+            }
+          }
+        },
+        {
+          "name": "6",
+          "label": "$mirror_reward_claim_6",
+          "pipeline_override": {
+            "MirrorRewardClaim": {
+              "attach": {
+                "modules": 6
+              }
+            }
+          }
+        },
+        {
+          "name": "18",
+          "label": "$mirror_reward_claim_18",
+          "pipeline_override": {
+            "MirrorRewardClaim": {
+              "attach": {
+                "modules": 18
               }
             }
           }

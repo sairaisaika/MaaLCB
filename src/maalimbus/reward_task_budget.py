@@ -29,3 +29,35 @@ def apply(config,selection):
     if proposed==policy:return False
     write_json(path,proposed)
     return True
+
+
+#: The standing limit the Mirror task's own setting writes: the most modules a reward
+#: offer may cost for the task to claim it by itself, for whichever run finishes next.
+STANDING = 'auto_claim_modules'
+STANDING_CHOICES = (0, 5, 6, 18)
+
+
+def apply_standing(config,selection):
+    """Save the Mirror task's "claim after a clear" choice; return what was done.
+
+    `saved` keeps what is stored. 0 removes the standing limit, so a clear stops on the
+    reward page as it did before this setting existed. A claim that has already been
+    reserved or sent keeps the limit it was reserved under: the choice is not written
+    while that transaction is open, so the task can still finish it.
+    """
+    if selection=='saved':return 'kept'
+    if type(selection) is not int or selection not in STANDING_CHOICES:
+        raise ValueError('Unknown automatic reward claim limit')
+    config=Path(config)
+    path=config/'user-mirror-settings.json'
+    policy=read_json(path) if path.exists() else {}
+    if not isinstance(policy,dict):raise ValueError('Invalid saved resource policy')
+    txpath=config/'user-reward-claim-transaction.json'
+    if txpath.exists() and read_json(txpath).get('pending') is not None:
+        return 'kept_while_a_claim_is_open'
+    proposed=dict(policy)
+    if selection:proposed[STANDING]=selection
+    else:proposed.pop(STANDING,None)
+    if proposed==policy:return 'unchanged'
+    write_json(path,proposed)
+    return 'saved'

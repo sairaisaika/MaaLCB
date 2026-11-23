@@ -2308,6 +2308,16 @@ class MainTaskAction(CustomAction):
                             *mirror_schedule.collect(getattr(context,'get_node_data',None)),datetime.now(timezone.utc))
                     except (ValueError,KeyError,OSError,TypeError) as error:
                         return reject('mirror_settings_rejected',error)
+                    try:
+                        from maalimbus.reward_task_budget import apply_standing
+                        claim=getattr(context,'get_node_data',None)
+                        claim=claim('MirrorRewardClaim').get('attach',{}).get('modules','saved') if claim else 'saved'
+                        journal.record('mirror_reward_claim_setting',selection=claim,
+                                       outcome=apply_standing(data_directory(ROOT),claim))
+                    except KeyError:
+                        pass  # a pipeline built before the setting existed
+                    except (ValueError,OSError,TypeError) as error:
+                        return reject('mirror_settings_rejected',error)
                     if scheduled is not None:
                         journal.record('mirror_schedule',**scheduled)
                         if not scheduled['left']:

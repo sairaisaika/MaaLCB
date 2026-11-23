@@ -6,12 +6,20 @@ from .vision import Text, find
 
 
 def scoped_module_cap(policy, scope):
+    """The most modules this run's reward may cost, or None when nothing allows a claim.
+
+    An answer given for this very run stands, a refusal included. For a run nobody
+    answered for, the Mirror task's standing setting applies (`auto_claim_modules`).
+    """
+    if not scope:
+        return None
     maximum = policy.get('max_reward_modules')
-    if (scope and policy.get('reward_budget_scope') == scope
-            and not policy.get('module_budget_pending', True)
-            and type(maximum) is int and maximum > 0):
-        return maximum
-    return None
+    if policy.get('reward_budget_scope') == scope:
+        if not policy.get('module_budget_pending', True) and type(maximum) is int and maximum > 0:
+            return maximum
+        return None
+    standing = policy.get('auto_claim_modules')
+    return standing if type(standing) is int and standing > 0 else None
 
 
 #: The offers the game has actually shown on a retained frame, as (cost, weekly bonuses).
@@ -43,6 +51,10 @@ def prepare(action, record, config, scope, proof):
         maximum = scoped_module_cap(policy, scope)
         if maximum is None:
             raise ValueError('Current claim scope/budget is not authorized')
+        # The transaction reserves against a budget bound to this run. A standing limit
+        # is bound here, in memory, at the moment it is used; the saved file keeps it standing.
+        policy = dict(policy, reward_budget_scope=scope, max_reward_modules=maximum,
+                      module_budget_pending=False)
     ledger=read_json(config/'user-run-ledger.json').get('active') or {}
     if ledger.get('id')!=scope or ledger.get('floors')!=[1,2,3,4,5] or not ledger.get('victory') or ledger.get('reward'):
         raise ValueError('Current completed run is not proven')
