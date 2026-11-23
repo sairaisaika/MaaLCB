@@ -211,6 +211,24 @@ def is_skill_service(title):
     return bool(REPLACE_PATTERN.fullmatch(title) or _normalised_text(title) == 'id skill search')
 
 
+def looks_like_skill_service(title):
+    """A service label even when OCR dropped or swapped a letter; never a click target.
+
+    Acting on a service needs the exact label (:func:`is_skill_service`). Leaving a
+    service out of a gift comparison only needs to know the row is not a gift: live
+    ``pi-20261123-130643`` read "Replace Hong Lu's Skil" after a refresh, the row was
+    counted as a sixth gift against five before, and an exact 10-coin refresh was
+    refused. No gift is named "Replace ..." or "ID Skill Search".
+    """
+    import difflib
+    if is_skill_service(title):
+        return True
+    words = _normalised_text(title).split()
+    if len(words) >= 3 and words[0] == 'replace':
+        return difflib.SequenceMatcher(None, words[-1].strip('.!:'), 'skill').ratio() >= .8
+    return difflib.SequenceMatcher(None, ' '.join(words), 'id skill search').ratio() >= .85
+
+
 def named_skill_services(records, size):
     """Find the named first-row services without reading their `??` as a price."""
     records = _texts(records)

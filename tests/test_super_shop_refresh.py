@@ -51,6 +51,25 @@ def test_a_plain_shop_shelf_is_unchanged_and_empty_input_is_empty():
     assert refreshed_gifts(None) == [] and refreshed_gifts([]) == []
 
 
+# Live pi-20261123-130643 (floor 5): OCR dropped the last letter of a service label after
+# the refresh, so six rows were compared with five and an exact 10-coin refresh was refused.
+@pytest.mark.parametrize('title', ["Replace Hong Lu's Skil", "Replace Faust's Skll", "Replace Outis's Skili.",
+                                   'ID Skil Search', 'ID Skill Seach'])
+def test_a_service_label_that_lost_a_letter_is_still_not_a_gift(title):
+    assert refreshed_gifts([dict(name=title, price=77)]) == []
+
+
+@pytest.mark.parametrize('title', ['Replacement Parts', 'Skill Manual', 'Rusted Muzzle', 'Replace Me',
+                                   'Blood, Sweat, and Tears'])
+def test_a_gift_is_never_taken_for_a_service(title):
+    assert refreshed_gifts([dict(name=title, price=150)]) == [dict(name=title, price=150)]
+
+
+def test_the_exact_label_is_still_required_to_act_on_a_service():
+    from maalimbus.shop_skill_vision import is_skill_service, looks_like_skill_service
+    assert looks_like_skill_service("Replace Hong Lu's Skil") and not is_skill_service("Replace Hong Lu's Skil")
+
+
 RUN = 'dist/MaaLimbus/evidence/runtime/pi-20261121-200305'
 
 

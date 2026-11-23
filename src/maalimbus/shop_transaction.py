@@ -245,8 +245,8 @@ def refreshed_gifts(rows):
     after it (live ``pi-20261121-200305``, frames 0043 and 0045), and a correct refresh
     with an exact 15-coin delta was refused.
     """
-    from .shop_skill_vision import is_skill_service
-    return [row for row in rows or () if not is_skill_service(row['name'])]
+    from .shop_skill_vision import looks_like_skill_service
+    return [row for row in rows or () if not looks_like_skill_service(row['name'])]
 
 
 def _baseline(pending):
