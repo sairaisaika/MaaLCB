@@ -42,13 +42,16 @@ def action_for(record):
 
 
 def entry_return(config,scope,record):
-    """Is this Mirror entry page the page a payout claimed from the dungeon list returns to?
+    """Is this entry page (or its "enter?" question) where a payout claimed from the list returns to?
 
     Only for this run's own transaction, after its pass popup was acknowledged on the
     balance receipt. On any other entry page the answer is no, and the entry page stays
     what it normally is: the place a new run starts from.
     """
-    if record.get('scene')!='MIRROR_ENTRY':return False
+    # The Enter that reopened the dialog is still being answered: once the pass popup is
+    # acknowledged the game asks "Will you enter ...?" over the entry page
+    # (pi-20261123-184215/frame-0005). Either page is where this route comes back to.
+    if record.get('scene') not in ('MIRROR_ENTRY','ENTRY_CONFIRM'):return False
     path=Path(config)/'user-reward-claim-transaction.json'
     try:tx=read_json(path) if path.exists() else {}
     except (ValueError,OSError):return False

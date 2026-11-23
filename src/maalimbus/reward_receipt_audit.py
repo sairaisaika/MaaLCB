@@ -112,9 +112,16 @@ def verify(transaction, home_path, reports):
         raise ValueError('Stored receipt numbers differ from actual captions')
     home, bound = load_frame(home_path)
     if onto_entry:
-        if home.get('scene') != 'MIRROR_ENTRY':
+        # The entry page itself, or the question the game asks over it once the pass popup
+        # is acknowledged ("Will you enter Mirror of ...?", pi-20261123-184215/frame-0005).
+        if home.get('scene') == 'MIRROR_ENTRY':
+            anchors = ((r'^Before Entry$',(.80,.18,.92,.25)), (r'^Enter$',(.82,.64,.91,.73)))
+        elif home.get('scene') == 'ENTRY_CONFIRM':
+            anchors = ((r'^Will you enter .+\?$',(.35,.42,.65,.52)), (r'^Enter$',(.56,.62,.66,.72)),
+                       (r'^(?:[x×✕]\s*)?Cancel$',(.34,.62,.46,.72)))
+        else:
             raise ValueError('Independent entry-page successor missing')
-        for pattern, band in ((r'^Before Entry$',(.80,.18,.92,.25)), (r'^Enter$',(.82,.64,.91,.73))):
+        for pattern, band in anchors:
             token(home, pattern, band)
     else:
         if home.get('scene') != 'HOME':

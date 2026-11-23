@@ -109,6 +109,8 @@ def test_the_entry_page_is_the_return_page_only_for_that_finished_route(tmp_path
     assert reward_task.entry_return(tmp_path, 'run', entry) is False            # the pass is not acknowledged
     prepare('pass', pass_popup(), tmp_path, 'run', 'frame-0009')
     assert reward_task.entry_return(tmp_path, 'run', entry) is True
+    # pi-20261123-184215/frame-0005: after the pass popup the game asks whether to enter.
+    assert reward_task.entry_return(tmp_path, 'run', dict(entry, scene='ENTRY_CONFIRM')) is True
     assert reward_task.entry_return(tmp_path, 'another-run', entry) is False
     assert reward_task.entry_return(tmp_path, '', entry) is False
     assert reward_task.entry_return(tmp_path, 'run', dict(entry, scene='HOME')) is False
@@ -147,6 +149,14 @@ def test_the_audit_takes_the_balance_receipt_in_place_of_the_receipt_page(tmp_pa
     proof = audit.verify(tx, 'h.json', reports)
     assert proof['payout_received'] and proof['actual_amount'] == 65 and proof['actual_pass_level'] == 226
     assert [item['png_sha256'] for item in proof['proofs']] == ['c.json', 'f.json', 'p.json', 'h.json']
+    question = dict(scene='ENTRY_CONFIRM', size=[1920, 1080], ocr=[
+        row('X Cancel', (708, 704, 152, 42), .93), row('Will you enter Mirror of Sisyphe?', (716, 498, 486, 40)),
+        row('Enter', (1124, 704, 90, 42))])
+    frames['h.json'] = question
+    assert audit.verify(tx, 'h.json', reports)['home_return'] is True
+    frames['h.json'] = dict(question, ocr=question['ocr'][:2])          # the question without its Enter
+    with pytest.raises(ValueError):
+        audit.verify(tx, 'h.json', reports)
     # The lobby is not this route's return page, and the route is not a way round the receipt page.
     frames['h.json'] = dict(scene='HOME', size=[1920, 1080], ocr=[])
     with pytest.raises(ValueError, match='entry-page successor'):
