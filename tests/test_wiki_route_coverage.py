@@ -25,7 +25,7 @@ UNROUTED = frozenset((
     'map_progress', 'mirror_assessment', 'mirror_learning_policy', 'mirror_preferences',
     'mxu_distribution', 'overlay_dismissal', 'overlay_vision', 'owned_inventory', 'page_carry',
     'policies', 'reason_kinds', 'reason_provenance', 'releases', 'reward_claim_transaction',
-    'reward_receipt_audit', 'reward_task_budget', 'reward_vision', 'route_plan', 'run_record',
+    'reward_receipt_audit', 'reward_vision', 'route_plan', 'run_record',
     'run_summary', 'runtime_paths', 'screen_state', 'settings_migration', 'shop_learning',
     'shop_native', 'shop_priority', 'shop_revive', 'shop_settings', 'shop_skill_policy',
     'shop_skill_vision', 'sinner_collection', 'sinner_detection', 'startup_update', 'stillness',
