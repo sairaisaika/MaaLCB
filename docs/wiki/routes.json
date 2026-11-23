@@ -4175,6 +4175,68 @@
       "boundary": "Read-only arithmetic over events.jsonl: gaps between journal rows, attributed to the floor reached and the page of the last step; a gap over 120 s is a person, not the program. Runs are named by directory name only, with no account, device or local path. It measures time and stops; it does not judge whether a run was correct, and a bound the caller set is not counted as a stop."
     },
     {
+      "id": "daily-hosting",
+      "title": "托管日程：今天还欠什么，按服务器日记账 / hosting schedule: what today still owes, booked per server day",
+      "aliases": [
+        "托管",
+        "24小时",
+        "日常",
+        "日程",
+        "每天几次",
+        "周几打镜牢",
+        "服务器日",
+        "重置时间",
+        "日界",
+        "不重做",
+        "中断后接着做",
+        "每日账本",
+        "hosting",
+        "daily ledger",
+        "daily_ledger",
+        "schedule",
+        "server day",
+        "server week",
+        "reset hour",
+        "owed",
+        "next_item",
+        "FAILURES_PER_DAY",
+        "user-daily-ledger"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/daily_ledger.py",
+          "symbol": "server_date"
+        },
+        {
+          "path": "src/maalimbus/daily_ledger.py",
+          "symbol": "wanted"
+        },
+        {
+          "path": "src/maalimbus/daily_ledger.py",
+          "symbol": "DailyLedger.owed"
+        },
+        {
+          "path": "src/maalimbus/daily_ledger.py",
+          "symbol": "DailyLedger.book"
+        },
+        {
+          "path": "src/maalimbus/daily_ledger.py",
+          "symbol": "DailyLedger.fail"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_daily_ledger.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_daily_ledger.py"
+      ],
+      "boundary": "Bookkeeping only: it turns a schedule and the clock into the items still owed and remembers what was done and what failed. No task calls it yet, and it decides nothing about the game. The reset defaults (06:00 Korea time, week from Thursday) are stated values, not measured by this project; the game's own notice page is the authority. What counts as one finished unit belongs to the task that runs."
+    },
+    {
       "id": "transactions",
       "title": "交易的两半：意图在输入之前写下，读者必须在之后把它读回来",
       "aliases": [
