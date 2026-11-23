@@ -3,7 +3,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from .paid_reward_action import measured_offer
+from .paid_reward_action import entry_balance_receipt, measured_offer
 from .storage import read_json
 from .vision import Text, find
 
@@ -36,10 +36,15 @@ def verify(transaction, home_path, reports):
     amount, level = transaction.get('receipt_visible_amount'), transaction.get('pass_level')
     if type(amount) is not int or not 0 < amount <= 999999 or type(level) is not int or level < 0:
         raise ValueError('Actual receipt amounts missing')
-    if set(reports) != set(PROOFS):
+    # A payout claimed from the dungeon list has no receipt page and no receipt input: its
+    # receipt is the balance difference read on the claim and pass frames, and it returns
+    # to the Mirror entry page instead of the lobby (pi-20261123-182337).
+    onto_entry = transaction.get('receipt_kind') == 'entry_balances'
+    proofs = {action: key for action, key in PROOFS.items() if not (onto_entry and action == 'receipt')}
+    if set(reports) != set(proofs):
         raise ValueError('Complete reward input reports missing')
     frames, proof = {}, []
-    for action, key in PROOFS.items():
+    for action, key in proofs.items():
         frame, bound = load_frame(transaction[key])
         report = reports[action]
         entries = report.get('steps')
@@ -84,26 +89,39 @@ def verify(transaction, home_path, reports):
             ('confirm',r'^Confirm$',(.56,.64,.66,.73)),
             ('receipt',r'^Confirm$',(.43,.60,.58,.70)),
             ('pass',r'^Confirm$',(.43,.60,.58,.70))):
+        if action not in frames:continue
         control=token(frames[action],caption,band)
         if list(control.box)!=reports[action]['steps'][0]['target']:
             raise ValueError('Reward input target differs from the proven control')
-    token(frames['receipt'], r'^Rewards Acquired$', (.39,.30,.61,.39))
-    received = token(frames['receipt'], r'^[1-9]\d{0,5}$', (.47,.48,.54,.56))
-    token(frames['receipt'], r'^Confirm$', (.43,.60,.58,.70))
+    if onto_entry:
+        balances = entry_balance_receipt(frames['claim'], frames['pass'])
+        if balances is None or transaction.get('receipt_proof') != transaction.get('pass_receipt_proof'):
+            raise ValueError('Balances on the entry page do not prove the payout')
+        received_amount = balances['starlight_offer']
+    else:
+        token(frames['receipt'], r'^Rewards Acquired$', (.39,.30,.61,.39))
+        received_amount = int(token(frames['receipt'], r'^[1-9]\d{0,5}$', (.47,.48,.54,.56)).text)
+        token(frames['receipt'], r'^Confirm$', (.43,.60,.58,.70))
     for pattern, band in ((r'^Pass Level Up$',(.40,.30,.61,.39)),
                           (r'^Pass Level$',(.29,.42,.38,.47)),
                           (r'^Battle Pass XP$',(.39,.42,.57,.49))):
         token(frames['pass'], pattern, band)
     actual_level = token(frames['pass'], r'^\d+$', (.29,.45,.38,.57))
     token(frames['pass'], r'^Confirm$', (.43,.60,.58,.70))
-    if int(received.text) != amount or int(actual_level.text) != level:
+    if received_amount != amount or int(actual_level.text) != level:
         raise ValueError('Stored receipt numbers differ from actual captions')
     home, bound = load_frame(home_path)
-    if home.get('scene') != 'HOME':
-        raise ValueError('Independent HOME successor missing')
-    for pattern, band in ((r'^Window$',(.60,.86,.69,.96)), (r'^Drive$',(.73,.86,.80,.96)),
-                          (r'^Sinners$',(.66,.86,.74,.96)), (r'^Inventory$',(.46,.90,.55,.97))):
-        token(home, pattern, band)
+    if onto_entry:
+        if home.get('scene') != 'MIRROR_ENTRY':
+            raise ValueError('Independent entry-page successor missing')
+        for pattern, band in ((r'^Before Entry$',(.80,.18,.92,.25)), (r'^Enter$',(.82,.64,.91,.73))):
+            token(home, pattern, band)
+    else:
+        if home.get('scene') != 'HOME':
+            raise ValueError('Independent HOME successor missing')
+        for pattern, band in ((r'^Window$',(.60,.86,.69,.96)), (r'^Drive$',(.73,.86,.80,.96)),
+                              (r'^Sinners$',(.66,.86,.74,.96)), (r'^Inventory$',(.46,.90,.55,.97))):
+            token(home, pattern, band)
     proof.append(bound)
     return dict(scope=scope, payout_received=True, home_return=True,
                 actual_amount=amount, actual_pass_level=level, proofs=proof,

@@ -3071,7 +3071,17 @@
         "scoped_module_cap",
         "MirrorRewardClaim",
         "mirror_reward_claim",
-        "reward_module_budget_pending"
+        "reward_module_budget_pending",
+        "没有回执页",
+        "Rewards Acquired",
+        "通行证升级",
+        "Pass receipt absent or repeated",
+        "余额证明",
+        "镜牢入口作为返回页",
+        "entry_balance_receipt",
+        "entry_return",
+        "receipt_kind",
+        "entry_balances"
       ],
       "sources": [
         {
@@ -3105,6 +3115,18 @@
         {
           "path": "src/maalimbus/reward_cost.py",
           "symbol": "page_anchors"
+        },
+        {
+          "path": "src/maalimbus/paid_reward_action.py",
+          "symbol": "entry_balance_receipt"
+        },
+        {
+          "path": "src/maalimbus/reward_task.py",
+          "symbol": "entry_return"
+        },
+        {
+          "path": "src/maalimbus/reward_receipt_audit.py",
+          "symbol": "verify"
         }
       ],
       "docs": [
@@ -3117,7 +3139,8 @@
         "tests/test_reward_cost.py",
         "tests/test_reward_return_loader.py",
         "tests/test_mirror_reward_claim_setting.py",
-        "tests/test_reward_floor_count.py"
+        "tests/test_reward_floor_count.py",
+        "tests/test_entry_page_payout.py"
       ],
       "checks": [
         "python -m pytest -q tests/test_reward_task.py"
@@ -4200,6 +4223,54 @@
         "python tools/run_tests.py -q tests/test_run_report.py"
       ],
       "boundary": "Read-only arithmetic over events.jsonl: gaps between journal rows, attributed to the floor reached and the page of the last step; a gap over 120 s is a person, not the program. Runs are named by directory name only, with no account, device or local path. It measures time and stops; it does not judge whether a run was correct, and a bound the caller set is not counted as a stop."
+    },
+    {
+      "id": "task-log-pages",
+      "title": "任务日志逐步写出认出的画面 / the task log names every page the loop recognised",
+      "aliases": [
+        "日志不完整",
+        "看不到认出了什么画面",
+        "界面日志",
+        "运行日志",
+        "每一步",
+        "画面名称",
+        "当前阶段",
+        "页面中文名",
+        "page_names",
+        "step_line",
+        "NAMES",
+        "REPEAT_EVERY",
+        "领奖流程 ·"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/page_names.py",
+          "symbol": "name"
+        },
+        {
+          "path": "src/maalimbus/page_names.py",
+          "symbol": "step_line"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "MirrorRunner.note"
+        },
+        {
+          "path": "src/maalimbus/reward_task.py",
+          "symbol": "execute"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_entry_page_payout.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_entry_page_payout.py"
+      ],
+      "boundary": "Wording only. The journal already held every page; this prints one line to the log a person watches when the recognised page changes, when an input was sent, when the step stopped the task, and every tenth step on an unchanged page. Every registered page must have a player-facing name. It reads no frame and decides nothing; a line that cannot be printed is dropped silently."
     },
     {
       "id": "run-history",

@@ -8044,6 +8044,20 @@ class MirrorRunner:
                     finish_sample = getattr(self.journal, 'finish_diagnostic_sample', None)
                     if finish_sample is not None:
                         finish_sample(sample)
+                # The log a person watches names every page the loop recognised, not only
+                # the pages an input was sent on.
+                from .page_names import step_line
+                memory = self.__dict__.setdefault('_narration', {})
+                memory['seen'] = memory.get('seen', 0) + 1
+                narration = step_line(memory, memory['seen'], result.get('page'),
+                                      input_sent=bool(result.get('input_sent')),
+                                      waiting=bool(result.get('waiting')),
+                                      stopped=result.get('stopped'))
+                if narration:
+                    try:
+                        print('MaaLimbus ' + narration, flush=True)
+                    except (OSError, UnicodeError):
+                        pass
                 if blocked > DEEP_STEP_SECONDS:
                     # Names the block the budget cannot interrupt: next time this fires,
                     # the number is the evidence for which Maa node to bound.
@@ -8396,13 +8410,17 @@ class MirrorRunner:
 
         if self.settings.observe_only:
             return None
+        store = self.store
+        config = store.path.parent if store is not None else ROOT/'config'
         action = 'home' if page_vocabulary.is_home(page) else reward_task.action_for(record)
         if page in reward_task.ACTIONS and action is None:
             action = reward_task.ACTIONS[page]
+        if action is None and reward_task.entry_return(config, self.run_id, record):
+            # A payout claimed from the dungeon list returns to the entry page, not the
+            # lobby. Until its bookkeeping is finished this page must not start a new run.
+            action = 'home'
         if action is None:
             return None
-        store = self.store
-        config = store.path.parent if store is not None else ROOT/'config'
         active = (store.data.get('active') or {}) if store is not None else {}
         confirmed = False
         if action in ('receipt', 'pass', 'home'):

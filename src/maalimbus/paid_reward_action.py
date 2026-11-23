@@ -44,6 +44,53 @@ def verified_offer(record):
     return dict(offer) if measured_offer(offer) else None
 
 
+#: Where the Mirror entry page prints the two balances a payout changes, and where the
+#: reward dialog prints what it pays. Measured on pi-20261123-182337: frame-0004 (the
+#: dialog reopened from the dungeon list: starlight 3220, cap 50/1000, offering 65 and
+#: x50) and frame-0009 (the pass popup over the entry page: 3285 and 100/1000).
+ENTRY_STARLIGHT = (r'^[^0-9]{0,2}(\d{1,6})$', (.84, .11, .94, .20))
+ENTRY_CAP = (r'^(\d{1,4})/1000$', (.85, .365, .94, .42))
+OFFER_STARLIGHT = (r'^(\d{1,5})$', (.36, .61, .42, .68))
+OFFER_PROJECTION = (r'^[x×](\d{1,4})$', (.70, .56, .79, .65))
+
+
+def _number(record, rule):
+    texts = [Text(x['text'], tuple(x['box']), x['score']) for x in record.get('ocr', [])]
+    hits = find(texts, rule[0], rule[1], record['size'], .8)
+    if len(hits) != 1:
+        return None
+    return int(re.search(rule[0], hits[0].text.strip(), re.I)[1])
+
+
+def entry_balance_receipt(claim_record, after_record):
+    """Proof that a payout arrived where the game shows no "Rewards Acquired" page.
+
+    A dialog reopened from the dungeon list pays straight onto the entry page: after
+    Confirm the next thing on screen is the pass popup (or the entry page itself), and
+    the receipt page of the other route never appears (pi-20261123-182337). What can be
+    read instead is stronger than a caption: the entry page's starlight and weekly cap
+    before the claim, the two amounts the dialog offered, and the same two balances
+    afterwards. Both must have grown by exactly what was offered. Any number that is
+    missing or ambiguous, or a difference that is not the offer, proves nothing.
+    """
+    if claim_record.get('size') != [1920, 1080] or after_record.get('size') != [1920, 1080]:
+        return None
+    values = dict(starlight_before=_number(claim_record, ENTRY_STARLIGHT),
+                  cap_before=_number(claim_record, ENTRY_CAP),
+                  starlight_offer=_number(claim_record, OFFER_STARLIGHT),
+                  projection_offer=_number(claim_record, OFFER_PROJECTION),
+                  starlight_after=_number(after_record, ENTRY_STARLIGHT),
+                  cap_after=_number(after_record, ENTRY_CAP))
+    if any(value is None for value in values.values()):
+        return None
+    if values['starlight_offer'] <= 0 or values['projection_offer'] <= 0:
+        return None
+    if (values['starlight_after'] - values['starlight_before'] != values['starlight_offer']
+            or values['cap_after'] - values['cap_before'] != values['projection_offer']):
+        return None
+    return values
+
+
 def prepare(action, record, config, scope, proof):
     if action in ('claim', 'confirm'):
         path = config/'user-mirror-settings.json'
@@ -115,9 +162,20 @@ def prepare(action, record, config, scope, proof):
         write_json(tx.path,tx.data)
     elif action=='pass':
         if (not tx.data or tx.data.get('scope')!=scope or not tx.data.get('confirm_sent')
-                or not tx.data.get('receipt_ack_sent')
                 or tx.data.get('pass_ack_sent')):
             raise ValueError('Pass receipt absent or repeated')
+        receipt={}
+        if not tx.data.get('receipt_ack_sent'):
+            # No receipt page was acknowledged: only the route that pays onto the entry
+            # page may go on, and only on the balances that prove it paid.
+            from pathlib import Path
+            try:claim_record=read_json(Path(tx.data['claim_proof']))
+            except (KeyError,OSError,ValueError):claim_record={}
+            balances=entry_balance_receipt(claim_record,record)
+            if balances is None:
+                raise ValueError('Pass receipt absent or repeated')
+            receipt=dict(receipt_ack_sent=True,receipt_kind='entry_balances',receipt_proof=str(proof),
+                         receipt_visible_amount=balances['starlight_offer'],receipt_balances=balances)
         headings=[(r'^Pass Level Up$',(.40,.30,.61,.39)),
                   (r'^Pass Level$',(.29,.42,.38,.47)),
                   (r'^Battle Pass XP$',(.39,.42,.57,.49))]
@@ -126,7 +184,7 @@ def prepare(action, record, config, scope, proof):
         if any(len(find(texts,p,band,size,.9))!=1 for p,band in headings) or len(levels)!=1 or len(buttons)!=1:
             raise ValueError('Actual pass receipt incomplete')
         from .storage import write_json
-        tx.data.update(pass_ack_sent=True,pass_receipt_proof=str(proof),
+        tx.data.update(receipt,pass_ack_sent=True,pass_receipt_proof=str(proof),
                        pending='pass_ack',pass_level=int(levels[0].text))
         write_json(tx.path,tx.data)
     else:

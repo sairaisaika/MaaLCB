@@ -41,6 +41,30 @@ def action_for(record):
     return ACTIONS.get(record.get('scene'))
 
 
+def entry_return(config,scope,record):
+    """Is this Mirror entry page the page a payout claimed from the dungeon list returns to?
+
+    Only for this run's own transaction, after its pass popup was acknowledged on the
+    balance receipt. On any other entry page the answer is no, and the entry page stays
+    what it normally is: the place a new run starts from.
+    """
+    if record.get('scene')!='MIRROR_ENTRY':return False
+    path=Path(config)/'user-reward-claim-transaction.json'
+    try:tx=read_json(path) if path.exists() else {}
+    except (ValueError,OSError):return False
+    return (bool(scope) and tx.get('scope')==scope and tx.get('receipt_kind')=='entry_balances'
+            and tx.get('confirm_sent') is True and tx.get('pass_ack_sent') is True
+            and not tx.get('completed'))
+
+
+STAGE_NAMES={'claim':'点击领取','confirm':'确认领取','receipt':'确认到账回执','pass':'确认通行证升级'}
+
+
+def _say(text):
+    try:print('MaaLimbus 领奖流程 · '+text,flush=True)
+    except (OSError,UnicodeError):pass
+
+
 def finish(config,scope,home,*,journal=None):
     """Only audited inputs, actual receipts and HOME may advance rotation."""
     path=config/'user-reward-claim-transaction.json'
@@ -165,7 +189,9 @@ def execute(config,directory,observer,device,journal,*,deadline=None):
                 time.sleep(LOADER_POLL_SECONDS)
                 continue
             stages+=1
-            if record.get('scene')=='HOME':
+            from .page_names import name as page_name
+            _say('画面：'+page_name(record.get('scene')))
+            if record.get('scene')=='HOME' or entry_return(config,scope,record):
                 result=finish(config,scope,runner.frame_file(directory),journal=journal)
                 result['input_sent']=sent>0
                 result['input_attempts']=sent
@@ -175,6 +201,7 @@ def execute(config,directory,observer,device,journal,*,deadline=None):
                 return result
             action=action_for(record)
             if action is None:raise ValueError('Reward page or successor not proven')
+            _say('操作：'+STAGE_NAMES.get(action,action))
             def preflight(current):
                 if action_for(current)!=action:raise ValueError('Fresh reward page changed')
                 frame=runner.frame_file(directory)
