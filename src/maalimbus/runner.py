@@ -5564,6 +5564,15 @@ class MirrorRunner:
                     elif (pending['kind']=='card' and team['participants'][0]==pending['before']+1
                           and team['states'][pending['card']-1] in ('selected','backup')):
                         self.deployment_transaction.observe(tuple(team['participants']))
+                    elif (pending['kind']=='card' and pending.get('before')==0
+                          and tuple(team['participants'])==(pending['capacity']-1,pending['capacity'])
+                          and team['states'][pending['card']-1] not in ('selected','backup')):
+                        # The page had not shown the saved team yet when the card was
+                        # clicked; the whole board now says what the click really did.
+                        self.deployment_transaction.reconcile_toggled_off(self.run_id,
+                            tuple(team['participants']),team['states'],str(frame_file(directory)))
+                        self.note('deployment_click_took_a_card_off_a_loaded_team',card=pending['card'],
+                                  participants=list(team['participants']),input_sent=False)
                     elif pending['kind']=='card' and pending['card'] in team.get('unavailable',[]):
                         self.deployment_transaction.reconcile_unavailable(self.run_id,tuple(team['participants']),
                                                                          team['unavailable'],availability)

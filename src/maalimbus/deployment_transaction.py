@@ -110,6 +110,28 @@ class DeploymentTransaction:
         d.setdefault('rejected_unavailable_inputs',[]).append(dict(intent=dict(p),proof=proof,
                                                                selected=False,recovery_input=False))
         d['pending']=None;write_json(self.path,d)
+    def reconcile_toggled_off(self,scope,count,states,proof=None):
+        """Retire a card click that removed its card from a board that had loaded full.
+
+        A pre-battle page can be read while the game has not yet put the saved team on
+        it: live pi-20261123-121915 read 0/12 with no badge, clicked the first card of
+        the saved order, and the next frame showed 11/12 with every other card in the
+        team and that one card out. The click did not add a card to an empty board, it
+        took one off a full one. Nothing is unknown about the outcome once the board is
+        read whole, so the intent is retired with its evidence; the board then
+        contradicts the saved order and the existing clear-and-repick restores it.
+        """
+        d=self.data or {};p=d.get('pending') or {}
+        card=p.get('card')
+        if (d.get('scope')!=scope or p.get('kind')!='card' or p.get('before')!=0 or d.get('sequence')
+                or type(card) is not int or not states or len(states)!=p.get('capacity')
+                or tuple(count)!=(p['capacity']-1,p['capacity'])
+                or states[card-1] in ('selected','backup')
+                or any(state not in ('selected','backup') for index,state in enumerate(states,1) if index!=card)):
+            raise ValueError('Pending card toggle-off on a full board not proven')
+        d.setdefault('abandoned',[]).append(dict(intent=dict(p),scope=scope,proof=proof,
+            reason='the_click_took_its_card_off_a_board_that_had_loaded_the_saved_team'))
+        d['pending']=None;write_json(self.path,d)
     def retire_foreign(self,scope,reason=None):
         """Drop a card another run reserved, and keep the fact that it was given up.
 
