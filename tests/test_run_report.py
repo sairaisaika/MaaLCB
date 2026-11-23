@@ -59,6 +59,6 @@ def test_many_runs_become_one_report_with_ranked_stops():
 def test_the_report_names_runs_only_by_directory_name():
     rows = run([], [('MAP', 10)], 'x')
     rows.insert(1, dict(event='mirror_loop_start', utc=at(0), run_scope='a84a7162',
-                        directory='D:\\\\somewhere\\\\private', data_directory='C:\\\\Users\\\\someone\\\\config'))
+                        directory='Z:/somewhere/private', data_directory='Z:/someone/config'))
     text = '\n'.join(run_report.lines(run_report.combine([('pi-1', rows)])))
     assert 'somewhere' not in text and 'someone' not in text and 'pi-1' in text
