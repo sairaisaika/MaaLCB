@@ -119,7 +119,7 @@ flowchart LR
 
 **C1 选项清点。** `assets/interface.json` 定义 714 个选项，6 个任务；从任务、全局选项、控制器和前置任务出发够不到的有 22 个：`deployment_position_1..12`、`deployment_preset`、`pack_name`、`pack_weight`、`run_team`、`team_build_name`、`team_build_slot`、`team_keywords`、`team_keywords_extra`、`team_name`、`team_slot`。
 
-**C1 已清理（2026-11-23）。** 上面 22 个选项已从 `assets/interface.json` 删除（714 → 692，纯删除，其余文本未动），它们的管线节点从 6 个任务的入口都走不到，所以运行行为不变；`tools/expand_team_slots.py` 不再处理其中三个，重跑不会长回来；`tools/prepare_resources.py` 写的是早期五任务雏形，现在默认拒绝覆盖维护中的界面定义。`tests/test_interface_reachability.py` 保证以后没有「定义了但够不到」的选项。尚未处理：三种语言文件里只被这些选项用过的 31 个文案键，以及出战顺序仍是 12 个下拉。
+**C1 已清理（2026-11-23）。** 上面 22 个选项已从 `assets/interface.json` 删除（714 → 692，纯删除，其余文本未动），它们的管线节点从 6 个任务的入口都走不到，所以运行行为不变；`tools/expand_team_slots.py` 不再处理其中三个，重跑不会长回来；`tools/prepare_resources.py` 写的是早期五任务雏形，现在默认拒绝覆盖维护中的界面定义。`tests/test_interface_reachability.py` 保证以后没有「定义了但够不到」的选项。三种语言文件里没有任何界面引用的 47 个文案键（其中 31 个只被这些选项用过，另 16 个更早就没人用）也已删除（各 175 → 128，逐行删除），同一个测试文件现在还保证每个文案键都有界面在用、界面用到的每个键三种语言都有。尚未处理：出战顺序的设置方式。
 
 ## 带日期的可行性历史
 

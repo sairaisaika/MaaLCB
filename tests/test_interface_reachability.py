@@ -69,3 +69,15 @@ def test_the_skeleton_script_refuses_to_replace_the_maintained_interface(tmp_pat
                             capture_output=True, text=True, encoding='utf-8')
     assert result.returncode != 0 and 'maintained interface' in result.stderr
     assert (ROOT / 'assets/interface.json').read_bytes() == before
+
+
+def test_every_text_key_is_used_and_every_used_key_has_every_language():
+    """On 2026-11-23 each language file held 47 keys no label or description referenced."""
+    import re
+    used = set(re.findall(r'"\$([A-Za-z0-9_]+)"', (ROOT / 'assets/interface.json').read_text(encoding='utf-8')))
+    files = sorted((ROOT / 'assets/i18n').glob('*.json'))
+    assert len(files) >= 3
+    for path in files:
+        keys = set(json.loads(path.read_text(encoding='utf-8')))
+        assert not sorted(keys - used), '%s has text no label uses: %s' % (path.name, sorted(keys - used))
+        assert not sorted(used - keys), '%s lacks text for: %s' % (path.name, sorted(used - keys))
