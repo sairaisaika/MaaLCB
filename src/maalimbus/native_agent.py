@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import tempfile
 
-from .workspace import reserve_output
+from .workspace import live_writes, reserve_output
 
 
 @contextmanager
@@ -21,7 +21,12 @@ def native_temp(application_root):
     for parent in (base,*base.parents):
         if parent.is_symlink() or getattr(parent,'is_junction',lambda:False)():
             raise ValueError('Native scratch directory cannot use linked paths')
-    reserve_output(base,1_000_000,application_root=app)
+    # Starting the Agent is a live task: like the evidence it writes while running, its
+    # socket scratch is checked against free disk space, not against the project-folder
+    # warning line. A folder 4 MB over that line once refused the start outright and
+    # left the GUI on "Starting" (2026-11-22); the run itself already only warns.
+    with live_writes():
+        reserve_output(base,1_000_000,application_root=app)
     base.mkdir(parents=True,exist_ok=True)
     previous={key:os.environ.get(key) for key in ('TEMP','TMP')}
     with tempfile.TemporaryDirectory(prefix='n-',dir=base,ignore_cleanup_errors=True) as directory:
