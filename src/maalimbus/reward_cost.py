@@ -61,6 +61,12 @@ def combine_evidence(readings):
     if layouts[0] not in DIGITS or not re.fullmatch(DIGITS[layouts[0]],digits[0]):return None
     return dict(currency='enkephalin_modules',cost=int(digits[0]),weekly=weekly)
 
+def crops_of(purpose,own):
+    """The layout's own crop first, then the other layout's crop of the same mark."""
+    index=1 if purpose=='currency' else 3
+    return [own]+[layout[index] for layout in LAYOUTS if layout[index]!=own]
+
+
 def observe_native(context,image,records):
     from maa.pipeline import JOCR,JRecognitionType,JTemplateMatch
     size=(image.shape[1],image.shape[0])
@@ -69,11 +75,21 @@ def observe_native(context,image,records):
     for layout,currency,currency_roi,sign,sign_roi in LAYOUTS:
         rows=[]
         for purpose,template,roi in (('currency',currency,currency_roi),('deduction',sign,sign_roi)):
-            detail=context.run_recognition_direct(JRecognitionType.TemplateMatch,
-                JTemplateMatch(template=[template],roi=roi,threshold=[.95]),image)
-            results=detail.filtered_results if detail is not None and detail.hit else []
-            rows.append(dict(purpose=purpose,layout=layout,roi=list(roi),template=template,
-                results=[dict(score=r.score) for r in results]))
+            # Both retained crops of a mark are the same mark; which layout it is in is
+            # decided by the box, not by the crop. On pi-20261123-133044/frame-0548 (5
+            # modules, weekly 0/3) the one-digit crop scored 0.946 in the one-digit box
+            # and the other crop of the same icon 0.974 there, so an authorised claim
+            # stopped on a threshold. The best single crop in the box is the reading.
+            best=None
+            for crop in crops_of(purpose,template):
+                detail=context.run_recognition_direct(JRecognitionType.TemplateMatch,
+                    JTemplateMatch(template=[crop],roi=roi,threshold=[.95]),image)
+                results=detail.filtered_results if detail is not None and detail.hit else []
+                if len(results)==1 and (best is None or results[0].score>best[1]):
+                    best=(crop,results[0].score)
+            rows.append(dict(purpose=purpose,layout=layout,roi=list(roi),
+                template=best[0] if best else template,
+                results=[dict(score=best[1])] if best else []))
         attempts.append(rows)
     # One layout at most can show both marks. With none, the one-digit attempt is kept
     # as the record of what was looked for, which is what earlier frames carry.

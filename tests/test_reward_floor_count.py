@@ -35,3 +35,62 @@ def test_the_other_gates_keep_their_stricter_score():
     rows = page()
     rows[5] = Text('Claim', (1238, 796, 98, 41), .85)
     assert page_anchors(rows, SIZE) is False
+
+
+class Detail:
+    def __init__(self, results):
+        self.hit = bool(results)
+        self.filtered_results = results
+
+
+class Hit:
+    def __init__(self, score=None, text=None):
+        self.score, self.text = score, text
+
+
+class Native:
+    """Template scores per (crop, box x); OCR texts per box x. Nothing below 0.95 is a hit."""
+
+    def __init__(self, templates, texts):
+        self.templates, self.texts = templates, texts
+
+    def run_recognition_direct(self, kind, param, image):
+        box = tuple(param.roi)
+        if getattr(param, 'template', None):
+            score = self.templates.get((param.template[0], box[0]))
+            return Detail([Hit(score=score)] if score is not None and score >= .95 else [])
+        text = self.texts.get(box[0])
+        return Detail([Hit(score=.99, text=text)] if text else [])
+
+
+LIVE = {('reward/module-currency.png', 1370): .946, ('reward/module-currency-two-digit.png', 1370): .974,
+        ('reward/module-currency-two-digit.png', 1364): .819, ('reward/module-currency.png', 1364): .80,
+        ('reward/deduction-sign.png', 1429): .976}
+TEXTS = {1448: '5', 1444: '5', 650: '0/3'}
+
+
+def observe(templates, texts=TEXTS):
+    pytest.importorskip('maa')
+    import numpy as np
+    from maalimbus.reward_cost import observe_native
+    return observe_native(Native(templates, texts), np.zeros((1080, 1920, 3), np.uint8), page())
+
+
+def test_the_live_five_module_offer_is_read_with_the_other_crop_of_the_same_icon():
+    offer, evidence = observe(LIVE)
+    assert offer == dict(currency='enkephalin_modules', cost=5, weekly=0)
+    currency = next(row for row in evidence if row['purpose'] == 'currency')
+    assert currency['layout'] == 'one_digit' and currency['template'] == 'reward/module-currency-two-digit.png'
+    assert currency['results'] == [dict(score=.974)]
+
+
+def test_no_crop_reaching_the_threshold_is_still_no_offer():
+    weak = {**LIVE, ('reward/module-currency-two-digit.png', 1370): .94}
+    offer, evidence = observe(weak)
+    assert offer is None
+    assert next(row for row in evidence if row['purpose'] == 'currency')['results'] == []
+
+
+def test_a_missing_sign_or_disagreeing_digits_still_refuse():
+    assert observe({k: v for k, v in LIVE.items() if 'deduction' not in k[0]})[0] is None
+    assert observe(LIVE, {**TEXTS, 1444: '6'})[0] is None
