@@ -4175,6 +4175,131 @@
       "boundary": "Read-only arithmetic over events.jsonl: gaps between journal rows, attributed to the floor reached and the page of the last step; a gap over 120 s is a person, not the program. Runs are named by directory name only, with no account, device or local path. It measures time and stops; it does not judge whether a run was correct, and a bound the caller set is not counted as a stop."
     },
     {
+      "id": "run-history",
+      "title": "运行历史：每个任务结束时记一行数据，截图没了也在 / run history: one row of numbers per finished task",
+      "aliases": [
+        "运行历史",
+        "历史数据",
+        "数据化",
+        "趋势",
+        "每个任务一行",
+        "检查点计数",
+        "等待次数",
+        "重读次数",
+        "超过十分钟",
+        "运行数据未记录",
+        "run history",
+        "run_history",
+        "user-run-history",
+        "trend",
+        "checkpoints",
+        "floors_over_target",
+        "FLOOR_TARGET_SECONDS",
+        "record_history",
+        "--history"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/run_history.py",
+          "symbol": "summary"
+        },
+        {
+          "path": "src/maalimbus/run_history.py",
+          "symbol": "checkpoints"
+        },
+        {
+          "path": "src/maalimbus/run_history.py",
+          "symbol": "trend"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "record_history"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "finish_task"
+        },
+        {
+          "path": "tools/run_report.py",
+          "symbol": "history"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_run_history.py"
+      ],
+      "checks": [
+        "python tools/run_report.py --history",
+        "python tools/run_tests.py -q tests/test_run_history.py"
+      ],
+      "boundary": "One row per finished task, appended to user-run-history.jsonl in the data folder: times per floor and page, counts read off the journal, the stop reason and what storage moved. A row names a task by its run folder and a game run by eight characters of its id; no account, device or local path. A floor is the sum over the tasks of one game run. It records and counts; it decides nothing about the game, and a row that cannot be written never changes the task's outcome. Only a run folder inside the installation is recorded."
+    },
+    {
+      "id": "task-end-reclaim",
+      "title": "任务结束时自动整理诊断截图：移到归档，不删除 / end-of-task reclaim: frames move to the archive",
+      "aliases": [
+        "自动回收",
+        "资源回收",
+        "任务结束回收",
+        "整理诊断截图",
+        "归档",
+        "归档提醒",
+        "提醒线",
+        "3GB",
+        "3 GB",
+        "项目占用",
+        "诊断截图整理未完成",
+        "storage-settle",
+        "settle",
+        "settle_evidence",
+        "SETTLE_HEADROOM",
+        "ARCHIVE_NOTICE_BYTES",
+        "evidence-archive",
+        "retire_capture",
+        "capture_settle",
+        "reclaim"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "settle"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "retire_capture"
+        },
+        {
+          "path": "src/maalimbus/capture_retention.py",
+          "symbol": "_delete_rows"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "settle_evidence"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "finish_task"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/6-deployment.md#capture-retention-ownership",
+        "docs/wiki/en_us/6-deployment.md#capture-retention-ownership",
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_capture_settle.py",
+        "tests/test_capture_archive.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_capture_settle.py tests/test_capture_archive.py"
+      ],
+      "boundary": "Runs once after a task has written its result, while the task still holds the controller lease, with no game input. It selects with the retention rule that already existed and moves each frame to the archive beside the project through the hash-bound trail; nothing is deleted and no JSON record or journal is touched. The target is the warning line minus a headroom; a target out of reach is reported, not raised. The program never trims the archive, it only says how large it is. A failure here is printed and never changes the task's outcome. Only a run folder inside the installation gives authority to reclaim."
+    },
+    {
       "id": "daily-hosting",
       "title": "托管日程：今天还欠什么，按服务器日记账 / hosting schedule: what today still owes, booked per server day",
       "aliases": [

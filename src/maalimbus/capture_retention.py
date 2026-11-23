@@ -892,8 +892,20 @@ def apply(application_root,directory,expected):
     return current
 
 
-def _delete_rows(root,directory,files,manifest_reservation,*,budget,guard=None):
-    if not files:return
+def _delete_rows(root,directory,files,manifest_reservation,*,budget,guard=None,recheck_seconds=0,deadline=None):
+    """Retire `files` through the trail; return how many left the project.
+
+    `recheck_seconds=0` re-reads every reference before each frame, as every caller did
+    while retiring meant deleting. `settle` passes an interval instead: one full re-read
+    rehashes every source, test, document and state file, about 0.4 s on a real folder,
+    so moving 545 frames (0.81 GB) took 217 s after a 31 s plan (measured 2026-11-23). A frame
+    that gained a reference inside the interval is moved to the archive, where it stays
+    readable under the same path; it is not lost. `deadline` (monotonic seconds) stops
+    between frames; what remains keeps its written intent and is finished by a later
+    pass, exactly like an interrupted batch.
+    """
+    if not files:return 0
+    import time
     from .native_image_archive import completed_capture_retirement, completed_retention_check
 
     if guard is not None:guard()
@@ -922,10 +934,13 @@ def _delete_rows(root,directory,files,manifest_reservation,*,budget,guard=None):
         handle.flush()
         import os
         os.fsync(handle.fileno())
+    kept=None;read_at=0.0;moved=0
     for row in files:
+        if deadline is not None and time.monotonic()>=deadline:break
         if guard is not None:guard()
         png=_plain(root/row['path'],root);record=_plain(root/row['record'],root)
-        kept=_reference_keep(root)
+        if kept is None or time.monotonic()-read_at>=recheck_seconds:
+            kept=_reference_keep(root);read_at=time.monotonic()
         if png in kept or record in kept or digest(png)!=row['sha256'] or digest(record)!=row['record_sha256']:
             raise ValueError('Capture evidence or references changed; preserve remaining frames')
         if guard is not None:guard()
@@ -939,6 +954,8 @@ def _delete_rows(root,directory,files,manifest_reservation,*,budget,guard=None):
         # Raw reclamation can follow warm archive reads for a long batch. Only
         # this actual completed unit refreshes the existing progress watch.
         completed_capture_retirement()
+        moved+=1
+    return moved
 
 
 
@@ -1041,3 +1058,69 @@ def _reserve(directory,additional_bytes,*,application_root,prefer_extra=0):
     if vault.get('vault_project_bytes_freed'):
         vault['storage_maintenance']=True
     return dict(reservation,**vault)
+
+
+#: After a task has ended the program brings the folder this far under the warning line,
+#: so the next task starts with room instead of starting over the line.
+SETTLE_HEADROOM=400_000_000
+#: The longest the moving phase of one end-of-task reclaim may take. What it did not
+#: reach keeps its intent in the trail and is the first thing the next task moves.
+SETTLE_SECONDS=180.0
+#: How long one full read of the references is trusted while frames are being moved.
+SETTLE_RECHECK_SECONDS=15.0
+#: The program never trims the archive. Past this size it says how large the archive is.
+ARCHIVE_NOTICE_BYTES=8_000_000_000
+
+
+def settle(application_root,directory,*,headroom=None,recent=8,budget=None,seconds=None):
+    """End-of-task reclaim: move out of the project what the retention rule already allows.
+
+    `reserve` serves an offline allocation. A live task checks free disk space and
+    reclaims nothing, so an installation that is left running grew past the warning
+    line task after task (3.4 GB measured 2026-11-23 after two days of runs, and a
+    start had to be unblocked by hand the day before). This runs once after a task has written
+    its ending, under that task's controller lease and with no game input.
+
+    Selection is `plan`'s and retirement is `_delete_rows`': the same references win and
+    every frame leaves through the same hash-bound trail into the archive. Two things
+    differ: the target lies `headroom` below the line, and a plan that cannot reach the
+    target is still applied, because moving some frames out is progress. "Could not
+    reach the target" is reported in the summary, never raised. The moving phase is
+    bounded by `seconds`; frames it did not reach are reported as `left`.
+    """
+    import time
+    from .native_image_archive import verified_reads
+    root,runtimes=roots(application_root)
+    if seconds is None:seconds=SETTLE_SECONDS
+    if type(seconds) not in (int,float) or seconds<0:raise ValueError('Invalid settle time bound')
+    line=workspace.BUDGET_BYTES if budget is None else budget
+    if type(line) is not int or not 0<line<=workspace.BUDGET_BYTES:raise ValueError('Invalid workspace cap')
+    if headroom is None:headroom=SETTLE_HEADROOM
+    if type(headroom) is not int or not 0<=headroom<line:raise ValueError('Invalid settle headroom')
+    target=line-headroom
+    # Only a task's own run folder inside this installation gives authority to reclaim.
+    # A task pointed at a folder elsewhere (a test, a diagnostic) touches nothing here,
+    # and is answered before the folder is even measured.
+    if Path(directory).resolve().parent not in runtimes:
+        return dict(kind='capture_settle',skipped='run_folder_outside_this_installation',moved=0,moved_bytes=0,
+                    target_bytes=target,line_bytes=line,over_line=False,archive_notice=False)
+    used=workspace.size(root)
+    summary=dict(kind='capture_settle',used_bytes=used,target_bytes=target,line_bytes=line,moved=0,moved_bytes=0,
+                 left=0)
+    if used>target:
+        with verified_reads():
+            current=_plan(application_root,directory,0,recent=recent,budget=target)
+            files=current['files']
+            if files:
+                moved=_delete_rows(root,Path(current['directory']),files,current['manifest_reservation'],
+                                   budget=max(target,used),recheck_seconds=SETTLE_RECHECK_SECONDS,
+                                   deadline=time.monotonic()+seconds)
+                summary.update(moved=moved,moved_bytes=sum(row['bytes'] for row in files[:moved]),
+                               left=len(files)-moved)
+        used=workspace.size(root)
+    archive=root.parent/(root.name+ARCHIVE_SUFFIX)
+    archive_bytes=workspace.size(archive)
+    summary.update(after_bytes=used,reached=used<=target,over_line=used>line,
+                   archive=str(archive),archive_bytes=archive_bytes,
+                   archive_notice=archive_bytes>ARCHIVE_NOTICE_BYTES)
+    return summary

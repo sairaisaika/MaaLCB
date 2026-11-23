@@ -1477,17 +1477,18 @@ The recorder distinguishes image identity from retention authority. A workflow k
 
 During a normal run, the loading wait declares its frame as a diagnostic sample after the step finishes without input. The recorder retains the first and most recent PNG of a continuous wait, plus a transient change between identical frames. It records the hash and reclaimed byte count when it removes a middle PNG and leaves the OCR and page history in place. A different step, an input plan, or an ambiguous capture closes the sample series. Explicit observe-only sessions retain their captures. This path only handles declared loading samples. Existing transaction, fixture and review retention continues to cover the rest of the corpus.
 
-The native task checks available disk space and continues to fund two successor pairs before dispatch. The 3 GB workspace figure is reported at task exit as a maintenance target. Workspace maintenance, build and update tools still use their own workspace allocation checks. Native evidence admission does not scan or prune closed history while a task runs.
+The native task checks available disk space and continues to fund two successor pairs before dispatch. The 3 GB workspace figure is reported at task exit as a maintenance target. Workspace maintenance, build and update tools still use their own workspace allocation checks. Native evidence admission does not scan or prune closed history while a task runs. After a task has written its result and before it releases the controller, the program reclaims by itself (since 2026-11-23): `capture_retention.settle` applies the retention rule below and moves the reclaimable middle PNGs to `<project folder>-evidence-archive/` beside the project, under the same path and with a hashed record of where each went, aiming 0.4 GB below the 3 GB warning line. Reclaiming is a move, not a deletion, and the program only adds to the archive. Measurements and limits: [Wiki 9: public-version goal](9-execution-plan.md#public-goal).
 
 First migration: the loop declares a completed observation-only wait in its existing step event. After the recorder closes, storage may retire the middle PNGs of a continuous same-scene series of declared waits. It checks the frame name and image hash, keeps the series ends, isolated pixel changes bracketed by identical frames, and existing causal boundaries, and honors every external proof owner. The JSON and journal are retained. Older journals without declarations use the existing rules. This migration does not convert legacy balances, shop receipts or fixtures to metadata-only proof. A later migration must move each workflow's permanent proof into explicit ownership before reducing path-based protection.
 
 ```mermaid
 flowchart LR
   OCR["Native observer: frame and hash"] --> J["Step journal: observation and wait outcome"]
-  J --> S["Closed-session storage maintenance"]
+  J --> S["Reclaim at the end of a task, and offline maintenance"]
   B["Transactions, replays and training: required originals"] --> S
   S --> R["Retain OCR, event and protected originals"]
-  S --> P["Retire eligible middle diagnostic PNG"]
+  S --> P["Eligible middle diagnostic PNG: hashed record written"]
+  P --> A["Moved to the archive beside the project, same path"]
 ```
 
 MXU evidence on 2026-11-20: the native host acknowledged the pending gift once and observed the shop again. The atomic receipt write was refused after the host wrote additional error screenshots outside the Agent reservation. The pending receipt and both canonical frames were preserved. Fourteen closed diagnostic images with independently matching canonical pixels moved into the existing local vault, retaining the original encoded files. The MXU overlay now supplies `save_on_error: false` as the default for a new MaaToolkit config. Existing configuration still owns its explicit value. The installed SDK replay produced one error PNG with the setting enabled and zero with it disabled, with the text log and zero input in both cases. A newly built MXU and the next physical shop receipt remain separate acceptance points.

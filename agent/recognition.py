@@ -1875,6 +1875,84 @@ def write_loop_result(directory, result):
     return path
 
 
+def settle_evidence(directory):
+    """After a task: the program reclaims its own old diagnostic frames (moved, not deleted).
+
+    Called while the task still holds the controller lease, after its result is written.
+    Whatever happens here is reported and never changes the task's own outcome.
+    """
+    import time as clock
+    from maalimbus import capture_retention
+    started=clock.monotonic()
+    try:
+        summary=capture_retention.settle(ROOT,directory)
+        if summary.get('skipped'):return summary
+        summary['seconds']=round(clock.monotonic()-started,1)
+        from maalimbus.documents import write_document
+        # The summary of a folder still over the line must be writable: it is the record
+        # that says so. Like the task's other evidence it is checked against free disk space.
+        with workspace.live_writes():
+            write_document(Path(directory)/'storage-settle.json',summary,application_root=ROOT)
+    except (ValueError,OSError,KeyError,TypeError) as error:
+        print('MaaLimbus 诊断截图整理未完成（任务结果不受影响）：'+str(error),flush=True)
+        return None
+    try:
+        if summary['moved']:
+            print('MaaLimbus 已整理诊断截图：移出 %d 张（%.2f GB）到归档，项目现占 %.2f GB，用时 %.0f 秒。' % (
+                summary['moved'],summary['moved_bytes']/1e9,summary['after_bytes']/1e9,summary['seconds']),flush=True)
+        if summary.get('left'):
+            print('MaaLimbus 本次整理到时间上限，还有 %d 张留给下一个任务结束时继续。' % summary['left'],flush=True)
+        elif summary['over_line']:
+            print('MaaLimbus 证据维护提醒：整理后项目仍占 %.2f GB，高于 %.0f GB 的提醒线；其余截图仍被引用，未移动。' % (
+                summary['after_bytes']/1e9,summary['line_bytes']/1e9),flush=True)
+        if summary['archive_notice']:
+            print('MaaLimbus 归档提醒：诊断截图归档已有 %.1f GB，位于 %s。程序不会删除它；不再需要排查问题时可自行移走或删除。' % (
+                summary['archive_bytes']/1e9,summary['archive']),flush=True)
+    except (OSError,UnicodeError):
+        pass
+    return summary
+
+
+def record_history(directory, task, storage=None):
+    """After a task: one row of numbers in the data folder, kept after the frames are gone.
+
+    The row holds times, counts and the stop reason; no frame, account or local path.
+    Writing it never changes the task's own outcome.
+    """
+    from maalimbus import run_history
+    try:
+        directory=Path(directory)
+        rows=[]
+        for line in (directory/'events.jsonl').read_text(encoding='utf-8').splitlines():
+            try:rows.append(json.loads(line))
+            except ValueError:continue
+        try:result=json.loads((directory/'agent-result.json').read_text(encoding='utf-8'))
+        except (OSError,ValueError):result={}
+        row=run_history.summary(directory.name,rows,task=task,result=result,storage=storage)
+        run_history.append(data_directory(ROOT),row)
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        print('MaaLimbus 运行数据未记录（任务结果不受影响）：'+str(error),flush=True)
+        return None
+    try:
+        note=run_history.notice(row)
+        if note:print('MaaLimbus 运行数据：'+note,flush=True)
+    except (OSError,UnicodeError):
+        pass
+    return row
+
+
+def finish_task(directory, task):
+    """What every task does after its result is written, while it still holds the controller.
+
+    Only a run folder inside this installation is handled: a task pointed at a folder
+    elsewhere (a test, a diagnostic) leaves no storage record and no history row.
+    """
+    from maalimbus import capture_retention
+    if Path(directory).resolve().parent not in capture_retention.roots(ROOT)[1]:return None
+    storage=settle_evidence(directory)
+    return record_history(directory,task,storage)
+
+
 def write_run_log(directory, result):
     """Write the human-readable trace of the run beside its machine evidence.
 
@@ -2329,4 +2407,7 @@ class MainTaskAction(CustomAction):
             write_loop_result(directory,result)
             return bool(result.get('passed'))
         finally:
-            lease.close()
+            try:
+                finish_task(directory,task)
+            finally:
+                lease.close()
