@@ -498,6 +498,8 @@ Operational implication: `dist/` grows monotonically with every assembly and eve
 rebuildable caches, **except** that `MaaLimbus.backup-*` is the only rollback evidence — do not delete them right
 after an upgrade (see 6.4).
 
+**Evidence is no longer copied on every assembly.** The old package's `evidence/` is carried into the new one by hard link (falling back to a copy where the volume cannot link); `config/`, `logs/` and `build/` stay real copies because they may be edited in place. The cause: ten assemblies on 2026-11-21 to 23 left 11 rollback copies holding 14.8 GB, almost all of it the same frames again. Both sides of a hard link are the same bytes: anything that sums file sizes (including this project's own folder-size check) still counts the rollback copy in full while the disk holds one copy, and the evidence writers replace a file through a temporary file and a rename, so a rewrite does not reach the rollback copy.
+
 ## 6.2 How MXU, MaaFramework, and the Agent Relate
 
 The default MXU route has two gameplay-automation hosts: the GUI/Rust Maa bridge and a separate Python Agent. The updater launcher, WebView and emulator input helpers have separate lifetimes. **ProjectInterface V2 is a configuration specification, not a required extra CLI process.**

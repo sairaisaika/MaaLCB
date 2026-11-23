@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -104,6 +105,15 @@ def freeze(entry, name, work):
     return bundle
 
 
+def link_or_copy(source,destination):
+    """A hard link to the same bytes, or a real copy where the volume cannot link."""
+    try:
+        os.link(source,destination)
+    except OSError:
+        shutil.copy2(source,destination)
+    return destination
+
+
 def replace_local_app(staged,out,*,process_check=closed_app,validator=self_test,
                       lease_factory=ControllerLease):
     staged,out=plain_path(staged),plain_path(out)
@@ -122,7 +132,13 @@ def replace_local_app(staged,out,*,process_check=closed_app,validator=self_test,
             metadata(out)
             before=private_hashes(out)
             for name in PRIVATE:
-                if (out/name).exists():shutil.copytree(out/name,staged/name,dirs_exist_ok=True)
+                if (out/name).exists():
+                    # Evidence is write-once and large: ten rebuilds on 2026-11-21..23 left
+                    # eleven rollback copies holding 14.8 GB, almost all of it the same
+                    # frames again. Link them where the volume allows; config, logs and
+                    # build are small and may be edited in place, so they stay real copies.
+                    shutil.copytree(out/name,staged/name,dirs_exist_ok=True,
+                                    copy_function=link_or_copy if name=='evidence' else shutil.copy2)
             copied=private_hashes(staged)
             if any(copied.get(name)!=sha for name,sha in before.items()):
                 raise ValueError('Local app private copy differs')

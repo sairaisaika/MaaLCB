@@ -95,3 +95,34 @@ def test_the_installed_wheel_can_supply_the_helpers():
     if located is None:
         pytest.skip('this environment has no MaaFw wheel shipping MaaAgentBinary')
     assert (located/'maatouch/universal/maatouch').is_file()
+
+
+def test_rebuild_links_evidence_instead_of_copying_it(tmp_path):
+    """Ten rebuilds once left eleven rollback copies of the same evidence (14.8 GB)."""
+    import os
+    staged,old=setup(tmp_path)
+    frame=old/'evidence/runtime/run-1/frame-0001.png';frame.parent.mkdir(parents=True)
+    frame.write_bytes(b'frame bytes')
+    result=module.replace_local_app(staged,old,process_check=lambda app:None,
+        validator=lambda app:{'agent_self_test':True},lease_factory=Lease)
+    kept=old/'evidence/runtime/run-1/frame-0001.png'
+    rollback=Path(result['backup'])/'evidence/runtime/run-1/frame-0001.png'
+    assert kept.read_bytes()==rollback.read_bytes()==b'frame bytes'
+    assert os.path.samefile(kept,rollback) and kept.stat().st_nlink==2
+    # Config stays a real copy: the app may edit it in place.
+    assert not os.path.samefile(old/'config/mxu-MaaLimbus.json',Path(result['backup'])/'config/mxu-MaaLimbus.json')
+    # Replacing a linked file by rename, as the evidence writers do, leaves the rollback copy alone.
+    fresh=kept.with_suffix('.tmp');fresh.write_bytes(b'rewritten');os.replace(fresh,kept)
+    assert rollback.read_bytes()==b'frame bytes'
+
+
+def test_a_volume_that_cannot_link_still_gets_a_copy(tmp_path,monkeypatch):
+    import os
+    def refuse(*a,**k):raise OSError('links not supported')
+    monkeypatch.setattr(os,'link',refuse)
+    staged,old=setup(tmp_path)
+    (old/'evidence').mkdir();(old/'evidence/a.json').write_bytes(b'{}')
+    result=module.replace_local_app(staged,old,process_check=lambda app:None,
+        validator=lambda app:{'agent_self_test':True},lease_factory=Lease)
+    assert (old/'evidence/a.json').read_bytes()==b'{}'
+    assert (Path(result['backup'])/'evidence/a.json').read_bytes()==b'{}'
