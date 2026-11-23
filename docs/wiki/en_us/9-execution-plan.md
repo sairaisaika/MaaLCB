@@ -90,6 +90,22 @@ This is a long-running goal, not an implemented fact; the baselines below are me
 
 Before a task starts, record its owner and exit evidence in this section; when it is done, write the measured result back into the baseline column above. Anything unverified does not count as done.
 
+### First measurements (2026-11-23)
+
+**B1 where the time goes.** GUI runs of 2026-11-21 to 23 (23 segments, 100.1 minutes of program time), each step's duration plus the wait before it attributed to its page:
+
+| Page | Steps | Total (min) | Per step (s) | Note |
+| --- | --- | --- | --- | --- |
+| Battle animation wait (UNKNOWN) | 394 | 39.6 | 6.0 | 10.6 minutes of it is waiting between steps |
+| Battle command page (BATTLE_HUD) | 165 | 20.2 | 7.3 | two steps per turn: auto-assign, start |
+| Deployment page | 40 | 5.5 | 8.4 | one observation takes 2.7 s, the slowest of any page |
+| Map | 34 | 5.5 | 9.7 | |
+| Other non-battle pages | about 270 | about 17 | 5-7 | results, shop, gifts, events, loading |
+
+The longest of 24 battles took 6.6 minutes. The loop spaces its actions at least 4 seconds after the last input (`interval` in `runner`), so no step is shorter than 5 seconds. Compressible items by expected gain: (1) replace the fixed spacing with "act once the page has settled", which also answers the transitional frame of B3; (2) merge a battle turn's assign and start into one step; (3) the source of the deployment page's 2.7 s observation; (4) the polling cadence during animations. Each needs a before/after time on the live rig before it is adopted; this table is only the baseline.
+
+**C1 option inventory.** `assets/interface.json` defines 714 options and 6 tasks; 22 cannot be reached from a task, a global option, a controller or the pretask: `deployment_position_1..12`, `deployment_preset`, `pack_name`, `pack_weight`, `run_team`, `team_build_name`, `team_build_slot`, `team_keywords`, `team_keywords_extra`, `team_name`, `team_slot`.
+
 ## Dated feasibility history
 
 Everything below is a historical snapshot. Words such as “current”, “latest” and “next” describe the snapshot's own time, not the current checkpoint above. Local diagrams/contracts remain linked from task routes.
