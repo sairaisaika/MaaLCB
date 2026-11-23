@@ -2300,6 +2300,23 @@ class MainTaskAction(CustomAction):
                 if not InputPreflight(self.recognition).run(context,argv):
                     return reject('Actual controller identity failed')
                 if task=='mirror':
+                    # The schedule answers before anything looks at the game: a start on a
+                    # day that is not chosen, or after the day's runs are booked, ends here.
+                    try:
+                        from maalimbus import mirror_schedule
+                        scheduled=mirror_schedule.gate(data_directory(ROOT),
+                            *mirror_schedule.collect(getattr(context,'get_node_data',None)),datetime.now(timezone.utc))
+                    except (ValueError,KeyError,OSError,TypeError) as error:
+                        return reject('mirror_settings_rejected',error)
+                    if scheduled is not None:
+                        journal.record('mirror_schedule',**scheduled)
+                        if not scheduled['left']:
+                            result=dict(passed=True,reason=scheduled['reason'],task=task,input_sent=False,
+                                        clicks_sent=0,verified_clear=False,schedule=scheduled,
+                                        user_message=event_log.explain(scheduled['reason']))
+                            journal.record('main_task_stopped',**result)
+                            write_loop_result(directory,result)
+                            return True
                     try:
                         config=data_directory(ROOT)
                         ledger=config/'user-run-ledger.json'
@@ -2373,8 +2390,14 @@ class MainTaskAction(CustomAction):
                         for name,field in zip(('MirrorShopPolicy','MirrorShopRefreshLimit','MirrorShopCoinReserve'),FIELDS):
                             choice=context.get_node_data(name)['attach'][field]
                             if choice!='saved':loop_params[field]=choice
+                        if scheduled is not None:
+                            loop_params['run_count']=mirror_schedule.run_count(loop_params.get('run_count'),scheduled['left'])
                         selected=SimpleNamespace(custom_action_param=json.dumps(loop_params),node_name='MirrorLoop')
-                        return MirrorLoopAction(self.recognition).run(context,selected)
+                        passed=MirrorLoopAction(self.recognition).run(context,selected)
+                        # Booked with or without a schedule: the ledger is the record of what the
+                        # day saw finished, and a schedule switched on later must find it.
+                        mirror_schedule.book_result(data_directory(ROOT),directory,datetime.now(timezone.utc))
+                        return passed
                     except (ValueError,KeyError,OSError,TypeError) as error:
                         return reject('mirror_settings_rejected',error)
                 observer=runner.MaaObserver(AgentTasker(context),directory,
@@ -2387,6 +2410,9 @@ class MainTaskAction(CustomAction):
                                                deadline=time.monotonic()+90)
                     result=execute(data_directory(ROOT),directory,observer,device,journal)
                     write_loop_result(directory,result)
+                    # A run finished by this task (reward claimed, lobby reached) is a Mirror run of today.
+                    from maalimbus import mirror_schedule
+                    mirror_schedule.book_result(data_directory(ROOT),directory,datetime.now(timezone.utc))
                     return bool(result.get('passed'))
                 if task in ('experience','thread'):
                     from maalimbus.lux_task import prepare, execute as execute_lux

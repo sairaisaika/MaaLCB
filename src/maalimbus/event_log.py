@@ -18,6 +18,8 @@ ACTION_WORDS = {'click': 'click', 'swipe': 'swipe', 'node': 'node', 'record': 'n
 
 #: what a stop reason means, and the next thing to look at
 GLOSSARY = {
+    'mirror_not_scheduled_today': '今天不在镜牢日程选中的日子里，本次没有操作游戏。',
+    'mirror_schedule_done_today': '镜牢日程里今天的局数已经打完，本次没有操作游戏。',
     'reward_module_budget_pending': '当前局没有可用的模块领奖预算。保留当前页面和事务证据。',
     'completed_mirror_run_required': '当前局的五层通关证据未齐，领奖步骤尚未执行。',
     'reward_receipt_without_current_confirmation': '当前回执缺少同局的领奖确认记录，保留回执等待对账。',

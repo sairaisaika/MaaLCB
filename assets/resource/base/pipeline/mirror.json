@@ -5583,6 +5583,22 @@
     },
     "next": []
   },
+  "MirrorSchedule": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "days": "off"
+    },
+    "next": []
+  },
+  "MirrorRunsPerDay": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "runs": 1
+    },
+    "next": []
+  },
   "MirrorRunCount": {
     "recognition": "DirectHit",
     "action": "DoNothing",

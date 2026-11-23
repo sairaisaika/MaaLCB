@@ -4325,7 +4325,20 @@
         "owed",
         "next_item",
         "FAILURES_PER_DAY",
-        "user-daily-ledger"
+        "user-daily-ledger",
+        "镜牢日程",
+        "周几打",
+        "每天几局",
+        "今天不打",
+        "当天打完",
+        "定时托管",
+        "mirror_schedule",
+        "MirrorSchedule",
+        "MirrorRunsPerDay",
+        "mirror_runs_per_day",
+        "mirror_not_scheduled_today",
+        "mirror_schedule_done_today",
+        "book_result"
       ],
       "sources": [
         {
@@ -4347,6 +4360,22 @@
         {
           "path": "src/maalimbus/daily_ledger.py",
           "symbol": "DailyLedger.fail"
+        },
+        {
+          "path": "src/maalimbus/mirror_schedule.py",
+          "symbol": "collect"
+        },
+        {
+          "path": "src/maalimbus/mirror_schedule.py",
+          "symbol": "gate"
+        },
+        {
+          "path": "src/maalimbus/mirror_schedule.py",
+          "symbol": "book_result"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "MainTaskAction.run"
         }
       ],
       "docs": [
@@ -4354,12 +4383,13 @@
         "docs/wiki/en_us/9-execution-plan.md#public-goal"
       ],
       "tests": [
-        "tests/test_daily_ledger.py"
+        "tests/test_daily_ledger.py",
+        "tests/test_mirror_schedule.py"
       ],
       "checks": [
-        "python tools/run_tests.py -q tests/test_daily_ledger.py"
+        "python tools/run_tests.py -q tests/test_daily_ledger.py tests/test_mirror_schedule.py"
       ],
-      "boundary": "Bookkeeping only: it turns a schedule and the clock into the items still owed and remembers what was done and what failed. No task calls it yet, and it decides nothing about the game. The reset defaults (06:00 Korea time, week from Thursday) are stated values, not measured by this project; the game's own notice page is the authority. What counts as one finished unit belongs to the task that runs."
+      "boundary": "The ledger turns a schedule and the clock into the items still owed and remembers what was done. The Mirror task is its first caller: with a schedule chosen in the task's own options it plays only on the chosen weekdays and only until the day's complete runs are booked; a start the day does not owe ends before anything looks at the game. A run is booked only when it is complete (five floors, reward claimed, lobby reached), whether the loop finished it or the rewards task did by claiming its reward, and it is booked with or without a schedule. Without a schedule the task plays as before. The reset defaults (06:00 Korea time, week from Thursday) are stated values, not measured by this project; the game's own notice page is the authority. Not verified on the installed app yet."
     },
     {
       "id": "transactions",

@@ -144,6 +144,7 @@
         "mirror_shop_skill_mode",
         "mirror_run_bounds",
         "mirror_run_count",
+        "mirror_schedule",
         "mirror_preferences",
         "mirror_battle_assignment"
       ]
@@ -62849,6 +62850,147 @@
             "MirrorShopCoinReserve": {
               "attach": {
                 "shop_reserve_coins": 500
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_schedule": {
+      "type": "select",
+      "label": "$mirror_schedule",
+      "description": "$mirror_schedule_description",
+      "default_case": "off",
+      "cases": [
+        {
+          "name": "off",
+          "label": "$mirror_schedule_off",
+          "pipeline_override": {
+            "MirrorSchedule": {
+              "attach": {
+                "days": "off"
+              }
+            }
+          }
+        },
+        {
+          "name": "every_day",
+          "label": "$mirror_schedule_every_day",
+          "option": [
+            "mirror_runs_per_day"
+          ],
+          "pipeline_override": {
+            "MirrorSchedule": {
+              "attach": {
+                "days": "every_day"
+              }
+            }
+          }
+        },
+        {
+          "name": "weekdays",
+          "label": "$mirror_schedule_weekdays",
+          "option": [
+            "mirror_runs_per_day"
+          ],
+          "pipeline_override": {
+            "MirrorSchedule": {
+              "attach": {
+                "days": "weekdays"
+              }
+            }
+          }
+        },
+        {
+          "name": "weekend",
+          "label": "$mirror_schedule_weekend",
+          "option": [
+            "mirror_runs_per_day"
+          ],
+          "pipeline_override": {
+            "MirrorSchedule": {
+              "attach": {
+                "days": "weekend"
+              }
+            }
+          }
+        },
+        {
+          "name": "mon_wed_fri",
+          "label": "$mirror_schedule_mon_wed_fri",
+          "option": [
+            "mirror_runs_per_day"
+          ],
+          "pipeline_override": {
+            "MirrorSchedule": {
+              "attach": {
+                "days": "mon_wed_fri"
+              }
+            }
+          }
+        },
+        {
+          "name": "tue_thu_sat",
+          "label": "$mirror_schedule_tue_thu_sat",
+          "option": [
+            "mirror_runs_per_day"
+          ],
+          "pipeline_override": {
+            "MirrorSchedule": {
+              "attach": {
+                "days": "tue_thu_sat"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_runs_per_day": {
+      "type": "select",
+      "label": "$mirror_runs_per_day",
+      "description": "$mirror_runs_per_day_description",
+      "default_case": "1",
+      "cases": [
+        {
+          "name": "1",
+          "label": "1",
+          "pipeline_override": {
+            "MirrorRunsPerDay": {
+              "attach": {
+                "runs": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "2",
+          "label": "2",
+          "pipeline_override": {
+            "MirrorRunsPerDay": {
+              "attach": {
+                "runs": 2
+              }
+            }
+          }
+        },
+        {
+          "name": "3",
+          "label": "3",
+          "pipeline_override": {
+            "MirrorRunsPerDay": {
+              "attach": {
+                "runs": 3
+              }
+            }
+          }
+        },
+        {
+          "name": "5",
+          "label": "5",
+          "pipeline_override": {
+            "MirrorRunsPerDay": {
+              "attach": {
+                "runs": 5
               }
             }
           }
