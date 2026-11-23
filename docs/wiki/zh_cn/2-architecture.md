@@ -95,6 +95,7 @@ flowchart LR
 flowchart TD
     subgraph ORCH["编排层"]
         RUNNER["runner.py<br/>MirrorRunner.step / run"]
+        AGENT["agent/recognition.py<br/>MXU 自定义动作入口"]
         WIRING["run_wiring.py<br/>ledger_event / settle / expire / reconcile"]
         FLOWS["session_flow.py<br/>具名实机会话流"]
         JOBS["jobs.py<br/>有限期 Maa job 轮询"]
@@ -103,21 +104,23 @@ flowchart TD
 
     subgraph DECIDE["决策层（纯函数）"]
         WINDOW["window.py<br/>plan_step"]
+        ANCHOR["anchor.py<br/>拒绝原因分类"]
         POLICIES["policies.py<br/>rank_gifts / ResourceBudget / RunLedger"]
         ROUTE["route_plan.py<br/>plan_route"]
-        MLP["mirror_learning_policy.py<br/>静态启发式 + 有界学习项"]
-        BUDGET["budget.py<br/>消耗闸门"]
     end
 
     subgraph SEE["视觉/页面读取层"]
         VISION["vision.py<br/>Text + 归一化位置"]
         MAPV["map_vision.py<br/>地图身份与有界路线读数"]
+        MAPGEO["map_node_geometry.py<br/>connected_nodes：下一步节点"]
+        MAPHEX["map_hexagons.py<br/>六边形状态 / 火车灯距定列距"]
         BATTLEV["battle_vision.py"]
         SHOPV["shop_vision.py"]
     SHOPREV["shop_revive.py<br/>服务按钮 / 选项 / 位框 / 状态按钮"]
         GCAT["gift_vision.py<br/>GiftCatalog"]
         TEAMV["team_vision.py<br/>team_row / card_states"]
         THEMEV["theme_vision.py<br/>ThemeCatalog"]
+        LOCAL["local_assets.py<br/>本地游戏素材，缺失时具名报告"]
         EVENTV["event_vision.py"]
         REWARDV["reward_vision.py"]
     end
@@ -131,13 +134,13 @@ flowchart TD
     subgraph EXEC["任务执行层"]
         REWTASK["reward_task.py / lux_task.py"]
         SHOPTXN["shop_transaction.py"]
+        LAUNCH["emulator_launch.py / game_launch.py<br/>前置任务与打开游戏"]
     end
 
     RUNNER --> WINDOW
     RUNNER --> WIRING
     RUNNER --> FLOWS
     RUNNER --> JOBS
-    RUNNER --> ELOG
     RUNNER --> MAPV
     RUNNER --> BATTLEV
     RUNNER --> SHOPV
@@ -151,18 +154,26 @@ flowchart TD
     RUNNER --> TXN
     RUNNER --> STORAGE
     RUNNER --> PS
-    RUNNER --> BUDGET
-    RUNNER --> ROUTE
     MAPV --> ROUTE
     MAPV --> VISION
     STORAGE --> POLICIES
-    ROUTE --> POLICIES
-    WINDOW --> POLICIES
     WIRING --> STORAGE
     TXN --> STORAGE
     REWTASK --> RUNNER
     SHOPTXN --> STORAGE
+    AGENT --> RUNNER
+    AGENT --> ELOG
+    AGENT --> LAUNCH
+    RUNNER --> MAPGEO
+    MAPGEO --> MAPHEX
+    MAPGEO --> MAPV
+    WINDOW --> ANCHOR
+    GCAT --> POLICIES
+    GCAT --> LOCAL
+    THEMEV --> LOCAL
 ```
+
+本图只画代表性模块：`runner.py` 目前直接 import 65 个本包模块，图中画出其中有代表性的一部分。`budget.py` 现在没有任何模块 import，`mirror_learning_policy.py` 只被它自己的测试 import、没有接进运行时，两者已从图中移除。图中每条边都由 `tests/test_wiki_figure_imports.py` 对照源码的 import 语句核对（2026-11-23 核对时发现 5 条边已不成立并更正）。
 
 图中每一根边的依据：`src/maalimbus/runner.py:46-72`（模块级 import 块）、`src/maalimbus/map_vision.py:16-17`、`src/maalimbus/storage.py:12`、`agent/recognition.py:20-43`、`src/maalimbus/runner.py:1862`（函数内 import `shop_revive`）与 `src/maalimbus/shop_revive.py:20`（它只依赖 `shop_vision` 的读数助手）。
 

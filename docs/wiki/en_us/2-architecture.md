@@ -92,6 +92,7 @@ flowchart LR
 flowchart TD
     subgraph ORCH["Orchestration"]
         RUNNER["runner.py<br/>MirrorRunner.step / run"]
+        AGENT["agent/recognition.py<br/>MXU custom action entry"]
         WIRING["run_wiring.py<br/>ledger_event / settle / expire / reconcile"]
         FLOWS["session_flow.py<br/>named live-session flows"]
         JOBS["jobs.py<br/>finite Maa job polling"]
@@ -100,21 +101,23 @@ flowchart TD
 
     subgraph DECIDE["Decision layer (pure)"]
         WINDOW["window.py<br/>plan_step"]
+        ANCHOR["anchor.py<br/>refusal classification"]
         POLICIES["policies.py<br/>rank_gifts / ResourceBudget / RunLedger"]
         ROUTE["route_plan.py<br/>plan_route"]
-        MLP["mirror_learning_policy.py<br/>static heuristics + a bounded learned term"]
-        BUDGET["budget.py<br/>spend gate"]
     end
 
     subgraph SEE["Vision / page reading"]
         VISION["vision.py<br/>Text + normalized position"]
         MAPV["map_vision.py<br/>map identity and bounded route reading"]
+        MAPGEO["map_node_geometry.py<br/>connected_nodes: the next node"]
+        MAPHEX["map_hexagons.py<br/>hexagon state / pitch from the train lamps"]
         BATTLEV["battle_vision.py"]
         SHOPV["shop_vision.py"]
     SHOPREV["shop_revive.py<br/>service / options / slot box / state button"]
         GCAT["gift_vision.py<br/>GiftCatalog"]
         TEAMV["team_vision.py<br/>team_row / card_states"]
         THEMEV["theme_vision.py<br/>ThemeCatalog"]
+        LOCAL["local_assets.py<br/>local game assets, named when missing"]
         EVENTV["event_vision.py"]
         REWARDV["reward_vision.py"]
     end
@@ -128,13 +131,13 @@ flowchart TD
     subgraph EXEC["Task execution"]
         REWTASK["reward_task.py / lux_task.py"]
         SHOPTXN["shop_transaction.py"]
+        LAUNCH["emulator_launch.py / game_launch.py<br/>pretask and open game"]
     end
 
     RUNNER --> WINDOW
     RUNNER --> WIRING
     RUNNER --> FLOWS
     RUNNER --> JOBS
-    RUNNER --> ELOG
     RUNNER --> MAPV
     RUNNER --> BATTLEV
     RUNNER --> SHOPV
@@ -148,18 +151,26 @@ flowchart TD
     RUNNER --> TXN
     RUNNER --> STORAGE
     RUNNER --> PS
-    RUNNER --> BUDGET
-    RUNNER --> ROUTE
     MAPV --> ROUTE
     MAPV --> VISION
     STORAGE --> POLICIES
-    ROUTE --> POLICIES
-    WINDOW --> POLICIES
     WIRING --> STORAGE
     TXN --> STORAGE
     REWTASK --> RUNNER
     SHOPTXN --> STORAGE
+    AGENT --> RUNNER
+    AGENT --> ELOG
+    AGENT --> LAUNCH
+    RUNNER --> MAPGEO
+    MAPGEO --> MAPHEX
+    MAPGEO --> MAPV
+    WINDOW --> ANCHOR
+    GCAT --> POLICIES
+    GCAT --> LOCAL
+    THEMEV --> LOCAL
 ```
+
+The figure draws representative modules only: `runner.py` currently imports 65 modules of this package directly and the figure shows a representative part of them. `budget.py` is imported by no module now and `mirror_learning_policy.py` only by its own test, not by the runtime; both were removed from the figure. Every edge is checked against the source's import statements by `tests/test_wiki_figure_imports.py` (the check of 2026-11-23 found five edges that no longer held and corrected them).
 
 Every edge above is grounded in: `src/maalimbus/runner.py:46-72` (the module-level import block), `src/maalimbus/map_vision.py:16-17`, `src/maalimbus/storage.py:12`, `agent/recognition.py:20-43`, `src/maalimbus/runner.py:1862` (a function-local import of `shop_revive`) and `src/maalimbus/shop_revive.py:20` (it depends only on the `shop_vision` reading helpers).
 
