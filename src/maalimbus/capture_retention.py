@@ -843,6 +843,42 @@ def _plan(application_root,directory,additional_bytes,*,recent=8,budget=None,pre
     return result
 
 
+#: Reclaimed captures leave the project folder for this sibling folder; they are not
+#: destroyed. The user's rule (2026-11-22): the folder limit is a warning line, and
+#: evidence is moved out with a record of where it went, never deleted.
+ARCHIVE_SUFFIX='-evidence-archive'
+
+
+def retire_capture(png,root,sha256):
+    """Move one reclaimed frame to the archive beside the project; return its archive path.
+
+    The path inside the archive repeats the path inside the project, so a frame can be
+    put back by hand. A same-volume move is a rename; across volumes the bytes are
+    copied, compared with the planned digest and only then removed from the project.
+    Where no archive can be written the frame stays where it is and the error is raised:
+    reclaiming is refused rather than turned into a deletion.
+    """
+    import os
+    import shutil
+    relative=png.relative_to(root)
+    target=root.parent/(root.name+ARCHIVE_SUFFIX)/relative
+    target.parent.mkdir(parents=True,exist_ok=True)
+    if target.exists():
+        if digest(target)!=sha256:
+            raise ValueError('Archive already holds a different capture at this path; nothing reclaimed')
+        png.unlink()
+        return relative.as_posix()
+    try:
+        os.replace(png,target)
+    except OSError:
+        shutil.copy2(png,target)
+        if digest(target)!=sha256:
+            target.unlink()
+            raise ValueError('Archived capture differs from the planned bytes; nothing reclaimed')
+        png.unlink()
+    return relative.as_posix()
+
+
 def apply(application_root,directory,expected):
     """Replan before any unlink; preserve metadata and a durable deletion trail."""
     current=plan(application_root,directory,expected['additional_bytes'],
@@ -894,9 +930,10 @@ def _delete_rows(root,directory,files,manifest_reservation,*,budget,guard=None):
             raise ValueError('Capture evidence or references changed; preserve remaining frames')
         if guard is not None:guard()
         completed_retention_check()
-        png.unlink()
+        archived=retire_capture(png,root,row['sha256'])
         with manifest.open('a',encoding='utf8') as handle:
-            handle.write(json.dumps(dict(event='capture_reclaimed',path=row['path'],sha256=row['sha256']))+'\n')
+            handle.write(json.dumps(dict(event='capture_reclaimed',path=row['path'],sha256=row['sha256'],
+                                         archived=archived))+'\n')
             handle.flush()
             os.fsync(handle.fileno())
         # Raw reclamation can follow warm archive reads for a long batch. Only

@@ -62,6 +62,13 @@ def test_failed_work_never_refreshes_watch(tmp_path,monkeypatch,fault):
             if p==target:raise PermissionError('Cannot unlink actual capture')
             return unlink(p,*a,**k)
         monkeypatch.setattr(Path,'unlink',fail)
+        # A reclaimed frame is moved to the archive, so a frame the system will not let
+        # go fails at the rename first and again when the copied original is removed.
+        replace=os.replace
+        def locked(source,destination):
+            if Path(source)==target:raise PermissionError('Cannot move actual capture')
+            return replace(source,destination)
+        monkeypatch.setattr(os,'replace',locked)
     else:
         sync=os.fsync;calls=[]
         def fail(fd):

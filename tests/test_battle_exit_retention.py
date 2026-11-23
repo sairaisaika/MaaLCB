@@ -54,14 +54,18 @@ def test_interrupted_retirement_has_durable_remaining_intents_not_game_evidence(
     used=workspace.size(tmp_path)
     plan=retention.plan(tmp_path,new,25_000,budget=used+20_000,recent=2)
     assert len(plan['files'])==2
-    unlink=Path.unlink
-    def interrupted(p,*args,**kwargs):
-        if p==old/'frame-0003.png':raise OSError('injected interruption after first unlink')
-        return unlink(p,*args,**kwargs)
-    monkeypatch.setattr(Path,'unlink',interrupted)
+    # A reclaimed frame is moved to the archive beside the project, not unlinked, so the
+    # interruption is injected where the frame leaves the project.
+    retire=retention.retire_capture
+    def interrupted(png,*args,**kwargs):
+        if png==old/'frame-0003.png':raise OSError('injected interruption after first retirement')
+        return retire(png,*args,**kwargs)
+    monkeypatch.setattr(retention,'retire_capture',interrupted)
     with pytest.raises(OSError):retention.apply(tmp_path,new,plan)
-    monkeypatch.setattr(Path,'unlink',unlink)
+    monkeypatch.setattr(retention,'retire_capture',retire)
     assert not (old/'frame-0002.png').exists() and (old/'frame-0003.png').exists()
+    archive=tmp_path.parent/(tmp_path.name+retention.ARCHIVE_SUFFIX)
+    assert (archive/(old/'frame-0002.png').relative_to(tmp_path)).is_file()
     if fault=='new_reference':protected.add(old/'frame-0003.png')
     if fault=='changed_record':
         p=old/'frame-0003.json';d=json.loads(p.read_text());d['new']='changed';p.write_text(json.dumps(d))
