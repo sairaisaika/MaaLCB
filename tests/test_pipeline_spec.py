@@ -92,7 +92,7 @@ def test_two_scaling_modes_on_one_controller_are_reported():
 
 def test_an_override_that_names_no_node_is_reported():
     body = json.loads(json.dumps(interface()))
-    option = body['option']['team_slot']
+    option = body['option']['experience_team']
     option['cases'][0].setdefault('pipeline_override', {})['NoSuchNode'] = {'enabled': True}
     problems: list = []
     verify.check_interface(body, set(pipeline()), root=ROOT, problems=problems)

@@ -115,6 +115,8 @@ The longest of 24 battles took 6.6 minutes. The loop spaces its actions at least
 
 **C1 option inventory.** `assets/interface.json` defines 714 options and 6 tasks; 22 cannot be reached from a task, a global option, a controller or the pretask: `deployment_position_1..12`, `deployment_preset`, `pack_name`, `pack_weight`, `run_team`, `team_build_name`, `team_build_slot`, `team_keywords`, `team_keywords_extra`, `team_name`, `team_slot`.
 
+**C1 cleaned up (2026-11-23).** The 22 options above were deleted from `assets/interface.json` (714 -> 692, a pure deletion with the rest of the text untouched). Their pipeline nodes cannot be reached from the entry of any of the 6 tasks, so runtime behaviour is unchanged; `tools/expand_team_slots.py` no longer handles three of them, so a rerun does not bring them back; `tools/prepare_resources.py` writes the early five-task skeleton and now refuses to replace the maintained interface by default. `tests/test_interface_reachability.py` keeps "defined but unreachable" at zero. Not done yet: the 31 text keys in the three language files that only these options used, and deployment order is still 12 dropdowns.
+
 ## Dated feasibility history
 
 Everything below is a historical snapshot. Words such as “current”, “latest” and “next” describe the snapshot's own time, not the current checkpoint above. Local diagrams/contracts remain linked from task routes.

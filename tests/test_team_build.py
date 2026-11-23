@@ -98,11 +98,9 @@ def test_the_pipeline_chain_and_the_interface_agree_on_the_same_nodes():
     assert nodes['TeamBuildSave']['custom_action_param']['mode'] == 'save'
     for name in ('TeamKeywordSet','TeamKeywordExtra','TeamBuildSave'):
         assert nodes[name]['custom_action'] == 'limbus_team'
-    cases = pi['option']['team_build_slot']['cases']
-    assert [c['name'] for c in cases] == [str(i) for i in range(1,41)]
-    for case in cases:
-        slot = int(case['name'])
-        assert case['pipeline_override']['TeamKeywordSet']['custom_action_param']['slot'] == slot
+    # The standalone build options no task reached were removed on 2026-11-23.
+    for name in ('team_build_slot','team_build_name','team_keywords','team_keywords_extra'):
+        assert name not in pi['option']
     tasks = {t['name']: t for t in pi['task']}
     assert 'team_build' not in tasks
     # Global settings apply only explicit edits; the legacy build replace chain
@@ -122,6 +120,8 @@ def test_the_pipeline_chain_and_the_interface_agree_on_the_same_nodes():
 def test_every_keyword_a_build_can_name_is_one_the_engine_knows():
     """The GUI offers the same list the profile rejects unknown names against."""
     pi = json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
-    offered = set(pi['option']['team_keywords']['cases'][0]['pipeline_override']
-                    ['TeamKeywordSet']['custom_action_param']['keywords'])
+    offered = {keyword for slot in (1, 20, 40)
+               for case in pi['option'][f'global_team_{slot}_systems']['cases']
+               for keyword in case['pipeline_override'][f'Global_global_team_{slot}_systems']
+                                  ['attach']['global_build']['keywords']}
     assert offered and offered <= set(KEYWORDS)

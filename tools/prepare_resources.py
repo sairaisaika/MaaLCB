@@ -15,7 +15,17 @@ def write(path, value):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--ocr', type=Path, required=True)
+    parser.add_argument('--overwrite-maintained-interface', action='store_true',
+                        help='rewrite interface.json, mirror.json and the i18n files with the early skeleton')
     args = parser.parse_args()
+    # This script writes the early five-task skeleton. The maintained interface.json (global
+    # settings, the pretask, hundreds of options) is edited by hand and by expand_team_slots;
+    # running this over it would replace all of that, so it refuses unless told to.
+    current = ROOT / 'assets/interface.json'
+    if (current.is_file() and 'global_option' in json.loads(current.read_text(encoding='utf-8'))
+            and not args.overwrite_maintained_interface):
+        raise SystemExit('assets/interface.json is the maintained interface; this script would replace it '
+                         'with the early skeleton. Pass --overwrite-maintained-interface to do that.')
     target_ocr = ROOT/'assets/resource/base/model/ocr'
     if args.ocr.resolve() != target_ocr.resolve():
         shutil.copytree(args.ocr,target_ocr,dirs_exist_ok=True)

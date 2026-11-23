@@ -27,7 +27,7 @@ def expand(pi,nodes):
         next(s for s in pi['setting'] if s['name']==name)['label']=f'Team {slot}'
         pi['option'][f'mirror_queue_{slot}']=replace(pi['option']['mirror_queue_20'],slot,False)
         nodes[f'MirrorTaskQueue{slot}']=replace(nodes['MirrorTaskQueue20'],slot,False)
-    for key in ('team_slot','run_team','team_build_slot','mirror_single_team','experience_team','thread_team',
+    for key in ('mirror_single_team','experience_team','thread_team',
                 *(f'mirror_queue_{n}' for n in range(1,41))):
         cases=pi['option'][key]['cases'];template=next(c for c in cases if c['name']=='20')
         def select(value,slot):
