@@ -149,6 +149,71 @@ The longest of 24 battles took 6.6 minutes. The loop spaces its actions at least
 
 **Fusing gifts in the shop (2026-11-24; the user pointed out the shop's fusion had never been used).** The fusion panel was first walked by hand on the live client, a frame taken at every step, and only then were the reader and the inputs written; the details and invariants are in [4.3.8b](4-business-flows.md#shop-gift-fusion). Three findings. (1) The game itself lists the recipes whose gifts are all owned under "Fusion Available"; one tap loads the ingredients and the forecast reads 100%, so a recipe fusion does not need every owned gift identified. The program presses Fuse only on a forecast of exactly 100% with the Wishmaking box seen empty. (2) What made the program miss recipes was buying: a Charge + Tremor team left a floor-4 shop with 1,706 coins and a Charge recipe ingredient on the shelf, because the catalogue does not name it, its title wraps onto a second line and only the first was read, and a long title with one wrong glyph matched nothing. All three are fixed, and recipe ingredients joined the wanted list. (3) The recipe table is imported strictly from the wiki (62 recipes, with revision id and licence); the first parse by hand had put three groups wrong, so the importer guesses nothing about which rows a group covers. **Not done**: random fusion is a tested decision function with no page reader. **Acceptance**: first walked by hand once (UPS System + Miniature Telepole -> Insulator); then the installed app itself bought Wobbling Keg in the floor-5 shop, fused Epicenter and left normally (`pi-20261123-225704`, 7 inputs in 40 seconds). That is one run and one recipe. There was a wait in between: the installed app had been started elevated, this session could not close it, and the project's own installer therefore refused to replace its files; that check was not worked around, and the rebuild waited until the user had quit the app. The lesson for people: a feature that was "never used" does not show in any log, only against a list of the game's own entries; of the shop page's three buttons, Enhance Gifts and Sell Gifts are still unused.
 
+<a id="run-review-20261124"></a>
+
+### Stage review: one complete Mirror run, lost at the floor-5 boss (2026-11-24)
+
+After this run the user asked for a look back over all of it. The subject is one run from the evening of 2026-11-23 into the 24th (ledger `ea52b509…`, team 2, systems Charge + Tremor, hard): four floors cleared, the floor-5 boss not beaten in 22 program turns, and after the user took over by hand it still ended at a total progress of 95%. Every figure comes from the event logs of this run's eight task segments and `user-run-history.jsonl`; no experiment was run for it.
+
+**The run in numbers.**
+
+| Item | Value |
+|---|---|
+| Program time | 140.1 minutes in 8 task segments (7 stops) |
+| Minutes per floor | 24.2 / 24.1 / 25.6 / 36.7 / 28.8; the target is 10 |
+| Of which battle | 16.1 / 16.0 / 20.3 / 29.9 / 22.7, 105.0 in total, 75% |
+| Battle turns | 94, about 67 seconds a turn |
+| Observations | 2,831, of which 1,645 (58%) were pages not named, nearly all battle animation |
+| Coins | on entering the five shops 906 / 1363 / 1834 / 2538 / 2597, on leaving 506 / 764 / 1384 / 1706 / 1872 |
+| Spent on gifts | 18 gifts for 2,781 (5 of them other systems' gifts bought only to meet the carry cap), 225 on refreshes |
+| Never spent | 1,872 in hand at the boss, about 38% of the run's income |
+| Fusions | 2, both from today (one by hand, one by the program) |
+| Highest gift tier | III; no tier IV, nothing enhanced |
+
+**Finding 1: the program gets through pages and decides almost nothing.** How to pass each page safely is worked out in detail; what to choose is a fixed rule, or the first option.
+
+- Theme pack: `neutral_default` on all five floors, which is the first card. The floor-5 boss was picked that way.
+- Map: the nearest lit node. The node kinds in the events are only looks (`lit_icon`, `path_node`, `lit_ring`, `gold_badge_node`); the program does not know which is a battle, an event or a shop.
+- Floor gifts: the smallest trial penalty wins, and the team's system is worth 40 points. A Charge team met Curriculum Vitae (Charge, and an ingredient of the T-5 recipe) twice and took it neither time: once because its trial scored higher, once because its trial text was not understood; both times another system's gift was taken.
+- Shop: only names the catalogue files under the team's systems, two plain refreshes; never a keyword refresh, an enhancement or a sale, and fusion only since today. So the coins pile up.
+- Battle: win-rate assignment and Start every turn; no E.G.O, no targeting.
+- Starlight: at most 60 per run by the saved rule (3 graces bought this run), with 3,285 in the account. That is the user's saved setting; it is recorded here as a fact only.
+
+**Finding 2: getting stronger and getting faster are the same thing.** 75% of the time is battle at over a minute a turn; a weak team takes more turns and does not beat the boss. So the 10-minutes-a-floor target is reached mainly by having a formed build from floor 3 on, not by trimming waits. The user's judgement (the coins did not go into strong gifts, no tier IV by floor 5) agrees with the numbers.
+
+**Finding 3: there are places to spend, and the program does not know them.** By the wiki's fusion points (not measured here), three tier III gifts, or two tier III and one tier II, fuse into tier IV, and three gifts give the keyword asked for with 90%. This run bought 18 gifts and took 12 floor gifts; five of the bought ones are other systems' gifts bought to meet the cap, which is exactly what a random fusion is made of. Gifts at 280 coins appeared on the shelf twice (Fragment of Desire, Crushed Memory) and were not bought. The keyword refresh (120 coins) was never used. Enhancement was never used; its page has not even been seen.
+
+**Finding 4: a lost run stops on the reward page.** Below a total progress of 100% the program names the summary a lost run, opens the reward dialog and stops because the ledger holds no five-floor clear (`completed_mirror_run_required`). The dialog has three buttons: give the rewards up (the user's rule: never), back to the window, and Claim for 5 modules. Whether a lost run's partial rewards are worth 5 modules is the user's decision, and the program has no answer to it yet, so unattended a single lost run blocks every run after it. The reason name in that row of the code still reads "opens its rewards only to give them up", the opposite of the rule; the give-up button is on the forbidden list and was never pressed, but the name and its comment are wrong and are to be changed.
+
+**Finding 5: of the seven stops, five were corners of reading or reconciling a page, and two were a person pressing Stop.** In order: the deployment page did not change, the shop notice named another gift (fixed), a free gift's effect text was taken for a price (fixed), the map did not restore navigation (which led to the ">>" reader), a refresh did not reconcile (fixed); of the last two, one was a Stop pressed in the shop to look at the fusion panel and one was the user pressing Stop in the boss battle to take over. Both are logged as `the_page_read_did_not_come_back_inside_its_window`, and only after that does the interface say "stop task": a stop a person asked for is recorded as a fault, and the run history gained two failures that were not.
+
+**What the game itself reuses.** Each page has its own coordinates and rules today; the game is assembled from a few things used again and again.
+
+- **The gift tile**: tier at the top left, system icon at the bottom right, name underneath. The shop shelf, the fusion panel, floor gifts, reward cards, the gift notice and the recipe list all show the same tile. The program reads the name only, not the tier or the icon, so it does not know what it owns or how strong it is, and cannot tell the system of a gift the catalogue does not name. Read once, the tile serves six places.
+- **The two-button question**: leaving the shop, a purchase, the fusion keyword and the fusion question all put Cancel on the left and Confirm on the right, in nearly the same place. Each has its own region constants today.
+- **The "E.G.O Gift GET!" notice**: already one page shared by purchases, fusion and events. This is the example done right.
+- **Coins and price badges**: the shop's coins, the prices under buttons (Refresh 45, Keyword Refresh 120, Heal 100), the before and after balance in the purchase dialog.
+- **The twelve sinner portraits along the bottom**: in the shop, in events and in battle, with their HP. The program looks at them only when somebody is dead.
+- **The same operations**: "pick in a grid, confirm, notice, back" (buying, fusing, enhancing, selling, picking a gift); "one of several cards" (theme packs, reward cards, starting gifts); "pay, then prove it by the balance" (purchase, refresh, heal, Starlight graces). The shop transaction is a full implementation of the third; the others are each written separately.
+
+What is missing for the program to be flexible is the layer in between, "what state is this run in": which gifts (name, tier, system), how many coins, which floor, the team's HP, which pack. With it the decisions above have something to stand on; without it each page can only keep its own rule.
+
+**Material for modelling.** The "learned" mode is empty today (no model, 14 samples). What this run left that can be used: 53 shelf readings (names, prices, coins, what was done), 35 purchase rankings, 20 floor-gift rankings, 5 theme-pack choices, 35 map picks and 94 battle turns; the configuration folder holds the shop ledgers of 9 runs and 24 lines of run history. What is scarce is outcomes: 4 runs finished, plus this lost one. Five outcomes cannot train "is this purchase worth it". So the order is: write the game knowledge down as rules first (tiers, recipes, fusion points, a goal for spending), and record every decision as one row with the state and the options it had; with some tens of runs that carry outcomes, a model can replace the weights in those rules. What a model can do now and rules cannot is recognition: the tier and system icon of a gift tile, and the kind of a map node.
+
+**Tasks, in order.**
+
+1. **A lost run**: ask the user whether to claim; walk the reward page by that answer, file the run as lost and do not count it as completed. Change the wrong reason name with it.
+2. **A gift tile reader**: tier, system icon and name, first on the fusion panel (15 tiles a screen), to know what the run owns.
+3. **A rule for spending**: from floor 3 on, coins above some amount must turn into tiers. In order: completed recipes, random fusion (three gifts of other systems for one of the team's), keyword refresh, buying high tiers. Needs task 2.
+4. **Floor gifts**: the team's system and recipe ingredients must outweigh the trial penalty, at least on the first two floors.
+5. **Enhancement**: walk its page by hand first and take frames, as was done for fusion.
+6. **Map node kinds** and **theme pack choice**: read them first, then decide.
+7. **A stop a person pressed is recorded as that**: today it shares a reason name with a real page-read timeout.
+8. **A decision record**: one row per decision (state, options, choice, what came of it) for a later model.
+9. **Shared readers for the question dialog and the tile**: collected along with tasks 2 and 5, not a task of their own.
+
+Battle itself (E.G.O, targeting) is not on the list: what it gains can only be measured once the build is formed.
+
 ## Dated feasibility history
 
 Everything below is a historical snapshot. Words such as “current”, “latest” and “next” describe the snapshot's own time, not the current checkpoint above. Local diagrams/contracts remain linked from task routes.
