@@ -675,6 +675,58 @@ classDiagram
   PurchaseSample "1" --> "1" HumanReview : preserve ownership
 ```
 
+<a id="shop-gift-fusion"></a>
+
+### 4.3.8b 商店合成饰品（Fuse Gifts）
+
+**做什么。** 一次商店访问在没有东西可买、可刷新之后、离开之前，打开一次「Fuse Gifts」面板，把游戏自己列在「Fusion Available」里的配方合成掉，然后关闭面板离店。只合配方（结果固定），不做随机合成，不勾 Wishmaking（许愿要花星光），合成本身不花金币。开关是镜牢任务里的「商店合成饰品」（`mirror_shop_fusion`，默认「合成已凑齐的配方」，可选「不合成」）。
+
+**游戏机制（2026-11-24 在实机上逐步操作测得，截图的 OCR 行保存在 `tests/test_shop_fusion_pages.py`）。**
+
+- 面板打开后，拥有的饰品是暗的，上面盖着「Select a Keyword.」；这时只有机器中间那一格能点，点它进入关键词选择页。**每次重开面板都要重新选关键词**；已选关键词后再点中间那一格可以改选。
+- 关键词页有十个方块（BURN、BLEED、TREMOR、RUPTURE、SINKING、POISE、CHARGE、SLASH、PIERCE、BLUNT）和 Cancel／Confirm。选中的方块只多一圈橙色边框，页面上没有任何文字说明选了哪个：未选中的方块边框上橙色像素为 0，选中的约 3,000。
+- 「Fusion Available」在选关键词**之前**就已经列出来了（暗着），所以它列什么与选哪个关键词无关。列出的是配方的**结果**；点一下，游戏自己把拥有的材料填进格子，预测栏显示「Guaranteed … 100%」。
+- 手动放进三件 II 阶饰品时预测栏显示「III … 90%」，与 Wiki 的数字一致（见下）。随机合成最高是 99.99%，所以「恰好 100%」只可能是配方。
+- 按 Fuse 后是确认页「Fuse the selected E.G.O Gifts?」，只有图标、数量（如 2/3）和 Cancel／Confirm，没有名字也没有百分比。Confirm 之后是普通的「E.G.O Gift GET!」通知，上面有结果的名字；它的 Confirm 回到面板。合成前后金币没有变化（2445 → 2445）。
+- 实测合成了一次：UPS System（II）+ Miniature Telepole（I）→ Insulator（III）。
+
+**每个页面只有一个输入，由页面自己的读数决定**（`src/maalimbus/fusion_vision.py:176` (`next_input`)）：
+
+```mermaid
+stateDiagram-v2
+  [*] --> Shop
+  Shop --> Panel: nothing left to buy or refresh, Fuse Gifts button read
+  Panel --> Keyword: Select a Keyword shown, tap the centre slot
+  Keyword --> Keyword: tap the tile of the team's first system
+  Keyword --> Panel: that tile's frame shows as chosen, Confirm
+  Panel --> Panel: tap the entry under Fusion Available
+  Panel --> Question: forecast reads 100 percent and Wishmaking box seen empty, Fuse
+  Question --> Notice: armed by that Fuse, Confirm
+  Question --> Panel: not armed, Cancel
+  Notice --> Panel: ordinary gift notice, its own Confirm
+  Panel --> Shop: nothing available or forecast below 100 percent, Close
+  Shop --> [*]: Leave
+```
+
+**不会发生的事，以及凭什么。**
+
+- Fuse 只在预测读到恰好 `100%`、「Fusion Available」标题在场、并且 Wishmaking 勾选框被**看见是空的**时才按（`src/maalimbus/fusion_vision.py:75` (`wish_empty`)：框内是一块平的暗色，五帧实测均值 23、标准差 0.1；读不到图就当作不空）。
+- 确认页的 Confirm 只回答「本次访问刚刚在 100% 预测上按过 Fuse」的那一次（内存里的 `armed`，用一次就清）；别的情况一律点它自己的 Cancel。
+- 关键词方块的 Confirm 只在该方块的橙色边框被看见后才点（`src/maalimbus/fusion_vision.py:108` (`chosen_tile`)）；点了两次边框都没出现就具名拒绝，不盲点。
+- 面板里已经放着不是配方的饰品（预测低于 100%）时不碰，直接 Close。每次访问最多合 4 次、最多开 2 次面板、同一条目最多点 2 次。
+- 关掉开关后不会去点「Fuse Gifts」；面板若已经开着，只会被关掉。
+- 日语资源下三个页面的文字读不到，页面不会被认成合成页，入口按钮也读不到，所以不会进入。
+
+**配方表和「想买清单」。** `assets/resource/base/gift-fusion-recipes.json` 由 `tools/import_wiki_fusion_recipes.py` 从 limbuscompany.wiki.gg 的「List of E.G.O Gifts/Fusion」导入（只有名字和「谁加谁得到谁」，不含图片和效果文字；文件里记着修订号、抓取时间、原文哈希和 Wiki 自己声明的 CC BY-SA 4.0）。现有 62 条：七个体系各 3 条、主题包配方 40 条、高级商店专用 1 条。导入是严格的：分组单元格声明它覆盖几行，没有被覆盖的行、没有唯一结果的行都会让导入失败——第一次手工解析时「按下一个标题分组」把 13 行的组读成了 16 行。
+
+合成本身不需要这张表（游戏自己列出可合的配方），用到它的是买东西：`src/maalimbus/gift_plan.py:61` (`shop_wanted`) 把队伍体系的配方材料加进商店的想买清单。起因是 2026-11-23 的一局：Charge+Tremor 队在第 4 层高级商店带着 1,706 金币离开，货架上的「Material Interference Force Field」（Charge 配方材料，图鉴里没有这个名字）没买。同一处还修了两个读货架的问题：标题折成两行时只读到第一行（`src/maalimbus/shop_vision.py:197` (`_with_second_line`)），以及错一个字、少一个空格的长标题对不上清单（`src/maalimbus/shop_vision.py:330` (`_read_as`)）。
+
+**Wiki 上的数字（不是本项目测的）。** `src/maalimbus/gift_fusion.py:49` (`result_tier`) 和 `src/maalimbus/gift_fusion.py:61` (`keyword_chance`) 记着「Mirror Dungeon」页「Gift Fusion Details」一节的数字：各阶饰品 3／6／10／15／30 点，总点数 ≥11、≥17、≥25 分别得到 II、III、IV 阶（高级商店是 10、15、22）；随机合成 2 件有 60% 得到指定关键词，3 件 90%，4 件以上 99%；许愿每次花 5 星光，分别提高到 90%、99%、99.99%。本项目只验证过其中一个点（三件 II 阶 → III 阶、90%）。
+
+**还没做的。** 随机合成（用别的体系的饰品换一件本体系的）只有决策函数 `src/maalimbus/gift_fusion.py:223` (`random_fusion`) 和测试，没有接到页面上：它需要逐件认出拥有的饰品及其关键词和阶数，面板里要点一下才显示名字，这个读取器还没写。「Recipes」和「Fusion Guide」两个按钮不点。
+
+源码落点：`src/maalimbus/fusion_vision.py:281` (`bind`)；`src/maalimbus/fusion_vision.py:57` (`page`)；`src/maalimbus/fusion_vision.py:154` (`opener`)；`src/maalimbus/gift_fusion.py:69` (`Recipes`)；`src/maalimbus/window.py` 的 `STEP_ROWS`（`FUSION`、`FUSION_KEYWORD`、`FUSION_CONFIRM` 三行）；测试 `tests/test_shop_fusion_pages.py`、`tests/test_gift_fusion.py`、`tests/test_shop_wrapped_titles.py`。
+
 <a id="feature-4-3-9"></a>
 
 ### 4.3.9 图鉴、账户 box 与自动编队

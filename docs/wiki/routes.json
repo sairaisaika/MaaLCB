@@ -5762,6 +5762,90 @@
         "python tools/run_tests.py -q tests/test_emulator_launch.py tests/test_game_launch.py"
       ],
       "boundary": "The pretask proves that the ADB address accepts a connection, not that Android has booted. It starts only the program the user configured and accepts only a local address. Open game repairs an unproven start once and then refuses another. Starting MXU at login and auto-running a configuration are MXU settings, outside this project. Synthetic tests only: a live start of an emulator is a separate acceptance."
+    },
+    {
+      "id": "shop-gift-fusion",
+      "title": "商店合成饰品：配方表、合成页面与每页唯一输入 / shop gift fusion: recipes, pages and the one input per page",
+      "aliases": [
+        "合成",
+        "合成饰品",
+        "饰品合成",
+        "藏品合成",
+        "配方",
+        "合成公式",
+        "许愿",
+        "Fuse Gifts",
+        "fuse",
+        "fusion",
+        "recipe",
+        "Fusion Available",
+        "Select a Keyword",
+        "Keyword Selection",
+        "Wishmaking",
+        "Forecasts",
+        "mirror_shop_fusion",
+        "shop_fusion",
+        "gift-fusion-recipes",
+        "fusion_panel_input_not_decided",
+        "fusion_keyword_input_not_decided",
+        "fusion_question_input_not_decided",
+        "fusion_keyword_tile_never_showed_as_chosen",
+        "Material Interference Force Field",
+        "two-line title",
+        "标题折行",
+        "想买清单"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/fusion_vision.py",
+          "symbol": "next_input"
+        },
+        {
+          "path": "src/maalimbus/fusion_vision.py",
+          "symbol": "bind"
+        },
+        {
+          "path": "src/maalimbus/fusion_vision.py",
+          "symbol": "read_panel"
+        },
+        {
+          "path": "src/maalimbus/fusion_vision.py",
+          "symbol": "page"
+        },
+        {
+          "path": "src/maalimbus/gift_fusion.py",
+          "symbol": "Recipes.ready"
+        },
+        {
+          "path": "src/maalimbus/gift_fusion.py",
+          "symbol": "Recipes.shopping"
+        },
+        {
+          "path": "src/maalimbus/gift_fusion.py",
+          "symbol": "random_fusion"
+        },
+        {
+          "path": "src/maalimbus/gift_plan.py",
+          "symbol": "shop_wanted"
+        },
+        {
+          "path": "tools/import_wiki_fusion_recipes.py",
+          "symbol": "recipes"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#shop-gift-fusion",
+        "docs/wiki/en_us/4-business-flows.md#shop-gift-fusion"
+      ],
+      "tests": [
+        "tests/test_shop_fusion_pages.py",
+        "tests/test_gift_fusion.py",
+        "tests/test_shop_wrapped_titles.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_shop_fusion_pages.py tests/test_gift_fusion.py tests/test_shop_wrapped_titles.py"
+      ],
+      "boundary": "Recipes only: Fuse is pressed on a forecast of exactly 100% with the Wishmaking box seen empty, and the question is confirmed only for that Fuse. Random fusion is a tested decision function with no page reader. The tier and chance numbers are the wiki's, verified at one point. The pages were measured on the English client at 1280x720; other languages never enter the flow."
     }
   ]
 }

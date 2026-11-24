@@ -675,6 +675,58 @@ classDiagram
   PurchaseSample "1" --> "1" HumanReview : preserve ownership
 ```
 
+<a id="shop-gift-fusion"></a>
+
+### 4.3.8b Fusing gifts in the shop (Fuse Gifts)
+
+**What it does.** When a shop visit has nothing left to buy or refresh, and before it leaves, it opens the "Fuse Gifts" panel once, fuses the recipes the game itself lists under "Fusion Available", closes the panel and leaves. Recipes only (a fixed result): no random fusion, Wishmaking is never ticked (it costs Starlight), and fusing costs no coins. The switch is "Fuse gifts in the shop" in the Mirror task (`mirror_shop_fusion`, default "Fuse completed recipes", or "Do not fuse").
+
+**The game's mechanics (measured step by step on the live client on 2026-11-24; the OCR rows of the screenshots are kept in `tests/test_shop_fusion_pages.py`).**
+
+- When the panel opens, the owned gifts are dimmed under "Select a Keyword."; only the centre slot of the machine answers, and it opens the keyword page. **Reopening the panel forgets the keyword**; with a keyword chosen, tapping the centre slot again lets it be changed.
+- The keyword page has ten tiles (BURN, BLEED, TREMOR, RUPTURE, SINKING, POISE, CHARGE, SLASH, PIERCE, BLUNT) with Cancel and Confirm. The chosen tile only gains an orange frame; no text on the page says which one is chosen: an unchosen tile has 0 orange pixels on its frame, the chosen one about 3,000.
+- "Fusion Available" is already listed (dimmed) **before** a keyword is chosen, so what it lists does not depend on the keyword. It lists recipe **results**; one tap makes the game fill the slots with the owned ingredients, and the forecast reads "Guaranteed ... 100%".
+- Three tier II gifts loaded by hand read "III ... 90%", as the wiki's numbers say (below). The best a random fusion reaches is 99.99%, so "exactly 100%" can only be a recipe.
+- Fuse leads to the question "Fuse the selected E.G.O Gifts?", which shows pictures, a count (such as 2/3) and Cancel / Confirm: no name and no percentage. Confirm leads to the ordinary "E.G.O Gift GET!" notice with the result's name; its Confirm returns to the panel. The coins did not change (2445 -> 2445).
+- One fusion was made that way: UPS System (II) + Miniature Telepole (I) -> Insulator (III).
+
+**Each page has one input, decided by the page's own reading** (`src/maalimbus/fusion_vision.py:176` (`next_input`)):
+
+```mermaid
+stateDiagram-v2
+  [*] --> Shop
+  Shop --> Panel: nothing left to buy or refresh, Fuse Gifts button read
+  Panel --> Keyword: Select a Keyword shown, tap the centre slot
+  Keyword --> Keyword: tap the tile of the team's first system
+  Keyword --> Panel: that tile's frame shows as chosen, Confirm
+  Panel --> Panel: tap the entry under Fusion Available
+  Panel --> Question: forecast reads 100 percent and Wishmaking box seen empty, Fuse
+  Question --> Notice: armed by that Fuse, Confirm
+  Question --> Panel: not armed, Cancel
+  Notice --> Panel: ordinary gift notice, its own Confirm
+  Panel --> Shop: nothing available or forecast below 100 percent, Close
+  Shop --> [*]: Leave
+```
+
+**What cannot happen, and why.**
+
+- Fuse is pressed only when the forecast reads exactly `100%`, the "Fusion Available" heading is present, and the Wishmaking box is **seen empty** (`src/maalimbus/fusion_vision.py:75` (`wish_empty`): the inside is one flat dark colour, mean 23 and deviation 0.1 on five frames; without a picture it counts as not empty).
+- The question's Confirm answers only the one Fuse this visit just pressed on a 100% forecast (`armed` in memory, cleared by use); anything else gets the question's own Cancel.
+- A keyword tile's Confirm is pressed only after that tile's orange frame is seen (`src/maalimbus/fusion_vision.py:108` (`chosen_tile`)); two taps without the frame end in a refusal by name, not a blind press.
+- Gifts already loaded that are no recipe (a forecast below 100%) are left alone: Close. At most 4 fusions per visit, 2 openings of the panel, 2 taps on one entry.
+- Switched off, "Fuse Gifts" is never pressed; a panel that is open anyway is only closed.
+- With the Japanese resource the three pages' words are not read, so the pages are not named and the button is not found: the flow is never entered.
+
+**The recipe table and the shopping list.** `assets/resource/base/gift-fusion-recipes.json` is imported by `tools/import_wiki_fusion_recipes.py` from "List of E.G.O Gifts/Fusion" on limbuscompany.wiki.gg (names and which gifts make which only, no artwork and no effect text; the file records the revision id, the time, the hash of the source text and the CC BY-SA 4.0 licence the wiki states). It holds 62 recipes: 3 for each of the seven systems, 40 theme-pack recipes, and 1 for super shops only. The import is strict: a group cell says how many rows it covers, and a row no group covers, or a row without exactly one result, fails the import. Reading it by hand "until the next heading" had assigned 16 rows to a group of 13.
+
+Fusing does not need the table (the game lists what can be fused); buying does: `src/maalimbus/gift_plan.py:61` (`shop_wanted`) adds the ingredients of the team's systems' recipes to the shop's wanted list. The reason is a run on 2026-11-23: a Charge + Tremor team left a floor-4 super shop with 1,706 coins and without "Material Interference Force Field", a Charge recipe ingredient the pinned catalogue does not name. Two shelf-reading defects were fixed with it: a title wrapped onto two lines kept only its first line (`src/maalimbus/shop_vision.py:197` (`_with_second_line`)), and a long title read with one wrong glyph or a missing space matched nothing (`src/maalimbus/shop_vision.py:330` (`_read_as`)).
+
+**The wiki's numbers (not measured by this project).** `src/maalimbus/gift_fusion.py:49` (`result_tier`) and `src/maalimbus/gift_fusion.py:61` (`keyword_chance`) hold the numbers of the section "Gift Fusion Details" on the page "Mirror Dungeon": 3 / 6 / 10 / 15 / 30 points per gift tier, a sum of at least 11, 17 and 25 yields tier II, III and IV (10, 15 and 22 in a super shop); a random fusion of 2 gifts has the keyword asked for with 60%, of 3 with 90%, of 4 or more with 99%; Wishmaking costs 5 Starlight per attempt and raises these to 90%, 99% and 99.99%. This project verified one point of it (three tier II gifts: tier III at 90%).
+
+**Not done.** A random fusion (trading gifts of other systems for one of the team's) exists only as the decision function `src/maalimbus/gift_fusion.py:223` (`random_fusion`) with tests; it is not connected to the pages. It needs every owned gift identified with its keyword and tier, the panel shows a name only after a tap, and that reader is not written. The "Recipes" and "Fusion Guide" buttons are never pressed.
+
+Source: `src/maalimbus/fusion_vision.py:281` (`bind`); `src/maalimbus/fusion_vision.py:57` (`page`); `src/maalimbus/fusion_vision.py:154` (`opener`); `src/maalimbus/gift_fusion.py:69` (`Recipes`); the three rows `FUSION`, `FUSION_KEYWORD`, `FUSION_CONFIRM` of `STEP_ROWS` in `src/maalimbus/window.py`; tests `tests/test_shop_fusion_pages.py`, `tests/test_gift_fusion.py`, `tests/test_shop_wrapped_titles.py`.
+
 <a id="feature-4-3-9"></a>
 
 ### 4.3.9 Catalogue, account box and automatic formation

@@ -2663,6 +2663,14 @@
     },
     "next": []
   },
+  "MirrorShopFusion": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "mode": "recipes"
+    },
+    "next": []
+  },
   "MirrorRewardClaim": {
     "recognition": "DirectHit",
     "action": "DoNothing",

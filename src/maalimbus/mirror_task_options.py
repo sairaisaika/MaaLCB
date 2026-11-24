@@ -21,6 +21,14 @@ def collect(get_node):
         if skill not in SKILL_MODES:
             raise ValueError('Unknown shop skill policy')
         result['shop_skill_mode'] = skill
+    try:
+        fusion = get_node('MirrorShopFusion').get('attach', {}).get('mode')
+    except KeyError:
+        fusion = None  # A pipeline packaged before the fusion switch carries no node.
+    if fusion is not None:
+        if fusion not in ('recipes', 'off'):
+            raise ValueError('Unknown shop fusion mode')
+        result['shop_fusion'] = fusion
     if battle not in ('saved','win_rate','damage','observe'):
         raise ValueError('Unknown battle assignment mode')
     if battle!='saved':result['battle_assignment']=battle

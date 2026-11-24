@@ -140,6 +140,7 @@
         "mirror_shop_policy",
         "mirror_shop_refresh_limit",
         "mirror_shop_coin_reserve",
+        "mirror_shop_fusion",
         "mirror_run_bounds",
         "mirror_run_count",
         "mirror_reward_claim",
@@ -17056,6 +17057,36 @@
             "MirrorShopCoinReserve": {
               "attach": {
                 "shop_reserve_coins": 500
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_shop_fusion": {
+      "type": "select",
+      "label": "$mirror_shop_fusion",
+      "description": "$mirror_shop_fusion_description",
+      "default_case": "recipes",
+      "cases": [
+        {
+          "name": "recipes",
+          "label": "$mirror_shop_fusion_recipes",
+          "pipeline_override": {
+            "MirrorShopFusion": {
+              "attach": {
+                "mode": "recipes"
+              }
+            }
+          }
+        },
+        {
+          "name": "off",
+          "label": "$mirror_shop_fusion_off",
+          "pipeline_override": {
+            "MirrorShopFusion": {
+              "attach": {
+                "mode": "off"
               }
             }
           }

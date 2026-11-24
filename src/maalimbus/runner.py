@@ -232,6 +232,9 @@ def _defaults():
         'gift_search': 'refuse', 'shop_refreshes': 2,
         'shop_policy': 'manual', 'shop_reserve_coins': 500,
         'shop_skill_mode': 'off',
+        # 'recipes': before leaving a shop, fuse what the game lists as an available
+        # recipe (fusion_vision). 'off': never open Fuse Gifts.
+        'shop_fusion': 'recipes',
         'shop_carry_cap_coins': CARRY_CAP_COINS,
         'battle_assignment':'win_rate', 'loop_guard': 3, 'claim_tries': 6,
         'exempt_rounds': 6,
@@ -258,6 +261,7 @@ class Settings:
         from .shop_skill_policy import SKILL_MODES
         if (self._values['shop_policy'] not in ('manual','learned') or
                 self._values['shop_skill_mode'] not in SKILL_MODES or
+                self._values['shop_fusion'] not in ('recipes','off') or
                 type(self._values['shop_refreshes']) is not int or not 0<=self._values['shop_refreshes']<=5 or
                 type(self._values['shop_reserve_coins']) is not int or not 0<=self._values['shop_reserve_coins']<=500 or
                 type(self._values['shop_carry_cap_coins']) is not int or not 0<=self._values['shop_carry_cap_coins']<=3000):
@@ -5742,11 +5746,16 @@ class MirrorRunner:
                               if p.slot==slot),None)
                 if profile is None:raise ValueError('Current saved shop team absent')
                 catalog=GiftCatalog(ROOT/'assets/resource/base')
-                gift_vocabulary=tuple(catalog.entries)
+                from .gift_fusion import FILE as FUSION_FILE,load as load_fusion_recipes
+                fusion_recipes=load_fusion_recipes(ROOT/'assets/resource/base'/FUSION_FILE)
+                # The carry cap spends only on names it knows are gifts; the recipe table
+                # names gifts the pinned catalogue does not.
+                gift_vocabulary=tuple(catalog.entries)+tuple(fusion_recipes.names)
                 from .shop_priority import load as load_shop_priorities
                 explicit_priorities=load_shop_priorities(ROOT/'assets/resource/base/shop-priorities.json',catalog)
-                names=shop_wanted(profile,catalog,explicit_priorities)
+                names=shop_wanted(profile,catalog,explicit_priorities,fusion_recipes)
                 keywords=sorted(profile.keywords)
+                state['shop_keywords']=list(keywords)
                 self.note('shop_saved_team_plan',team=profile.slot,
                           slot_source='screen' if state.get('team_seen') is not None else 'rotation',
                           keywords=keywords,
@@ -6145,6 +6154,19 @@ class MirrorRunner:
         _tip_box = self._battle_tip_control(page, state)
         if _tip_box is not None:
             plan_controls['battle_tip.dismiss_point'] = _tip_box
+        # Shop fusion: which page this is and what may be pressed on it is decided in
+        # fusion_vision, so this chain gains no page comparison of its own.
+        from .fusion_vision import bind as bind_fusion
+        _fusion_box,_fusion_note=bind_fusion(
+            page,record,shop,state.setdefault('fusion',{}),
+            visit=(shop_tx.data or {}).get('current_visit') if shop_tx is not None else None,
+            systems=state.get('shop_keywords') or (),
+            enabled=settings.shop_fusion=='recipes' and not settings.observe_only,
+            load_image=lambda:cv2.imread(str(frame_file(directory).with_suffix('.png'))))
+        if _fusion_note is not None:
+            self.note('shop_fusion',input_sent=False,**_fusion_note)
+        if _fusion_box is not None:
+            plan_controls['fusion.next']=list(_fusion_box)
         # Rejected targets can be a reader defect, not a suspended run. Resume is
         # one bounded hypothesis; HOME and a fresh Resume dialog do not prove it.
         if map_dispatch.resume_return_has_untried_path(state,record,candidates):

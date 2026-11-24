@@ -1,0 +1,618 @@
+{
+ "version": 1,
+ "source": {
+  "url": "https://limbuscompany.wiki.gg/wiki/List_of_E.G.O_Gifts/Fusion",
+  "page": "List of E.G.O Gifts/Fusion",
+  "pageid": 18598,
+  "revid": 200997,
+  "retrieved_utc": "2026-11-24T02:45:00+00:00",
+  "wikitext_sha256": "0f5be3663e30bbd4931354f71b51b4ea39f705252be315745e772a582ed6a833",
+  "license": "Creative Commons Attribution-ShareAlike 4.0 License",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "scope": "gift names and which gifts fuse into which; no artwork and no effect text",
+  "name_rule": "the wiki page-title suffix ' (MD)' is dropped: the game prints the name without it"
+ },
+ "recipes": [
+  {
+   "kind": "keyword",
+   "group": "Burn",
+   "ingredients": [
+    "Melted Paraffin",
+    "Decamillennial Stewpot"
+   ],
+   "result": "Secret Cookbook"
+  },
+  {
+   "kind": "keyword",
+   "group": "Burn",
+   "ingredients": [
+    "Ashes to Ashes",
+    "Dust to Dust",
+    "Secret Cookbook"
+   ],
+   "result": "Soothe the Dead"
+  },
+  {
+   "kind": "keyword",
+   "group": "Burn",
+   "ingredients": [
+    "Burning Intellect",
+    "Charred Disk",
+    "Decamillennial Hearthflame"
+   ],
+   "result": "Purloined Flame"
+  },
+  {
+   "kind": "keyword",
+   "group": "Bleed",
+   "ingredients": [
+    "Arrested Hymn",
+    "Millarca"
+   ],
+   "result": "Devotion"
+  },
+  {
+   "kind": "keyword",
+   "group": "Bleed",
+   "ingredients": [
+    "Rusted Muzzle",
+    "Smokes and Wires",
+    "Devotion"
+   ],
+   "result": "Bloody Mist"
+  },
+  {
+   "kind": "keyword",
+   "group": "Bleed",
+   "ingredients": [
+    "Grimy Iron Stake",
+    "Ruptured Blood Sac",
+    "Rusted Cutting Knife"
+   ],
+   "result": "Hemorrhagic Shock"
+  },
+  {
+   "kind": "keyword",
+   "group": "Tremor",
+   "ingredients": [
+    "Gemstone Oscillator",
+    "Wobbling Keg"
+   ],
+   "result": "Epicenter"
+  },
+  {
+   "kind": "keyword",
+   "group": "Tremor",
+   "ingredients": [
+    "Venomous Skin",
+    "Clockwork Spring",
+    "Epicenter"
+   ],
+   "result": "Omnivibro-octovecti-bell"
+  },
+  {
+   "kind": "keyword",
+   "group": "Tremor",
+   "ingredients": [
+    "Nixie Divergence",
+    "Interlocked Cogs",
+    "Bell of Truth"
+   ],
+   "result": "Coupled Oscillation"
+  },
+  {
+   "kind": "keyword",
+   "group": "Rupture",
+   "ingredients": [
+    "Bone Stake",
+    "Shard of Apocalypse"
+   ],
+   "result": "Eerie Effigy"
+  },
+  {
+   "kind": "keyword",
+   "group": "Rupture",
+   "ingredients": [
+    "Broken Revolver",
+    "Thunderbranch",
+    "Eerie Effigy"
+   ],
+   "result": "Ruin"
+  },
+  {
+   "kind": "keyword",
+   "group": "Rupture",
+   "ingredients": [
+    "Talisman Bundle",
+    "Thorny Rope Cuffs",
+    "Standard-duty Battery"
+   ],
+   "result": "Enrapturing Trance"
+  },
+  {
+   "kind": "keyword",
+   "group": "Sinking",
+   "ingredients": [
+    "Cantabile",
+    "Faded Overcoat"
+   ],
+   "result": "Surging Globe"
+  },
+  {
+   "kind": "keyword",
+   "group": "Sinking",
+   "ingredients": [
+    "Thorny Path",
+    "Distant Star",
+    "Surging Globe"
+   ],
+   "result": "Impending Wave"
+  },
+  {
+   "kind": "keyword",
+   "group": "Sinking",
+   "ingredients": [
+    "Headless Portrait",
+    "Tangled Bones",
+    "Midwinter Nightmare"
+   ],
+   "result": "Black Sheet Music"
+  },
+  {
+   "kind": "keyword",
+   "group": "Poise",
+   "ingredients": [
+    "Pendant of Nostalgia",
+    "Recollection of a Certain Day"
+   ],
+   "result": "Reminiscence"
+  },
+  {
+   "kind": "keyword",
+   "group": "Poise",
+   "ingredients": [
+    "Ornamental Horseshoe",
+    "Four-leaf Clover",
+    "Reminiscence"
+   ],
+   "result": "Lucky Pouch"
+  },
+  {
+   "kind": "keyword",
+   "group": "Poise",
+   "ingredients": [
+    "Devil's Share",
+    "Angel's Cut",
+    "Endorphin Kit"
+   ],
+   "result": "Cask Spirits"
+  },
+  {
+   "kind": "keyword",
+   "group": "Charge",
+   "ingredients": [
+    "UPS System",
+    "Miniature Telepole"
+   ],
+   "result": "Insulator"
+  },
+  {
+   "kind": "keyword",
+   "group": "Charge",
+   "ingredients": [
+    "Curriculum Vitae",
+    "Lightning Rod",
+    "Insulator"
+   ],
+   "result": "T-5 Perpetual Motion Machine"
+  },
+  {
+   "kind": "keyword",
+   "group": "Charge",
+   "ingredients": [
+    "Wrist Guards",
+    "T-1B Octagonal Bolt",
+    "Material Interference Force Field"
+   ],
+   "result": "T-1 Perpetual Motion Machine"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Haunted Shoes",
+    "Frozen Cries"
+   ],
+   "result": "Hoarfrost Footprint"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Nagel und Hammer Scriptures",
+    "Squalidity"
+   ],
+   "result": "Wholeness"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Ragged Umbrella",
+    "Broken Glasses"
+   ],
+   "result": "Unmailed Letter"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Spicebush Branch",
+    "Ragged Umbrella",
+    "Broken Glasses"
+   ],
+   "result": "Spicebush, Glasses, and Mailed Letter"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Spicebush Branch",
+    "Unmailed Letter"
+   ],
+   "result": "Spicebush, Glasses, and Mailed Letter"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Nebulizer",
+    "Harpoon Prosthetic Leg"
+   ],
+   "result": "Guiding Gas Lamp"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Town-protecting Harpoon",
+    "Cetacean Heart"
+   ],
+   "result": "The End of all Evil"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Chief Butler's Secret Arts",
+    "Mirror Tactile Synaesthesia"
+   ],
+   "result": "Handheld Mirror"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Oil-gunked Spanner",
+    "Twinkling Scrap",
+    "Broken Violin"
+   ],
+   "result": "A Small, Lovely Violin"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Manor-shaped Music Box",
+    "Refraction Glass Pod"
+   ],
+   "result": "Wuthering Heights"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Layered Bandages",
+    "WB Flask",
+    "Mask of the Parade"
+   ],
+   "result": "Miniature Ferris Wheel"
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Polarization",
+    "Lowest Star",
+    "Red Necktie"
+   ],
+   "result": "Uniform - Liu Assoc."
+  },
+  {
+   "kind": "theme",
+   "group": "Main Story",
+   "ingredients": [
+    "Homeward",
+    "Pure-white Canvas",
+    "Average Artwork"
+   ],
+   "result": "Exquisite Artwork"
+  },
+  {
+   "kind": "theme",
+   "group": "Miracle in District 20",
+   "ingredients": [
+    "Snuffed Lantern",
+    "Snuffed Candlestick"
+   ],
+   "result": "Shadow Monster"
+  },
+  {
+   "kind": "theme",
+   "group": "Miracle in District 20",
+   "ingredients": [
+    "Packaging Box",
+    "Packaging Ribbon"
+   ],
+   "result": "Gift"
+  },
+  {
+   "kind": "theme",
+   "group": "Miracle in District 20",
+   "ingredients": [
+    "Pom-pom Hat",
+    "Huge Gift Sack",
+    "Sad Plushie"
+   ],
+   "result": "Jolly Plushie"
+  },
+  {
+   "kind": "theme",
+   "group": "Yield My Flesh to Claim Their Bones",
+   "ingredients": [
+    "Rusted Hilt",
+    "Fractured Blade"
+   ],
+   "result": "Sublimity"
+  },
+  {
+   "kind": "theme",
+   "group": "Yield My Flesh to Claim Their Bones",
+   "ingredients": [
+    "Rusted Hilt",
+    "Broken Blade"
+   ],
+   "result": "Unbending"
+  },
+  {
+   "kind": "theme",
+   "group": "Yield My Flesh to Claim Their Bones",
+   "ingredients": [
+    "Worn Hilt",
+    "Fractured Blade"
+   ],
+   "result": "Resplendence"
+  },
+  {
+   "kind": "theme",
+   "group": "Yield My Flesh to Claim Their Bones",
+   "ingredients": [
+    "Worn Hilt",
+    "Broken Blade"
+   ],
+   "result": "Cultivation"
+  },
+  {
+   "kind": "theme",
+   "group": "Timekilling Time",
+   "ingredients": [
+    "Silver Watch Case",
+    "Etched Clock Hands"
+   ],
+   "result": "Pocket Watch : Type L"
+  },
+  {
+   "kind": "theme",
+   "group": "Timekilling Time",
+   "ingredients": [
+    "Silver Watch Case",
+    "Rusted Clock Hands"
+   ],
+   "result": "Pocket Watch : Type E"
+  },
+  {
+   "kind": "theme",
+   "group": "Timekilling Time",
+   "ingredients": [
+    "Faded Watch Case",
+    "Etched Clock Hands"
+   ],
+   "result": "Pocket Watch : Type Y"
+  },
+  {
+   "kind": "theme",
+   "group": "Timekilling Time",
+   "ingredients": [
+    "Faded Watch Case",
+    "Rusted Clock Hands"
+   ],
+   "result": "Pocket Watch : Type P"
+  },
+  {
+   "kind": "theme",
+   "group": "Murder on the WARP Express",
+   "ingredients": [
+    "Biogenerative Battery",
+    "Prosthetic Joint Servos"
+   ],
+   "result": "Automated Joints"
+  },
+  {
+   "kind": "theme",
+   "group": "Murder on the WARP Express",
+   "ingredients": [
+    "Biogenerative Battery",
+    "Crystallized Blood"
+   ],
+   "result": "Overcharged Battery"
+  },
+  {
+   "kind": "theme",
+   "group": "Murder on the WARP Express",
+   "ingredients": [
+    "Cardiovascular Reactive Module",
+    "Prosthetic Joint Servos"
+   ],
+   "result": "Perpetual Generator Servos"
+  },
+  {
+   "kind": "theme",
+   "group": "Murder on the WARP Express",
+   "ingredients": [
+    "Cardiovascular Reactive Module",
+    "Crystallized Blood"
+   ],
+   "result": "Hearts-powered Jewel"
+  },
+  {
+   "kind": "theme",
+   "group": "Murder on the WARP Express",
+   "ingredients": [
+    "W Corp. Standard Issue Cap",
+    "E-Type Dimensional Dagger",
+    "Portable Barrier Battery"
+   ],
+   "result": "Cleanup Agent Gear Set C"
+  },
+  {
+   "kind": "theme",
+   "group": "LCB Regular Check-Up",
+   "ingredients": [
+    "Regular Operational Gear",
+    "Operation Authorization Card"
+   ],
+   "result": "High-risk Operational Gear"
+  },
+  {
+   "kind": "theme",
+   "group": "Nocturnal Sweeping",
+   "ingredients": [
+    "Strange Glyph Talisman",
+    "Strange Glyph Inscriptions"
+   ],
+   "result": "Glyph of Glass Shards"
+  },
+  {
+   "kind": "theme",
+   "group": "Nocturnal Sweeping",
+   "ingredients": [
+    "Enh. Tattoos - The Middle",
+    "Chains of Loyalty"
+   ],
+   "result": "Everlasting Chains of Bond"
+  },
+  {
+   "kind": "theme",
+   "group": "Nocturnal Sweeping",
+   "ingredients": [
+    "Respite",
+    "Sanguine Fragrance Descends",
+    "Boombox of Dramatic Entrances"
+   ],
+   "result": "ENTER: The B.B."
+  },
+  {
+   "kind": "theme",
+   "group": "Nocturnal Sweeping",
+   "ingredients": [
+    "Heishou Bolus - Mao",
+    "Harestride",
+    "Shadow Bamboo Hat"
+   ],
+   "result": "Shadowlurking"
+  },
+  {
+   "kind": "theme",
+   "group": "Spring Cultivation",
+   "ingredients": [
+    "Virtue - Zhi (智)",
+    "Virtue - Yong (勇)",
+    "Virtue - Ren (仁)"
+   ],
+   "result": "Cultivation: Cut, File, Carve, Polish"
+  },
+  {
+   "kind": "theme",
+   "group": "The Dusk of Amber",
+   "ingredients": [
+    "Once, A Blessing",
+    "Reverberation",
+    "Pink Petals"
+   ],
+   "result": "Pink Bouquet"
+  },
+  {
+   "kind": "theme",
+   "group": "The Dusk of Amber",
+   "ingredients": [
+    "Staticky Two-way Radio",
+    "Beak-shaped Necklace",
+    "Torn Bandolier"
+   ],
+   "result": "Desperado"
+  },
+  {
+   "kind": "theme",
+   "group": "Twining Threads",
+   "ingredients": [
+    "Artwork: Pulsation",
+    "Universal Skeleton"
+   ],
+   "result": "Artwork: Evolving Pulsation"
+  },
+  {
+   "kind": "theme",
+   "group": "Twining Threads",
+   "ingredients": [
+    "Artwork: Ferity",
+    "Universal Instinct"
+   ],
+   "result": "Artwork: Taxidermied Ferity"
+  },
+  {
+   "kind": "theme",
+   "group": "Mnestic Experience",
+   "ingredients": [
+    "Overused Whetstone",
+    "Red Tassel",
+    "Unadorned Sword-guard"
+   ],
+   "result": "The Book of the Homeland Swordplay [本國劍譜]"
+  },
+  {
+   "kind": "super_shop",
+   "group": null,
+   "ingredients": [
+    "Sundered Memory",
+    "Punctured Memory",
+    "Crushed Memory"
+   ],
+   "result": "Lunar Memory",
+   "any_of": [
+    {
+     "label": "Sin Fragment",
+     "count": 2,
+     "names": [
+      "Fragment of Hellfire",
+      "Fragment of Allurement",
+      "Fragment of Inertia",
+      "Fragment of Desire",
+      "Fragment of Decay",
+      "Fragment of Conceit",
+      "Fragment of Friction"
+     ]
+    }
+   ]
+  }
+ ]
+}

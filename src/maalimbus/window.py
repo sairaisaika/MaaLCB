@@ -542,6 +542,26 @@ STEP_ROWS = {
         'reason': 'confirming_the_shop_exit_is_the_only_forward_input',
         'refusal': 'shop_leave_confirm_not_anchored',
         },
+    # The shop's fusion panel and its two dialogs. Which control is the one input is
+    # decided per frame by ``fusion_vision.next_input`` and bound by the runner as
+    # ``fusion.next`` (``MirrorRunner._bind_fusion_input``): a keyword tile, the
+    # game's own "Fusion Available" entry, Fuse on a 100% forecast, or Close. With
+    # nothing bound the page is refused by name instead of guessed at.
+    'FUSION': {'control': 'fusion.next',
+        'expect': ('FUSION', 'FUSION_KEYWORD', 'FUSION_CONFIRM', 'SHOP', 'UNKNOWN'),
+        'reason': 'the_one_input_the_fusion_panel_reader_chose',
+        'refusal': 'fusion_panel_input_not_decided',
+        },
+    'FUSION_KEYWORD': {'control': 'fusion.next',
+        'expect': ('FUSION_KEYWORD', 'FUSION', 'UNKNOWN'),
+        'reason': 'the_one_input_the_fusion_keyword_reader_chose',
+        'refusal': 'fusion_keyword_input_not_decided',
+        },
+    'FUSION_CONFIRM': {'control': 'fusion.next',
+        'expect': ('GIFT_GET', 'FUSION', 'UNKNOWN'),
+        'reason': 'the_one_answer_the_fusion_question_reader_chose',
+        'refusal': 'fusion_question_input_not_decided',
+        },
     # The gift-get notice sits on top of the reward-card page and carries one
     # Confirm. The gift was already granted by the reward card's own Confirm,
     # so this only clears the notice (live: window-20261006-042956).
@@ -553,7 +573,7 @@ STEP_ROWS = {
     # SHOP_PURCHASE are successors of this input exactly like the reward-card
     # successors above; anything else is still a stopped run.
     'GIFT_GET': {'control': 'gift_get.confirm_button',
-        'expect': ('GIFT_GET', 'GIFT_SEARCH', 'GIFT_PICK', 'REWARD_CARD', 'SHOP', 'SHOP_PURCHASE', 'MAP', 'THEME_PACKS', 'UNKNOWN'),
+        'expect': ('GIFT_GET', 'GIFT_SEARCH', 'GIFT_PICK', 'REWARD_CARD', 'SHOP', 'SHOP_PURCHASE', 'FUSION', 'MAP', 'THEME_PACKS', 'UNKNOWN'),
         'reason': 'the_gift_get_notice_is_cleared_with_its_own_confirm',
         'refusal': 'gift_get_confirm_not_anchored',
         },
@@ -1045,6 +1065,13 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
                          reason='refreshing_the_shelf_for_the_gift_the_plan_wants',
                          detail={'cost': refresh.get('cost'),
                                  'currency': (shop or {}).get('currency')})
+        fuse = (shop or {}).get('fuse')
+        if fuse:
+            # Nothing left to buy or refresh: before leaving, the visit looks once at
+            # what a recipe can make from the gifts it holds. Opening the panel spends
+            # nothing; what may be pressed inside it is ``fusion_vision``'s to say.
+            return _plan(page, CLICK, target=fuse, expect=('FUSION', 'SHOP', 'UNKNOWN'),
+                         reason='opening_fuse_gifts_to_see_what_a_recipe_can_make')
         box = controls.get('shop.leave_button')
         if box is None:
             return _refuse(page, 'shop_leave_button_not_anchored')

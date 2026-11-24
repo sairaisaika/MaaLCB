@@ -357,6 +357,13 @@ def classify(records, locale, size):
         return 'GIFT_GET'
     if find(records,locale.get('gift_get',r'(?!)'),(.40,.21,.62,.29),size,.75):
         return 'UNKNOWN_DIALOG'
+    # The shop's "Fuse Gifts" panel and its two dialogs cover the shop, whose Leave
+    # stays readable behind them; they are named before any shop rule can claim the
+    # frame. A fusion's own result notice is the GIFT_GET above (2026-11-24).
+    from .fusion_vision import page as fusion_page
+    fusion = fusion_page(records, size)
+    if fusion is not None:
+        return fusion
     if (find(records,locale.get('gift_search_forgo',r'(?!)'),(.40,.45,.62,.51),size,.85)
         and len(find(records,locale['gift_confirm'],(.53,.65,.68,.73),size,.85))==1
         and len(find(records,locale.get('cancel',r'(?!)'),(.34,.65,.48,.73),size,.85))==1):

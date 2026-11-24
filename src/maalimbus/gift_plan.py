@@ -58,8 +58,16 @@ def wanted(plan, keyword, *, fallback=('Wound Clerid',)):
     return default or list(fallback)
 
 
-def shop_wanted(team,catalog,priorities=None):
-    """The active saved team's full known gift system, separate from starters."""
+def shop_wanted(team,catalog,priorities=None,recipes=None):
+    """The active saved team's full known gift system, separate from starters.
+
+    With ``recipes`` (``gift_fusion.Recipes``) the gifts that fuse into the team's
+    systems' recipe gifts are asked for too, after the catalogue's own names. The
+    catalogue is a pinned import and lacks newer gifts: on 2026-11-23 a Charge team
+    left ``Material Interference Force Field`` on the shelf, a gift of its own system
+    that the catalogue does not name and a Charge recipe does. A team with no system
+    chosen chases no recipe: twenty-one recipes at once is not a plan.
+    """
     unknown=(set(team.allow)|set(team.block))-set(catalog.entries)
     if unknown:raise ValueError('Saved shop gift identity absent from catalogue')
     priorities=priorities or {}
@@ -68,4 +76,9 @@ def shop_wanted(team,catalog,priorities=None):
     preferred=[name for name,entry in catalog.entries.items()
                if name not in team.block and (name in team.allow or set(entry['keywords'])&set(team.keywords)
                                               or priorities.get(name,0)>0)]
-    return sorted(preferred,key=lambda name:(-priorities.get(name,0),name not in team.allow,name))
+    ordered=sorted(preferred,key=lambda name:(-priorities.get(name,0),name not in team.allow,name))
+    if recipes is not None and team.keywords:
+        known={name.casefold() for name in ordered}|{name.casefold() for name in team.block}
+        ordered+=[row['name'] for row in recipes.shopping((),sorted(team.keywords))
+                  if row['name'].casefold() not in known and row['name'] not in recipes.results]
+    return ordered

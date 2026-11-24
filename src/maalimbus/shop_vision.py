@@ -67,6 +67,8 @@ SHELF_PRICE_FLOOR = .8
 # is a stray glyph with no title above it.  The faint exception therefore stays
 # one-sided and in addition only takes a badge that prints at least two digits.
 SHELF_PRICE_FAINT_FLOOR = .65
+#: The floor for the second line of a wrapped title; see ``shelf_tokens``.
+SECOND_LINE_FLOOR = .8
 
 # A name badge sits this far under the price badge of the same offer, and both are
 # centred on the column, so they pair up by their own printed geometry.  Two price
@@ -164,11 +166,48 @@ def shelf_tokens(records):
     below ``SHELF_PRICE_FLOOR`` still has to print at least two digits, so the stray
     single glyphs a faint panel also OCRs can never price a card.
     """
-    return [token for token in records
+    kept = [token for token in records
             if token.score >= .9
             or (token.score >= SHELF_PRICE_FLOOR and price_value(token.text) is not None)
             or (token.score >= SHELF_PRICE_FAINT_FLOOR and price_digits(token.text) >= 2)]
+    # One more one-sided exception: the short second line of a wrapped title reads
+    # fainter than the title it belongs to (``Field`` at .88 under a first line at .97,
+    # pi-20261123-212800/frame-0002). It is kept only directly under a confident title,
+    # so it can complete a name and can never start one.
+    titles = [token for token in kept if price_value(token.text) is None]
+    for token in records:
+        if token in kept or not SECOND_LINE_FLOOR <= token.score < .9 or price_value(token.text) is not None:
+            continue
+        x, y = _center(token.box)
+        if any(abs(x - _center(title.box)[0]) <= title.box[2] / 2
+               and .4 * title.box[3] <= y - _center(title.box)[1] <= 1.5 * title.box[3]
+               for title in titles):
+            kept.append(token)
+    return kept
 
+
+
+#: A title too long for its card wraps onto a second, shorter line right under the
+#: first. Measured on pi-20261123-212800/frame-0002: ``MaterlalInterference Force`` at
+#: y 490-516 and ``Field`` at y 514-530, centres 19 px apart; the next card row starts
+#: 230 px lower, so a line this close in the same column is the same title.
+SECOND_LINE_GAP = (10, 34)
+
+
+def _with_second_line(name, box, names, sx, sy):
+    """``(name, box)`` with the title's wrapped second line joined on, if it has one."""
+    x, y = _center(box)
+    below = [(other, other_box) for other, other_box in names
+             if other_box != box and abs(_center(other_box)[0] - x) <= COLUMN_TOLERANCE * sx
+             and SECOND_LINE_GAP[0] * sy <= abs(_center(other_box)[1] - y) <= SECOND_LINE_GAP[1] * sy]
+    if len(below) != 1:
+        return name, box
+    lines = sorted([(name, box), below[0]], key=lambda row: _center(row[1])[1])
+    left = min(row[1][0] for row in lines)
+    top = min(row[1][1] for row in lines)
+    right = max(row[1][0] + row[1][2] for row in lines)
+    bottom = max(row[1][1] + row[1][3] for row in lines)
+    return ' '.join(row[0] for row in lines), (left, top, right - left, bottom - top)
 
 
 def offers(records, size=None):
@@ -204,7 +243,7 @@ def offers(records, size=None):
             if best is None or (dx, dy) < best[0]:
                 best = ((dx, dy), name, name_box)
         if best is not None:
-            pairs.append((price, box, best[1], best[2]))
+            pairs.append((price, box) + _with_second_line(best[1], best[2], names, sx, sy))
 
     lines = []
     for pair in sorted(pairs, key=lambda row: _center(row[1])[1]):
@@ -275,10 +314,37 @@ def wanted_offers(found, names, bought=()):
     ranked = []
     for offer in found:
         key = offer.name.strip().lower()
-        if key in order and key not in spent and not offer.purchased:
+        if key not in order:
+            key = _read_as(offer.name, order)
+        if key is not None and key in order and key not in spent and not offer.purchased:
             ranked.append((order.index(key), offer))
     ranked.sort(key=lambda row: (row[0], row[1].index))
     return [offer for _, offer in ranked]
+
+
+#: A printed title shorter than this is matched exactly or not at all: one wrong glyph
+#: in ``Awe`` is another word, one in ``Material Interference Force Field`` is not.
+READ_AS_LENGTH = 10
+
+
+def _read_as(printed, order):
+    """The one plan name a shelf title is a misreading of, or ``None``.
+
+    The shelf prints ``MaterlalInterference Force Field`` and ``OmnamentalHorseshoe``
+    (pi-20261123-212800/frame-0002): a lost space and one wrong glyph. An exact
+    comparison never bought those, so a Charge team walked past a Charge gift with
+    1,700 coins in hand. Spaces and punctuation are ignored and one glyph is forgiven
+    in a long title; two plan names that both fit name nothing.
+    """
+    from .vision import close_to, normalise
+    target = normalise(printed)
+    same = [name for name in order if normalise(name) == target]
+    if len(same) == 1:
+        return same[0]
+    if same or len(target) < READ_AS_LENGTH:
+        return None
+    near = [name for name in order if len(normalise(name)) >= READ_AS_LENGTH and close_to(printed, name, 1)]
+    return near[0] if len(near) == 1 else None
 
 
 #: A purchase asks back before it is paid for.  The dialog sits over the shop, so

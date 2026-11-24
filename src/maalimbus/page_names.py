@@ -31,6 +31,7 @@ NAMES = {
     'EVENT_CHECK_READY': '事件判定准备', 'EVENT_CHECK_RESULT': '事件判定结果', 'EVENT_RESULT': '事件结果',
     'EVENT_RESULT_READY': '事件结果（可继续）',
     'SHOP': '商店', 'SHOP_PURCHASE': '商店购买确认', 'SHOP_LEAVE': '离开商店的确认',
+    'FUSION': '合成饰品', 'FUSION_KEYWORD': '合成：选择关键词', 'FUSION_CONFIRM': '合成确认',
     'HEAL_SINNERS': '治疗罪人', 'REVIVE_PICK': '选择复活的罪人', 'REVIVE_DONE': '复活完成',
     'EXPLORATION_COMPLETE': '探索完成', 'RUN_CLAIM': '通关结算', 'RUN_REWARD_DIALOG': '通关奖励（领取／放弃）',
     'RUN_REWARD_CONFIRM': '领取奖励的确认', 'RUN_REWARD_BONUS': '使用每周加成的确认', 'PASS_LEVEL_UP': '通行证升级',

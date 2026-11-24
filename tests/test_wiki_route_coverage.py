@@ -20,7 +20,7 @@ UNROUTED = frozenset((
     'battle_counter_native', 'budget', 'build_fingerprint', 'click_space', 'click_trace',
     'crash_codes', 'deployment', 'deployment_availability_native', 'deployment_identity_native',
     'deployment_numbers_native', 'event_log', 'event_vision', 'evidence_audit',
-    'floor_trial_vision', 'gift_plan', 'github_cache', 'gui_preferences',
+    'floor_trial_vision', 'github_cache', 'gui_preferences',
     'identity_catalog', 'initial_transaction', 'input_helpers', 'lix_profiles', 'lux_task',
     'map_progress', 'mirror_assessment', 'mirror_learning_policy', 'mirror_preferences',
     'mxu_distribution', 'overlay_dismissal', 'overlay_vision', 'owned_inventory', 'page_carry',
@@ -56,4 +56,4 @@ def test_the_unrouted_list_only_shrinks():
     owned, present = routed(), modules()
     stale = sorted(name for name in UNROUTED if name not in present or present[name] in owned)
     assert not stale, 'routed or removed since, take them off UNROUTED: %s' % stale
-    assert len(UNROUTED) <= 68
+    assert len(UNROUTED) <= 62
