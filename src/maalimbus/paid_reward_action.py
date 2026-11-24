@@ -101,8 +101,14 @@ def entry_balance_receipt(claim_record, after_record):
 SUMMARY_STARLIGHT = (r'^(\d{1,5})$', (.81, .40, .89, .51))
 
 
-def summary_pass_receipt(claim_record, after_record):
-    """Proof that a lost run's payout arrived, where the game shows no receipt page.
+def summary_pass_receipt(claim_record, after_record, outcome=None):
+    """Proof that a payout arrived onto the run summary, where the game shows no receipt page.
+
+    First measured for a lost run; the next cleared run (pi-20261124-022413, 100%, offer
+    74 and summary 74) paid the same way: Claim, the Confirm, then the pass popup over
+    the summary and no "Rewards Acquired" page. ``outcome`` binds the summary to what
+    the ledger says: below 100% for ``'lost'``, exactly 100% for ``'won'``; without it
+    (the final audit, which has the ledger's verdict from elsewhere) any percentage reads.
 
     Measured on pi-20261123-235849: a run lost at 95% was claimed (Claim, then the
     "Claim the rewards?" Confirm) and the next page was the pass popup over the run
@@ -117,7 +123,9 @@ def summary_pass_receipt(claim_record, after_record):
     summary = exploration_summary(texts, (1920, 1080)) or {}
     percent = summary.get('total_percent')
     offered, printed = _number(claim_record, OFFER_STARLIGHT), _number(after_record, SUMMARY_STARLIGHT)
-    if type(percent) is not int or not 0 <= percent < 100:
+    if type(percent) is not int or not 0 <= percent <= 100:
+        return None
+    if (outcome == 'lost' and percent == 100) or (outcome == 'won' and percent != 100):
         return None
     if offered is None or offered <= 0 or printed != offered:
         return None
@@ -226,9 +234,9 @@ def prepare(action, record, config, scope, proof):
             except (KeyError,OSError,ValueError):claim_record={}
             balances=entry_balance_receipt(claim_record,record)
             kind='entry_balances'
-            if balances is None and outcome=='lost':
-                # A lost run pays onto its own summary; see summary_pass_receipt.
-                balances=summary_pass_receipt(claim_record,record)
+            if balances is None:
+                # The payout landed on the run's own summary; see summary_pass_receipt.
+                balances=summary_pass_receipt(claim_record,record,outcome)
                 kind='summary_pass_popup'
             if balances is None:
                 raise ValueError('Pass receipt absent or repeated')

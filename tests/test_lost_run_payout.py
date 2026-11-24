@@ -321,7 +321,7 @@ def test_the_pass_popup_over_the_lost_summary_is_the_receipt():
     assert summary_pass_receipt(dialog(), popup()) == dict(starlight_offer=40, summary_starlight=40, total_percent=95)
     # Another amount under the popup, a cleared summary, or no summary at all proves nothing.
     assert summary_pass_receipt(dialog(), popup(starlight='65')) is None
-    assert summary_pass_receipt(dialog(), popup(percent='100%')) is None
+    assert summary_pass_receipt(dialog(), popup(percent='100%'), 'lost') is None
     assert summary_pass_receipt(dialog(), dialog()) is None
 
 
@@ -355,3 +355,32 @@ def test_a_popup_that_does_not_match_the_offer_is_not_acknowledged(tmp_path):
     with pytest.raises(ValueError, match='absent or repeated'):
         prepare('pass', popup(starlight='65'), tmp_path, scope, 'frame-0006')
     assert path.read_bytes() == before
+
+
+def test_a_cleared_run_can_pay_onto_its_summary_too(tmp_path):
+    # pi-20261124-022413: the run after the lost one was cleared, and its payout came the
+    # same way: no "Rewards Acquired" page, the pass popup over a summary at 100%.
+    from maalimbus.paid_reward_action import summary_pass_receipt
+    won_dialog, won_popup = dialog(count='4/4'), popup(percent='100%')
+    assert summary_pass_receipt(won_dialog, won_popup, 'won') == dict(
+        starlight_offer=40, summary_starlight=40, total_percent=100)
+    # The summary has to agree with the ledger's verdict.
+    assert summary_pass_receipt(won_dialog, won_popup, 'lost') is None
+    assert summary_pass_receipt(dialog(), popup(), 'won') is None
+    assert summary_pass_receipt(dialog(), popup(), 'lost') is not None
+    # Through the paid stage, for a run the ledger holds as won.
+    store, scope, proof = ledger(tmp_path, floors=5)
+    store.record(scope, 'victory', 'final_victory', proof)
+    apply_standing(tmp_path, 'claim', 'off')
+    frame = tmp_path / 'frame-0028.json'
+    write_json(frame, won_dialog)
+    prepare('claim', won_dialog, tmp_path, scope, str(frame))
+    path = tmp_path / 'user-reward-claim-transaction.json'
+    tx = json.loads(path.read_text(encoding='utf-8'))
+    tx.update(claim_sent=True, confirm_sent=True, pending='confirm')
+    write_json(path, tx)
+    with pytest.raises(ValueError, match='absent or repeated'):
+        prepare('pass', popup(), tmp_path, scope, 'frame-0034')          # a 95% summary under a won run
+    assert prepare('pass', won_popup, tmp_path, scope, 'frame-0034') == [882, 680, 162, 48]
+    tx = json.loads(path.read_text(encoding='utf-8'))
+    assert tx['receipt_kind'] == 'summary_pass_popup' and tx['receipt_visible_amount'] == 40
