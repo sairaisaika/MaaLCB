@@ -727,6 +727,8 @@ stateDiagram-v2
 
 源码落点：`src/maalimbus/fusion_vision.py:281` (`bind`)；`src/maalimbus/fusion_vision.py:57` (`page`)；`src/maalimbus/fusion_vision.py:154` (`opener`)；`src/maalimbus/gift_fusion.py:69` (`Recipes`)；`src/maalimbus/window.py` 的 `STEP_ROWS`（`FUSION`、`FUSION_KEYWORD`、`FUSION_CONFIRM` 三行）；测试 `tests/test_shop_fusion_pages.py`、`tests/test_gift_fusion.py`、`tests/test_shop_wrapped_titles.py`。
 
+**安装版实测（2026-11-24，`pi-20261123-225704`，第 5 层商店，Charge+Tremor 队）。** 程序先把上一段留下的未完成购买意图按「货架和金币都没变」销掉，自己买了 Wobbling Keg（想买清单里的 Tremor 饰品，也是配方材料），又按离店结余上限买了三件。之后没有东西可买，它打开面板：点中间一格 → 点 CHARGE 方块 → 看到橙色边框后点 Confirm → 点「Fusion Available」下的条目 → 预测读到 100% 后点 Fuse → 确认页点 Confirm → GET 通知上的名字是 **Epicenter**（Gemstone Oscillator + Wobbling Keg）→ 面板里不再有可合的配方，点 Close → 回到商店，Leave。从点开面板到关闭共 7 次输入、40 秒（03:58:23–03:59:03 UTC），页面依次被认成 FUSION、FUSION_KEYWORD、FUSION_CONFIRM、GIFT_GET、FUSION、SHOP。Epicenter 是 Tremor 配方而选的关键词是 Charge，所以「清单与所选关键词无关」不只是推断：选关键词之前清单已经列出（`available` 为真），选了别的体系的关键词它照样能合。只验收了这一次、这一个配方；一次访问里连续合两个配方、清单为空的访问，各只有测试，没有实机样本。
+
 <a id="feature-4-3-9"></a>
 
 ### 4.3.9 图鉴、账户 box 与自动编队
