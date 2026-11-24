@@ -10,8 +10,7 @@ def _config(team='2', systems='Charge+Tremor', keyword='saved', search='saved'):
         'mirror_gift_search': {'caseName': search},
         'mirror_run_count': {'caseName': '3'},
     }}]}],
-        'globalOptionValues': {f'global_team_{team}_systems': {'caseName': systems},
-                               f'global_team_{team}_name': {'name': 'Team 2'}}}
+        'globalOptionValues': {f'global_team_{team}_systems': {'caseName': systems}}}
 
 
 def _write(tmp_path, data):
@@ -26,6 +25,11 @@ def test_the_players_team_and_systems_are_read(tmp_path):
     assert prefs['team_systems'] == 'Charge+Tremor'
     assert prefs['mirror_initial_keyword'] == 'saved'
     assert prefs['mirror_run_count'] == '3'
+
+
+def test_keeping_the_saved_systems_is_not_a_system(tmp_path):
+    prefs = gui_preferences.read(_write(tmp_path, _config(systems='keep')))
+    assert prefs['mirror_single_team'] == 2 and prefs['team_systems'] is None
 
 
 def test_a_missing_field_is_not_invented(tmp_path):

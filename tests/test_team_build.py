@@ -107,7 +107,9 @@ def test_the_pipeline_chain_and_the_interface_agree_on_the_same_nodes():
     # is not run as part of the Mirror task.
     assert tasks['mirror_loop']['entry'] == 'MirrorTask'
     assert nodes['GlobalSettingsApply']['next'] == ['MirrorLoop']
-    assert all(nodes[f'Global_global_team_{i}']['attach']['global_build']['edit'] is False
+    # Each team carries two settings and both default to "keep": nothing is replaced unasked.
+    assert all(nodes[f'Global_global_team_{i}_systems']['attach']['global_build']['keywords'] == 'keep'
+               and nodes[f'Global_global_team_{i}_order']['attach']['global_build']['order'] == 'keep'
                for i in range(1,41))
     assert 'team_keywords' not in tasks['mirror_loop']['option']
     assert tasks['mirror_loop']['option']==['mirror_team_mode','mirror_star_source',
@@ -123,7 +125,7 @@ def test_every_keyword_a_build_can_name_is_one_the_engine_knows():
     """The GUI offers the same list the profile rejects unknown names against."""
     pi = json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
     offered = {keyword for slot in (1, 20, 40)
-               for case in pi['option'][f'global_team_{slot}_systems']['cases']
+               for case in pi['option'][f'global_team_{slot}_systems']['cases'] if case['name'] != 'keep'
                for keyword in case['pipeline_override'][f'Global_global_team_{slot}_systems']
                                   ['attach']['global_build']['keywords']}
     assert offered and offered <= set(KEYWORDS)

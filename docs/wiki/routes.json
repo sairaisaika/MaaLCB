@@ -4490,6 +4490,61 @@
       "boundary": "The ledger turns a schedule and the clock into the items still owed and remembers what was done. The Mirror task is its first caller: with a schedule chosen in the task's own options it plays only on the chosen weekdays and only until the day's complete runs are booked; a start the day does not owe ends before anything looks at the game. A run is booked only when it is complete (five floors, reward claimed, lobby reached), whether the loop finished it or the rewards task did by claiming its reward, and it is booked with or without a schedule. Without a schedule the task plays as before. The reset defaults (06:00 Korea time, week from Thursday) are stated values, not measured by this project; the game's own notice page is the authority. Not verified on the installed app yet."
     },
     {
+      "id": "team-settings",
+      "title": "队伍设置：体系与一行出战顺序 / team settings: systems and a one-line deployment order",
+      "aliases": [
+        "队伍设置",
+        "编队设置",
+        "出战顺序",
+        "下拉菜单",
+        "十二个下拉",
+        "体系",
+        "跟随游戏",
+        "不变",
+        "keep",
+        "game",
+        "global_team",
+        "global_build",
+        "parse_order",
+        "collect_builds",
+        "apply_builds",
+        "user-team-profiles",
+        "is named twice",
+        "is not a sinner",
+        "choose its systems first",
+        "Finish the active run before editing its team"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/global_settings.py",
+          "symbol": "parse_order"
+        },
+        {
+          "path": "src/maalimbus/global_settings.py",
+          "symbol": "collect_builds"
+        },
+        {
+          "path": "src/maalimbus/global_settings.py",
+          "symbol": "apply_builds"
+        },
+        {
+          "path": "agent/recognition.py",
+          "symbol": "GlobalSettingsAction.apply"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_global_settings.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_global_settings.py"
+      ],
+      "boundary": "Two settings per team, each with \"keep\" as its default: the systems, and the deployment order as one line (numbers or names; \"game\" forgets the saved order so the run deploys what the game shows for that team). Edits are validated as a whole and saved before the next Mirror task starts, never for the team of a run in progress, and no device input is involved. The settings cannot show what is saved: the app does not load saved teams back into its fields. Gift and pack preferences and the starlight plan of a team are still edited from the Mirror task, for teams 1-20 only."
+    },
+    {
       "id": "transactions",
       "title": "交易的两半：意图在输入之前写下，读者必须在之后把它读回来",
       "aliases": [

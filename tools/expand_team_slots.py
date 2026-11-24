@@ -22,10 +22,13 @@ def expand(pi,nodes):
         for key,value in old_options.items():pi['option'][replace(key,slot)]=replace(value,slot)
         for key,value in old_nodes.items():nodes[replace(key,slot)]=replace(value,slot)
         name=f'global_team_{slot}'
-        if name not in pi['global_option']:pi['global_option'].append(name)
+        for option in (name+'_systems',name+'_order'):
+            if option not in pi['global_option']:pi['global_option'].append(option)
         if not any(s['name']==name for s in pi['setting']):pi['setting'].append(replace(section,slot))
         next(s for s in pi['setting'] if s['name']==name)['label']=f'Team {slot}'
         pi['option'][f'mirror_queue_{slot}']=replace(pi['option']['mirror_queue_20'],slot,False)
+        # A queue position defaults to the team of its own number, not to team 20.
+        pi['option'][f'mirror_queue_{slot}']['default_case']=str(slot)
         nodes[f'MirrorTaskQueue{slot}']=replace(nodes['MirrorTaskQueue20'],slot,False)
     for key in ('mirror_single_team','experience_team','thread_team',
                 *(f'mirror_queue_{n}' for n in range(1,41))):

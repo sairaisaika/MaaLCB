@@ -41,11 +41,11 @@ def read(path=DEFAULT):
     team_number = out.get('mirror_single_team')
     globals_ = config.get('globalOptionValues') or {}
     if team_number:
-        out['team_name'] = _cases(globals_.get(f'global_team_{team_number}_name'))
         systems = globals_.get(f'global_team_{team_number}_systems') or {}
-        out['team_systems'] = systems.get('caseName') if isinstance(systems, dict) else None
+        chosen = systems.get('caseName') if isinstance(systems, dict) else None
+        # "keep" is not a system: the team's saved systems apply, which this file does not hold.
+        out['team_systems'] = None if chosen == 'keep' else chosen
     else:
-        out['team_name'] = None
         out['team_systems'] = None
     return out
 

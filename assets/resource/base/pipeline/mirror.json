@@ -1573,199 +1573,23 @@
     ],
     "on_error": []
   },
-  "Global_global_team_1": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_1_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_1_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_1_order_1": {
+  "Global_global_team_1_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_1_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_2_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -1775,173 +1599,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_2_order_1": {
+  "Global_global_team_2_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_2_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_3_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -1951,173 +1619,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_3_order_1": {
+  "Global_global_team_3_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_3_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_4_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -2127,173 +1639,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_4_order_1": {
+  "Global_global_team_4_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_4_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_5_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -2303,173 +1659,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_5_order_1": {
+  "Global_global_team_5_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_5_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_6_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -2479,173 +1679,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_6_order_1": {
+  "Global_global_team_6_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_6_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_7_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -2655,173 +1699,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_7_order_1": {
+  "Global_global_team_7_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_7_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_8_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -2831,173 +1719,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_8_order_1": {
+  "Global_global_team_8_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_8_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_9_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -3007,173 +1739,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_9_order_1": {
+  "Global_global_team_9_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_9_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_10_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -3183,173 +1759,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_10_order_1": {
+  "Global_global_team_10_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_10_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_11_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -3359,173 +1779,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_11_order_1": {
+  "Global_global_team_11_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_11_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_12_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -3535,173 +1799,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_12_order_1": {
+  "Global_global_team_12_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_12_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_13": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_13_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -3711,173 +1819,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_13_order_1": {
+  "Global_global_team_13_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_13_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_14": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_14_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -3887,173 +1839,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_14_order_1": {
+  "Global_global_team_14_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_14_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_15": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_15_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -4063,173 +1859,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_15_order_1": {
+  "Global_global_team_15_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_15_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_16": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_16_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -4239,173 +1879,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_16_order_1": {
+  "Global_global_team_16_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_16_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_17": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_17_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -4415,173 +1899,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_17_order_1": {
+  "Global_global_team_17_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_17_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_18": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_18_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -4591,173 +1919,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_18_order_1": {
+  "Global_global_team_18_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_18_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_19": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_19_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -4767,173 +1939,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_19_order_1": {
+  "Global_global_team_19_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_19_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
-      }
-    }
-  },
-  "Global_global_team_20": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_20_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
+        "order": "keep"
       }
     }
   },
@@ -4943,153 +1959,17 @@
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_20_order_1": {
+  "Global_global_team_20_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_20_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -5711,179 +2591,23 @@
     },
     "next": []
   },
-  "Global_global_team_21": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_21_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_21_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_21_order_1": {
+  "Global_global_team_21_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_21_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -5895,179 +2619,23 @@
     },
     "next": []
   },
-  "Global_global_team_22": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_22_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_22_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_22_order_1": {
+  "Global_global_team_22_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_22_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -6079,179 +2647,23 @@
     },
     "next": []
   },
-  "Global_global_team_23": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_23_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_23_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_23_order_1": {
+  "Global_global_team_23_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_23_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -6263,179 +2675,23 @@
     },
     "next": []
   },
-  "Global_global_team_24": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_24_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_24_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_24_order_1": {
+  "Global_global_team_24_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_24_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -6447,179 +2703,23 @@
     },
     "next": []
   },
-  "Global_global_team_25": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_25_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_25_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_25_order_1": {
+  "Global_global_team_25_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_25_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -6631,179 +2731,23 @@
     },
     "next": []
   },
-  "Global_global_team_26": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_26_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_26_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_26_order_1": {
+  "Global_global_team_26_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_26_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -6815,179 +2759,23 @@
     },
     "next": []
   },
-  "Global_global_team_27": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_27_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_27_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_27_order_1": {
+  "Global_global_team_27_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_27_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -6999,179 +2787,23 @@
     },
     "next": []
   },
-  "Global_global_team_28": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_28_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_28_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_28_order_1": {
+  "Global_global_team_28_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_28_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -7183,179 +2815,23 @@
     },
     "next": []
   },
-  "Global_global_team_29": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_29_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_29_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_29_order_1": {
+  "Global_global_team_29_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_29_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -7367,179 +2843,23 @@
     },
     "next": []
   },
-  "Global_global_team_30": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_30_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_30_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_30_order_1": {
+  "Global_global_team_30_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_30_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -7551,179 +2871,23 @@
     },
     "next": []
   },
-  "Global_global_team_31": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_31_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_31_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_31_order_1": {
+  "Global_global_team_31_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_31_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -7735,179 +2899,23 @@
     },
     "next": []
   },
-  "Global_global_team_32": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_32_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_32_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_32_order_1": {
+  "Global_global_team_32_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_32_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -7919,179 +2927,23 @@
     },
     "next": []
   },
-  "Global_global_team_33": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_33_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_33_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_33_order_1": {
+  "Global_global_team_33_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_33_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -8103,179 +2955,23 @@
     },
     "next": []
   },
-  "Global_global_team_34": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_34_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_34_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_34_order_1": {
+  "Global_global_team_34_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_34_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -8287,179 +2983,23 @@
     },
     "next": []
   },
-  "Global_global_team_35": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_35_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_35_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_35_order_1": {
+  "Global_global_team_35_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_35_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -8471,179 +3011,23 @@
     },
     "next": []
   },
-  "Global_global_team_36": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_36_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_36_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_36_order_1": {
+  "Global_global_team_36_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_36_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -8655,179 +3039,23 @@
     },
     "next": []
   },
-  "Global_global_team_37": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_37_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_37_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_37_order_1": {
+  "Global_global_team_37_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_37_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -8839,179 +3067,23 @@
     },
     "next": []
   },
-  "Global_global_team_38": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_38_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_38_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_38_order_1": {
+  "Global_global_team_38_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_38_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -9023,179 +3095,23 @@
     },
     "next": []
   },
-  "Global_global_team_39": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_39_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_39_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_39_order_1": {
+  "Global_global_team_39_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_39_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },
@@ -9207,179 +3123,23 @@
     },
     "next": []
   },
-  "Global_global_team_40": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "edit": false
-      }
-    }
-  },
-  "Global_global_team_40_name": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "name": "{name}"
-      }
-    }
-  },
   "Global_global_team_40_systems": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "keywords": [
-          "Bleed"
-        ]
+        "keywords": "keep"
       }
     }
   },
-  "Global_global_team_40_order_1": {
+  "Global_global_team_40_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
       "global_build": {
-        "deployment": {
-          "1": "Yi Sang"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_2": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "2": "Faust"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_3": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "3": "Don Quixote"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_4": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "4": "Ryoshu"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_5": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "5": "Meursault"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_6": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "6": "Hong Lu"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_7": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "7": "Heathcliff"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_8": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "8": "Ishmael"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_9": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "9": "Rodion"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_10": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "10": "Sinclair"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_11": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "11": "Outis"
-        }
-      }
-    }
-  },
-  "Global_global_team_40_order_12": {
-    "recognition": "DirectHit",
-    "action": "DoNothing",
-    "next": [],
-    "attach": {
-      "global_build": {
-        "deployment": {
-          "12": "Gregor"
-        }
+        "order": "keep"
       }
     }
   },

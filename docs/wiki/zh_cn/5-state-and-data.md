@@ -527,7 +527,7 @@ erDiagram
 | `user-reward-claim-transaction` | `config/user-reward-claim-transaction.json` | `src/maalimbus/reward_claim_transaction.py`；原生奖励任务也会直接写（`src/maalimbus/reward_task.py:47-48`） |
 | `user-shop-*` / `user-exploration-*` | `config/user-shop-<scope>.json` 等 | 一局一个文件，文件名里的 `<scope>` 与 `scope` 字段同值 |
 | `user-update-state` | `config/user-update-state.json` | 更新检查（ETag + `retry_at` 退避） |
-| `interface` | `assets/interface.json` | 3.5 MB 的声明文件；`option` 有 711 个键（大量是 `global_team_N_*` 与 `mirror_queue_N` 这类按队伍展开的项） |
+| `interface` | `assets/interface.json` | 1.2 MB 的声明文件；`option` 有 175 个键（其中 80 个是每队两项的 `global_team_N_systems`／`global_team_N_order`，另有 `mirror_queue_N` 这类按队伍展开的项；2026-11-23 之前每队 15 项、共 695 个键、3.5 MB） |
 | `anchors` / `page` | `assets/resource/base/anchors.json` | 45 个页面 + 3 个 pending；离线校验 `tools/verify_anchors.py` |
 | `mirror` / `sinner-neural` | `assets/resource/base/pipeline/*.json` | `mirror.json` 792 个节点，字段最多的三个是 `recognition` / `action` / `next`（各 792），另有 `custom_action` 74 个、`on_error` 103 个 |
 | `locale-en` | `assets/resource/en/locale.json` | 87 个键；JP 版 24 个键。**`assets/resource/base/locale.json` 不存在**（见下） |

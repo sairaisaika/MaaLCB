@@ -527,7 +527,7 @@ Entities mapped to files and writers:
 | `user-reward-claim-transaction` | `config/user-reward-claim-transaction.json` | `src/maalimbus/reward_claim_transaction.py`; the native reward task also writes it directly (`src/maalimbus/reward_task.py:47-48`) |
 | `user-shop-*` / `user-exploration-*` | `config/user-shop-<scope>.json` etc. | one file per run; `<scope>` in the file name equals the `scope` field |
 | `user-update-state` | `config/user-update-state.json` | update check (ETag + `retry_at` backoff) |
-| `interface` | `assets/interface.json` | the 3.5 MB declaration file; `option` has 711 keys, many of them per-team expansions such as `global_team_N_*` and `mirror_queue_N` |
+| `interface` | `assets/interface.json` | the 1.2 MB declaration file; `option` has 175 keys (80 of them the two per team, `global_team_N_systems` and `global_team_N_order`, plus per-team expansions such as `mirror_queue_N`; before 2026-11-23 a team took 15 options, 695 keys and 3.5 MB in all) |
 | `anchors` / `page` | `assets/resource/base/anchors.json` | 45 pages + 3 pending; verified offline by `tools/verify_anchors.py` |
 | `mirror` / `sinner-neural` | `assets/resource/base/pipeline/*.json` | `mirror.json` has 792 nodes; the three most common fields are `recognition` / `action` / `next` (792 each), plus 74 `custom_action` and 103 `on_error` |
 | `locale-en` | `assets/resource/en/locale.json` | 87 keys; the JP file has 24. **`assets/resource/base/locale.json` does not exist** (see below) |

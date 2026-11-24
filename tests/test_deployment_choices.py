@@ -66,14 +66,14 @@ def test_agent_commits_once_and_preserves_other_saved_team_preferences(tmp_path,
 def test_the_preset_options_are_gone_and_the_order_lives_with_each_team():
     # No task has offered deployment_preset and its twelve position options since the
     # native entries were consolidated; they were removed on 2026-11-23. A team's
-    # order is set by its own twelve options, which a task does reach.
+    # order is one line of text in the team's own settings (it was twelve dropdowns).
     pi=json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
     nodes=json.loads((ROOT/'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
     assert 'deployment_preset' not in pi['option']
     for i in range(1,13):
         assert f'deployment_position_{i}' not in pi['option']
-        cases=pi['option'][f'global_team_1_order_{i}']['cases']
-        assert {case['name'] for case in cases}>=set(SINNERS)
+        assert f'global_team_1_order_{i}' not in pi['option']
         assert nodes[f'DeploymentOrder{i}']['max_hit']==1
+    assert pi['option']['global_team_1_order']['type']=='input'
     assert nodes['DeploymentPreset']['next']==['DeploymentOrder1']
     assert nodes['DeploymentOrderCommit']['next'][0]=='LimbusSafety'
