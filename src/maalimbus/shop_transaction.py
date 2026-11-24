@@ -71,6 +71,36 @@ def _same_title(one, other):
     return _key(one) == _key(other) or _fold(one) == _fold(other)
 
 
+#: How alike the notice's title and the bought card's title must read, and by how much
+#: the bought card must beat every other card of the same shelf.
+NOTICE_SIMILARITY = .8
+NOTICE_MARGIN = .15
+
+
+def _notice_names(read, pending):
+    """Does the gift notice name the card this purchase was written for?
+
+    The notice prints the gift's name in a display typeface whose ``v`` reads as ``u``:
+    live ``pi-20261123-194800/frame-0078`` printed "milepost of Suruiual" for the
+    "Milepost of Survival" bought a few seconds earlier, two glyphs off, and the run
+    stopped on a purchase that had gone through. A notice can only be for a card of the
+    shelf the purchase was made from, and the transaction holds that shelf. So the
+    question is which card of the shelf the notice reads closest to: it names the
+    bought card when it reads like it and clearly less like every other card.
+    """
+    if _same_title(read, pending['name']):
+        return True
+    from difflib import SequenceMatcher
+
+    def alike(name):
+        return SequenceMatcher(None, _fold(read), _fold(name)).ratio()
+    bought = alike(pending['name'])
+    others = [alike(row['name']) for row in pending.get('shelf') or ()
+              if isinstance(row, dict) and isinstance(row.get('name'), str) and row['name'].strip()
+              and not _same_title(row['name'], pending['name'])]
+    return bought >= NOTICE_SIMILARITY and all(bought - other >= NOTICE_MARGIN for other in others)
+
+
 def _one_glyph_apart(one, other):
     """Equal-length titles whose folded keys differ in exactly one position.
 
@@ -667,7 +697,7 @@ class ShopTransaction:
         gift_name = receipt_name(texts, record['size'])
         if not gift_name:
             raise ShopNoticeNameUnproven('Shop notice gift name is unreadable')
-        if not _same_title(gift_name, pending['name']):
+        if not _notice_names(gift_name, pending):
             raise ValueError('Shop notice names a different gift; preserve pending')
         # A notice that re-states an already retained frame is not a successor: both the
         # shelf the purchase started from and the question that was answered are refused,
