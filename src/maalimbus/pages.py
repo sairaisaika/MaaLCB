@@ -954,7 +954,7 @@ PLANNED_REASONS = {
 # new acting plan carries only that and is not declared here.
 PLANS_WITH_ONLY_A_DISMISSAL = {
     'a_key_saved_slot_is_dead_and_the_shop_sells_the_way_back': 'page_must_change',
-    'a_lost_run_opens_its_rewards_only_to_give_them_up': 'page_must_change',
+    'a_lost_run_opens_its_reward_dialog': 'page_must_change',
     'claiming_is_the_only_forward_input_on_the_run_summary': 'page_must_change',
     'confirm_grants_the_picked_encounter_reward': 'page_must_change',
     'disable_unauthorized_starlight_conversion': 'page_must_change',

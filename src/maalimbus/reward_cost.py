@@ -22,15 +22,18 @@ DIGITS={'one_digit':r'[1-9]','two_digit':r'[1-9]\d'}
 
 def page_anchors(records,size):
     gates=[(r'^Exploration Reward$',(.39,.12,.60,.20)),
-           (r'^Floor 5$',(.24,.56,.31,.61)),
-           (r'^\[HARD\]$',(.24,.59,.31,.64)),
+           # Floor 5 on a cleared run. A run that was lost prints the floor it ended on
+           # and how far it got there: `Floor 5 [HARD] 3/4` on pi-20261123-232359/frame-0004.
+           (r'^Floor [1-5]$',(.24,.56,.31,.61)),
+           (r'^\[(?:HARD|NORMAL)\]$',(.24,.59,.31,.64)),
            # The floor's own count, not a constant: 7/7 on the October runs, 4/4 on
            # pi-20261123-133044, whose stylised digits scored 0.82. Numerator and
            # denominator must be equal (the floor is finished). The same dialog reopened
            # from the dungeon list after a game restart scored 0.65 for the same 4/4
            # (pi-20261123-180315/frame-0032): the score follows what is behind the
            # modal, so the equal-count structure carries the identity, not the score.
-           (r'^(\d{1,2})/\1$',(.25,.62,.31,.69),.5),
+           # A lost run's count is short of its floor (3/4); `floor_count` says which.
+           (r'^\d{1,2}/\d{1,2}$',(.25,.62,.31,.69),.5),
            # 'To Window' right after the final victory; 'To List' when the dialog is
            # reopened from the dungeon list (same frame: [904,798,112,35]).
            (r'^To (?:Window|List)$',(.43,.72,.56,.79)),
@@ -38,6 +41,20 @@ def page_anchors(records,size):
            (r'^Weekly$',(.22,.29,.31,.35)),
            (r'^Bonuses$',(.22,.33,.31,.38))]
     return all(len(find(records,gate[0],gate[1],size,gate[2] if len(gate)>2 else .9))==1 for gate in gates)
+
+def floor_count(records,size):
+    """``(floor, done, of)`` as the reward dialog prints them, or ``None``.
+
+    ``done == of`` on floor 5 is a cleared dungeon; anything else is a run that ended
+    early. The dialog is the only place this is still readable once it covers the summary.
+    """
+    floor=find(records,r'^Floor [1-5]$',(.24,.56,.31,.61),size,.9)
+    count=find(records,r'^\d{1,2}/\d{1,2}$',(.25,.62,.31,.69),size,.5)
+    if len(floor)!=1 or len(count)!=1:return None
+    done,of=(int(part) for part in count[0].text.split('/'))
+    if not 0<=done<=of or of<1:return None
+    return int(floor[0].text.split()[1]),done,of
+
 
 def combine_evidence(readings):
     """All independently gated native results must be unique and agree.

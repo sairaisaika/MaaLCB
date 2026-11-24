@@ -2311,9 +2311,14 @@ class MainTaskAction(CustomAction):
                     try:
                         from maalimbus.reward_task_budget import apply_standing
                         claim=getattr(context,'get_node_data',None)
-                        claim=claim('MirrorRewardClaim').get('attach',{}).get('modules','saved') if claim else 'saved'
-                        journal.record('mirror_reward_claim_setting',selection=claim,
-                                       outcome=apply_standing(data_directory(ROOT),claim))
+                        nodes=claim
+                        claim=nodes('MirrorRewardClaim').get('attach',{}).get('modules','saved') if nodes else 'saved'
+                        try:
+                            lost=nodes('MirrorRewardClaimLost').get('attach',{}).get('lost','saved') if nodes else 'saved'
+                        except KeyError:
+                            lost='saved'  # a pipeline built before the lost-run choice existed
+                        journal.record('mirror_reward_claim_setting',selection=claim,lost=lost,
+                                       outcome=apply_standing(data_directory(ROOT),claim,lost))
                     except KeyError:
                         pass  # a pipeline built before the setting existed
                     except (ValueError,OSError,TypeError) as error:

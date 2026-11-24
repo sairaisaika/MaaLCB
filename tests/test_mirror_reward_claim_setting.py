@@ -85,4 +85,4 @@ def test_the_interface_asks_only_whether_to_claim_and_defaults_to_claiming():
 def test_the_mirror_task_saves_the_choice_before_it_looks_at_the_game():
     source = (ROOT / 'agent/recognition.py').read_text(encoding='utf-8')
     body = source[source.index('class MainTaskAction'):]
-    assert body.index('apply_standing(data_directory(ROOT),claim)') < body.index("config/'user-run-ledger.json'")
+    assert body.index('apply_standing(data_directory(ROOT),claim,lost)') < body.index("config/'user-run-ledger.json'")

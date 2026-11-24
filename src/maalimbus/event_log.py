@@ -22,6 +22,8 @@ GLOSSARY = {
     'mirror_schedule_done_today': '镜牢日程里今天的局数已经打完，本次没有操作游戏。',
     'reward_module_budget_pending': '当前局没有可用的模块领奖预算。保留当前页面和事务证据。',
     'completed_mirror_run_required': '当前局的五层通关证据未齐，领奖步骤尚未执行。',
+    'lost_run_claim_not_chosen': '这一局没打完就结束了；设置里选的是输掉的局不领，停在奖励页，没有点任何按钮。',
+    'lost_run_payout_and_home_verified': '输掉的这一局的残局奖励已领取并回到大厅；不计入完成局数，队伍不轮换。',
     'reward_receipt_without_current_confirmation': '当前回执缺少同局的领奖确认记录，保留回执等待对账。',
     'reward_claim_over_budget': '实际领奖费用超过本局的模块上限。',
     'native_input_completion_unproven': '原生输入已尝试提交，但执行结果尚未确认；保留未决事务和后继截图，不通过第二通道重发，也不记为到账或成功。',

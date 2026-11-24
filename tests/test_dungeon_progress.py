@@ -153,7 +153,7 @@ def test_a_lost_run_never_reaches_its_claim_buttons():
     assert refused['reason'] == 'the_lost_summary_has_no_button_to_open_its_rewards'
     opened = plan_step(page, controls={'run.claim_button': (1128, 578, 96, 28)})
     assert tuple(opened['target']) == (1128, 578, 96, 28)
-    assert opened['reason'] == 'a_lost_run_opens_its_rewards_only_to_give_them_up'
+    assert opened['reason'] == 'a_lost_run_opens_its_reward_dialog'
 
 
 def test_a_cleared_run_still_claims_its_rewards():

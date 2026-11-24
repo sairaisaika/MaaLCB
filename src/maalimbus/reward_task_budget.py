@@ -39,7 +39,11 @@ STANDING = 'auto_claim_modules'
 STANDING_CHOICES = ('claim', 'off')
 
 
-def apply_standing(config,selection):
+#: Whether a run that was lost may be claimed too. Stored beside the standing limit.
+LOST = 'auto_claim_lost_runs'
+
+
+def apply_standing(config,selection,lost='saved'):
     """Save the Mirror task's "claim after a clear" choice; return what was done.
 
     A run's rewards cost 5 modules, or 6 or 18 when the player has switched weekly
@@ -49,7 +53,14 @@ def apply_standing(config,selection):
     page. `saved` keeps what is stored. A claim that has already been
     reserved or sent keeps the limit it was reserved under: the choice is not written
     while that transaction is open, so the task can still finish it.
+
+    ``lost`` is the second question (the user, 2026-11-24: "输了领不领" is a choice of
+    its own): a run that ended before the dungeon was cleared pays less for the same 5
+    modules. ``claim`` allows it, ``off`` stops on its reward page, ``saved`` keeps what
+    is stored. It only ever applies while the first choice is ``claim``.
     """
+    if lost not in ('saved',)+STANDING_CHOICES:
+        raise ValueError('Unknown lost-run reward claim choice')
     if selection=='saved':return 'kept'
     if selection not in STANDING_CHOICES:
         raise ValueError('Unknown automatic reward claim choice')
@@ -65,6 +76,8 @@ def apply_standing(config,selection):
     proposed=dict(policy)
     if limit:proposed[STANDING]=limit
     else:proposed.pop(STANDING,None)
+    if lost=='claim' and limit:proposed[LOST]=True
+    elif lost=='off' or not limit:proposed.pop(LOST,None)
     if proposed==policy:return 'unchanged'
     write_json(path,proposed)
     return 'saved'

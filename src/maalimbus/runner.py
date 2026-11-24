@@ -5091,6 +5091,7 @@ class MirrorRunner:
         # `Confirm` [1110,718,116,40] and `Claim` [1680,859,86,42]).
         if page_vocabulary.is_run_summary(page):
             self._observe_clear_summary(record)
+        self._observe_lost_summary(record)
         reward_result = self._paid_reward_handoff(page, record, frame, candidates)
         if reward_result is not None:
             return reward_result
@@ -8470,14 +8471,21 @@ class MirrorRunner:
                 return None
 
         reason = None
+        from .paid_reward_action import lost_claim_allowed
+        from .run_wiring import payout_state
+        outcome = payout_state(active)
         if (store is None or store.path.name != 'user-run-ledger.json' or not self.run_id
-                or active.get('id') != self.run_id or active.get('floors') != [1,2,3,4,5]
-                or not active.get('victory')):
+                or active.get('id') != self.run_id or outcome is None):
             reason = 'completed_mirror_run_required'
         elif action in ('claim', 'confirm'):
             path = config/'user-mirror-settings.json'
-            if scoped_module_cap(read_json(path) if path.is_file() else {}, self.run_id) is None:
+            policy = read_json(path) if path.is_file() else {}
+            if scoped_module_cap(policy, self.run_id) is None:
                 reason = 'reward_module_budget_pending'
+            elif outcome == 'lost' and not lost_claim_allowed(policy):
+                # The user's own choice: a lost run's partial rewards cost the same 5
+                # modules, and "do not claim" stops here with the dialog untouched.
+                reason = 'lost_run_claim_not_chosen'
         elif not confirmed:
             reason = 'reward_receipt_without_current_confirmation'
         if reason:
@@ -8512,15 +8520,63 @@ class MirrorRunner:
         store.data = read_json(store.path)
         self.state.update(page='HOME', claim_steps=0, run_settled_itself=False)
         self.state['step'] += 1
+        # A lost run's payout brings the loop home like any other, but it is not a clear.
+        cleared = not result.get('lost')
         entry.update(passed=True, stopped=None, page_after='HOME', scene_after='HOME',
-                     verified_clear=True)
-        self.artifacts['verified_clear'] = True
+                     verified_clear=cleared)
+        if cleared:
+            self.artifacts['verified_clear'] = True
+        else:
+            self.note('lost_run_paid_out', reason=result['reason'], input_sent=False)
         reached = self._run_count_reached()
         if reached:
             self.artifacts['run_count'] = reached
             self.note('run_count_reached', **reached)
             return self._result('HOME', None, sent > 0, None, done=True)
         return self._result('HOME', None, sent > 0, None)
+
+    def _observe_lost_summary(self, record):
+        """Record a lost run on the summary that says so, before a button covers it.
+
+        The game's summary states a total progress below 100% when the run ended before
+        the dungeon was cleared (pi-20261123-232359/frame-0002: `Floor 5 3/4`, `95%`).
+        That frame is the proof the ledger keeps; without it the reward dialog that
+        follows belongs to a run the ledger knows nothing final about.
+        """
+        if self.settings.observe_only or self.store is None or not record.get('frame_ref'):
+            return
+        active = self.store.data.get('active') or {}
+        if (not self.run_id or active.get('id') != self.run_id or active.get('victory')
+                or active.get('lost')):
+            return
+        from .dungeon_progress import exploration_summary
+        from .native_evidence import observation_frame
+
+        try:
+            _, proof, raw = observation_frame(self.directory, record)
+            texts = [Text(item['text'], tuple(item['box']), item['score']) for item in raw['ocr']]
+            summary = exploration_summary(texts, proof.size) or {}
+        except (OSError, ValueError, TypeError, KeyError):
+            return
+        percent = summary.get('total_percent')
+        on_summary = (raw.get('scene') == 'EXPLORATION_COMPLETE'
+                      and type(percent) is int and 0 <= percent < 100)
+        # The reward dialog covers the percentage but prints the floor the run ended on
+        # and how far it got there. A task that starts on the dialog (the previous one
+        # stopped there) has only this to go by: `Floor 5 [HARD] 3/4`.
+        from .reward_cost import floor_count
+        count = floor_count(texts, proof.size) if raw.get('scene') == 'RUN_REWARD_DIALOG' else None
+        on_dialog = count is not None and (count[0] < 5 or count[1] < count[2])
+        if not on_summary and not on_dialog:
+            return
+        try:
+            self.store.record(self.run_id, 'native-lost-summary', 'run_lost', Path(proof.record_path))
+        except (OSError, ValueError) as error:
+            self.note('lost_summary_not_recorded', reason=str(error), input_sent=False)
+            return
+        self.note('mirror_lost_summary_verified', frame=proof.frame_id, total_percent=percent,
+                  floor_count=list(count) if count else None,
+                  image_sha256=proof.png_sha256, input_sent=False)
 
     def _observe_clear_summary(self, record):
         """Record victory on its original summary before a button changes the page."""

@@ -79,9 +79,12 @@ def finish(config,scope,home,*,journal=None):
     ledger=config/'user-run-ledger.json'
     data=read_json(ledger)
     active=data.get('active') or {}
+    from .run_wiring import payout_state
+    lost=False
     if active:
-        if active.get('id')!=scope or active.get('floors')!=[1,2,3,4,5] or not active.get('victory'):
+        if active.get('id')!=scope or payout_state(active) is None:
             raise ValueError('Completed run scope differs before payout bookkeeping')
+        lost=payout_state(active)=='lost'
         profiles={p.slot:p for p in ProfileStore(config/'user-team-profiles.json').load()}
         slots=data.get('team_slots')
         if not isinstance(slots,list) or not slots or any(slot not in profiles for slot in slots):
@@ -99,10 +102,15 @@ def finish(config,scope,home,*,journal=None):
     else:
         import hashlib
         matches=[r for r in data.get('receipts',[]) if r.get('id')==scope]
+        # A lost run that was paid out is filed with the runs that did not finish.
+        filed=[r for r in data.get('abandoned',[]) if r.get('id')==scope and r.get('lost')]
+        lost=not matches and len(filed)==1
+        if lost:matches=filed
         if len(matches)!=1 or tx.get('bookkeeping_home')!=str(home):
             raise ValueError('Exact completed bookkeeping scope missing')
         archived=matches[0]
-        if archived.get('floors')!=[1,2,3,4,5] or not archived.get('victory') or not archived.get('reward'):
+        won=archived.get('floors')==[1,2,3,4,5] and archived.get('victory')
+        if not (won or lost) or not archived.get('reward'):
             raise ValueError('Archived payout completion missing')
         for event_id,kind,evidence in (
                 ('native-reward-task-receipt','reward_received',tx['receipt_proof']),
@@ -117,7 +125,8 @@ def finish(config,scope,home,*,journal=None):
     write_json(path,tx)
     from .shop_outcomes import refresh_scope
     learning=refresh_scope(config,scope,trigger='payout_home_archived',journal=journal)
-    return dict(passed=True,reason='mirror_payout_and_home_verified',task='rewards',
+    return dict(passed=True,reason='lost_run_payout_and_home_verified' if lost else 'mirror_payout_and_home_verified',
+                task='rewards',lost=lost,
                 reward_received=True,mail_daily_verified=False,verified_clear=False,proof=proof,
                 purchase_learning=learning)
 
@@ -159,7 +168,8 @@ def execute(config,directory,observer,device,journal,*,deadline=None):
                       inputs_sent=False,resumed=True)
                 return dict(passed=False,reason=str(error),task='rewards',input_sent=False,
                             reward_received=False,mail_daily_verified=False)
-    if not scope or not active.get('victory') or active.get('floors')!=[1,2,3,4,5]:
+    from .run_wiring import payout_state
+    if not scope or payout_state(active) is None:
         _note(journal,'reward_task_skipped',scope=scope,
               reason='completed_mirror_run_required',inputs_sent=False)
         return dict(passed=False,reason='completed_mirror_run_required',task='rewards',input_sent=False,

@@ -187,6 +187,23 @@ def settle(store, *, page, reason=None, floor=None, proof, on_event=None, on_ref
     return recorded
 
 
+def payout_state(active):
+    """What kind of payout the active run may take: ``'won'``, ``'lost'`` or ``None``.
+
+    Won is five verified floors and the final victory. Lost is the game's own summary
+    below 100%, recorded as ``run_lost`` with the frame that printed it. Anything else
+    -- a run still being played, a ledger that saw neither -- may take no payout.
+    """
+    active = active or {}
+    if not active.get('id'):
+        return None
+    if active.get('victory') and active.get('floors') == [1, 2, 3, 4, 5]:
+        return 'won'
+    if active.get('lost') and not active.get('victory'):
+        return 'lost'
+    return None
+
+
 def expire(store, *, page, reason=None, proof=None, note=None, on_event=None):
     """File the run the game threw away when it expired the session, or None.
 

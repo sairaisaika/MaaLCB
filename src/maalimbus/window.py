@@ -502,12 +502,14 @@ STEP_ROWS = {
         'refusal': 'event_check_ready_continue_not_anchored',
         'advance': True,
         },
-    # A run the game ended short of 100% is a run that was lost, and a lost run
-    # gives its rewards up -- it does not claim them. The summary's own button is
-    # what opens the reward modal; the give-up itself happens there.
+    # A run the game ended short of 100% is a run that was lost. The summary's own
+    # button opens the reward dialog and nothing more: what happens there is the paid
+    # stage's to decide (claim if the user chose to claim lost runs, otherwise stop).
+    # "Give Up Rewards" is on the forbidden list and is never pressed; this row was
+    # once named as if it were (2026-11-24).
     'EXPLORATION_COMPLETE': {'control': 'run.claim_button',
         'expect': (ANY,),
-        'reason': 'a_lost_run_opens_its_rewards_only_to_give_them_up',
+        'reason': 'a_lost_run_opens_its_reward_dialog',
         'refusal': 'the_lost_summary_has_no_button_to_open_its_rewards',
         'advance': True,
         },

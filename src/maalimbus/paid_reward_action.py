@@ -22,6 +22,11 @@ def scoped_module_cap(policy, scope):
     return standing if type(standing) is int and standing > 0 else None
 
 
+def lost_claim_allowed(policy):
+    """Whether the user chose to claim a lost run's partial rewards (``reward_task_budget``)."""
+    return policy.get('auto_claim_lost_runs') is True
+
+
 #: The offers the game has actually shown on a retained frame, as (cost, weekly bonuses).
 #: 6/1 and 5/0 come from the October claims; 18/3 from `pi-20261120-193352/frame-0269`,
 #: a hard clear with all three weekly bonuses switched on. A pair nobody has measured
@@ -103,8 +108,14 @@ def prepare(action, record, config, scope, proof):
         policy = dict(policy, reward_budget_scope=scope, max_reward_modules=maximum,
                       module_budget_pending=False)
     ledger=read_json(config/'user-run-ledger.json').get('active') or {}
-    if ledger.get('id')!=scope or ledger.get('floors')!=[1,2,3,4,5] or not ledger.get('victory') or ledger.get('reward'):
+    from .run_wiring import payout_state
+    outcome=payout_state(ledger)
+    if ledger.get('id')!=scope or outcome is None or ledger.get('reward'):
         raise ValueError('Current completed run is not proven')
+    if outcome=='lost' and action in ('claim','confirm'):
+        saved=read_json(config/'user-mirror-settings.json') if (config/'user-mirror-settings.json').is_file() else {}
+        if not lost_claim_allowed(saved):
+            raise ValueError('Claiming a lost run was not chosen')
     size=record.get('size')
     if size!=[1920,1080]:raise ValueError('Reward layout unknown')
     texts=[Text(x['text'],tuple(x['box']),x['score']) for x in record.get('ocr',[])]
@@ -114,6 +125,20 @@ def prepare(action, record, config, scope, proof):
         offer = verified_offer(record)
         if offer is None:
             raise ValueError('Fresh currency/cost/weekly offer differs')
+        if outcome=='lost' and offer['weekly']!=0:
+            # A weekly bonus is only ever spent on a run that earned its payout.
+            raise ValueError('A lost run does not spend weekly bonuses')
+        # The dialog prints the floor the run ended on and how far it got there. It has
+        # to tell the ledger's story: a cleared floor 5 for a won run, anything short of
+        # it for a lost one. Otherwise this is some other run's dialog.
+        from .reward_cost import floor_count
+        count=floor_count(texts,size)
+        cleared=count is not None and count[0]==5 and count[1]==count[2]
+        # A lost run must show its unfinished floor. A won run is refused only when the
+        # dialog plainly shows an unfinished one: the offer reader already asked for the
+        # count when it read the cost, and a count hidden on this frame denies nothing.
+        if (outcome=='lost' and (count is None or cleared)) or (outcome=='won' and count is not None and not cleared):
+            raise ValueError('The reward dialog disagrees with the ledger about how the run ended')
         buttons=find(texts,r'^Claim$',(.62,.72,.71,.79),size,.9)
         if len(buttons)!=1:raise ValueError('Claim control missing')
         # Net Amount is a computed run-summary value, obscured by this modal; it

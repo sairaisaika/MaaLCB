@@ -271,8 +271,14 @@ class RunStore:
             if active['floors'] != [1, 2, 3, 4, 5]:
                 raise ValueError('Final victory needs all five verified floors')
             active['victory'] = True
+        elif kind == 'run_lost':
+            # The game's own summary said the run ended short of 100%. A run is lost or
+            # won, never both, and a lost run keeps the floors it had proved.
+            if active['victory']:
+                raise ValueError('A run with a final victory was not lost')
+            active['lost'] = True
         elif kind == 'reward_received':
-            if not active['victory']:
+            if not active['victory'] and not active.get('lost'):
                 raise ValueError('Reward cannot complete a run without victory')
             active['reward'] = True
         elif kind == 'entry_returned':
@@ -281,7 +287,16 @@ class RunStore:
         else:
             raise ValueError('Unsupported completion observation')
         active['events'][event_id] = event
-        if kind == 'entry_returned':
+        if kind == 'entry_returned' and active.get('lost'):
+            # A lost run whose partial rewards were claimed is filed with the runs that
+            # did not finish: it is not a completed run and the rotation stays where it
+            # is, so the team that lost is the team that tries again.
+            data.setdefault('abandoned', []).append(dict(
+                active, note='lost before the dungeon was cleared; its partial rewards were claimed',
+                abandoned_at=datetime.datetime.now(datetime.timezone.utc).isoformat()))
+            data['abandoned'] = data['abandoned'][-50:]
+            data['active'] = None
+        elif kind == 'entry_returned':
             # A receipt says when it was settled, so the driver can tell a payout that was
             # earned from one the game handed over after expiring the run: both are the
             # newest settled thing, and only the later of the two may spend a weekly bonus.

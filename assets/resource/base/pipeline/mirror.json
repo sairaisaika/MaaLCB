@@ -2679,6 +2679,14 @@
     },
     "next": []
   },
+  "MirrorRewardClaimLost": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "lost": "claim"
+    },
+    "next": []
+  },
   "MirrorSchedule": {
     "recognition": "DirectHit",
     "action": "DoNothing",

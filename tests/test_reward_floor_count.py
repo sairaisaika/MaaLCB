@@ -1,4 +1,4 @@
-"""The reward page is identified by a finished floor count, not by the literal 7/7.
+"""The reward page is identified by its floor count, not by the literal 7/7.
 
 The October runs cleared seven encounters on floor 5 and the page gate was written as
 ``7/7``. Run ``pi-20261123-133044`` cleared a four-node floor: the dialog printed
@@ -35,9 +35,21 @@ def test_the_dialog_reopened_from_the_dungeon_list_is_the_same_page():
     assert page_anchors(page(leave=('To Lobby', (904, 798, 112, 35))), SIZE) is False
 
 
-@pytest.mark.parametrize('count, score', [('3/4', .99), ('6/7', .99), ('4/', .99), ('4/4', .4), ('44', .99)])
-def test_an_unfinished_or_unreadable_count_does_not(count, score):
+@pytest.mark.parametrize('count, score', [('4/', .99), ('4/4', .4), ('44', .99)])
+def test_an_unreadable_count_does_not(count, score):
     assert page_anchors(page(count, score), SIZE) is False
+
+
+@pytest.mark.parametrize('count', ['3/4', '6/7'])
+def test_an_unfinished_count_is_the_dialog_of_a_run_that_was_lost(count):
+    # Until 2026-11-24 this was refused: the gate asked for a finished floor, so the
+    # dialog of a lost run (pi-20261123-232359: `Floor 5 [HARD] 3/4`) was no reward page
+    # at all and its offer was never read. Which of the two it is, is now `floor_count`'s
+    # to say and `paid_reward_action.prepare`'s to hold against the ledger.
+    from maalimbus.reward_cost import floor_count
+    assert page_anchors(page(count, .99), SIZE) is True
+    done, of = (int(part) for part in count.split('/'))
+    assert floor_count(page(count, .99), SIZE) == (5, done, of)
 
 
 def test_the_other_gates_keep_their_stricter_score():

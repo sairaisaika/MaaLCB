@@ -17102,6 +17102,9 @@
         {
           "name": "claim",
           "label": "$mirror_reward_claim_on",
+          "option": [
+            "mirror_reward_claim_lost"
+          ],
           "pipeline_override": {
             "MirrorRewardClaim": {
               "attach": {
@@ -17117,6 +17120,36 @@
             "MirrorRewardClaim": {
               "attach": {
                 "modules": "off"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_reward_claim_lost": {
+      "type": "select",
+      "label": "$mirror_reward_claim_lost",
+      "description": "$mirror_reward_claim_lost_description",
+      "default_case": "claim",
+      "cases": [
+        {
+          "name": "claim",
+          "label": "$mirror_reward_claim_lost_on",
+          "pipeline_override": {
+            "MirrorRewardClaimLost": {
+              "attach": {
+                "lost": "claim"
+              }
+            }
+          }
+        },
+        {
+          "name": "off",
+          "label": "$mirror_reward_claim_lost_off",
+          "pipeline_override": {
+            "MirrorRewardClaimLost": {
+              "attach": {
+                "lost": "off"
               }
             }
           }
