@@ -220,7 +220,52 @@ def dial_beside_caption(records, size, image):
     top = min(p[2] for p in keep)
     right = max(p[1] + p[3] for p in keep)
     bottom = max(p[2] + p[4] for p in keep)
+    # A lit dial glows, and on a warm stage its glow joins the highlighted skill chips
+    # beside it into one warm piece: the floor-5 boss of pi-20261124-014821 gave a box 254
+    # wide for a dial of about 120 (381 on a still taken by hand), a press on it landed on
+    # a skill chip, and the turn stood still until the stall guard ended the run. The
+    # dial is the part next to the caption and above the portraits, so a union larger
+    # than a dial keeps only that corner.
+    limit = int(DIAL_SPAN * width / 1920)
+    if right - left > limit:
+        left = right - limit
+    if bottom - top > limit:
+        top = bottom - limit
     return (left, top, right - left, bottom - top)
+
+
+#: The most a dial measures across at 1920 (the lit ones are 121x133 to 125x154).
+DIAL_SPAN = 155
+#: The auto-assignment button is a switch. Lit, about half of it is red; unlit, under 1%
+#: (measured on the same board a second apart: .496 and .001).
+LIT_SHARE = .2
+UNLIT_SHARE = .03
+
+
+def assignment_lit(image, box):
+    """Whether the auto-assignment button at ``box`` is switched on: True, False or None.
+
+    Pressing a lit Win Rate switches the assignment off again. The loop used to press it
+    whenever a submitted turn came back unchanged, which is right for a dial pressed too
+    early and wrong after a press that missed the dial: on pi-20261124-014821 that
+    alternated on, off, on, off through four rounds on one turn. ``box`` is the caption's
+    own box in the image's coordinates; the fill is read on the button around it.
+    """
+    if image is None or box is None:
+        return None
+    x, y, w, h = (int(v) for v in box[:4])
+    x0, x1 = max(0, int(x - .3 * w)), int(x + 1.7 * w)
+    y0, y1 = max(0, int(y - .15 * h)), int(y + 1.15 * h)
+    crop = image[y0:y1, x0:x1]
+    if crop.size == 0:
+        return None
+    blue, green, red = (crop[:, :, 0].astype(int), crop[:, :, 1].astype(int), crop[:, :, 2].astype(int))
+    share = float(((red > 150) & (green < 90) & (blue < 90)).mean())
+    if share >= LIT_SHARE:
+        return True
+    if share <= UNLIT_SHARE:
+        return False
+    return None
 
 
 def start_button(records, size, image=None):

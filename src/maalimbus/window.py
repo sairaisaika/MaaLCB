@@ -1386,7 +1386,11 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
         # page comes back with the same turn, assign first. `battle_previous` is what this
         # run last sent on this battle page; without it the two intents cannot alternate
         # and the page would sit on one of them forever.
-        if (battle_previous == 'submit' and auto_assign
+        # The switch is seen lit: the assignment is on, and pressing it again would turn it
+        # off. A submitted turn that came back unchanged is then answered with the dial
+        # again, not with the switch (pi-20261124-014821, see battle_vision.assignment_lit).
+        lit = ((auto_assign or {}).get('lit') or {}).get(battle_assignment) is True
+        if (battle_previous == 'submit' and auto_assign and not lit
                 and auto_assign.get(battle_assignment)):
             if battle_pairs >= MAX_BATTLE_SUBMIT_PAIRS:
                 # Three assign-after-submit cycles that changed no page: the switch and the

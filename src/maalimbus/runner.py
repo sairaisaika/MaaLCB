@@ -6720,7 +6720,7 @@ class MirrorRunner:
                          difficulty=difficulty,
                          start_box=record.get('start_box'),
                          auto_assign=(None if repeat_assignment
-                                      else record.get('auto_assign_buttons')),
+                                      else self._with_switch_state(record.get('auto_assign_buttons'))),
                          battle_assignment=settings.battle_assignment,
                          battle_previous=state.get('battle_previous'),
                          battle_assigns=state.get('battle_assigns') or 0,
@@ -8534,6 +8534,16 @@ class MirrorRunner:
             self.note('run_count_reached', **reached)
             return self._result('HOME', None, sent > 0, None, done=True)
         return self._result('HOME', None, sent > 0, None)
+
+    def _with_switch_state(self, buttons):
+        """The auto-assignment buttons, with whether each is seen switched on."""
+        if not buttons:
+            return buttons
+        from .battle_vision import assignment_lit
+        frame = frame_file(self.directory)
+        image = cv2.imread(str(frame.with_suffix('.png'))) if frame is not None else None
+        return dict(buttons, lit={mode: assignment_lit(image, buttons.get(mode))
+                                  for mode in ('win_rate', 'damage') if buttons.get(mode)})
 
     def _observe_lost_summary(self, record):
         """Record a lost run on the summary that says so, before a button covers it.
