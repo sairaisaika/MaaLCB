@@ -95,10 +95,35 @@ def _notice_names(read, pending):
     def alike(name):
         return SequenceMatcher(None, _fold(read), _fold(name)).ratio()
     bought = alike(pending['name'])
-    others = [alike(row['name']) for row in pending.get('shelf') or ()
-              if isinstance(row, dict) and isinstance(row.get('name'), str) and row['name'].strip()
-              and not _same_title(row['name'], pending['name'])]
-    return bought >= NOTICE_SIMILARITY and all(bought - other >= NOTICE_MARGIN for other in others)
+    rest = [row['name'] for row in pending.get('shelf') or ()
+            if isinstance(row, dict) and isinstance(row.get('name'), str) and row['name'].strip()
+            and not _same_title(row['name'], pending['name'])]
+    others = [alike(name) for name in rest]
+    if bought >= NOTICE_SIMILARITY and all(bought - other >= NOTICE_MARGIN for other in others):
+        return True
+    # The notice wraps a long name onto two lines and the second can read too faintly to
+    # be kept: `pi-20261124-010147/frame-0892` printed "milepost of" over "Suruiual" at
+    # .85, the reader kept the first line only, and a purchase that had gone through
+    # stopped the run in the floor-5 shop. The first line alone still names the card
+    # when it is the bought title's opening words and no other card of the shelf opens
+    # with them.
+    return _opening_words(read, pending['name']) and not any(_opening_words(read, name) for name in rest)
+
+
+#: The fewest letters an opening may have to name its card ("milepost of" has ten).
+NOTICE_OPENING = 10
+
+
+def _opening_words(read, name):
+    """Whether ``read`` is the first whole words of ``name``: two or more, and not all of them.
+
+    One word is not an opening: "milepost" alone stays refused, as it was.
+    """
+    words = [_fold(word) for word in str(name).split()]
+    target = _fold(read)
+    if len(target) < NOTICE_OPENING:
+        return False
+    return any(''.join(words[:count]) == target for count in range(2, len(words)))
 
 
 def _one_glyph_apart(one, other):

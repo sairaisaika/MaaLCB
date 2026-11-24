@@ -42,3 +42,19 @@ def test_two_cards_that_read_alike_cannot_be_told_apart_by_a_slipped_reading():
 def test_a_transaction_without_a_saved_shelf_still_needs_a_close_reading():
     assert _notice_names('milepost of Suruiual', dict(name='Milepost of Survival')) is True
     assert _notice_names('Decamillennial Stewpot', dict(name='Milepost of Survival')) is False
+
+
+def test_the_first_line_of_a_wrapped_name_names_the_card_when_only_it_opens_that_way():
+    # pi-20261124-010147/frame-0892: the notice wrapped the name, "milepost of" at .97 over
+    # "Suruiual" at .85; the reader kept the first line, and the purchase stopped the run.
+    live = ['ID Skill Search', 'Phlebotomy Pack', 'Milepost of Survival', 'Broken Spearhead', 'Shard of Apocalypse',
+            'Fragment of Allurement']
+    assert _notice_names('milepost of', pending(shelf=live)) is True
+    # One word is not an opening, and neither is the whole of another card.
+    assert _notice_names('milepost', pending(shelf=live)) is False
+    assert _notice_names('Shard of', pending(shelf=live)) is False
+    # Two cards that open alike: the opening names neither.
+    twins = ['Fragment of Allurement', 'Fragment of Desire', 'Awe']
+    assert _notice_names('Fragment of', pending('Fragment of Allurement', twins)) is False
+    # An opening too short to carry a name.
+    assert _notice_names('Red of', pending('Red of Something Long', ['Red of Something Long', 'Awe'])) is False
