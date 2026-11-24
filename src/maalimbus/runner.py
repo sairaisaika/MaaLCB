@@ -5519,6 +5519,23 @@ class MirrorRunner:
                 saved = next((t for t in profiles.load() if t.slot == slot), None)
                 if saved is not None and saved.deployment:
                     team['order'] = [SINNERS.index(sinner) + 1 for sinner in saved.deployment]
+        if (page=='PRE_BATTLE_TEAM' and team is not None and not team.get('order')
+                and team.get('numbers') and not state.get('team_order_recorded')):
+            # No saved order: the run follows the order the game shows for this team. What it
+            # read is written down with its frame, because the settings cannot show it back.
+            from .runtime_paths import data_directory as _data_directory
+            from . import team_order_record
+            try:
+                slot=self.store.team_slot if self.store is not None else settings.team
+                entry=team_order_record.record(_data_directory(ROOT),slot,team['numbers'],frame_file(self.directory))
+            except (OSError,ValueError,TypeError):
+                entry=None
+            if entry:
+                state['team_order_recorded']=True
+                self.note('deployment_order_read_from_game',slot=slot,order=entry['order'],
+                          frame=entry['frame'],changed=entry['changed'],input_sent=False)
+                try:print('MaaLimbus '+team_order_record.line(slot,entry),flush=True)
+                except (OSError,UnicodeError):pass
         if page=='PRE_BATTLE_TEAM' and team is not None and team.get('order'):
             # Badges verify reuse of the saved order; they do not replace the user's
             # desired order merely because another permutation is readable.

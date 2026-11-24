@@ -8,8 +8,10 @@ which the game owns. A team has two, and each can be left alone on its own:
   own scoring. (The first version offered fixed combinations such as "Charge+Tremor";
   the user asked for free ticking on 2026-11-23.)
 - its deployment order: "keep"; "game", which forgets the saved order so the run deploys
-  whatever order the game itself shows for that team; "starters", the sinners ticked to
-  deploy first; or "custom", the whole order written as sinner numbers or names.
+  whatever order the game itself shows for that team (the run records the order it read,
+  with its screenshot: `team_order_record`); or "custom", the whole order written as
+  sinner numbers or names. A version that ticked "who deploys first" was dropped the
+  day it was made: ticking cannot say an order.
 
 Until 2026-11-23 a team took fifteen options: an edit switch, a name nothing read, the
 systems and twelve dropdowns, one per deployment position, each listing all twelve
@@ -83,27 +85,18 @@ def parse_order(text):
     return tuple(order) + tuple(sinner for sinner in SINNERS if sinner not in order)
 
 
-def starters_order(ticked):
-    """The order for "these deploy first": the ticked sinners, then the others, by roster."""
-    numbers = sorted(set(ticked))
-    if not numbers or any(type(n) is not int or not 1 <= n <= len(SINNERS) for n in numbers):
-        raise ValueError('Tick at least one sinner to deploy first')
-    first = [SINNERS[n - 1] for n in numbers]
-    return ' '.join(str(n) for n in numbers), tuple(first) + tuple(s for s in SINNERS if s not in first)
-
-
 def collect_builds(get_node):
     """Read each team's option nodes; a team with both settings left at "keep" is not an edit.
 
-    Ticked systems and ticked starters arrive as one attach key each (`kw_<System>`,
-    `s_<number>`): the framework merges the attach keys of every ticked case onto the node.
+    Ticked systems arrive as one attach key each (`kw_<System>`): the framework merges the
+    attach keys of every ticked case onto the node.
     """
     result = {}
     for slot in range(1, 41):
         prefix = f'Global_global_team_{slot}'
         systems = get_node(prefix + '_systems')['attach'].get('mode', KEEP)
         order = get_node(prefix + '_order')['attach'].get('mode', KEEP)
-        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'starters', 'custom'):
+        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'custom'):
             raise ValueError('Unknown Mirror team setting')
         if systems == KEEP and order == KEEP:
             continue
@@ -111,11 +104,7 @@ def collect_builds(get_node):
         if systems == 'choose':
             ticked = get_node(prefix + '_keywords').get('attach') or {}
             keywords = sorted(key[3:] for key, on in ticked.items() if key.startswith('kw_') and on is True)
-        if order == 'starters':
-            ticked = get_node(prefix + '_starters').get('attach') or {}
-            order, _ = starters_order(int(key[2:]) for key, on in ticked.items()
-                                      if key.startswith('s_') and key[2:].isdecimal() and on is True)
-        elif order == 'custom':
+        if order == 'custom':
             order = get_node(prefix + '_order_text')['attach'].get('order', '')
             if not isinstance(order, str) or not order.strip():
                 raise ValueError('Write the deployment order, or choose another way to set it')

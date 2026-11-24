@@ -133,6 +133,8 @@ flowchart LR
 
 **C2 第二版（2026-11-23 当晚，用户反馈）。** 用户指出三点：把体系定死成「Charge+Tremor」这样的组合很奇怪，应该能自由多选，全选或一个都不选（让程序自由买）都行；队伍不只为镜牢服务，这里应叫「镜牢队伍设置」；出战顺序除了「不变」应有比打字更直观的方式。现在每支队伍仍是两项：藏品体系＝「不变」或「重新勾选」（12 个体系的多选框，不勾＝不限定体系）；出战顺序＝「不变」「跟随游戏里排好的顺序」「勾选先上场的罪人」（勾上的排前面，其余按编号）「手动写出完整顺序」。多选框每个勾选项只往同一个节点的 `attach` 里写自己的一个键；实测 MaaFramework 对 `attach` 是按顶层键合并（嵌套对象整体替换），所以多个勾选能同时生效。勾选体系时同时写入 `formation_keywords`，否则导入时留下的值会在选初始藏品时盖过界面上的选择。设置分组改名为「镜牢队伍 N」。选项总数现为 295，界面定义 1.4 MB。已知：一个体系都不勾时，初始藏品仍回落到启动默认值；这一版尚未在安装版验收。
 
+**C2 第三处修正（同晚，用户反馈）。** 「勾选先上场的罪人」表达不了顺序，用户当场指出，已删除。用户提了两个替代：下拉里选过的罪人从其余下拉里消失，或者给编队顺序留截图记录。前者在未修改的 MXU 里做不到（选项定义是静态的，不能互相过滤，除非换成自编译客户端）；后者采纳了：队伍没有保存顺序时，程序本来就照游戏里排好的顺序出战，现在会在编队页读出 12 张卡上的编号，把顺序连同那一帧截图记进 `user-team-order-records.json`，并在界面日志里写出读到的顺序。记录只是「读到了什么」的证据，不改变任何行为；被记录引用的那一帧不会被自动回收移走。出战顺序现在是三种：不变、跟随游戏（推荐）、手动写出完整顺序。选项总数 255。尚未在安装版验收。
+
 **Wiki 行号引用会悄悄过期（2026-11-23 发现）。** 这次两个定义文件变短，检查工具只报出了超出文件末尾的 22 处行号；仍在文件范围内但已经指错行的引用它看不出来——例如第 1 章里任务声明的行号在此之前就已经因为新增前置任务而整体偏移。已把指向这两个文件的引用按「旧行所属的键 + 行文本必须相同」重新定位，但对数据文件的行号引用本身就不稳，应改为引用键名，或让检查工具核对被引用行的内容；这一条也值得反馈给上游 skill。
 
 **通关后是否自动领奖是镜牢任务自己的设置（2026-11-23，用户要求）。** 之前一局通关后总是停在奖励页，直到有人把「这一局允许花几个模块」手工写进设置文件。现在镜牢任务里有「通关后领取奖励」，只有两个选择：领取（默认），或不领、停在奖励页。第一版曾让用户选模块上限（5／6／18），用户指出一次镜牢的奖励除每周加成外就是 5 个模块，要问的只有领不领，当天改成现在这样。「领取」在内部保存为常设上限 `auto_claim_modules`，取已实测报价里最大的那个（18），所以游戏里开没开每周加成都照领；那个开关是玩家自己的，程序不动。读不清报价就停在奖励页、什么都不点。针对某一局单独给过的答复（包括拒绝）优先于常设上限；已经预留或发出的领奖事务不受中途改设置影响。程序不改每周加成的开关，不点「放弃奖励」。同一天还补了一个页面变体：游戏在奖励页被关掉后，从镜牢列表重新进入时奖励页中间的按钮是「To List」而不是「To Window」，层数的识别分也更低（0.65），原先的页面校验不认，导致已授权的领奖停下（没有发出点击）；现在两种写法都认。安装版验收见下文记录。
@@ -418,7 +420,7 @@ sequenceDiagram
 
 运行次数是玩家设定的完整局数，必须与“单次运行步数上限”和时间上限分离。“沿用保存值”只读取保存配置，不能从部署人数、队伍数量或循环步数推导局数。重复N局需要逐scope消费预算；预算不够时保留已clear待领奖状态，不能冒用历史6模块授权。
 
-**已落地（2026-10-14）**：玩家可保存的完整局数是 `Settings.run_count`（`src/maalimbus/runner.py:158`）与 PI 选项 `mirror_run_count`（`assets/interface.json:25524`），由管线节点 `MirrorRunCount`（`assets/resource/base/pipeline/mirror.json:2779`）承载并在 `src/maalimbus/mirror_task_options.py:9` 读取。达标判定只认账本增量：`MirrorRunner._run_count_reached`（`src/maalimbus/runner.py:1393`）用 `RunLedger.completed_runs` 减去本次启动基线，而该计数只在 `entry_returned` 后 +1（`src/maalimbus/storage.py:287`），账本对缺少五层、胜利或已领奖的返回一律拒绝。达到玩家N局时窗口以 `run_count_reached` 停止（`src/maalimbus/runner.py:2807`），步骤记录与 `summary()` 带上 `verified_runs={target,completed}`（`src/maalimbus/runner.py:3196`），日志打印 `verified runs: x of y this launch (z in the ledger)`（`src/maalimbus/event_log.py:149`）。**尚未实测**：本窗口还没打完一局（实测时仍在楼层1），该停止路径目前只有单测覆盖。
+**已落地（2026-10-14）**：玩家可保存的完整局数是 `Settings.run_count`（`src/maalimbus/runner.py:158`）与 PI 选项 `mirror_run_count`（`assets/interface.json:22444`），由管线节点 `MirrorRunCount`（`assets/resource/base/pipeline/mirror.json:2659`）承载并在 `src/maalimbus/mirror_task_options.py:9` 读取。达标判定只认账本增量：`MirrorRunner._run_count_reached`（`src/maalimbus/runner.py:1393`）用 `RunLedger.completed_runs` 减去本次启动基线，而该计数只在 `entry_returned` 后 +1（`src/maalimbus/storage.py:287`），账本对缺少五层、胜利或已领奖的返回一律拒绝。达到玩家N局时窗口以 `run_count_reached` 停止（`src/maalimbus/runner.py:2807`），步骤记录与 `summary()` 带上 `verified_runs={target,completed}`（`src/maalimbus/runner.py:3196`），日志打印 `verified runs: x of y this launch (z in the ledger)`（`src/maalimbus/event_log.py:149`）。**尚未实测**：本窗口还没打完一局（实测时仍在楼层1），该停止路径目前只有单测覆盖。
 
 ```mermaid
 stateDiagram-v2

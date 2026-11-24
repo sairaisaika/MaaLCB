@@ -4491,7 +4491,7 @@
     },
     {
       "id": "team-settings",
-      "title": "镜牢队伍设置：勾选藏品体系与三种出战顺序 / Mirror team settings: ticked gift systems and three ways to set the order",
+      "title": "镜牢队伍设置：勾选藏品体系，出战顺序跟随游戏并留记录 / Mirror team settings: ticked gift systems, order followed from the game and recorded",
       "aliases": [
         "队伍设置",
         "编队设置",
@@ -4517,23 +4517,20 @@
         "多选",
         "勾选体系",
         "自由买",
-        "先上场",
-        "勾选先发",
-        "starters_order",
         "checkbox",
         "kw_",
-        "s_",
-        "Tick at least one sinner",
-        "Unknown Mirror team setting"
+        "Unknown Mirror team setting",
+        "出战顺序记录",
+        "截图记录",
+        "读到的顺序",
+        "team_order_record",
+        "user-team-order-records",
+        "deployment_order_read_from_game"
       ],
       "sources": [
         {
           "path": "src/maalimbus/global_settings.py",
           "symbol": "parse_order"
-        },
-        {
-          "path": "src/maalimbus/global_settings.py",
-          "symbol": "starters_order"
         },
         {
           "path": "src/maalimbus/global_settings.py",
@@ -4546,6 +4543,14 @@
         {
           "path": "agent/recognition.py",
           "symbol": "GlobalSettingsAction.apply"
+        },
+        {
+          "path": "src/maalimbus/team_order_record.py",
+          "symbol": "record"
+        },
+        {
+          "path": "src/maalimbus/team_order.py",
+          "symbol": "order_from_badges"
         }
       ],
       "docs": [
@@ -4553,12 +4558,13 @@
         "docs/wiki/en_us/9-execution-plan.md#public-goal"
       ],
       "tests": [
-        "tests/test_global_settings.py"
+        "tests/test_global_settings.py",
+        "tests/test_team_order_record.py"
       ],
       "checks": [
-        "python tools/run_tests.py -q tests/test_global_settings.py"
+        "python tools/run_tests.py -q tests/test_global_settings.py tests/test_team_order_record.py"
       ],
-      "boundary": "How a team is used in the Mirror Dungeon, two settings per team, each defaulting to \"keep\". Gift systems are ticked freely; none ticked ties the team to no system. The order is \"keep\", \"game\" (forget the saved order and deploy what the game shows for that team), ticked starters (they deploy first, the rest follow in roster order), or a written line. Ticked cases arrive as separate attach keys on one node, which the framework merges (measured). Edits are validated as a whole and saved before the next Mirror task starts, never for the team of a run in progress, with no device input. The app cannot show what is saved. With no system ticked the starting gift still falls back to the launch default. Gift and pack preferences and the starlight plan are still edited from the Mirror task, for teams 1-20 only."
+      "boundary": "How a team is used in the Mirror Dungeon, two settings per team, each defaulting to \"keep\". Gift systems are ticked freely; none ticked ties the team to no system. The order is \"keep\", \"game\" (forget the saved order and deploy what the game shows for that team) or a written line. With no saved order the run reads the numbers on the twelve cards of the team page and records the order with the frame it came from in user-team-order-records.json and in the log; that record is evidence of what was read, it changes nothing. Ticked systems arrive as separate attach keys on one node, which the framework merges (measured). Edits are validated as a whole and saved before the next Mirror task starts, never for the team of a run in progress, with no device input. The app cannot show what is saved. Gift and pack preferences and the starlight plan are still edited from the Mirror task, for teams 1-20 only."
     },
     {
       "id": "transactions",

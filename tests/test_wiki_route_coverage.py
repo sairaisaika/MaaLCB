@@ -29,7 +29,7 @@ UNROUTED = frozenset((
     'run_summary', 'runtime_paths', 'screen_state', 'shop_learning',
     'shop_native', 'shop_priority', 'shop_revive', 'shop_settings', 'shop_skill_policy',
     'shop_skill_vision', 'sinner_collection', 'sinner_detection', 'startup_update', 'stillness',
-    'team_gift_keyword', 'team_navigation', 'team_order', 'update_stage', 'windows_controller',
+    'team_gift_keyword', 'team_navigation', 'update_stage', 'windows_controller',
     'windows_preflight',
 ))
 
