@@ -327,7 +327,22 @@ def observe_three_free(records,size,catalog,boxes,image,select_box):
     # layout ('Cost 10 Modules', 'Max HP +10%', 'Shop Skill Replacement Cost').
     price_noun = re.compile(r'Modules?|Purchase|Shop|Lunacy|Mounting|Trials', re.I)
     priced = re.compile(r'(Enemy Level|Defense Level|Damage Taken|Max HP|Cost)\s*\+?\d', re.I)
-    if any(r.box not in descriptions and (price_noun.search(r.text) or priced.search(r.text))
+    # A catalogued gift's own effect text may name the shop: 'Prestige Card' prints
+    # 'Shop E.G.O Gift Purchase Cost' / '-30%' in its description block, and that stopped a
+    # run on floor 3 as a priced page (pi-20261123-200100/frame-0783). Exempting gifts one
+    # clause at a time, as above, fails on every new gift of that kind. Inside the
+    # description block of a card whose title the catalogue knows, a noun alone is the
+    # gift talking about itself; a trial word with a number on it still vetoes there, and
+    # anywhere else on the page both checks stand.
+    known=[]
+    for index in range(len(boxes)):
+        named=find(records,r'.+',(bounds[index],.245,bounds[index+1],.30),size,.9)
+        known.append(len(named)==1 and catalog.text_identity(named[0].text) is not None)
+    def own_effect_text(record):
+        cx=(record.box[0]+record.box[2]/2)/size[0];cy=(record.box[1]+record.box[3]/2)/size[1]
+        return .40<=cy<=.64 and any(known[i] and bounds[i]<=cx<=bounds[i+1] for i in range(len(boxes)))
+    if any(r.box not in descriptions and (priced.search(r.text)
+               or (price_noun.search(r.text) and not own_effect_text(r)))
            for r in records):
         raise ValueError('three_free_gift_trial_or_cost_present')
     offers=[];states=[]
