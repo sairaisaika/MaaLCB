@@ -34,20 +34,27 @@ def apply(config,selection):
 #: The standing limit the Mirror task's own setting writes: the most modules a reward
 #: offer may cost for the task to claim it by itself, for whichever run finishes next.
 STANDING = 'auto_claim_modules'
-STANDING_CHOICES = (0, 5, 6, 18)
+#: What the setting offers: claim, or stop on the reward page. "saved" is what a pipeline
+#: built before the setting existed carries.
+STANDING_CHOICES = ('claim', 'off')
 
 
 def apply_standing(config,selection):
     """Save the Mirror task's "claim after a clear" choice; return what was done.
 
-    `saved` keeps what is stored. 0 removes the standing limit, so a clear stops on the
-    reward page as it did before this setting existed. A claim that has already been
+    A run's rewards cost 5 modules, or 6 or 18 when the player has switched weekly
+    bonuses on in the game; that switch is the player's, so "claim" allows whichever of
+    the measured offers the dialog shows (the user, 2026-11-23: the only question is
+    whether to claim). "off" removes the standing limit, so a clear stops on the reward
+    page. `saved` keeps what is stored. A claim that has already been
     reserved or sent keeps the limit it was reserved under: the choice is not written
     while that transaction is open, so the task can still finish it.
     """
     if selection=='saved':return 'kept'
-    if type(selection) is not int or selection not in STANDING_CHOICES:
-        raise ValueError('Unknown automatic reward claim limit')
+    if selection not in STANDING_CHOICES:
+        raise ValueError('Unknown automatic reward claim choice')
+    from .paid_reward_action import MEASURED_OFFERS
+    limit=max(cost for cost,_weekly in MEASURED_OFFERS) if selection=='claim' else 0
     config=Path(config)
     path=config/'user-mirror-settings.json'
     policy=read_json(path) if path.exists() else {}
@@ -56,7 +63,7 @@ def apply_standing(config,selection):
     if txpath.exists() and read_json(txpath).get('pending') is not None:
         return 'kept_while_a_claim_is_open'
     proposed=dict(policy)
-    if selection:proposed[STANDING]=selection
+    if limit:proposed[STANDING]=limit
     else:proposed.pop(STANDING,None)
     if proposed==policy:return 'unchanged'
     write_json(path,proposed)

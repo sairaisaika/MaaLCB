@@ -2467,7 +2467,7 @@
     "recognition": "DirectHit",
     "action": "DoNothing",
     "attach": {
-      "modules": "saved"
+      "modules": "claim"
     },
     "next": []
   },
