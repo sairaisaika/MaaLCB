@@ -39,7 +39,7 @@ MaaLimbus automates Limbus Company by reading the screen. Today it targets the M
 
 - 🪞 **Mirror Dungeon**: enters from the lobby and handles starlight graces, starting gifts, theme packs, map nodes, battles, events, the shop and floor gifts until five floors are cleared.
 - ⚔️ **Battles**: uses the game's own win-rate or damage auto-assignment, starts the turn and switches on the speed toggle.
-- 🛒 **Shop**: buys gifts for the team's systems, with a bounded number of refreshes and a coin reserve; each purchase is recorded before the click and checked against coins and shelf afterwards.
+- 🛒 **Shop**: buys gifts for the team's systems (including the ingredients of those systems' recipes), with a bounded number of refreshes and a coin reserve; each purchase is recorded before the click and checked against coins and shelf afterwards. Before leaving, it fuses the recipes the game lists as available (only a recipe with a 100% forecast; no Wishmaking, no random fusion; live acceptance pending, and it can be switched off in the task settings).
 - 🎁 **Claim rewards after a clear**: one switch, claim or not. A claim checks the offer on the reward page, never clicks "Give Up Rewards" and never changes the weekly-bonus switches.
 - 🔁 **Several runs and team rotation**: one Start can play several runs, with one team or a rotation queue.
 - 🗓️ **Mirror schedule** (not yet accepted on a live run): choose which days to play and how many runs a day; once the day's runs are done another Start ends at once. With MXU's own scheduled execution this hosts the app unattended.
