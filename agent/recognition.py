@@ -1721,9 +1721,15 @@ class LimbusTerminal(CustomAction):
 LOOP_DIR_ENV = 'MAALIMBUS_RUN_DIR'
 #: Every runner setting can also be overridden as ``MAALIMBUS_LOOP_<SETTING>``.
 LOOP_ENV_PREFIX = 'MAALIMBUS_LOOP_'
-#: A whole run's own wall clock. A node's ``timeout`` is the timeout of its ``next``
-#: list, not of a custom action, so the run has to bound itself.
-LOOP_BUDGET_SECONDS = 5400.0
+#: The task's own wall clock, per run it is asked to finish. A node's ``timeout`` is the
+#: timeout of its ``next`` list, not of a custom action, so the task has to bound itself.
+#: It was 90 minutes for the whole task whatever the run count: measured on 2026-11-24 one
+#: run takes 115 to 140 minutes of program time, so a task asked for three runs was cut
+#: off on floor 4 of its first full one (pi-20261124-023156, 90 minutes without a single
+#: stop). Three hours a run leaves room for a slow boss; twelve hours bounds a task that
+#: was asked for many.
+LOOP_BUDGET_SECONDS = 10800.0
+LOOP_BUDGET_CAP_SECONDS = 43200.0
 #: This action's defaults on top of the runner's: the CLI defaults describe one
 #: one-shot window, while this node drives the whole dungeon and its run ledger.
 LOOP_DEFAULTS = {'steps': 400, 'run_store': 'config/user-run-ledger.json', 'grace_budget': 0}
@@ -1782,12 +1788,20 @@ def loop_parameters(params):
     return runner.settings(chosen), ignored
 
 
-def loop_budget(params):
-    """How long the run may take, in seconds."""
+def loop_budget(params, runs=0):
+    """How long the task may take, in seconds.
+
+    An explicit ``budget`` (or the environment's) is taken as given. Otherwise it is one
+    allowance per run the task was asked to finish, one when no number was named, and
+    never more than the cap.
+    """
     raw = params.get('budget')
     if raw is None:
         raw = os.environ.get(LOOP_ENV_PREFIX + 'BUDGET')
-    return LOOP_BUDGET_SECONDS if raw is None else max(1.0, float(raw))
+    if raw is not None:
+        return max(1.0, float(raw))
+    count = runs if type(runs) is int and runs > 0 else 1
+    return min(LOOP_BUDGET_CAP_SECONDS, LOOP_BUDGET_SECONDS * count)
 
 
 def loop_directory(params):
@@ -2129,7 +2143,7 @@ class MirrorLoopAction(CustomAction):
         params = json.loads(argv.custom_action_param or '{}')
         directory = loop_directory(params)
         settings, ignored = loop_parameters(params)
-        budget = loop_budget(params)
+        budget = loop_budget(params, settings.run_count)
         deadline = time.monotonic() + budget
         # The observation nodes journal through the recognition and the loop reads the
         # run directory, so both halves of one run share one journal.

@@ -221,9 +221,16 @@ def test_saved_launch_graces_are_shared_with_the_gui(tmp_path, monkeypatch):
 
 
 def test_the_budget_is_bounded(monkeypatch):
-    assert loop_budget({}) == 5400.0
+    # One allowance per run asked for: a run measured 115 to 140 minutes, and the old
+    # 90 minutes for the whole task cut a three-run task off inside its first run.
+    assert loop_budget({}) == 10800.0
+    assert loop_budget({}, 0) == 10800.0 and loop_budget({}, 1) == 10800.0
+    assert loop_budget({}, 3) == 32400.0
+    assert loop_budget({}, 50) == 43200.0                  # never more than twelve hours
+    assert loop_budget({}, None) == 10800.0
     assert loop_budget({'budget': 0}) == 1.0
     assert loop_budget({'budget': 3}) == 3.0
+    assert loop_budget({'budget': 3}, 3) == 3.0            # an explicit budget is taken as given
     monkeypatch.setenv('MAALIMBUS_LOOP_BUDGET', '12')
     assert loop_budget({}) == 12.0
 
