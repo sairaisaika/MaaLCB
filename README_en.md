@@ -43,7 +43,7 @@ MaaLimbus automates Limbus Company by reading the screen. Today it targets the M
 - 🎁 **Claim rewards after a clear**: one switch, claim or not. A claim checks the offer on the reward page, never clicks "Give Up Rewards" and never changes the weekly-bonus switches.
 - 🔁 **Several runs and team rotation**: one Start can play several runs, with one team or a rotation queue.
 - 🗓️ **Mirror schedule** (not yet accepted on a live run): choose which days to play and how many runs a day; once the day's runs are done another Start ends at once. With MXU's own scheduled execution this hosts the app unattended.
-- 👥 **Team settings**: two per team, the systems (gift direction) and a one-line deployment order (numbers are enough, for example `6 8 7 3 5`; `game` follows the order the game itself shows for that team).
+- 👥 **Mirror team settings**: two per team. Gift systems are ticked freely, one, several or all, and none at all lets the program choose freely; the deployment order can follow the order set in the game, be given by ticking who deploys first, or be written out in full.
 - 🧾 **Resumes where it stopped**: shop, deployment and payout record their intent before they act, so after a stop or a closed game the next Start continues from the unfinished step.
 - 📝 **A log you can read**: every step names the page it recognised and what it did; a stop states its reason.
 - 📊 **Run data**: one row per finished task (time per floor, waits and re-reads, stop reason); `tools/run_report.py --history` turns the rows into a trend, with no account or local path in them.

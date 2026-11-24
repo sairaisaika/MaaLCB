@@ -1,11 +1,15 @@
-"""Apply the team settings of the app's global section without performing device input.
+"""Apply the Mirror team settings of the app's global section without performing device input.
 
-A team has two settings, and each can be left alone on its own:
+These settings say how a team is used in the Mirror Dungeon; they are not the team itself,
+which the game owns. A team has two, and each can be left alone on its own:
 
-- its systems (the gift keywords the run aims for), a choice with "keep" as the default;
-- its deployment order, one line of text. "keep" leaves the saved order as it is; "game"
-  forgets the saved order, so the run deploys whatever order the game itself shows for
-  that team; anything else is the order, written as sinner numbers or names.
+- its gift systems: "keep", or a fresh choice of any number of systems by ticking them.
+  None ticked is a choice too: the team is tied to no system and the run buys by its
+  own scoring. (The first version offered fixed combinations such as "Charge+Tremor";
+  the user asked for free ticking on 2026-11-23.)
+- its deployment order: "keep"; "game", which forgets the saved order so the run deploys
+  whatever order the game itself shows for that team; "starters", the sinners ticked to
+  deploy first; or "custom", the whole order written as sinner numbers or names.
 
 Until 2026-11-23 a team took fifteen options: an edit switch, a name nothing read, the
 systems and twelve dropdowns, one per deployment position, each listing all twelve
@@ -79,15 +83,42 @@ def parse_order(text):
     return tuple(order) + tuple(sinner for sinner in SINNERS if sinner not in order)
 
 
+def starters_order(ticked):
+    """The order for "these deploy first": the ticked sinners, then the others, by roster."""
+    numbers = sorted(set(ticked))
+    if not numbers or any(type(n) is not int or not 1 <= n <= len(SINNERS) for n in numbers):
+        raise ValueError('Tick at least one sinner to deploy first')
+    first = [SINNERS[n - 1] for n in numbers]
+    return ' '.join(str(n) for n in numbers), tuple(first) + tuple(s for s in SINNERS if s not in first)
+
+
 def collect_builds(get_node):
-    """Read each team's two nodes; a team with both left at "keep" is not an edit."""
+    """Read each team's option nodes; a team with both settings left at "keep" is not an edit.
+
+    Ticked systems and ticked starters arrive as one attach key each (`kw_<System>`,
+    `s_<number>`): the framework merges the attach keys of every ticked case onto the node.
+    """
     result = {}
     for slot in range(1, 41):
         prefix = f'Global_global_team_{slot}'
-        keywords = get_node(prefix + '_systems')['attach']['global_build']['keywords']
-        order = get_node(prefix + '_order')['attach']['global_build']['order']
-        if keywords == KEEP and isinstance(order, str) and order.strip().casefold() in KEEP_WORDS:
+        systems = get_node(prefix + '_systems')['attach'].get('mode', KEEP)
+        order = get_node(prefix + '_order')['attach'].get('mode', KEEP)
+        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'starters', 'custom'):
+            raise ValueError('Unknown Mirror team setting')
+        if systems == KEEP and order == KEEP:
             continue
+        keywords = KEEP
+        if systems == 'choose':
+            ticked = get_node(prefix + '_keywords').get('attach') or {}
+            keywords = sorted(key[3:] for key, on in ticked.items() if key.startswith('kw_') and on is True)
+        if order == 'starters':
+            ticked = get_node(prefix + '_starters').get('attach') or {}
+            order, _ = starters_order(int(key[2:]) for key, on in ticked.items()
+                                      if key.startswith('s_') and key[2:].isdecimal() and on is True)
+        elif order == 'custom':
+            order = get_node(prefix + '_order_text')['attach'].get('order', '')
+            if not isinstance(order, str) or not order.strip():
+                raise ValueError('Write the deployment order, or choose another way to set it')
         result[str(slot)] = dict(keywords=keywords, order=order)
     return result
 
@@ -110,12 +141,13 @@ def apply_builds(directory, edits):
         keywords, order = edit['keywords'], parse_order(edit['order'])
         fields = {}
         if keywords != KEEP:
-            if (not isinstance(keywords, list) or not keywords or
+            # An empty choice is allowed: the team is tied to no system.
+            if (not isinstance(keywords, list) or
                     len(set(keywords)) != len(keywords) or not set(keywords) <= set(KEYWORDS)):
                 raise ValueError('Choose known, distinct team systems')
-            fields['keywords'] = frozenset(keywords)
-        elif old is None:
-            raise ValueError('Team %d is not saved yet: choose its systems first' % slot)
+            # The run reads `formation_keywords` before `keywords` for the starting gift, so a
+            # choice made here sets both: an imported value must not outrank what was ticked.
+            fields['keywords'] = fields['formation_keywords'] = frozenset(keywords)
         if order == GAME:
             fields['deployment'] = ()
         elif order != KEEP:

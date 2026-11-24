@@ -42,9 +42,12 @@ def read(path=DEFAULT):
     globals_ = config.get('globalOptionValues') or {}
     if team_number:
         systems = globals_.get(f'global_team_{team_number}_systems') or {}
+        ticked = globals_.get(f'global_team_{team_number}_keywords') or {}
         chosen = systems.get('caseName') if isinstance(systems, dict) else None
+        names = ticked.get('caseNames') if isinstance(ticked, dict) else None
         # "keep" is not a system: the team's saved systems apply, which this file does not hold.
-        out['team_systems'] = None if chosen == 'keep' else chosen
+        out['team_systems'] = ('+'.join(sorted(names)) if chosen == 'choose' and isinstance(names, list)
+                               and all(isinstance(name, str) for name in names) else None)
     else:
         out['team_systems'] = None
     return out

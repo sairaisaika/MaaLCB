@@ -10,7 +10,9 @@ def _config(team='2', systems='Charge+Tremor', keyword='saved', search='saved'):
         'mirror_gift_search': {'caseName': search},
         'mirror_run_count': {'caseName': '3'},
     }}]}],
-        'globalOptionValues': {f'global_team_{team}_systems': {'caseName': systems}}}
+        'globalOptionValues': {
+            f'global_team_{team}_systems': {'caseName': 'keep' if systems == 'keep' else 'choose'},
+            f'global_team_{team}_keywords': {'caseNames': [] if systems == 'keep' else systems.split('+')}}}
 
 
 def _write(tmp_path, data):

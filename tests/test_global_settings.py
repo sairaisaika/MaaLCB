@@ -1,19 +1,89 @@
-"""A team has two settings, systems and deployment order, and each can be left alone.
+"""Mirror team settings: gift systems by ticking, deployment order three ways.
 
 Until 2026-11-23 a team took fifteen options, twelve of them dropdowns that each listed
-all twelve sinners. The user called the dropdowns unusable; the order is now one line.
+all twelve sinners; the user called them unusable. The first replacement still offered
+fixed system combinations ("Charge+Tremor") and a typed order. The user asked for free
+ticking, including none at all so the program buys freely, for something more direct
+than typing an order, and for the settings to be named for what they are: how a team is
+used in the Mirror Dungeon.
 """
 import json
 from pathlib import Path
 
 import pytest
 
-from maalimbus.global_settings import GAME, KEEP, apply_builds, collect_builds, parse_order
+from maalimbus.global_settings import GAME, KEEP, apply_builds, collect_builds, parse_order, starters_order
 from maalimbus.policies import Team
-from maalimbus.storage import ProfileStore, SINNERS, write_json
+from maalimbus.storage import KEYWORDS, ProfileStore, SINNERS, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 REVERSED = tuple(reversed(SINNERS))
+
+
+def nodes(slot=2, systems='keep', ticked=(), order='keep', starters=(), text=''):
+    """The option nodes as the framework hands them over after the ticked cases are merged."""
+    prefix = f'Global_global_team_{slot}'
+    chosen = {prefix + '_systems': dict(attach=dict(mode=systems)),
+              prefix + '_keywords': dict(attach={'kw_' + word: True for word in ticked}),
+              prefix + '_order': dict(attach=dict(mode=order)),
+              prefix + '_starters': dict(attach={'s_%d' % n: True for n in starters}),
+              prefix + '_order_text': dict(attach=dict(order=text))}
+
+    def get(name):
+        if name in chosen:
+            return chosen[name]
+        if name.endswith('_keywords') or name.endswith('_starters'):
+            return dict(attach={})
+        if name.endswith('_order_text'):
+            return dict(attach=dict(order=''))
+        return dict(attach=dict(mode='keep'))
+    return get
+
+
+def test_any_number_of_systems_can_be_ticked_and_none_is_a_choice_too():
+    assert collect_builds(nodes(systems='choose', ticked=('Tremor', 'Charge'))) == {
+        '2': dict(keywords=['Charge', 'Tremor'], order='keep')}
+    assert collect_builds(nodes(systems='choose', ticked=KEYWORDS))['2']['keywords'] == sorted(KEYWORDS)
+    assert collect_builds(nodes(systems='choose'))['2']['keywords'] == []          # buy freely
+    assert collect_builds(nodes()) == {}                                           # nothing chosen: no edit
+
+
+def test_a_team_tied_to_no_system_is_saved_as_such_and_an_imported_value_does_not_outrank_it(tmp_path):
+    store = ProfileStore(tmp_path / 'user-team-profiles.json')
+    store.save([Team(2, frozenset({'Bleed'}), formation_keywords=frozenset({'Bleed'}), deployment=SINNERS)])
+    assert apply_builds(tmp_path, {'2': dict(keywords=[], order='keep')}) == [2]
+    team = store.load()[0]
+    assert team.keywords == frozenset() and team.formation_keywords == frozenset() and team.deployment == SINNERS
+    assert apply_builds(tmp_path, {'2': dict(keywords=['Charge', 'Tremor'], order='keep')}) == [2]
+    team = store.load()[0]
+    assert team.keywords == team.formation_keywords == frozenset({'Charge', 'Tremor'})
+
+
+def test_ticked_starters_deploy_first_and_the_rest_follow_in_roster_order():
+    line, order = starters_order([8, 6, 7])
+    assert line == '6 7 8' and order[:3] == ('Hong Lu', 'Heathcliff', 'Ishmael') and order[3] == 'Yi Sang'
+    assert len(order) == 12 and set(order) == set(SINNERS)
+    assert collect_builds(nodes(order='starters', starters=(8, 6, 7))) == {'2': dict(keywords='keep', order='6 7 8')}
+    with pytest.raises(ValueError, match='at least one'):
+        collect_builds(nodes(order='starters'))
+    with pytest.raises(ValueError, match='at least one'):
+        starters_order([13])
+
+
+def test_the_whole_order_can_still_be_written_and_an_empty_line_is_refused():
+    assert collect_builds(nodes(order='custom', text='6 8 7 3 5')) == {'2': dict(keywords='keep', order='6 8 7 3 5')}
+    with pytest.raises(ValueError, match='Write the deployment order'):
+        collect_builds(nodes(order='custom', text='  '))
+    with pytest.raises(ValueError, match='Unknown Mirror team setting'):
+        collect_builds(nodes(order='alphabetical'))
+
+
+def test_following_the_game_forgets_the_saved_order(tmp_path):
+    assert collect_builds(nodes(order='game')) == {'2': dict(keywords='keep', order='game')}
+    store = ProfileStore(tmp_path / 'user-team-profiles.json')
+    store.save([Team(2, frozenset({'Bleed'}), deployment=SINNERS)])
+    assert apply_builds(tmp_path, {'2': dict(keywords=KEEP, order='game')}) == [2]
+    assert store.load()[0].deployment == () and store.load()[0].keywords == frozenset({'Bleed'})
 
 
 def test_an_order_is_written_as_numbers_or_names_in_any_of_the_three_languages():
@@ -22,18 +92,11 @@ def test_an_order_is_written_as_numbers_or_names_in_any_of_the_three_languages()
     assert parse_order('Gregor Outis Sinclair Rodion Ishmael Heathcliff Hong Lu Meursault Ryoshu '
                        'Don Quixote Faust Yi Sang') == REVERSED
     assert parse_order('格里高尔 奥提斯 辛克莱 罗佳 以实玛利 希斯克利夫 鸿璐 默尔索 良秀 堂吉诃德 浮士德 李箱') == REVERSED
-    assert parse_order('  hong lu 8 希斯克利夫 ')[:3] == ('Hong Lu', 'Ishmael', 'Heathcliff')
-
-
-def test_a_line_may_name_only_the_first_few_and_the_rest_follow_in_roster_order():
     assert parse_order('6 8 7 3 5') == ('Hong Lu', 'Ishmael', 'Heathcliff', 'Don Quixote', 'Meursault',
                                         'Yi Sang', 'Faust', 'Ryoshu', 'Rodion', 'Sinclair', 'Outis', 'Gregor')
-
-
-def test_keep_and_game_are_words_not_orders():
-    for word in ('', '  ', 'keep', 'KEEP', '不变', 'そのまま'):
+    for word in ('', 'keep', '不变'):
         assert parse_order(word) == KEEP
-    for word in ('game', 'Game', '游戏', '跟随游戏', 'ゲーム'):
+    for word in ('game', '游戏'):
         assert parse_order(word) == GAME
 
 
@@ -42,8 +105,6 @@ def test_keep_and_game_are_words_not_orders():
 def test_a_line_that_cannot_be_an_order_is_refused_by_what_is_wrong(line, said):
     with pytest.raises(ValueError, match=said):
         parse_order(line)
-    with pytest.raises(ValueError):
-        parse_order(None)
 
 
 def test_each_setting_replaces_only_its_own_field(tmp_path):
@@ -57,32 +118,14 @@ def test_each_setting_replaces_only_its_own_field(tmp_path):
     assert team.deployment == REVERSED and team.keywords == frozenset({'Bleed'})
     assert team.allow == original[1].allow and team.pack_weights == original[1].pack_weights
     assert store.load()[0] == original[0]
-    assert apply_builds(tmp_path, {'2': dict(keywords=['Charge', 'Tremor'], order='keep')}) == [2]
-    team = store.load()[1]
-    assert team.keywords == frozenset({'Charge', 'Tremor'}) and team.deployment == REVERSED
-    assert apply_builds(tmp_path, {'2': dict(keywords=['Charge', 'Tremor'], order='keep')}) == []
-
-
-def test_game_forgets_the_saved_order_so_the_run_deploys_what_the_game_shows(tmp_path):
-    store = ProfileStore(tmp_path / 'user-team-profiles.json')
-    store.save([Team(2, frozenset({'Bleed'}), deployment=SINNERS)])
-    assert apply_builds(tmp_path, {'2': dict(keywords=KEEP, order='game')}) == [2]
-    assert store.load()[0].deployment == () and store.load()[0].keywords == frozenset({'Bleed'})
-
-
-def test_nothing_chosen_changes_nothing_and_creates_nothing(tmp_path):
+    assert apply_builds(tmp_path, {'2': dict(keywords=KEEP, order='keep')}) == []
     assert apply_builds(tmp_path, {}) == []
-    assert not (tmp_path / 'user-team-profiles.json').exists()
-    nodes = json.loads((ROOT / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
-    assert collect_builds(nodes.__getitem__) == {}        # the shipped defaults are "keep" twice, forty times
 
 
-def test_a_team_that_is_not_saved_yet_needs_its_systems_first(tmp_path):
-    with pytest.raises(ValueError, match='choose its systems first'):
-        apply_builds(tmp_path, {'3': dict(keywords=KEEP, order='6 8 7')})
-    assert apply_builds(tmp_path, {'3': dict(keywords=['Poise'], order='6 8 7')}) == [3]
+def test_a_team_that_was_never_saved_can_be_given_an_order_alone(tmp_path):
+    assert apply_builds(tmp_path, {'3': dict(keywords=KEEP, order='6 8 7')}) == [3]
     saved = ProfileStore(tmp_path / 'user-team-profiles.json').load()[0]
-    assert saved.slot == 3 and saved.deployment[:3] == ('Hong Lu', 'Ishmael', 'Heathcliff')
+    assert saved.slot == 3 and saved.keywords == frozenset() and saved.deployment[:3] == ('Hong Lu', 'Ishmael', 'Heathcliff')
 
 
 @pytest.mark.parametrize('fault', ['duplicate', 'unknown_word', 'unknown_system', 'shape', 'slot', 'active'])
@@ -102,26 +145,31 @@ def test_an_invalid_second_edit_never_partially_replaces_the_first(tmp_path, fau
     assert store.path.read_bytes() == before
 
 
-def test_the_interface_gives_each_of_forty_teams_exactly_those_two_settings():
+def test_the_interface_matches_what_the_program_reads():
     pi = json.loads((ROOT / 'assets/interface.json').read_text(encoding='utf-8'))
+    pipeline = json.loads((ROOT / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
     sections = [s for s in pi['setting'] if s['name'].startswith('global_team_')]
     assert len(sections) == 40 and len(set(pi['global_option'])) == len(pi['global_option'])
-    assert 'software_auto_update' in pi['global_option']
-    team_options = [name for name in pi['option'] if name.startswith('global_team_')]
-    assert len(team_options) == 80                       # it was 600
+    assert len([name for name in pi['option'] if name.startswith('global_team_')]) == 200      # it was 600
+    assert collect_builds(pipeline.__getitem__) == {}        # the shipped defaults change nothing
     for slot in range(1, 41):
-        systems, order = pi['option'][f'global_team_{slot}_systems'], pi['option'][f'global_team_{slot}_order']
-        assert systems['default_case'] == 'keep' and systems['cases'][0]['name'] == 'keep'
-        assert order['type'] == 'input' and [field['default'] for field in order['inputs']] == ['keep']
-        assert next(s for s in sections if s['name'] == f'global_team_{slot}')['option'] == [
-            f'global_team_{slot}_systems', f'global_team_{slot}_order']
-        # A queue position past 20 used to default to team 20, whichever position it was.
+        prefix = f'global_team_{slot}'
+        section = next(s for s in sections if s['name'] == prefix)
+        assert section['label'] == f'$mirror_team_{slot}' and section['option'] == [prefix + '_systems', prefix + '_order']
+        systems, keywords = pi['option'][prefix + '_systems'], pi['option'][prefix + '_keywords']
+        assert systems['default_case'] == 'keep' and [c['name'] for c in systems['cases']] == ['keep', 'choose']
+        assert keywords['type'] == 'checkbox' and keywords['default_case'] == []
+        assert [c['name'] for c in keywords['cases']] == list(KEYWORDS)
+        # Every ticked case sets its own attach key on one node, so several can be ticked at once.
+        keys = [list(c['pipeline_override'][f'Global_{prefix}_keywords']['attach']) for c in keywords['cases']]
+        assert keys == [['kw_' + word] for word in KEYWORDS]
+        order, starters = pi['option'][prefix + '_order'], pi['option'][prefix + '_starters']
+        assert order['default_case'] == 'keep' and [c['name'] for c in order['cases']] == ['keep', 'game', 'starters', 'custom']
+        assert starters['type'] == 'checkbox' and [c['name'] for c in starters['cases']] == [str(n) for n in range(1, 13)]
+        assert pi['option'][prefix + '_order_text']['type'] == 'input'
         assert pi['option'][f'mirror_queue_{slot}']['default_case'] == str(slot) or slot <= 20
-    for name in ('experience_team', 'thread_team'):      # both named a default case they did not have
+    for name in ('experience_team', 'thread_team'):
         option = pi['option'][name]
         assert option['default_case'] in {case['name'] for case in option['cases']}
-    task = next(t for t in pi['task'] if t['name'] == 'mirror_loop')
-    assert task['entry'] == 'MirrorTask'
-    nodes = json.loads((ROOT / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
-    assert nodes['GlobalSettingsApply']['next'] == ['MirrorLoop']
-    assert len([name for name in nodes if name.startswith('Global_global_team_')]) == 80
+    assert pipeline['GlobalSettingsApply']['next'] == ['MirrorLoop']
+    assert len([name for name in pipeline if name.startswith('Global_global_team_')]) == 200

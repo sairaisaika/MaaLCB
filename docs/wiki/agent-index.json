@@ -4137,8 +4137,8 @@
         {
           "path": "assets/resource/base/pipeline/mirror.json",
           "needle": "\"MirrorResume\": {",
-          "line": 3186,
-          "sha256": "21422709b28d24eb8eb4b0289f45dd6c1e3e5f6c9007442b6cf229a68fa35be6"
+          "line": 3826,
+          "sha256": "db0aaa8f94535723eeebd1e0ca230624773b71023dbb604193318880c3116fd8"
         },
         {
           "path": "tests/test_entry_task_resume.py",
@@ -4161,8 +4161,8 @@
         {
           "path": "assets/resource/base/pipeline/mirror.json",
           "needle": "\"MirrorInside\": {",
-          "line": 3235,
-          "sha256": "21422709b28d24eb8eb4b0289f45dd6c1e3e5f6c9007442b6cf229a68fa35be6"
+          "line": 3875,
+          "sha256": "db0aaa8f94535723eeebd1e0ca230624773b71023dbb604193318880c3116fd8"
         },
         {
           "path": "src/maalimbus/vision.py",
@@ -4655,14 +4655,14 @@
         {
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "ShopTransaction.reconcile_purchase",
-          "line": 688,
-          "sha256": "4b7f6bc607fb696ef6a1b2d9324926645907dd8dc75fad721db55399b41cbeb1"
+          "line": 718,
+          "sha256": "ddba7a95f4d0fb373a9f2db8cd1ecfdbebf4e32f92cd956d152fa0e688189090"
         },
         {
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "ShopTransaction.reconcile_refresh",
-          "line": 808,
-          "sha256": "4b7f6bc607fb696ef6a1b2d9324926645907dd8dc75fad721db55399b41cbeb1"
+          "line": 838,
+          "sha256": "ddba7a95f4d0fb373a9f2db8cd1ecfdbebf4e32f92cd956d152fa0e688189090"
         },
         {
           "path": "assets/resource/en/locale.json",
@@ -4691,8 +4691,8 @@
         {
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "purchase_execution_witness",
-          "line": 204,
-          "sha256": "4b7f6bc607fb696ef6a1b2d9324926645907dd8dc75fad721db55399b41cbeb1"
+          "line": 234,
+          "sha256": "ddba7a95f4d0fb373a9f2db8cd1ecfdbebf4e32f92cd956d152fa0e688189090"
         },
         {
           "path": "src/maalimbus/shop_outcomes.py",
@@ -4721,8 +4721,8 @@
         {
           "path": "src/maalimbus/shop_transaction.py",
           "symbol": "refreshed_gifts",
-          "line": 238,
-          "sha256": "4b7f6bc607fb696ef6a1b2d9324926645907dd8dc75fad721db55399b41cbeb1"
+          "line": 268,
+          "sha256": "ddba7a95f4d0fb373a9f2db8cd1ecfdbebf4e32f92cd956d152fa0e688189090"
         }
       ]
     },
@@ -4884,8 +4884,8 @@
         {
           "path": "src/maalimbus/floor_gifts.py",
           "symbol": "rank",
-          "line": 381,
-          "sha256": "9079052a4da130c79bff3df14195a57dafb80e59c3978581b2cb697571124bd1"
+          "line": 396,
+          "sha256": "cabdd69c639ef3e4e27717f6d0dcb0983f48a2e3b4896b309464839c1503ad5c"
         },
         {
           "path": "src/maalimbus/theme_vision.py",
@@ -5224,8 +5224,8 @@
         {
           "path": "src/maalimbus/reward_task_budget.py",
           "symbol": "apply_standing",
-          "line": 40,
-          "sha256": "e75b6ffee8153a963f9e8a23a41196e81784dcf089bcdd7b885db7841fb0f713"
+          "line": 42,
+          "sha256": "c2ddb1cb75814340c0ed557fbd04c492dbb68b16c6492a766e7845abd35ecd38"
         },
         {
           "path": "src/maalimbus/reward_cost.py",
@@ -6971,13 +6971,13 @@
           "path": "src/maalimbus/run_report.py",
           "symbol": "run_time",
           "line": 35,
-          "sha256": "8870d0eb25a6eba9cc05a1aee7976b5bc195627ec8a03b0b270920ae2635f0e1"
+          "sha256": "0655d8742b980497972aef80908e7bfb681f66bae96a32e4ead24d69f70f679d"
         },
         {
           "path": "src/maalimbus/run_report.py",
           "symbol": "combine",
-          "line": 74,
-          "sha256": "8870d0eb25a6eba9cc05a1aee7976b5bc195627ec8a03b0b270920ae2635f0e1"
+          "line": 76,
+          "sha256": "0655d8742b980497972aef80908e7bfb681f66bae96a32e4ead24d69f70f679d"
         },
         {
           "path": "tools/run_report.py",
@@ -7412,7 +7412,7 @@
     },
     {
       "id": "team-settings",
-      "title": "队伍设置：体系与一行出战顺序 / team settings: systems and a one-line deployment order",
+      "title": "镜牢队伍设置：勾选藏品体系与三种出战顺序 / Mirror team settings: ticked gift systems and three ways to set the order",
       "aliases": [
         "队伍设置",
         "编队设置",
@@ -7433,12 +7433,28 @@
         "is named twice",
         "is not a sinner",
         "choose its systems first",
-        "Finish the active run before editing its team"
+        "Finish the active run before editing its team",
+        "镜牢队伍",
+        "多选",
+        "勾选体系",
+        "自由买",
+        "先上场",
+        "勾选先发",
+        "starters_order",
+        "checkbox",
+        "kw_",
+        "s_",
+        "Tick at least one sinner",
+        "Unknown Mirror team setting"
       ],
       "sources": [
         {
           "path": "src/maalimbus/global_settings.py",
           "symbol": "parse_order"
+        },
+        {
+          "path": "src/maalimbus/global_settings.py",
+          "symbol": "starters_order"
         },
         {
           "path": "src/maalimbus/global_settings.py",
@@ -7463,25 +7479,31 @@
       "checks": [
         "python tools/run_tests.py -q tests/test_global_settings.py"
       ],
-      "boundary": "Two settings per team, each with \"keep\" as its default: the systems, and the deployment order as one line (numbers or names; \"game\" forgets the saved order so the run deploys what the game shows for that team). Edits are validated as a whole and saved before the next Mirror task starts, never for the team of a run in progress, and no device input is involved. The settings cannot show what is saved: the app does not load saved teams back into its fields. Gift and pack preferences and the starlight plan of a team are still edited from the Mirror task, for teams 1-20 only.",
+      "boundary": "How a team is used in the Mirror Dungeon, two settings per team, each defaulting to \"keep\". Gift systems are ticked freely; none ticked ties the team to no system. The order is \"keep\", \"game\" (forget the saved order and deploy what the game shows for that team), ticked starters (they deploy first, the rest follow in roster order), or a written line. Ticked cases arrive as separate attach keys on one node, which the framework merges (measured). Edits are validated as a whole and saved before the next Mirror task starts, never for the team of a run in progress, with no device input. The app cannot show what is saved. With no system ticked the starting gift still falls back to the launch default. Gift and pack preferences and the starlight plan are still edited from the Mirror task, for teams 1-20 only.",
       "locations": [
         {
           "path": "src/maalimbus/global_settings.py",
           "symbol": "parse_order",
-          "line": 48,
-          "sha256": "c9a5e7b10dd3bfdf7788924a5aae025557f0b09e64d5d2f5a50c54ed529d310f"
+          "line": 52,
+          "sha256": "92e5f61a651396918ebe801e6780ba2f9db0b86011d84f109afee69d130e5b62"
+        },
+        {
+          "path": "src/maalimbus/global_settings.py",
+          "symbol": "starters_order",
+          "line": 86,
+          "sha256": "92e5f61a651396918ebe801e6780ba2f9db0b86011d84f109afee69d130e5b62"
         },
         {
           "path": "src/maalimbus/global_settings.py",
           "symbol": "collect_builds",
-          "line": 82,
-          "sha256": "c9a5e7b10dd3bfdf7788924a5aae025557f0b09e64d5d2f5a50c54ed529d310f"
+          "line": 95,
+          "sha256": "92e5f61a651396918ebe801e6780ba2f9db0b86011d84f109afee69d130e5b62"
         },
         {
           "path": "src/maalimbus/global_settings.py",
           "symbol": "apply_builds",
-          "line": 95,
-          "sha256": "c9a5e7b10dd3bfdf7788924a5aae025557f0b09e64d5d2f5a50c54ed529d310f"
+          "line": 126,
+          "sha256": "92e5f61a651396918ebe801e6780ba2f9db0b86011d84f109afee69d130e5b62"
         },
         {
           "path": "agent/recognition.py",
@@ -8840,7 +8862,7 @@
           "path": "assets/resource/base/pipeline/mirror.json",
           "needle": "\"MirrorDrive\": {",
           "line": 673,
-          "sha256": "21422709b28d24eb8eb4b0289f45dd6c1e3e5f6c9007442b6cf229a68fa35be6"
+          "sha256": "db0aaa8f94535723eeebd1e0ca230624773b71023dbb604193318880c3116fd8"
         },
         {
           "path": "tools/verify_drive_menu_native.py",

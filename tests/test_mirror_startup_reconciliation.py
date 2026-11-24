@@ -33,7 +33,7 @@ def old_run(config):
 def entry_nodes(name,mode='rotation',queue=(1,2,3,4,5)):
     """The real nodes a GUI Start reads while it applies its settings."""
     if name.startswith('Global_global_team_'):
-        return dict(attach=dict(global_build=dict(keywords='keep') if name.endswith('_systems') else dict(order='keep')))
+        return dict(attach=dict(mode='keep'))
     if name=='MirrorTaskTeamMode':return dict(attach=dict(team_mode=mode))
     if name=='MirrorTaskSingleTeam':return dict(attach=dict(slot=2))
     if name=='MirrorTaskQueueCount':return dict(attach=dict(count=len(queue)))

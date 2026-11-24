@@ -1578,19 +1578,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_1_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_1_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_1_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_1_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_2_systems": {
@@ -1598,19 +1614,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_2_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_2_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_2_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_2_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_3_systems": {
@@ -1618,19 +1650,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_3_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_3_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_3_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_3_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_4_systems": {
@@ -1638,19 +1686,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_4_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_4_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_4_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_4_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_5_systems": {
@@ -1658,19 +1722,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_5_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_5_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_5_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_5_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_6_systems": {
@@ -1678,19 +1758,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_6_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_6_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_6_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_6_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_7_systems": {
@@ -1698,19 +1794,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_7_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_7_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_7_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_7_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_8_systems": {
@@ -1718,19 +1830,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_8_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_8_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_8_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_8_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_9_systems": {
@@ -1738,19 +1866,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_9_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_9_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_9_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_9_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_10_systems": {
@@ -1758,19 +1902,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_10_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_10_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_10_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_10_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_11_systems": {
@@ -1778,19 +1938,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_11_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_11_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_11_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_11_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_12_systems": {
@@ -1798,19 +1974,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_12_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_12_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_12_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_12_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_13_systems": {
@@ -1818,19 +2010,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_13_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_13_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_13_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_13_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_14_systems": {
@@ -1838,19 +2046,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_14_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_14_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_14_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_14_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_15_systems": {
@@ -1858,19 +2082,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_15_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_15_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_15_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_15_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_16_systems": {
@@ -1878,19 +2118,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_16_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_16_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_16_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_16_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_17_systems": {
@@ -1898,19 +2154,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_17_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_17_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_17_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_17_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_18_systems": {
@@ -1918,19 +2190,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_18_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_18_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_18_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_18_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_19_systems": {
@@ -1938,19 +2226,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_19_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_19_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_19_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_19_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "Global_global_team_20_systems": {
@@ -1958,19 +2262,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_20_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_20_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_20_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_20_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskSingleTeam": {
@@ -2596,19 +2916,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_21_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_21_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_21_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_21_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue21": {
@@ -2624,19 +2960,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_22_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_22_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_22_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_22_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue22": {
@@ -2652,19 +3004,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_23_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_23_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_23_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_23_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue23": {
@@ -2680,19 +3048,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_24_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_24_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_24_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_24_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue24": {
@@ -2708,19 +3092,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_25_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_25_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_25_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_25_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue25": {
@@ -2736,19 +3136,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_26_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_26_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_26_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_26_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue26": {
@@ -2764,19 +3180,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_27_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_27_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_27_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_27_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue27": {
@@ -2792,19 +3224,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_28_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_28_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_28_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_28_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue28": {
@@ -2820,19 +3268,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_29_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_29_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_29_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_29_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue29": {
@@ -2848,19 +3312,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_30_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_30_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_30_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_30_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue30": {
@@ -2876,19 +3356,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_31_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_31_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_31_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_31_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue31": {
@@ -2904,19 +3400,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_32_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_32_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_32_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_32_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue32": {
@@ -2932,19 +3444,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_33_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_33_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_33_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_33_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue33": {
@@ -2960,19 +3488,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_34_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_34_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_34_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_34_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue34": {
@@ -2988,19 +3532,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_35_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_35_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_35_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_35_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue35": {
@@ -3016,19 +3576,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_36_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_36_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_36_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_36_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue36": {
@@ -3044,19 +3620,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_37_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_37_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_37_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_37_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue37": {
@@ -3072,19 +3664,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_38_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_38_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_38_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_38_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue38": {
@@ -3100,19 +3708,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_39_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_39_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_39_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_39_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue39": {
@@ -3128,19 +3752,35 @@
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "keywords": "keep"
-      }
+      "mode": "keep"
     }
+  },
+  "Global_global_team_40_keywords": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
   },
   "Global_global_team_40_order": {
     "recognition": "DirectHit",
     "action": "DoNothing",
     "next": [],
     "attach": {
-      "global_build": {
-        "order": "keep"
-      }
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_40_starters": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_40_order_text": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "order": ""
     }
   },
   "MirrorTaskQueue40": {

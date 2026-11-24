@@ -25,7 +25,7 @@ def expand(pi,nodes):
         for option in (name+'_systems',name+'_order'):
             if option not in pi['global_option']:pi['global_option'].append(option)
         if not any(s['name']==name for s in pi['setting']):pi['setting'].append(replace(section,slot))
-        next(s for s in pi['setting'] if s['name']==name)['label']=f'Team {slot}'
+        next(s for s in pi['setting'] if s['name']==name)['label']=f'$mirror_team_{slot}'
         pi['option'][f'mirror_queue_{slot}']=replace(pi['option']['mirror_queue_20'],slot,False)
         # A queue position defaults to the team of its own number, not to team 20.
         pi['option'][f'mirror_queue_{slot}']['default_case']=str(slot)
