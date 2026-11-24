@@ -17,16 +17,16 @@
 
 ### 六个主任务
 
-任务声明在 `assets/interface.json:103-167`；标签与描述以仓库自带的 i18n 为准（`assets/i18n/zh_cn.json:75-86`、`assets/i18n/en_us.json:75-86`、`assets/i18n/ja_jp.json`）。
+任务声明在 `assets/interface.json`；标签与描述以仓库自带的 i18n 为准（`assets/i18n/zh_cn.json`、`assets/i18n/en_us.json`、`assets/i18n/ja_jp.json`）。
 
 | task name | entry | 中文标签 | 仓库自述的职责 |
 | --- | --- | --- | --- |
-| `open_game` | `OpenGameTask`（`assets/interface.json:105-107`） | 打开游戏（`assets/i18n/zh_cn.json:75`） | Android 用 Maa 启动并确认前台；已打开时不重复启动。Windows 需先连接游戏窗口（`assets/i18n/zh_cn.json:76`） |
-| `mirror_loop` | `MirrorTask`（`assets/interface.json:112-114`） | 自动镜牢（`assets/i18n/zh_cn.json:77`） | 用总设置保存的队伍、体系和出战顺序，在此选单队或轮换；默认困难，消费须有配置预算（`assets/i18n/zh_cn.json:78`） |
-| `experience` | `ExperienceTask`（`assets/interface.json:131-133`） | 自动经验本（`assets/i18n/zh_cn.json:79`） | 引用保存队伍，经 Drive 进入 Luxcavation；未完成镜牢会阻止导航（`assets/i18n/zh_cn.json:80`） |
-| `thread` | `ThreadTask`（`assets/interface.json:141-143`） | 自动纺锤本（`assets/i18n/zh_cn.json:81`） | 引用保存队伍，经 Drive 进入 Luxcavation；未完成镜牢会阻止导航（`assets/i18n/zh_cn.json:82`） |
-| `rewards` | `RewardsTask`（`assets/interface.json:151-153`） | 领取奖励（`assets/i18n/zh_cn.json:83`） | 领取当前已通关镜牢的奖励，需要本轮模块预算（`assets/i18n/zh_cn.json:84`） |
-| `stamina` | `StaminaTask`（`assets/interface.json:161-163`） | 体力兑换（`assets/i18n/zh_cn.json:85`） | 预算内体力兑换识别尚在开发，当前保存现场后停止、不消费（`assets/i18n/zh_cn.json:86`） |
+| `open_game` | `OpenGameTask`（`assets/interface.json`） | 打开游戏（`assets/i18n/zh_cn.json`） | Android 用 Maa 启动并确认前台；已打开时不重复启动。Windows 需先连接游戏窗口（`assets/i18n/zh_cn.json`） |
+| `mirror_loop` | `MirrorTask`（`assets/interface.json`） | 自动镜牢（`assets/i18n/zh_cn.json`） | 用总设置保存的队伍、体系和出战顺序，在此选单队或轮换；默认困难，消费须有配置预算（`assets/i18n/zh_cn.json`） |
+| `experience` | `ExperienceTask`（`assets/interface.json`） | 自动经验本（开发中）（`assets/i18n/zh_cn.json`） | 引用保存队伍，经 Drive 进入 Luxcavation；未完成镜牢会阻止导航（`assets/i18n/zh_cn.json`） |
+| `thread` | `ThreadTask`（`assets/interface.json`） | 自动纺锤本（开发中）（`assets/i18n/zh_cn.json`） | 引用保存队伍，经 Drive 进入 Luxcavation；未完成镜牢会阻止导航（`assets/i18n/zh_cn.json`） |
+| `rewards` | `RewardsTask`（`assets/interface.json`） | 领取镜牢奖励（`assets/i18n/zh_cn.json`） | 领取当前已通关镜牢的奖励，需要本轮模块预算（`assets/i18n/zh_cn.json`） |
+| `stamina` | `StaminaTask`（`assets/interface.json`） | 体力兑换（`assets/i18n/zh_cn.json`） | 入口已于 2026-11-23 从界面移除：它只截一张图就返回未实现。管线节点 `StaminaTask` 和 Agent 分支保留，做好再放回任务列表 |
 
 四个 controller 也在同一文件里声明：`windows-window`、`windows-background`、`windows`、`mumu-adb`（`assets/interface.json:14-68`）；资源声明 `en`/`jp` 两份（`:69-86`）。
 

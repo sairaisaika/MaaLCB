@@ -99,12 +99,12 @@ ProjectInterface declares six main tasks (`assets/interface.json:103-167`), and 
 
 | Task name | entry node | option | Declaration lines |
 |---|---|---|---|
-| `open_game` | `OpenGameTask` | none | `assets/interface.json:104-110` |
-| `mirror_loop` | `MirrorTask` | 10 | `assets/interface.json:111-129` |
-| `experience` | `ExperienceTask` | `experience_team` | `assets/interface.json:130-139` |
-| `thread` | `ThreadTask` | `thread_team` | `assets/interface.json:140-149` |
-| `rewards` | `RewardsTask` | `reward_module_budget` | `assets/interface.json:150-159` |
-| `stamina` | `StaminaTask` | none | `assets/interface.json:160-166` |
+| `open_game` | `OpenGameTask` | none | `assets/interface.json` |
+| `mirror_loop` | `MirrorTask` | 12 | `assets/interface.json` |
+| `experience` | `ExperienceTask` | `experience_team` | `assets/interface.json` |
+| `thread` | `ThreadTask` | `thread_team` | `assets/interface.json` |
+| `rewards` | `RewardsTask` | `reward_module_budget` | `assets/interface.json` |
+| `stamina` | `StaminaTask` | none | Removed from the interface on 2026-11-23: it took one screenshot and returned "not implemented". The pipeline node `StaminaTask` and the Agent branch remain; it returns to the task list when it works |
 
 The six nodes live in the same Pipeline file and **look identical**: `recognition: DirectHit`, `action: Custom`, `custom_action: limbus_main_task`, `custom_action_param.task` hard-coded to one of the six values above, and finally **`next: []`, `on_error: []`**.
 

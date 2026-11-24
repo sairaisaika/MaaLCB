@@ -77,7 +77,7 @@
     },
     {
       "name": "jp",
-      "label": "日本語",
+      "label": "日本語 (experimental)",
       "path": [
         "./resource/base",
         "./resource/jp"
@@ -137,11 +137,9 @@
         "mirror_team_mode",
         "mirror_star_source",
         "mirror_initial_keyword",
-        "mirror_gift_search",
         "mirror_shop_policy",
         "mirror_shop_refresh_limit",
         "mirror_shop_coin_reserve",
-        "mirror_shop_skill_mode",
         "mirror_run_bounds",
         "mirror_run_count",
         "mirror_reward_claim",
@@ -178,13 +176,6 @@
       "option": [
         "reward_module_budget"
       ],
-      "default_check": false
-    },
-    {
-      "name": "stamina",
-      "label": "$main_stamina",
-      "entry": "StaminaTask",
-      "description": "$main_stamina_description",
       "default_check": false
     }
   ],
@@ -273,22 +264,6 @@
               }
             }
           }
-        }
-      ]
-    },
-    "software_auto_update": {
-      "type": "select",
-      "label": "$software_auto_update",
-      "description": "$software_auto_update_description",
-      "default_case": "enabled",
-      "cases": [
-        {
-          "name": "enabled",
-          "label": "$software_update_enabled"
-        },
-        {
-          "name": "disabled",
-          "label": "$software_update_disabled"
         }
       ]
     },
@@ -16909,36 +16884,6 @@
         }
       ]
     },
-    "mirror_gift_search": {
-      "type": "select",
-      "label": "$mirror_gift_search",
-      "description": "$mirror_gift_search_description",
-      "default_case": "saved",
-      "cases": [
-        {
-          "name": "saved",
-          "label": "$mirror_keep_launch",
-          "pipeline_override": {
-            "MirrorGiftSearch": {
-              "attach": {
-                "mode": "saved"
-              }
-            }
-          }
-        },
-        {
-          "name": "refuse",
-          "label": "$mirror_search_refuse",
-          "pipeline_override": {
-            "MirrorGiftSearch": {
-              "attach": {
-                "mode": "refuse"
-              }
-            }
-          }
-        }
-      ]
-    },
     "mirror_shop_policy": {
       "type": "select",
       "label": "$mirror_shop_policy",
@@ -16963,17 +16908,6 @@
             "MirrorShopPolicy": {
               "attach": {
                 "shop_policy": "manual"
-              }
-            }
-          }
-        },
-        {
-          "name": "learned",
-          "label": "$mirror_shop_policy_learned",
-          "pipeline_override": {
-            "MirrorShopPolicy": {
-              "attach": {
-                "shop_policy": "learned"
               }
             }
           }
@@ -17050,35 +16984,6 @@
                 "shop_refreshes": 5
               }
             }
-          }
-        }
-      ]
-    },
-    "mirror_shop_skill_mode": {
-      "type": "select",
-      "label": "$mirror_shop_skill_mode",
-      "description": "$mirror_shop_skill_mode_description",
-      "default_case": "off",
-      "cases": [
-        {
-          "name": "off",
-          "label": "$mirror_shop_skill_off",
-          "pipeline_override": {
-            "MirrorShopSkillMode": {"attach": {"mode": "off"}}
-          }
-        },
-        {
-          "name": "keep_one_each",
-          "label": "$mirror_shop_skill_keep_one_each",
-          "pipeline_override": {
-            "MirrorShopSkillMode": {"attach": {"mode": "keep_one_each"}}
-          }
-        },
-        {
-          "name": "keep_one_s2",
-          "label": "$mirror_shop_skill_keep_one_s2",
-          "pipeline_override": {
-            "MirrorShopSkillMode": {"attach": {"mode": "keep_one_s2"}}
           }
         }
       ]
@@ -50349,7 +50254,6 @@
   "icon": "misc/Don-Quixote.png",
   "welcome": "../README.md",
   "global_option": [
-    "software_auto_update",
     "global_team_1_systems",
     "global_team_1_order",
     "global_team_2_systems",
@@ -50432,14 +50336,6 @@
     "global_team_40_order"
   ],
   "setting": [
-    {
-      "name": "software_update",
-      "label": "$software_auto_update",
-      "option": [
-        "software_auto_update"
-      ],
-      "default_expand": true
-    },
     {
       "name": "global_team_1",
       "label": "$mirror_team_1",

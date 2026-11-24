@@ -99,12 +99,12 @@ ProjectInterface 声明六个主任务（`assets/interface.json:103-167`），�
 
 | 任务名 | entry 节点 | option | 声明行 |
 |---|---|---|---|
-| `open_game` | `OpenGameTask` | 无 | `assets/interface.json:104-110` |
-| `mirror_loop` | `MirrorTask` | 10 个 | `assets/interface.json:111-129` |
-| `experience` | `ExperienceTask` | `experience_team` | `assets/interface.json:130-139` |
-| `thread` | `ThreadTask` | `thread_team` | `assets/interface.json:140-149` |
-| `rewards` | `RewardsTask` | `reward_module_budget` | `assets/interface.json:150-159` |
-| `stamina` | `StaminaTask` | 无 | `assets/interface.json:160-166` |
+| `open_game` | `OpenGameTask` | 无 | `assets/interface.json` |
+| `mirror_loop` | `MirrorTask` | 12 个 | `assets/interface.json` |
+| `experience` | `ExperienceTask` | `experience_team` | `assets/interface.json` |
+| `thread` | `ThreadTask` | `thread_team` | `assets/interface.json` |
+| `rewards` | `RewardsTask` | `reward_module_budget` | `assets/interface.json` |
+| `stamina` | `StaminaTask` | 无 | 入口已于 2026-11-23 从界面移除：它只截一张图就返回未实现。管线节点 `StaminaTask` 和 Agent 分支保留，做好再放回任务列表 |
 
 六个节点在同一个 Pipeline 文件里，而且**长得一模一样**：`recognition: DirectHit`、`action: Custom`、`custom_action: limbus_main_task`、`custom_action_param.task` 写死成上面六个值之一，最后 **`next: []`、`on_error: []`**。
 

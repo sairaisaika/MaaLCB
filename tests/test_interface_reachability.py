@@ -81,3 +81,29 @@ def test_every_text_key_is_used_and_every_used_key_has_every_language():
         keys = set(json.loads(path.read_text(encoding='utf-8')))
         assert not sorted(keys - used), '%s has text no label uses: %s' % (path.name, sorted(keys - used))
         assert not sorted(used - keys), '%s lacks text for: %s' % (path.name, sorted(used - keys))
+
+
+def test_the_interface_does_not_offer_what_the_program_cannot_do():
+    """An independent audit on 2026-11-23 compared every entry's promise with its code.
+
+    Five entries did nothing a user would call a function: the update switch (the updater
+    runs only from a launcher nobody is told to start, and only for stable releases), the
+    skill replacement check (open, select, cancel; never a purchase), the stamina task (one
+    screenshot, then "not implemented"), the gift search choice (both cases refuse) and the
+    shop's "learned" mode (no model, no samples: the manual rules under another name).
+    They left the interface; this keeps them out until there is something behind them.
+    """
+    data = interface()
+    for option in ('software_auto_update', 'mirror_shop_skill_mode', 'mirror_gift_search'):
+        assert option not in data['option'] and option not in data['global_option']
+    assert 'stamina' not in [task['name'] for task in data['task']]
+    assert [case['name'] for case in data['option']['mirror_shop_policy']['cases']] == ['saved', 'manual']
+    assert not [section for section in data['setting'] if section['name'] == 'software_update']
+    # What stays but is not finished says so in its own label.
+    labels = json.loads((ROOT / 'assets/i18n/zh_cn.json').read_text(encoding='utf-8'))
+    for key in ('main_experience', 'main_thread'):
+        assert '开发中' in labels[key]
+    for key in ('windows_window', 'windows_background', 'windows_front'):
+        assert '未验收' in labels[key] and '推荐' not in labels[key]
+    assert next(r for r in data['resource'] if r['name'] == 'jp')['label'].endswith('(experimental)')
+

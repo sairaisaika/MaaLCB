@@ -17,16 +17,16 @@ This chapter answers four questions: what MaaLimbus is, what each of the six mai
 
 ### The six main tasks
 
-The tasks are declared in `assets/interface.json:103-167`; labels and descriptions come from the shipped i18n (`assets/i18n/zh_cn.json:75-86`, `assets/i18n/en_us.json:75-86`, `assets/i18n/ja_jp.json`).
+The tasks are declared in `assets/interface.json`; labels and descriptions come from the shipped i18n (`assets/i18n/zh_cn.json`, `assets/i18n/en_us.json`, `assets/i18n/ja_jp.json`).
 
 | task name | entry | English label | What the repository says it does |
 | --- | --- | --- | --- |
-| `open_game` | `OpenGameTask` (`assets/interface.json:105-107`) | Open game (`assets/i18n/en_us.json:75`) | Launch Android through Maa and verify the foreground; leave an already-open game running. On Windows, connect the game window first (`assets/i18n/en_us.json:76`) |
-| `mirror_loop` | `MirrorTask` (`assets/interface.json:112-114`) | Mirror Dungeon (`assets/i18n/en_us.json:77`) | Use the global saved builds and deployment order; choose one team or a rotation here. Hard by default; spending requires a configured budget (`assets/i18n/en_us.json:78`) |
-| `experience` | `ExperienceTask` (`assets/interface.json:131-133`) | Experience Luxcavation (`assets/i18n/en_us.json:79`) | Uses a saved team and navigates through Drive to Luxcavation; an unfinished Mirror run blocks navigation (`assets/i18n/en_us.json:80`) |
-| `thread` | `ThreadTask` (`assets/interface.json:141-143`) | Thread Luxcavation (`assets/i18n/en_us.json:81`) | Uses a saved team and navigates through Drive to Luxcavation; an unfinished Mirror run blocks navigation (`assets/i18n/en_us.json:82`) |
-| `rewards` | `RewardsTask` (`assets/interface.json:151-153`) | Collect rewards (`assets/i18n/en_us.json:83`) | Claim rewards for the current cleared Mirror run with its module budget (`assets/i18n/en_us.json:84`) |
-| `stamina` | `StaminaTask` (`assets/interface.json:161-163`) | Convert Enkephalin (`assets/i18n/en_us.json:85`) | Budgeted conversion recognition is under development; currently captures evidence and stops without spending (`assets/i18n/en_us.json:86`) |
+| `open_game` | `OpenGameTask` (`assets/interface.json`) | Open game (`assets/i18n/en_us.json`) | Launch Android through Maa and verify the foreground; leave an already-open game running. On Windows, connect the game window first (`assets/i18n/en_us.json`) |
+| `mirror_loop` | `MirrorTask` (`assets/interface.json`) | Mirror Dungeon (`assets/i18n/en_us.json`) | Use the global saved builds and deployment order; choose one team or a rotation here. Hard by default; spending requires a configured budget (`assets/i18n/en_us.json`) |
+| `experience` | `ExperienceTask` (`assets/interface.json`) | Experience Luxcavation (`assets/i18n/en_us.json`) | Uses a saved team and navigates through Drive to Luxcavation; an unfinished Mirror run blocks navigation (`assets/i18n/en_us.json`) |
+| `thread` | `ThreadTask` (`assets/interface.json`) | Thread Luxcavation (`assets/i18n/en_us.json`) | Uses a saved team and navigates through Drive to Luxcavation; an unfinished Mirror run blocks navigation (`assets/i18n/en_us.json`) |
+| `rewards` | `RewardsTask` (`assets/interface.json`) | Collect rewards (`assets/i18n/en_us.json`) | Claim rewards for the current cleared Mirror run with its module budget (`assets/i18n/en_us.json`) |
+| `stamina` | `StaminaTask` (`assets/interface.json`) | Convert Enkephalin (`assets/i18n/en_us.json`) | Removed from the interface on 2026-11-23: it took one screenshot and returned "not implemented". The pipeline node `StaminaTask` and the Agent branch remain; it returns to the task list when it works |
 
 The four controllers are declared in the same file: `windows-window`, `windows-background`, `windows`, `mumu-adb` (`assets/interface.json:14-68`); resources are declared as `en`/`jp` (`:69-86`).
 

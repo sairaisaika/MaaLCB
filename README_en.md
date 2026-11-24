@@ -48,7 +48,7 @@ MaaLimbus automates Limbus Company by reading the screen. Today it targets the M
 - 📝 **A log you can read**: every step names the page it recognised and what it did; a stop states its reason.
 - 📊 **Run data**: one row per finished task (time per floor, waits and re-reads, stop reason); `tools/run_report.py --history` turns the rows into a trend, with no account or local path in them.
 - 🧹 **Tidies its own screenshots**: at the end of a task old diagnostic frames are moved to an archive folder, without manual cleanup and without deleting.
-- 🚧 **In development**: the experience and thread dungeons only reach their entry page; stamina exchange is not implemented; automatic skill purchase in the shop is in progress; the Japanese client and Windows-client input are not accepted yet.
+- 🚧 **In development**: the experience and thread dungeons only reach their entry page (labelled "in development" in the app); the Japanese client and Windows-client input are not accepted yet (labelled "experimental" and "not accepted yet"). Stamina exchange, skill replacement in the shop and in-app updates have no real function yet; their entries were taken out of the interface and return when there is something behind them.
 
 ## 🚦 Current status
 

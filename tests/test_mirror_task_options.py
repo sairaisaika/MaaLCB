@@ -60,16 +60,18 @@ def test_unknown_battle_mode_is_rejected():
     with pytest.raises(ValueError):collect(nodes(battle='unknown'))
 
 
-def test_skill_checks_are_independent_task_options_with_off_as_default():
+def test_the_skill_check_is_off_unless_a_pipeline_asks_for_it():
+    # The check opens the skill chooser, selects a card and cancels; it never buys. It was
+    # offered in the app as "Skill Replacement Check" until 2026-11-23, when entries with no
+    # real function left the interface. The node and its three modes remain for development.
     import json
     from pathlib import Path
     root=Path(__file__).resolve().parents[1]/'assets'
     pi=json.loads((root/'interface.json').read_bytes())
-    option=pi['option']['mirror_shop_skill_mode']
-    assert option['default_case']=='off'
-    assert {case['name'] for case in option['cases']}=={'off','keep_one_each','keep_one_s2'}
-    for case in option['cases']:
-        assert case['pipeline_override']=={'MirrorShopSkillMode':{'attach':{'mode':case['name']}}}
-        assert collect(nodes(steps=120,skill=case['name']))==dict(steps=120,shop_skill_mode=case['name'])
+    assert 'mirror_shop_skill_mode' not in pi['option']
+    pipeline=json.loads((root/'resource/base/pipeline/mirror.json').read_bytes())
+    assert pipeline['MirrorShopSkillMode']['attach']['mode']=='off'
+    for mode in ('off','keep_one_each','keep_one_s2'):
+        assert collect(nodes(steps=120,skill=mode))==dict(steps=120,shop_skill_mode=mode)
     with pytest.raises(ValueError,match='Unknown shop skill policy'):
         collect(nodes(skill='unlimited'))

@@ -21,9 +21,11 @@ def isolate_fake_dispatch_controller_lease(tmp_path,monkeypatch):
     monkeypatch.setattr(recognition,'data_directory',lambda *a:tmp_path)
 
 
-def test_six_main_tasks_reference_saved_builds_and_no_diagnostic_entry():
+def test_the_task_list_offers_what_has_a_function_and_no_diagnostic_entry():
+    # The stamina task only took one screenshot and returned "not implemented"; it left the
+    # list on 2026-11-23 and comes back when it does something. The agent still knows the name.
     pi=json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
-    assert [t['name'] for t in pi['task']]==['open_game','mirror_loop','experience','thread','rewards','stamina']
+    assert [t['name'] for t in pi['task']]==['open_game','mirror_loop','experience','thread','rewards']
     assert all(not t['default_check'] for t in pi['task'])
     nodes=json.loads((ROOT/'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
     assert all(nodes[t['entry']]['custom_action']=='limbus_main_task' for t in pi['task'])
