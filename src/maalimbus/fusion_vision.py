@@ -29,6 +29,11 @@ from .vision import find
 TITLE = r'^Fuse E\.?G\.?O\s*Gift$'
 KEYWORD_TITLE = r'^Fusion\s*-?\s*Keyword Selection$'
 QUESTION = r'^Fuse the selected E\.?G\.?O\s*Gifts\?$'
+#: Both buttons carry a check mark that OCR sometimes reads into the word: `Confirm` on
+#: pi-20261123-225704 and `✓Confirm` on pi-20261124-000448/frame-0258, the same button.
+#: Read strictly, the second frame was no fusion page at all and the run stopped on it.
+CONFIRM = r'^[^A-Za-z]{0,2}\s*Confirm$'
+FUSE = r'^[^A-Za-z]{0,2}\s*Fuse$'
 #: The tile captions, as the page prints them.
 KEYWORDS = ('BURN', 'BLEED', 'TREMOR', 'RUPTURE', 'SINKING', 'POISE', 'CHARGE', 'SLASH', 'PIERCE', 'BLUNT')
 
@@ -57,16 +62,16 @@ def _scale(box, size):
 def page(records, size):
     """Which fusion page this is, or ``None``."""
     if (find(records, KEYWORD_TITLE, (.30, .08, .70, .18), size, .85)
-            and len(find(records, r'^Confirm$', (.56, .74, .68, .82), size, .85)) == 1
+            and len(find(records, CONFIRM, (.56, .74, .68, .82), size, .85)) == 1
             and sum(1 for word in KEYWORDS if find(records, '^%s$' % word, (.20, .40, .80, .70), size, .85)) >= 8):
         return 'FUSION_KEYWORD'
     if (find(records, QUESTION, (.30, .65, .70, .75), size, .85)
-            and len(find(records, r'^Confirm$', (.57, .76, .69, .86), size, .85)) == 1
+            and len(find(records, CONFIRM, (.57, .76, .69, .86), size, .85)) == 1
             and find(records, r'Cancel$', (.33, .76, .45, .86), size, .8)):
         return 'FUSION_CONFIRM'
     if (find(records, TITLE, (.38, .09, .62, .19), size, .85)
             and find(records, r'^Wishmaking$', (.22, .66, .35, .74), size, .85)
-            and len(find(records, r'^Fuse$', (.58, .76, .68, .86), size, .85)) == 1
+            and len(find(records, FUSE, (.58, .76, .68, .86), size, .85)) == 1
             and find(records, r'Close$', (.33, .76, .45, .86), size, .8)):
         return 'FUSION'
     return None
@@ -95,7 +100,7 @@ def read_panel(records, size, image=None):
         x, y = heading[0].box[0], heading[0].box[1]
         dx, dy, w, h = _scale(ENTRY_FROM_HEADING, size)
         entry = [int(x + dx), int(y + dy), w, h]
-    fuse = find(records, r'^Fuse$', (.58, .76, .68, .86), size, .85)
+    fuse = find(records, FUSE, (.58, .76, .68, .86), size, .85)
     close = find(records, r'Close$', (.33, .76, .45, .86), size, .8)
     return dict(
         keyword_needed=bool(find(records, r'^Select a Keyword\.?$', (.55, .48, .80, .59), size, .8)),
@@ -135,7 +140,7 @@ def read_keywords(records, size, image=None):
         if len(found) == 1:
             tiles[word] = _box(found[0])
     chosen = [word for word, box in tiles.items() if chosen_tile(image, box, size)]
-    confirm = find(records, r'^Confirm$', (.56, .74, .68, .82), size, .85)
+    confirm = find(records, CONFIRM, (.56, .74, .68, .82), size, .85)
     cancel = find(records, r'Cancel$', (.33, .74, .45, .82), size, .8)
     return dict(tiles=tiles, chosen=chosen[0] if len(chosen) == 1 else None,
                 confirm=_box(confirm[0]) if len(confirm) == 1 else None,
@@ -143,7 +148,7 @@ def read_keywords(records, size, image=None):
 
 
 def read_confirm(records, size):
-    confirm = find(records, r'^Confirm$', (.57, .76, .69, .86), size, .85)
+    confirm = find(records, CONFIRM, (.57, .76, .69, .86), size, .85)
     cancel = find(records, r'Cancel$', (.33, .76, .45, .86), size, .8)
     count = find(records, r'^\d\s*/\s*\d$', (.43, .21, .52, .31), size, .8)
     return dict(confirm=_box(confirm[0]) if len(confirm) == 1 else None,

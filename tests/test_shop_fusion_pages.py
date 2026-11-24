@@ -382,3 +382,21 @@ def test_the_switch_reaches_the_runner_and_defaults_to_recipes():
         assert case['pipeline_override'] == {'MirrorShopFusion': {'attach': {'mode': case['name']}}}
     mirror = next(task for task in interface['task'] if task['name'] == 'mirror_loop')
     assert 'mirror_shop_fusion' in mirror['option']
+
+
+def test_a_check_mark_read_into_the_button_is_still_the_button():
+    # pi-20261124-000448/frame-0258: the keyword page printed `✓Confirm` [1108,827,160,42]
+    # at .93 where the day before it printed `Confirm`. The page was not named, the
+    # generic dialog rule cancelled it, and the run stopped in the floor-1 shop.
+    def marked(name, word):
+        return [Text('✓' + text if text == word else text, box, score) for text, box, score in PAGES[name]]
+    rows = marked('keyword_page', 'Confirm')
+    assert fv.page(rows, SIZE) == 'FUSION_KEYWORD' and classify(rows, LOCALE, SIZE) == 'FUSION_KEYWORD'
+    assert fv.read_keywords(rows, SIZE, keyword_picture('CHARGE'))['confirm'] == [1112, 827, 156, 42]
+    rows = marked('question', 'Confirm')
+    assert fv.page(rows, SIZE) == 'FUSION_CONFIRM' and fv.read_confirm(rows, SIZE)['confirm'] == [1138, 855, 130, 36]
+    rows = marked('recipe_loaded', 'Fuse')
+    assert fv.page(rows, SIZE) == 'FUSION' and fv.read_panel(rows, SIZE, panel_picture())['fuse'] == [1166, 857, 80, 40]
+    # A different word is still a different word.
+    other = [Text('Unconfirm' if row.text == 'Confirm' else row.text, row.box, row.score) for row in records('keyword_page')]
+    assert fv.page(other, SIZE) is None
