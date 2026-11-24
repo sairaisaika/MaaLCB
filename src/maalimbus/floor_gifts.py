@@ -175,6 +175,35 @@ def observe(records, size, catalog, *, image=None, select_box=None):
     return offers, state
 
 
+SINGLE_FREE_NOUNS = re.compile(
+    r'Mounting|Trials|Enemy Level|Defense Level|Offense Level|Damage Taken|Max HP|Lunacy|Modules?|Purchase|Cost', re.I)
+SINGLE_FREE_STRUCTURE = re.compile(r'Mounting|Trials|Enemy Level', re.I)
+SINGLE_FREE_PRICED = re.compile(r'(Enemy Level|Defense Level|Offense Level|Damage Taken|Max HP|Cost)\s*\+?\d', re.I)
+
+
+def single_free_page_is_priced(records, size, catalog):
+    """Whether the one-gift page carries a trial or a price, not just a gift talking about itself.
+
+    The page was refused whenever any line named a trial or price noun. A gift's own
+    effect names them too: `First-aid Kit` prints `HP heals 25% of Max HP.` in its
+    description block, and that stopped a run on floor 3 with Refuse Gift and Select as
+    the only buttons (pi-20261124-002332/frame-0683). It is the rule already applied to
+    the three-gift page: inside the description block of a card whose title the catalogue
+    knows, a noun alone is the gift's own effect; a trial word with a number on it
+    (`Max HP +10%`) still refuses there, and anywhere else on the page a noun still does.
+    """
+    titles = find(records, r'.+', (.40,.245,.60,.30), size,.9)
+    known = len(titles)==1 and catalog is not None and catalog.text_identity(titles[0].text) is not None
+    def own_effect_text(record):
+        cx=(record.box[0]+record.box[2]/2)/size[0];cy=(record.box[1]+record.box[3]/2)/size[1]
+        return known and .42<=cx<=.60 and .40<=cy<=.56
+    # The words a trial is built from are never a gift's own: its heading and the enemy
+    # level sit right under the card, where an effect sentence could otherwise hide them.
+    return any(SINGLE_FREE_PRICED.search(r.text) or SINGLE_FREE_STRUCTURE.search(r.text)
+               or (SINGLE_FREE_NOUNS.search(r.text) and not own_effect_text(r))
+               for r in records)
+
+
 def observe_single_free(records, size, catalog, box, image, select_box):
     """One centered free gift: button state replaces the absent pick counter.
 
@@ -184,7 +213,7 @@ def observe_single_free(records, size, catalog, box, image, select_box):
     """
     if not .44 <= (box[0]+box[2]/2)/size[0] <= .56:
         raise ValueError('single_free_gift_geometry_unknown')
-    if any(re.search(r'Mounting|Trials|Enemy Level|Defense Level|Offense Level|Damage Taken|Max HP|Lunacy|Modules?|Purchase|Cost', r.text, re.I) for r in records):
+    if single_free_page_is_priced(records, size, catalog):
         raise ValueError('single_free_gift_trial_or_cost_present')
     titles = find(records, r'.+', (.40,.245,.60,.30), size,.9)
     select = find(records, r'^Select$', (.84,.77,.94,.84), size,.9)
