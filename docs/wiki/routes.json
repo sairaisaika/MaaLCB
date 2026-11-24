@@ -4567,6 +4567,69 @@
       "boundary": "How a team is used in the Mirror Dungeon, two settings per team, each defaulting to \"keep\". Gift systems are ticked freely; none ticked ties the team to no system. The order is \"keep\", \"game\" (forget the saved order and deploy what the game shows for that team) or a written line. With no saved order the run reads the numbers on the twelve cards of the team page and records the order with the frame it came from in user-team-order-records.json and in the log; that record is evidence of what was read, it changes nothing. Ticked systems arrive as separate attach keys on one node, which the framework merges (measured). Edits are validated as a whole and saved before the next Mirror task starts, never for the team of a run in progress, with no device input. The app cannot show what is saved. Gift and pack preferences and the starlight plan are still edited from the Mirror task, for teams 1-20 only."
     },
     {
+      "id": "map-next-node-mark",
+      "title": "地图下一步：读游戏自己画的「>>」箭头 / map next step: read the game's own \">>\" mark",
+      "aliases": [
+        "地图",
+        "下一个节点",
+        "走哪",
+        "箭头",
+        ">>",
+        "六边形不靠谱",
+        "地图卡住",
+        "map_resume_did_not_restore_navigation",
+        "unknown_navigation_unresolved",
+        "offered 0",
+        "主题颜色",
+        "map_chevrons",
+        "chevron",
+        "chevron_nodes",
+        "connected_nodes",
+        "path_node",
+        "chevron_mark_midway_on_the_path",
+        "PITCH_PER_LAMP_GAP",
+        "train_body"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/map_chevrons.py",
+          "symbol": "marks"
+        },
+        {
+          "path": "src/maalimbus/map_chevrons.py",
+          "symbol": "next_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "chevron_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "train_body"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "candidates_of"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_map_chevrons.py",
+        "tests/test_map_hexagons.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_map_chevrons.py tests/test_map_hexagons.py"
+      ],
+      "boundary": "The game draws a double chevron halfway along every path the party may take; the node is at twice the mark's offset from the party. The party and the column pitch come from the train sprite, the mark from being grey on a tinted ground, relative to the ground around the party, so no theme colour is named. Marked nodes lead the candidate list; where another reader measured the same node its exact box is used under the mark's rank, and the other readers' remaining rows follow as a fallback. A mark is evidence that a node is reachable, not that a click was taken: the click result still decides. On a frame with no readable mark the older readers answer alone."
+    },
+    {
       "id": "transactions",
       "title": "交易的两半：意图在输入之前写下，读者必须在之后把它读回来",
       "aliases": [

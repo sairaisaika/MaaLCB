@@ -182,8 +182,10 @@ def test_the_live_super_shop_is_the_next_node_at_both_zooms(frame, pitch, shop):
     from maalimbus.map_node_geometry import connected_nodes
     from maalimbus.runner import node_badge_template
     rows = connected_nodes(live(RUN, frame), template=node_badge_template())
-    assert len(rows) == 1 and rows[0]['candidate_kind'] == 'lit_hexagon'
-    assert rows[0]['measured_column_pitch'] == pitch
+    # Where the game's own >> mark points at the same node, the row is the hexagon's exact
+    # box under the mark's rank (2026-11-23); a frame with no mark keeps the plain hexagon row.
+    assert len(rows) == 1 and rows[0]['candidate_kind'] in ('lit_hexagon', 'path_node')
+    assert rows[0]['state'] == 'lit' and rows[0]['measured_column_pitch'] == pitch
     assert math.hypot(rows[0]['point'][0] - shop[0], rows[0]['point'][1] - shop[1]) <= 12
     assert rows[0]['point'][0] > rows[0]['party'][0]          # ahead, never the cleared nodes behind
 

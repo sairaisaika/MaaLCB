@@ -486,11 +486,40 @@ def connected_hexagons(image,*,template=None):
     return nodes
 
 
+def chevron_nodes(image):
+    """Nodes the game's own ">>" marks point at, measured from the train sprite (map_chevrons)."""
+    from . import map_chevrons, map_hexagons
+    body=train_body(image)
+    if body is None or not body.get('lamp_gap'):return []
+    pitch=body['lamp_gap']*map_hexagons.PITCH_PER_LAMP_GAP
+    if not .05*image.shape[1]<=pitch<=.30*image.shape[1]:return []
+    return map_chevrons.next_nodes(image,tuple(body['party']),pitch)
+
+
 def connected_nodes(image,*,template=None):
-    """Existing red/ring precedence; then compact alternatives; then lit hexagons."""
+    """The marked steps first; then red/ring, compact alternatives and lit hexagons.
+
+    The ">>" mark is the game saying which node may be taken, the same on every
+    theme, so it leads. What the older readers find is kept behind it as a fallback,
+    without the rows that name a node a mark already names.
+    """
+    marked=chevron_nodes(image)
     legacy=connected_red_node(image) or connected_ring_node(image,template=template)
-    if legacy is not None:return [legacy]
-    return connected_compact_nodes(image) or connected_hexagons(image,template=template)
+    others=[legacy] if legacy is not None else (
+        connected_compact_nodes(image) or connected_hexagons(image,template=template))
+    if not marked:return others
+    def same(row,mark):
+        x,y,w,h=row['target'];cx,cy=x+w/2,y+h/2
+        return (abs(cx-mark['point'][0])<=.3*mark['measured_column_pitch']
+                and abs(cy-mark['point'][1])<=.3*mark['measured_column_pitch'])
+    rows=[]
+    for mark in marked:
+        # Where another reader measured the same node, its box is the more exact one: the
+        # mark says the node may be taken, the node's own reading says where its centre is.
+        exact=next((row for row in others if same(row,mark)),None)
+        rows.append(mark if exact is None else dict(exact,candidate_kind='path_node',mark=mark['mark'],
+            source='chevron_mark_confirms_'+str(exact.get('source') or exact.get('candidate_kind') or 'node')))
+    return rows+[row for row in others if not any(same(row,mark) for mark in marked)]
 
 
 def connected_node(image,*,template=None):

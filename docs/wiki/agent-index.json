@@ -948,7 +948,7 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "occupied_node",
           "line": 149,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/unknown_exploration.py",
@@ -2242,13 +2242,13 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "train_body",
           "line": 80,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_red_node",
           "line": 192,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/runner.py",
@@ -2266,7 +2266,7 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_ring_node",
           "line": 343,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/map_vision.py",
@@ -2296,13 +2296,13 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "_supported_path",
           "line": 7,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_node",
-          "line": 496,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "line": 525,
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/runner.py",
@@ -2313,14 +2313,14 @@
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_nodes",
-          "line": 489,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "line": 499,
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_compact_nodes",
           "line": 402,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         }
       ]
     },
@@ -3329,13 +3329,13 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_ring_node",
           "line": 343,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "_connected_white_outline",
           "line": 257,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         },
         {
           "path": "src/maalimbus/map_hexagons.py",
@@ -3353,7 +3353,7 @@
           "path": "src/maalimbus/map_node_geometry.py",
           "symbol": "connected_hexagons",
           "line": 463,
-          "sha256": "416b3400f2c69c9659dc72c3ea6717aa48f06477eafa99e66fa6023b4f8052e2"
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
         }
       ]
     },
@@ -7522,6 +7522,107 @@
           "symbol": "order_from_badges",
           "line": 15,
           "sha256": "efa15e1b7da165bdb74f802ed52fc6dcd982ede23e7f98a42459f9b787916c34"
+        }
+      ]
+    },
+    {
+      "id": "map-next-node-mark",
+      "title": "地图下一步：读游戏自己画的「>>」箭头 / map next step: read the game's own \">>\" mark",
+      "aliases": [
+        "地图",
+        "下一个节点",
+        "走哪",
+        "箭头",
+        ">>",
+        "六边形不靠谱",
+        "地图卡住",
+        "map_resume_did_not_restore_navigation",
+        "unknown_navigation_unresolved",
+        "offered 0",
+        "主题颜色",
+        "map_chevrons",
+        "chevron",
+        "chevron_nodes",
+        "connected_nodes",
+        "path_node",
+        "chevron_mark_midway_on_the_path",
+        "PITCH_PER_LAMP_GAP",
+        "train_body"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/map_chevrons.py",
+          "symbol": "marks"
+        },
+        {
+          "path": "src/maalimbus/map_chevrons.py",
+          "symbol": "next_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "chevron_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_nodes"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "train_body"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "candidates_of"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/9-execution-plan.md#public-goal",
+        "docs/wiki/en_us/9-execution-plan.md#public-goal"
+      ],
+      "tests": [
+        "tests/test_map_chevrons.py",
+        "tests/test_map_hexagons.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_map_chevrons.py tests/test_map_hexagons.py"
+      ],
+      "boundary": "The game draws a double chevron halfway along every path the party may take; the node is at twice the mark's offset from the party. The party and the column pitch come from the train sprite, the mark from being grey on a tinted ground, relative to the ground around the party, so no theme colour is named. Marked nodes lead the candidate list; where another reader measured the same node its exact box is used under the mark's rank, and the other readers' remaining rows follow as a fallback. A mark is evidence that a node is reachable, not that a click was taken: the click result still decides. On a frame with no readable mark the older readers answer alone.",
+      "locations": [
+        {
+          "path": "src/maalimbus/map_chevrons.py",
+          "symbol": "marks",
+          "line": 39,
+          "sha256": "ed60bd366f38fdcf3cc932fef25b50365bd6d3bcb6f8507e8a9269c3d28133a3"
+        },
+        {
+          "path": "src/maalimbus/map_chevrons.py",
+          "symbol": "next_nodes",
+          "line": 90,
+          "sha256": "ed60bd366f38fdcf3cc932fef25b50365bd6d3bcb6f8507e8a9269c3d28133a3"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "chevron_nodes",
+          "line": 489,
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "connected_nodes",
+          "line": 499,
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
+        },
+        {
+          "path": "src/maalimbus/map_node_geometry.py",
+          "symbol": "train_body",
+          "line": 80,
+          "sha256": "98030b246a93fc3cf0899c926a6c1392952aa160560e9159b2c1ec90ac95a1fb"
+        },
+        {
+          "path": "src/maalimbus/runner.py",
+          "symbol": "candidates_of",
+          "line": 2402,
+          "sha256": "983563b746f5bc4e3d2f8252ac762cf6f2974344d5a1d2c98b85150704e5aed4"
         }
       ]
     },
