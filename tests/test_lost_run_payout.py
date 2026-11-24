@@ -298,3 +298,60 @@ def test_a_crash_after_filing_finishes_the_transaction_without_filing_twice(tmp_
     assert result['passed'] and result['lost'] and not result['input_sent']
     assert (tmp_path / 'user-run-ledger.json').read_bytes() == before
     assert json.loads((tmp_path / 'user-reward-claim-transaction.json').read_text(encoding='utf-8'))['completed']
+
+
+#: The pass popup over the summary of the lost run, pi-20261123-235849/frame-0006.
+POPUP = [('Exploration', (234, 138, 238, 48), 1.0), ('Complete', (250, 188, 202, 50), 1.0),
+         ('Dungeon Progress', (210, 254, 282, 39), 1.0), ('Pass Level Up', (830, 351, 258, 40), 1.0),
+         ('Pass Level', (594, 466, 106, 22), 1.0), ('Battle Pass XP', (782, 470, 242, 40), 1.0),
+         ('40', (1592, 456, 76, 74), 1.0), ('228', (554, 488, 180, 129), 1.0), ('Last Reached', (236, 480, 220, 40), 1.0),
+         ('Floor 5 [HARD]', (262, 613, 178, 34), .98), ('Confirm', (882, 680, 162, 48), 1.0),
+         ('Total Progress', (234, 706, 234, 40), 1.0), ('95%', (296, 760, 132, 89), .99),
+         ('Claim', (1680, 861, 86, 36), 1.0), ('Rewards', (1658, 897, 130, 34), 1.0)]
+
+
+def popup(starlight='40', percent='95%'):
+    return dict(scene='EXPLORATION_COMPLETE', size=[1920, 1080],
+                ocr=[dict(text=starlight if text == '40' else percent if text == '95%' else text, box=list(box), score=score)
+                     for text, box, score in POPUP])
+
+
+def test_the_pass_popup_over_the_lost_summary_is_the_receipt():
+    from maalimbus.paid_reward_action import summary_pass_receipt
+    assert summary_pass_receipt(dialog(), popup()) == dict(starlight_offer=40, summary_starlight=40, total_percent=95)
+    # Another amount under the popup, a cleared summary, or no summary at all proves nothing.
+    assert summary_pass_receipt(dialog(), popup(starlight='65')) is None
+    assert summary_pass_receipt(dialog(), popup(percent='100%')) is None
+    assert summary_pass_receipt(dialog(), dialog()) is None
+
+
+def claimed_and_confirmed(tmp_path):
+    store, scope, proof = lost_run(tmp_path)
+    frame = tmp_path / 'frame-0002.json'
+    write_json(frame, dialog())
+    prepare('claim', dialog(), tmp_path, scope, str(frame))
+    path = tmp_path / 'user-reward-claim-transaction.json'
+    tx = json.loads(path.read_text(encoding='utf-8'))
+    tx.update(claim_sent=True, confirm_sent=True, pending='confirm')
+    write_json(path, tx)
+    return store, scope, path
+
+
+def test_a_lost_run_acknowledges_its_pass_popup_on_that_receipt(tmp_path):
+    store, scope, path = claimed_and_confirmed(tmp_path)
+    assert prepare('pass', popup(), tmp_path, scope, 'frame-0006') == [882, 680, 162, 48]
+    tx = json.loads(path.read_text(encoding='utf-8'))
+    assert tx['receipt_kind'] == 'summary_pass_popup' and tx['receipt_ack_sent'] and tx['pass_ack_sent']
+    assert tx['receipt_visible_amount'] == 40 and tx['pass_level'] == 228
+    assert tx['receipt_proof'] == 'frame-0006' == tx['pass_receipt_proof']
+    # Acknowledged once.
+    with pytest.raises(ValueError, match='absent or repeated'):
+        prepare('pass', popup(), tmp_path, scope, 'frame-0007')
+
+
+def test_a_popup_that_does_not_match_the_offer_is_not_acknowledged(tmp_path):
+    store, scope, path = claimed_and_confirmed(tmp_path)
+    before = path.read_bytes()
+    with pytest.raises(ValueError, match='absent or repeated'):
+        prepare('pass', popup(starlight='65'), tmp_path, scope, 'frame-0006')
+    assert path.read_bytes() == before

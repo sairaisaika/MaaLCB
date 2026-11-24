@@ -3,7 +3,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from .paid_reward_action import entry_balance_receipt, measured_offer
+from .paid_reward_action import entry_balance_receipt, measured_offer, summary_pass_receipt
 from .storage import read_json
 from .vision import Text, find
 
@@ -40,7 +40,11 @@ def verify(transaction, home_path, reports):
     # receipt is the balance difference read on the claim and pass frames, and it returns
     # to the Mirror entry page instead of the lobby (pi-20261123-182337).
     onto_entry = transaction.get('receipt_kind') == 'entry_balances'
-    proofs = {action: key for action, key in PROOFS.items() if not (onto_entry and action == 'receipt')}
+    # A lost run pays onto its own summary: the pass popup over that summary is the
+    # receipt (pi-20261123-235849), read again here from the two retained frames.
+    onto_summary = transaction.get('receipt_kind') == 'summary_pass_popup'
+    proofs = {action: key for action, key in PROOFS.items()
+              if not ((onto_entry or onto_summary) and action == 'receipt')}
     if set(reports) != set(proofs):
         raise ValueError('Complete reward input reports missing')
     frames, proof = {}, []
@@ -97,6 +101,11 @@ def verify(transaction, home_path, reports):
         balances = entry_balance_receipt(frames['claim'], frames['pass'])
         if balances is None or transaction.get('receipt_proof') != transaction.get('pass_receipt_proof'):
             raise ValueError('Balances on the entry page do not prove the payout')
+        received_amount = balances['starlight_offer']
+    elif onto_summary:
+        balances = summary_pass_receipt(frames['claim'], frames['pass'])
+        if balances is None or transaction.get('receipt_proof') != transaction.get('pass_receipt_proof'):
+            raise ValueError('The summary under the pass popup does not prove the payout')
         received_amount = balances['starlight_offer']
     else:
         token(frames['receipt'], r'^Rewards Acquired$', (.39,.30,.61,.39))

@@ -96,6 +96,34 @@ def entry_balance_receipt(claim_record, after_record):
     return values
 
 
+#: The run summary's own Starlight amount, the big number in its right column
+#: (pi-20261123-235849/frame-0006: `40` at [1592,456,76,74]).
+SUMMARY_STARLIGHT = (r'^(\d{1,5})$', (.81, .40, .89, .51))
+
+
+def summary_pass_receipt(claim_record, after_record):
+    """Proof that a lost run's payout arrived, where the game shows no receipt page.
+
+    Measured on pi-20261123-235849: a run lost at 95% was claimed (Claim, then the
+    "Claim the rewards?" Confirm) and the next page was the pass popup over the run
+    summary; no "Rewards Acquired" page came. The pass popup is itself what the payout
+    did, and the page under it ties it to this run: it is still the summary below 100%,
+    and the Starlight amount the summary prints is the amount the dialog offered.
+    """
+    if claim_record.get('size') != [1920, 1080] or after_record.get('size') != [1920, 1080]:
+        return None
+    from .dungeon_progress import exploration_summary
+    texts = [Text(x['text'], tuple(x['box']), x['score']) for x in after_record.get('ocr', [])]
+    summary = exploration_summary(texts, (1920, 1080)) or {}
+    percent = summary.get('total_percent')
+    offered, printed = _number(claim_record, OFFER_STARLIGHT), _number(after_record, SUMMARY_STARLIGHT)
+    if type(percent) is not int or not 0 <= percent < 100:
+        return None
+    if offered is None or offered <= 0 or printed != offered:
+        return None
+    return dict(starlight_offer=offered, summary_starlight=printed, total_percent=percent)
+
+
 def prepare(action, record, config, scope, proof):
     if action in ('claim', 'confirm'):
         path = config/'user-mirror-settings.json'
@@ -197,9 +225,14 @@ def prepare(action, record, config, scope, proof):
             try:claim_record=read_json(Path(tx.data['claim_proof']))
             except (KeyError,OSError,ValueError):claim_record={}
             balances=entry_balance_receipt(claim_record,record)
+            kind='entry_balances'
+            if balances is None and outcome=='lost':
+                # A lost run pays onto its own summary; see summary_pass_receipt.
+                balances=summary_pass_receipt(claim_record,record)
+                kind='summary_pass_popup'
             if balances is None:
                 raise ValueError('Pass receipt absent or repeated')
-            receipt=dict(receipt_ack_sent=True,receipt_kind='entry_balances',receipt_proof=str(proof),
+            receipt=dict(receipt_ack_sent=True,receipt_kind=kind,receipt_proof=str(proof),
                          receipt_visible_amount=balances['starlight_offer'],receipt_balances=balances)
         headings=[(r'^Pass Level Up$',(.40,.30,.61,.39)),
                   (r'^Pass Level$',(.29,.42,.38,.47)),
