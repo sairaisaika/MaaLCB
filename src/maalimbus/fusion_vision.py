@@ -238,6 +238,12 @@ def next_input(name, reading, memory, keywords):
     if memory.get('done') or memory.get('fused', 0) >= MAX_FUSIONS:
         return leave('the_fusion_visit_is_finished')
     if reading['keyword_needed']:
+        if reading['available'] is None:
+            # The list is drawn, dimmed, before any keyword is chosen, and what it holds
+            # does not depend on the keyword. With no "Fusion Available" heading there is
+            # nothing to fuse, so no keyword is chosen for nothing: on the first empty
+            # shops this cost five inputs and about half a minute each (2026-11-24).
+            return leave('nothing_is_listed_as_available_so_no_keyword_is_chosen')
         if not [word for word in keywords if word not in tried]:
             return leave('no_keyword_left_to_look_under')
         return dict(action='click', target=reading['centre'], reason='the_panel_asks_for_a_keyword_first',

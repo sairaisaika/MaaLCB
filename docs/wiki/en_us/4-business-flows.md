@@ -690,7 +690,7 @@ classDiagram
 - Fuse leads to the question "Fuse the selected E.G.O Gifts?", which shows pictures, a count (such as 2/3) and Cancel / Confirm: no name and no percentage. Confirm leads to the ordinary "E.G.O Gift GET!" notice with the result's name; its Confirm returns to the panel. The coins did not change (2445 -> 2445).
 - One fusion was made that way: UPS System (II) + Miniature Telepole (I) -> Insulator (III).
 
-**Each page has one input, decided by the page's own reading** (`src/maalimbus/fusion_vision.py:176` (`next_input`)):
+**Each page has one input, decided by the page's own reading** (`src/maalimbus/fusion_vision.py:181` (`next_input`)):
 
 ```mermaid
 stateDiagram-v2
@@ -710,9 +710,9 @@ stateDiagram-v2
 
 **What cannot happen, and why.**
 
-- Fuse is pressed only when the forecast reads exactly `100%`, the "Fusion Available" heading is present, and the Wishmaking box is **seen empty** (`src/maalimbus/fusion_vision.py:75` (`wish_empty`): the inside is one flat dark colour, mean 23 and deviation 0.1 on five frames; without a picture it counts as not empty).
+- Fuse is pressed only when the forecast reads exactly `100%`, the "Fusion Available" heading is present, and the Wishmaking box is **seen empty** (`src/maalimbus/fusion_vision.py:80` (`wish_empty`): the inside is one flat dark colour, mean 23 and deviation 0.1 on five frames; without a picture it counts as not empty).
 - The question's Confirm answers only the one Fuse this visit just pressed on a 100% forecast (`armed` in memory, cleared by use); anything else gets the question's own Cancel.
-- A keyword tile's Confirm is pressed only after that tile's orange frame is seen (`src/maalimbus/fusion_vision.py:108` (`chosen_tile`)); two taps without the frame end in a refusal by name, not a blind press.
+- A keyword tile's Confirm is pressed only after that tile's orange frame is seen (`src/maalimbus/fusion_vision.py:113` (`chosen_tile`)); two taps without the frame end in a refusal by name, not a blind press.
 - Gifts already loaded that are no recipe (a forecast below 100%) are left alone: Close. At most 4 fusions per visit, 2 openings of the panel, 2 taps on one entry.
 - Switched off, "Fuse Gifts" is never pressed; a panel that is open anyway is only closed.
 - With the Japanese resource the three pages' words are not read, so the pages are not named and the button is not found: the flow is never entered.
@@ -725,9 +725,11 @@ Fusing does not need the table (the game lists what can be fused); buying does: 
 
 **Not done.** A random fusion (trading gifts of other systems for one of the team's) exists only as the decision function `src/maalimbus/gift_fusion.py:223` (`random_fusion`) with tests; it is not connected to the pages. It needs every owned gift identified with its keyword and tier, the panel shows a name only after a tap, and that reader is not written. The "Recipes" and "Fusion Guide" buttons are never pressed.
 
-Source: `src/maalimbus/fusion_vision.py:281` (`bind`); `src/maalimbus/fusion_vision.py:57` (`page`); `src/maalimbus/fusion_vision.py:154` (`opener`); `src/maalimbus/gift_fusion.py:69` (`Recipes`); the three rows `FUSION`, `FUSION_KEYWORD`, `FUSION_CONFIRM` of `STEP_ROWS` in `src/maalimbus/window.py`; tests `tests/test_shop_fusion_pages.py`, `tests/test_gift_fusion.py`, `tests/test_shop_wrapped_titles.py`.
+Source: `src/maalimbus/fusion_vision.py:292` (`bind`); `src/maalimbus/fusion_vision.py:62` (`page`); `src/maalimbus/fusion_vision.py:159` (`opener`); `src/maalimbus/gift_fusion.py:69` (`Recipes`); the three rows `FUSION`, `FUSION_KEYWORD`, `FUSION_CONFIRM` of `STEP_ROWS` in `src/maalimbus/window.py`; tests `tests/test_shop_fusion_pages.py`, `tests/test_gift_fusion.py`, `tests/test_shop_wrapped_titles.py`.
 
 **Installed-app run (2026-11-24, `pi-20261123-225704`, the floor-5 shop, a Charge + Tremor team).** The program first dropped the purchase intent the previous segment had left unfinished (shelf and coins unchanged), bought Wobbling Keg itself (a Tremor gift on the wanted list, and a recipe ingredient) and three more gifts under the carry cap. With nothing left to buy it opened the panel: the centre slot, the CHARGE tile, Confirm once the orange frame was seen, the entry under "Fusion Available", Fuse once the forecast read 100%, Confirm on the question, and the notice named **Epicenter** (Gemstone Oscillator + Wobbling Keg); the panel then listed nothing, so Close, back in the shop, Leave. From opening the panel to closing it: 7 inputs in 40 seconds (03:58:23 to 03:59:03 UTC), the pages named FUSION, FUSION_KEYWORD, FUSION_CONFIRM, GIFT_GET, FUSION, SHOP in turn. Epicenter is a Tremor recipe and the keyword chosen was Charge, so "the list does not depend on the keyword" is more than an inference: the list was there before a keyword was chosen (`available` true), and a recipe of another system fused under it. One run and one recipe were accepted this way; two recipes in one visit, and a visit with an empty list, have tests only and no live sample.
+
+**The next run's first shop (the same day, `pi-20261124-000448`) showed two things.** First, the keyword page printed its button as "✓Confirm" (it was "Confirm" the day before); read strictly the page was no fusion page, the generic dialog rule pressed its Cancel, and the step stopped as an unexpected successor. Confirm and Fuse now allow up to two non-letter glyphs in front, the frame that stopped the run reads as the keyword page again, and the resumed task (`pi-20261124-002332`) went through and left the shop. Second, an empty list cost a whole round: centre slot, keyword, Confirm, then Close, five inputs and about half a minute. The list is drawn before a keyword is chosen, so with no "Fusion Available" heading the panel is now closed at once and no keyword is chosen.
 
 <a id="feature-4-3-9"></a>
 

@@ -690,7 +690,7 @@ classDiagram
 - 按 Fuse 后是确认页「Fuse the selected E.G.O Gifts?」，只有图标、数量（如 2/3）和 Cancel／Confirm，没有名字也没有百分比。Confirm 之后是普通的「E.G.O Gift GET!」通知，上面有结果的名字；它的 Confirm 回到面板。合成前后金币没有变化（2445 → 2445）。
 - 实测合成了一次：UPS System（II）+ Miniature Telepole（I）→ Insulator（III）。
 
-**每个页面只有一个输入，由页面自己的读数决定**（`src/maalimbus/fusion_vision.py:176` (`next_input`)）：
+**每个页面只有一个输入，由页面自己的读数决定**（`src/maalimbus/fusion_vision.py:181` (`next_input`)）：
 
 ```mermaid
 stateDiagram-v2
@@ -710,9 +710,9 @@ stateDiagram-v2
 
 **不会发生的事，以及凭什么。**
 
-- Fuse 只在预测读到恰好 `100%`、「Fusion Available」标题在场、并且 Wishmaking 勾选框被**看见是空的**时才按（`src/maalimbus/fusion_vision.py:75` (`wish_empty`)：框内是一块平的暗色，五帧实测均值 23、标准差 0.1；读不到图就当作不空）。
+- Fuse 只在预测读到恰好 `100%`、「Fusion Available」标题在场、并且 Wishmaking 勾选框被**看见是空的**时才按（`src/maalimbus/fusion_vision.py:80` (`wish_empty`)：框内是一块平的暗色，五帧实测均值 23、标准差 0.1；读不到图就当作不空）。
 - 确认页的 Confirm 只回答「本次访问刚刚在 100% 预测上按过 Fuse」的那一次（内存里的 `armed`，用一次就清）；别的情况一律点它自己的 Cancel。
-- 关键词方块的 Confirm 只在该方块的橙色边框被看见后才点（`src/maalimbus/fusion_vision.py:108` (`chosen_tile`)）；点了两次边框都没出现就具名拒绝，不盲点。
+- 关键词方块的 Confirm 只在该方块的橙色边框被看见后才点（`src/maalimbus/fusion_vision.py:113` (`chosen_tile`)）；点了两次边框都没出现就具名拒绝，不盲点。
 - 面板里已经放着不是配方的饰品（预测低于 100%）时不碰，直接 Close。每次访问最多合 4 次、最多开 2 次面板、同一条目最多点 2 次。
 - 关掉开关后不会去点「Fuse Gifts」；面板若已经开着，只会被关掉。
 - 日语资源下三个页面的文字读不到，页面不会被认成合成页，入口按钮也读不到，所以不会进入。
@@ -725,9 +725,11 @@ stateDiagram-v2
 
 **还没做的。** 随机合成（用别的体系的饰品换一件本体系的）只有决策函数 `src/maalimbus/gift_fusion.py:223` (`random_fusion`) 和测试，没有接到页面上：它需要逐件认出拥有的饰品及其关键词和阶数，面板里要点一下才显示名字，这个读取器还没写。「Recipes」和「Fusion Guide」两个按钮不点。
 
-源码落点：`src/maalimbus/fusion_vision.py:281` (`bind`)；`src/maalimbus/fusion_vision.py:57` (`page`)；`src/maalimbus/fusion_vision.py:154` (`opener`)；`src/maalimbus/gift_fusion.py:69` (`Recipes`)；`src/maalimbus/window.py` 的 `STEP_ROWS`（`FUSION`、`FUSION_KEYWORD`、`FUSION_CONFIRM` 三行）；测试 `tests/test_shop_fusion_pages.py`、`tests/test_gift_fusion.py`、`tests/test_shop_wrapped_titles.py`。
+源码落点：`src/maalimbus/fusion_vision.py:292` (`bind`)；`src/maalimbus/fusion_vision.py:62` (`page`)；`src/maalimbus/fusion_vision.py:159` (`opener`)；`src/maalimbus/gift_fusion.py:69` (`Recipes`)；`src/maalimbus/window.py` 的 `STEP_ROWS`（`FUSION`、`FUSION_KEYWORD`、`FUSION_CONFIRM` 三行）；测试 `tests/test_shop_fusion_pages.py`、`tests/test_gift_fusion.py`、`tests/test_shop_wrapped_titles.py`。
 
 **安装版实测（2026-11-24，`pi-20261123-225704`，第 5 层商店，Charge+Tremor 队）。** 程序先把上一段留下的未完成购买意图按「货架和金币都没变」销掉，自己买了 Wobbling Keg（想买清单里的 Tremor 饰品，也是配方材料），又按离店结余上限买了三件。之后没有东西可买，它打开面板：点中间一格 → 点 CHARGE 方块 → 看到橙色边框后点 Confirm → 点「Fusion Available」下的条目 → 预测读到 100% 后点 Fuse → 确认页点 Confirm → GET 通知上的名字是 **Epicenter**（Gemstone Oscillator + Wobbling Keg）→ 面板里不再有可合的配方，点 Close → 回到商店，Leave。从点开面板到关闭共 7 次输入、40 秒（03:58:23–03:59:03 UTC），页面依次被认成 FUSION、FUSION_KEYWORD、FUSION_CONFIRM、GIFT_GET、FUSION、SHOP。Epicenter 是 Tremor 配方而选的关键词是 Charge，所以「清单与所选关键词无关」不只是推断：选关键词之前清单已经列出（`available` 为真），选了别的体系的关键词它照样能合。只验收了这一次、这一个配方；一次访问里连续合两个配方、清单为空的访问，各只有测试，没有实机样本。
+
+**下一局的第一个商店（同日，`pi-20261124-000448`）暴露了两件事。** 一是关键词页的按钮这次被读成「✓Confirm」（前一天是「Confirm」），严格匹配下这一页不算合成页，通用对话框规则点了它的取消，这一步以「后继不符」停机；现在 Confirm 和 Fuse 前面允许最多两个非字母符号，停机的那一帧重新读出来是关键词页，续跑（`pi-20261124-002332`）走完并离店。二是清单为空时白走了一圈：点中间格、选关键词、确认、再关，五次输入约半分钟。清单在选关键词之前就画出来了，所以现在没有「Fusion Available」标题时直接点 Close，不选关键词。
 
 <a id="feature-4-3-9"></a>
 

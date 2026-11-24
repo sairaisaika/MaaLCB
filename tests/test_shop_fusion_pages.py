@@ -400,3 +400,17 @@ def test_a_check_mark_read_into_the_button_is_still_the_button():
     # A different word is still a different word.
     other = [Text('Unconfirm' if row.text == 'Confirm' else row.text, row.box, row.score) for row in records('keyword_page')]
     assert fv.page(other, SIZE) is None
+
+
+def test_an_empty_list_closes_the_panel_without_choosing_a_keyword():
+    # What can be fused is listed before a keyword is chosen. Nothing listed: Close.
+    rows = [row for row in records('needs_keyword') if row.text != 'Fusion Available']
+    reading = fv.read_panel(rows, SIZE, panel_picture())
+    assert reading['keyword_needed'] and reading['available'] is None
+    memory = {}
+    answer = fv.next_input('FUSION', reading, memory, ['CHARGE'])
+    assert answer['target'] == [674, 855, 132, 42] and memory['done'] and memory['tried'] == []
+    assert answer['reason'] == 'nothing_is_listed_as_available_so_no_keyword_is_chosen'
+    # With something listed the keyword is still asked for first.
+    listed = fv.read_panel(records('needs_keyword'), SIZE, panel_picture())
+    assert fv.next_input('FUSION', listed, {}, ['CHARGE'])['target'] == [510, 477, 80, 80]
