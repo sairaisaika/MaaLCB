@@ -219,13 +219,19 @@ def looks_like_skill_service(title):
     ``pi-20261123-130643`` read "Replace Hong Lu's Skil" after a refresh, the row was
     counted as a sixth gift against five before, and an exact 10-coin refresh was
     refused. No gift is named "Replace ..." or "ID Skill Search".
+
+    The first version still asked the last word to read like "skill"; live
+    ``pi-20261123-212043`` read "Replace Don Oulxote's Ski" and the same refusal came
+    back on an exact 30-coin refresh. The opening word carries the rule: a row that
+    starts with "Replace" and goes on for two more words (a sinner and what is replaced)
+    is a service, however its last word was read.
     """
     import difflib
     if is_skill_service(title):
         return True
     words = _normalised_text(title).split()
-    if len(words) >= 3 and words[0] == 'replace':
-        return difflib.SequenceMatcher(None, words[-1].strip('.!:'), 'skill').ratio() >= .8
+    if len(words) >= 3 and difflib.SequenceMatcher(None, words[0], 'replace').ratio() >= .8:
+        return True
     return difflib.SequenceMatcher(None, ' '.join(words), 'id skill search').ratio() >= .85
 
 

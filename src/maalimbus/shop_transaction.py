@@ -848,9 +848,16 @@ class ShopTransaction:
         # the press registered; any other delta still stops the run.
         next_price = refreshes(texts, size)['regular'].cost
         free = paid == 0 and next_price is not None and next_price > pending['price']
+        # The same rise also answers "did the press register" for a paid refresh. With it,
+        # an equal number of gifts before and after is not required: a refresh refills a
+        # slot emptied by a purchase and may swap a gift for a service, so the counts need
+        # not match, and a service misread as a gift made them differ on an exact 30-coin
+        # refresh (pi-20261123-212043). Without a readable price the count stays the check
+        # that the shelf was read whole.
+        registered = next_price is not None and next_price > pending['price']
         if (record.get('scene') != 'SHOP' or not (paid == pending['price'] or free)
                 or not shelf or fingerprint(shelf) == fingerprint(before)
-                or len(shelf) != len(before)):
+                or not (registered or len(shelf) == len(before))):
             raise ValueError('Fresh refresh currency delta and complete changed shelf not proven')
         data = copy.deepcopy(self.data)
         data['visits'][visit].setdefault('refresh_receipts', []).append(

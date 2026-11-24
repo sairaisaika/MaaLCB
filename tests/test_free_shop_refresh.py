@@ -59,3 +59,34 @@ def test_a_free_refresh_still_needs_a_changed_shelf(tmp_path):
     same = after(tmp_path, 'same', 100, 30, names=('Oracle', 'Scalpel'))
     with pytest.raises(ValueError, match='complete changed shelf not proven'):
         tx.reconcile_refresh('scope', 'floor4:shop1', same)
+
+
+def test_a_paid_refresh_whose_price_rose_need_not_keep_the_number_of_gifts(tmp_path):
+    # pi-20261123-212043, floor 4: 2172 -> 2142 coins for a 30-coin refresh, the button's
+    # price 30 -> 45, and a shelf with one gift fewer than before. The count check refused it.
+    tx = reserved(tmp_path)
+    fewer = after(tmp_path, 'fewer', 85, 30, names=('Voodoo Doll',))
+    assert tx.reconcile_refresh('scope', 'floor4:shop1', fewer) is True
+    assert tx.data['pending'] is None
+
+
+def test_without_a_risen_price_the_number_of_gifts_still_has_to_match(tmp_path):
+    tx = reserved(tmp_path)
+    fewer = after(tmp_path, 'fewer', 85, None, names=('Voodoo Doll',))
+    with pytest.raises(ValueError, match='complete changed shelf not proven'):
+        tx.reconcile_refresh('scope', 'floor4:shop1', fewer)
+
+
+@pytest.mark.parametrize('title', ["Replace Don Oulxote's Ski", "Replace Hong Lu's Skil", "Replace Faust's Skill",
+                                   "Replaoe Yi Sang's Skill", 'ID Skill Search', 'ID Skil Search'])
+def test_a_row_that_starts_with_replace_is_a_service_however_it_ends(title):
+    from maalimbus.shop_skill_vision import looks_like_skill_service
+    assert looks_like_skill_service(title) is True
+
+
+@pytest.mark.parametrize('title', ['Pendant of Nostalgia', 'Replica Blade', 'Replace', 'Replace Me', 'Clockwork Spring',
+                                   'Milepost of Survival'])
+def test_a_gift_is_not_taken_for_a_service(title):
+    from maalimbus.shop_skill_vision import looks_like_skill_service
+    assert looks_like_skill_service(title) is False
+
