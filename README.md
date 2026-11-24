@@ -104,7 +104,7 @@ Windows 桌面应用由 `tools/build_windows_package.py` 用你自己下载的 M
 .venv\Scripts\python tools/wiki_route.py "商店购买 收据"
 ```
 
-定位功能从[工程 Wiki](docs/wiki/README.md) 的短索引开始。跑测试一律用 `tools/run_tests.py`，它返回 pytest 自己的退出码。
+第一次参与开发请先读 [CONTRIBUTING.md](CONTRIBUTING.md)：怎么跑起来、东西在哪、哪些地方现在不好改。定位功能从[工程 Wiki](docs/wiki/README.md) 的短索引开始。跑测试一律用 `tools/run_tests.py`，它返回 pytest 自己的退出码。
 
 ## 许可
 

@@ -47,7 +47,9 @@ def run_time(rows):
         if event == 'page_checkpoint':
             cleared = (row.get('progress') or {}).get('cleared_floors')
             if cleared is not None:
-                floor = len(cleared) + 1
+                # With five floors cleared the run is being paid out, not played: that time
+                # belongs to no floor. It used to be booked as a "floor 6".
+                floor = len(cleared) + 1 if len(cleared) < 5 else None
         now = _stamp(row)
         if now is not None:
             if last is not None:

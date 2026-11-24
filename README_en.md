@@ -104,7 +104,7 @@ Before creating a file or handling storage, read the wiki's [file placement tabl
 .venv\Scripts\python tools/wiki_route.py "shop purchase receipt"
 ```
 
-Start feature lookup from the quick index of the [engineering wiki](docs/wiki/README.md). Always run tests through `tools/run_tests.py`, which returns pytest's own exit status.
+New to the code? Read [CONTRIBUTING.md](CONTRIBUTING.md) first: how to get it running, where things live, and what is hard to change today. Start feature lookup from the quick index of the [engineering wiki](docs/wiki/README.md). Always run tests through `tools/run_tests.py`, which returns pytest's own exit status.
 
 ## Licence
 

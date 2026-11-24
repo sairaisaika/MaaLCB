@@ -99,6 +99,15 @@ def test_a_floor_played_across_several_tasks_is_one_floor_of_one_game_run():
     assert run_history.trend([])['tasks'] == 0 and run_history.lines(run_history.trend([]))
 
 
+def test_time_after_the_fifth_floor_belongs_to_no_floor():
+    rows = [dict(event='page_checkpoint', utc=stamp(0), progress=dict(cleared_floors=[1, 2, 3, 4, 5])),
+            dict(event='step_finished', utc=stamp(5), page='RUN_REWARD_DIALOG'),
+            dict(event='step_finished', utc=stamp(20), page='PASS_LEVEL_UP')]
+    row = run_history.summary('pi-1', rows)
+    assert row['floors'] == {} and row['pages'] == {'RUN_REWARD_DIALOG': 15.0}
+    assert row['program_seconds'] == 20.0
+
+
 def test_a_task_says_when_a_floor_ran_past_the_target():
     slow = run_history.summary('pi-1', journal(), task='mirror_loop', result=RESULT)
     assert '第 2 层' in run_history.notice(slow) and '12 分钟' in run_history.notice(slow)
