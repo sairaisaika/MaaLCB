@@ -22,8 +22,17 @@ class Trial:
     @property
     def penalty(self):
         # Survival-first heuristic: offense can change clashes; defense/HP mainly
-        # lengthen fights. These weights are policy, not game formulas.
-        weights = {'offense': 90, 'defense': 10, 'damage_reduction': 3, 'hp': 1, 'none': 0, 'damage_dealt': 20, 'base_power': 180, 'clash_power': 240}
+        # lengthen fights. These weights are policy, not game formulas -- but their
+        # order must not contradict the formulas. Clash Power counts in the clash only;
+        # Base Power and Final Power count in the clash and in every coin's damage
+        # (wiki "Damage Formula" rev 204334, "Battles" rev 204340), so a point of either
+        # is never cheaper than a point of Clash Power. Until 2026-11-25 Base Power was
+        # 180 against Clash Power's 240, and the fourth run took "Base Power +1" over
+        # "Clash Power +1" on that order. The 10 above Clash Power is the damage share
+        # this table already gives an Offense Level: three levels are one point of clash
+        # (80 each) and the remaining 10 of its 90 is damage.
+        weights = {'offense': 90, 'defense': 10, 'damage_reduction': 3, 'hp': 1, 'none': 0, 'damage_dealt': 20,
+                   'base_power': 250, 'final_power': 250, 'clash_power': 240}
         effects=self.components or ((self.kind,self.amount),)
         return self.level * 30 + sum(amount*weights[kind] for kind,amount in effects)
 
@@ -64,6 +73,9 @@ GRAMMAR = ((r'Defense Level\s*\+\s*(\d+)', 'defense'),
            (r'Offense Level\s*\+\s*(\d+)', 'offense'),
            (r'Base Power\s*\+\s*(\d+)', 'base_power'),
            (r'Clash Power\s*\+\s*(\d+)', 'clash_power'),
+           # Only a trial that *starts* an effect with these words: "Defense Skill Final
+           # Power" is a different, narrower effect and stays unpriced.
+           (r'Final Power\s*\+\s*(\d+)', 'final_power'),
            (r'Damage Taken\s*[-−]\s*(\d+(?:\.\d+)?)\s*%', 'damage_reduction'),
            (r'Max HP\s*\+\s*(\d+(?:\.\d+)?)\s*%', 'hp'),
            (r'Damage Dealt\s*\+\s*(\d+(?:\.\d+)?)\s*%', 'damage_dealt'))

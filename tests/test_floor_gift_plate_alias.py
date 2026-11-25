@@ -19,7 +19,8 @@ def test_actual_four_cards_preserve_four_separate_trial_bindings():
     offers,counter=observe(rows,frame['size'],GiftCatalog(ROOT/'assets/resource/base'))
     assert [o.title for o in offers]==['Cantabile','Thorny Path','Rebate Token','Oracle']
     assert [o.trial.level for o in offers]==[2,1,2,2]
-    assert offers[0].unpriced=='Final Power +1, Max HP +5%'
+    # Priced since 2026-11-25: Final Power is in the grammar, at Base Power's price.
+    assert not offers[0].unpriced and offers[0].trial.components==(('final_power',1),('hp',5))
     assert counter=={'chosen':0,'required':2}
     wrong=[replace(r,text='E.G.O Glft') if r.text=='Acqulre E.G.O Glft' else r for r in rows]
     with pytest.raises(ValueError):observe(wrong,frame['size'],GiftCatalog(ROOT/'assets/resource/base'))
