@@ -28,9 +28,11 @@ def plan(**defeat):
 def test_the_accept_row_is_followed_by_its_own_confirm():
     row = plan(spent=True, accept=True)
     assert row['action'] == CLICK and row['target'] == CONTROLS['defeat.accept_button']
+    assert row['defeat_accept'] == 'row'
     confirm = plan(spent=True, accept=True, accept_sent=True)
     assert confirm['target'] == CONTROLS['defeat.confirm_button'] and confirm['expect'] == [ANY]
-    assert confirm['reason'] == 'the_accepted_wipe_is_confirmed_and_the_run_ends'
+    # The same word as the row: accepting is one decision in two presses, told apart by a flag.
+    assert confirm['reason'] == row['reason'] and confirm['defeat_accept'] == 'confirm'
     # Without the Confirm on the page it is refused by name, not guessed.
     blind = plan_step('BATTLE_DEFEAT', controls={'defeat.accept_button': CONTROLS['defeat.accept_button']},
                       defeat=dict(row_sent=False, spent=True, accept=True, accept_sent=True))

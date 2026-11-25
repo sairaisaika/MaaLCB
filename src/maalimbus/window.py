@@ -758,8 +758,13 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
             box = controls.get('defeat.confirm_button')
             if box is None:
                 return _refuse(page, 'defeat_confirm_not_anchored')
-            return _plan(page, CLICK, target=box, expect=(ANY,), advance=True,
-                         reason='the_accepted_wipe_is_confirmed_and_the_run_ends')
+            # One word for both presses of accepting: the row and its Confirm are the same
+            # decision. Which of the two this is rides on the plan as a flag, because the
+            # runner's comparisons of reason words are counted and may only shrink.
+            plan = _plan(page, CLICK, target=box, expect=(ANY,), advance=True,
+                         reason='the_wiped_run_is_accepted_and_the_stage_select_comes_back')
+            plan['defeat_accept'] = 'confirm'
+            return plan
         if defeat.get('row_sent'):
             # The row is already highlighted: this dialog is one Confirm away from
             # restarting the stage, and a retry in flight is never abandoned.
@@ -773,8 +778,10 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
                 box = controls.get('defeat.accept_button')
                 if box is None:
                     return _refuse(page, 'defeat_accept_row_not_anchored')
-                return _plan(page, CLICK, target=box, expect=(ANY,), advance=True,
+                plan = _plan(page, CLICK, target=box, expect=(ANY,), advance=True,
                              reason='the_wiped_run_is_accepted_and_the_stage_select_comes_back')
+                plan['defeat_accept'] = 'row'
+                return plan
             return _refuse(page, 'defeat_retries_exhausted')
         box = controls.get('defeat.retry_button')
         if box is None:

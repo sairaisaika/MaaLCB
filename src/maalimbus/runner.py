@@ -7579,9 +7579,10 @@ class MirrorRunner:
             # The retry row is highlighted; the next step on this dialog sends its own
             # Confirm, and no further row is picked.
             state['defeat_row_sent'] = True
-        if entry['passed'] and plan.get('reason') == 'the_wiped_run_is_accepted_and_the_stage_select_comes_back':
-            # The accept row is highlighted; the next step on this dialog sends its Confirm.
-            state['defeat_accept_sent'] = True
+        if entry['passed'] and plan.get('defeat_accept'):
+            # The accept row is highlighted and the next step on this dialog sends its
+            # Confirm; after that Confirm nothing more is owed here.
+            state['defeat_accept_sent'] = plan['defeat_accept'] == 'row'
         if entry['passed'] and plan.get('reason') == 'the_retry_is_confirmed_and_the_stage_starts_over':
             # One retry is now committed; the budget counts finished retries.
             state['defeat_attempts'] += 1
