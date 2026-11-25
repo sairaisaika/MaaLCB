@@ -32,6 +32,24 @@ class ThemeTransaction:
             raise ValueError('Selected theme successor map floor/name is not proven')
         d['selected'].append(dict(**p,map_proof=str(proof)));d['pending']=None;write_json(self.path,d);return True
 
+    def held_floor(self,scope,pack,catalog):
+        """The floor this run took the pack the map prints for, or None.
+
+        The map's floor digit sits under whatever node the board has scrolled beneath the
+        caption, and then it does not read (live pi-20261124-215839: 4 of 41 map reads,
+        frame-2173 "ExploringFlapr"). The pack line below it still does. A pack this run
+        selected, with its own map proof, for exactly one floor names that floor without
+        the digit; anything else -- another run, a drag not yet proven, no selection, a
+        name the record does not hold -- is None, and the caller is where it was.
+        """
+        d=self.data
+        if not d or d.get('scope')!=scope or d.get('pending') or not pack:
+            return None
+        seen=catalog.identity(pack) or pack
+        floors={x['floor'] for x in d.get('selected') or []
+                if x.get('map_proof') and (catalog.identity(x['name']) or x['name'])==seen}
+        return floors.pop() if len(floors)==1 else None
+
     def matches(self,scope,header,catalog):
         """Do the pending selection and the map header name the same pack and floor?
 

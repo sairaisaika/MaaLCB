@@ -6042,6 +6042,11 @@ class MirrorRunner:
                         frame_file(directory),self.floor_gift_catalog)
                     self.note('floor_gift_pending_pick_reconciled',input_sent=False,
                               successor=str(frame_file(directory)),count=gift)
+                elif pending and pending.get('kind')=='refuse_owned':
+                    outlived=self.floor_gift_transaction.reconcile_outlived_refusal(
+                        self.run_id,floor_offers,frame_file(directory))
+                    if outlived:
+                        self.note('floor_gift_pending_refusal_outlived',input_sent=False,**outlived)
                 elif pending and pending.get('kind')=='commit':
                     # A commit the old attempt clicked and never judged cannot be replayed,
                     # and keeping it refused every later run (measured 2026-10-25:
@@ -7430,9 +7435,15 @@ class MirrorRunner:
                           successor=str(frame_file(directory)),input_sent=False)
         if plan.get('reason') in ('refuse_proven_owned_single_free_gift','confirm_proven_owned_gift_refusal'):
             try:
-                from .floor_gift_transaction import refusal_confirm_target
+                from .floor_gift_transaction import refusal_confirm_target, refusal_map_floor
+                from .theme_vision import ThemeCatalog
+                map_floor,floor_source=refusal_map_floor(settled_page,settled,self.theme_transaction,self.run_id,
+                                                         lambda:ThemeCatalog(ROOT/'assets/resource/base'))
+                if floor_source:
+                    self.note('floor_gift_refusal_map_floor_from_pack',pack=settled.get('pack'),
+                              floor=map_floor,input_sent=False)
                 self.floor_gift_transaction.observe_refusal(settled_page,frame_file(directory),
-                    map_floor=settled.get('floor'),
+                    map_floor=map_floor,
                     next_reward_offer=unselected_reward_successor(settled) if settled_page=='REWARD_CARD' else None,
                     confirm_question=refusal_confirm_target(settled) is not None)
             except ValueError as error:

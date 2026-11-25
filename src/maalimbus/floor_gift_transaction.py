@@ -413,6 +413,25 @@ class FloorGiftTransaction:
         write_json(self.path,d)
         return True
 
+    def reconcile_outlived_refusal(self, scope, offers, proof):
+        """Close a confirmed refusal that a later gift page of the same run has outlived.
+
+        A refusal whose Confirm was sent and whose successor was never booked stays
+        pending across a restart; the next gift page then stopped on
+        `floor_gift_previous_transaction_unresolved`. That page is itself the proof: the
+        run got past the dialog to a different offer, so the refusal is over, and nothing
+        is replayed. The same offer coming back is not that proof and is left pending.
+        """
+        d=self.data;p=(d or {}).get('pending')
+        if (not d or d.get('scope')!=scope or not p or p.get('kind')!='refuse_owned'
+                or not p.get('confirm_sent') or self.signature(offers)==d.get('offer')):
+            return None
+        d['refusal']=dict(title=p['title'],before=p['proof'],successor=str(proof),
+                          proven_by='a_later_gift_page_of_the_same_run')
+        d['completed']=True;d['pending']=None
+        write_json(self.path,d)
+        return dict(title=p['title'],successor=str(proof))
+
     def refusal_confirm_intent(self, scope, proof):
         d=self.data;p=d.get('pending')
         if d['scope']!=scope or not p or p['kind']!='refuse_owned' or p.get('confirm_sent'):
@@ -584,6 +603,19 @@ class FloorGiftTransaction:
         write_json(self.path,d)
         self.data=d
         return label
+
+
+def refusal_map_floor(page, settled, themes, scope, catalog):
+    """(floor, source) of the map a refusal settled on; the source is None when the digit read.
+
+    The digit is the first proof. When the map is there and the digit is not, the pack
+    line is asked of the run's theme record (`ThemeTransaction.held_floor`); `catalog`
+    is a factory so nothing is loaded for a page that needs no second proof.
+    """
+    floor = settled.get('floor')
+    if page != 'MAP' or floor is not None or themes is None:
+        return floor, None
+    return themes.held_floor(scope, settled.get('pack'), catalog()), 'pack'
 
 
 def refusal_confirm_target(record):
