@@ -9,6 +9,11 @@ from .storage import read_json, write_json, RunStore, ProfileStore
 
 #: pause between reads of the loader that follows the last acknowledged receipt
 LOADER_POLL_SECONDS=1.0
+#: How many frames in a row may read as no page at all while the main menu draws itself
+#: after the loader. Live pi-20261125-161038: Claim, Confirm, the receipt and the pass
+#: were sent and proven, the loader ended, and frame-0506 was the main menu sliding in,
+#: its bottom tabs still below the edge; the payout stopped as "successor not proven".
+RETURN_UNREADABLE_READS=6
 
 ACTIONS={'RUN_REWARD_DIALOG':'claim','RUN_REWARD_CONFIRM':'confirm',
          'RUN_REWARD_BONUS':'confirm','RUN_REWARD_RECEIPT':'receipt',
@@ -194,6 +199,7 @@ def execute(config,directory,observer,device,journal,*,deadline=None):
                 and tx.get('receipt_ack_sent') is True and not tx.get('completed'))
     try:
         stages=0
+        unreadable=0
         while stages<5:
             record=runner.observe(observer,deadline)
             if pages.is_loading(record.get('scene')) and returning():
@@ -201,6 +207,17 @@ def execute(config,directory,observer,device,journal,*,deadline=None):
                     raise ValueError('Reward return to HOME did not arrive before the deadline')
                 time.sleep(LOADER_POLL_SECONDS)
                 continue
+            if pages.is_unreadable(record.get('scene')) and returning() and unreadable<RETURN_UNREADABLE_READS:
+                # The main menu is drawing itself: read again, send nothing. Like the
+                # loader, this is a wait only after this run's receipts were acknowledged,
+                # and unlike it the wait is counted, because an unreadable page that
+                # stays is a page this cannot name, not a transition.
+                unreadable+=1
+                _note(journal,'reward_return_page_not_readable_yet',scope=scope,read=unreadable,
+                      limit=RETURN_UNREADABLE_READS,inputs_sent=False)
+                time.sleep(LOADER_POLL_SECONDS)
+                continue
+            unreadable=0
             stages+=1
             from .page_names import name as page_name
             _say('画面：'+page_name(record.get('scene')))

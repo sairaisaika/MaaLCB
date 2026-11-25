@@ -44,6 +44,34 @@ def test_the_loader_after_the_last_receipt_is_waited_through_to_home(tmp_path,mo
     assert not clicks and finished==[('run',directory/'frame-0003.json')]
 
 
+def test_the_main_menu_still_sliding_in_is_read_again_until_it_is_home(tmp_path,monkeypatch):
+    # live pi-20261125-161038 (the fourth run, cleared): the loader ended and the next
+    # frame was the main menu mid-slide, read as no page; the payout stopped there.
+    acknowledged=dict(scope='run',confirm_sent=True,receipt_ack_sent=True,pass_ack_sent=True,
+                      completed=False,pending='pass_ack')
+    result,clicks,finished,directory=_returning_fixture(
+        tmp_path,monkeypatch,acknowledged,['LOADING','LOADING','UNKNOWN','UNKNOWN','HOME'])
+    assert result['passed'] and result['reward_received'] and not result['input_sent']
+    assert not clicks and finished==[('run',directory/'frame-0003.json')]
+
+
+def test_a_page_that_stays_unreadable_still_stops_and_nothing_is_pressed(tmp_path,monkeypatch):
+    import maalimbus.reward_task as task
+    acknowledged=dict(scope='run',confirm_sent=True,receipt_ack_sent=True,completed=False)
+    result,clicks,finished,_=_returning_fixture(
+        tmp_path,monkeypatch,acknowledged,['UNKNOWN']*(task.RETURN_UNREADABLE_READS+1))
+    assert not result['passed'] and result['reason']=='Reward page or successor not proven'
+    assert not clicks and not finished
+
+
+def test_an_unreadable_page_before_this_runs_receipt_is_not_a_wait(tmp_path,monkeypatch):
+    for transaction in (None,dict(scope='run',confirm_sent=True,receipt_ack_sent=False)):
+        folder=tmp_path/str(id(transaction));folder.mkdir()
+        result,clicks,finished,_=_returning_fixture(folder,monkeypatch,transaction,['UNKNOWN','HOME'])
+        assert not result['passed'] and result['reason']=='Reward page or successor not proven'
+        assert not clicks and not finished
+
+
 def test_a_loader_before_this_runs_receipt_is_not_a_wait(tmp_path,monkeypatch):
     for transaction in (None,dict(scope='other',confirm_sent=True,receipt_ack_sent=True),
                         dict(scope='run',confirm_sent=True,receipt_ack_sent=False),
