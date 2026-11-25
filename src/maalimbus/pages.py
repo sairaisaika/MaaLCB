@@ -979,6 +979,7 @@ PLANS_WITH_ONLY_A_DISMISSAL = {
     'the_weekly_bonus_question_is_answered_while_it_is_asked': 'page_must_change',
     'the_weekly_reset_notice_is_declined_and_the_run_stays': 'page_must_change',
     'the_wiped_run_is_accepted_and_the_stage_select_comes_back': 'page_must_change',
+    'the_accepted_wipe_is_confirmed_and_the_run_ends': 'page_must_change',
     'tutorial_book_is_closed_from_its_own_header_arrow': 'page_must_change',
     'tutorial_last_page_is_closed_from_the_book_header': 'page_must_change',
     'tutorial_overlay_must_be_dismissed_before_enter_is_live': 'page_must_change',

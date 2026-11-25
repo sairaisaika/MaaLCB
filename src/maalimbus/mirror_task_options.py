@@ -29,6 +29,16 @@ def collect(get_node):
         if fusion not in ('recipes', 'off'):
             raise ValueError('Unknown shop fusion mode')
         result['shop_fusion'] = fusion
+    try:
+        wipe = get_node('MirrorDefeatAccept').get('attach', {}).get('mode')
+    except KeyError:
+        wipe = None  # A pipeline packaged before the choice existed carries no node.
+    if wipe is not None:
+        if wipe not in ('accept', 'wait'):
+            raise ValueError('Unknown wiped-stage choice')
+        # What happens once a wiped stage has used up its retries: accept the result, which
+        # ends the run, or stop on the page and leave it to the player.
+        result['defeat_accept'] = wipe == 'accept'
     if battle not in ('saved','win_rate','damage','observe'):
         raise ValueError('Unknown battle assignment mode')
     if battle!='saved':result['battle_assignment']=battle

@@ -2671,6 +2671,14 @@
     },
     "next": []
   },
+  "MirrorDefeatAccept": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "mode": "accept"
+    },
+    "next": []
+  },
   "MirrorRewardClaim": {
     "recognition": "DirectHit",
     "action": "DoNothing",

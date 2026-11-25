@@ -5644,12 +5644,14 @@ class MirrorRunner:
             spent = (not state['defeat_row_sent']
                      and state['defeat_attempts'] >= max(1, settings.defeat_tries))
             defeat = {'row_sent': state['defeat_row_sent'], 'spent': spent,
-                      'accept': bool(settings.defeat_accept)}
+                      'accept': bool(settings.defeat_accept),
+                      'accept_sent': bool(state.get('defeat_accept_sent'))}
             if spent:
                 self.note('window_defeat', page=page, retries=state['defeat_attempts'],
                           sent=bool(settings.defeat_accept))
         else:
             state['defeat_row_sent'] = False
+            state['defeat_accept_sent'] = False
         shop = None
         shop_tx=self.shop_transaction
         notice_ack=None
@@ -7577,6 +7579,9 @@ class MirrorRunner:
             # The retry row is highlighted; the next step on this dialog sends its own
             # Confirm, and no further row is picked.
             state['defeat_row_sent'] = True
+        if entry['passed'] and plan.get('reason') == 'the_wiped_run_is_accepted_and_the_stage_select_comes_back':
+            # The accept row is highlighted; the next step on this dialog sends its Confirm.
+            state['defeat_accept_sent'] = True
         if entry['passed'] and plan.get('reason') == 'the_retry_is_confirmed_and_the_stage_starts_over':
             # One retry is now committed; the budget counts finished retries.
             state['defeat_attempts'] += 1
@@ -9519,6 +9524,7 @@ def _fresh_state(settings, store=None):
             'repeated_plans': {}, 'guard_page': None, 'claim_steps': 0,
             'exempt_steps': {},
             'team_slot_picked': None, 'defeat_row_sent': False, 'defeat_attempts': 0,
+            'defeat_accept_sent': False,
             'identity_sha': None, 'session_ended': None,
             'tutorial_cards': set(), 'grace_wanted': grace_wanted, 'grace_bought': set(),
             'gift_plan': wanted_plan, 'map_points': map_points,

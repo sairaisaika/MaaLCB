@@ -143,6 +143,7 @@
         "mirror_shop_fusion",
         "mirror_run_bounds",
         "mirror_run_count",
+        "mirror_defeat_accept",
         "mirror_reward_claim",
         "mirror_schedule",
         "mirror_preferences",
@@ -17087,6 +17088,36 @@
             "MirrorShopFusion": {
               "attach": {
                 "mode": "off"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_defeat_accept": {
+      "type": "select",
+      "label": "$mirror_defeat_accept",
+      "description": "$mirror_defeat_accept_description",
+      "default_case": "accept",
+      "cases": [
+        {
+          "name": "accept",
+          "label": "$mirror_defeat_accept_on",
+          "pipeline_override": {
+            "MirrorDefeatAccept": {
+              "attach": {
+                "mode": "accept"
+              }
+            }
+          }
+        },
+        {
+          "name": "wait",
+          "label": "$mirror_defeat_accept_off",
+          "pipeline_override": {
+            "MirrorDefeatAccept": {
+              "attach": {
+                "mode": "wait"
               }
             }
           }

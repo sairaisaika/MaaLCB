@@ -751,6 +751,15 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
         # filed and the next one opened without them (the ledger files it as abandoned
         # through run_wiring.reconcile once the game is back at the picker).
         defeat = defeat or {}
+        if defeat.get('accept_sent'):
+            # The accept row is highlighted: its own Confirm is what ends the run. Until
+            # 2026-11-24 this branch did not exist, so a window told to accept pressed
+            # the row again on every step and never confirmed it.
+            box = controls.get('defeat.confirm_button')
+            if box is None:
+                return _refuse(page, 'defeat_confirm_not_anchored')
+            return _plan(page, CLICK, target=box, expect=(ANY,), advance=True,
+                         reason='the_accepted_wipe_is_confirmed_and_the_run_ends')
         if defeat.get('row_sent'):
             # The row is already highlighted: this dialog is one Confirm away from
             # restarting the stage, and a retry in flight is never abandoned.

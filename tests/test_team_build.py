@@ -114,7 +114,7 @@ def test_the_pipeline_chain_and_the_interface_agree_on_the_same_nodes():
     assert 'team_keywords' not in tasks['mirror_loop']['option']
     assert tasks['mirror_loop']['option']==['mirror_team_mode','mirror_star_source',
         'mirror_initial_keyword','mirror_shop_policy','mirror_shop_refresh_limit',
-            'mirror_shop_coin_reserve','mirror_shop_fusion','mirror_run_bounds','mirror_run_count','mirror_reward_claim',
+            'mirror_shop_coin_reserve','mirror_shop_fusion','mirror_run_bounds','mirror_run_count','mirror_defeat_accept','mirror_reward_claim',
         'mirror_schedule',
         'mirror_preferences',
         'mirror_battle_assignment']
