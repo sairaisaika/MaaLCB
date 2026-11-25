@@ -5846,6 +5846,86 @@
         "python tools/run_tests.py -q tests/test_shop_fusion_pages.py tests/test_gift_fusion.py tests/test_shop_wrapped_titles.py"
       ],
       "boundary": "Recipes only: Fuse is pressed on a forecast of exactly 100% with the Wishmaking box seen empty, and the question is confirmed only for that Fuse. Random fusion is a tested decision function with no page reader. The tier and chance numbers are the wiki's, verified at one point. The pages were measured on the English client at 1280x720; other languages never enter the flow."
+    },
+    {
+      "id": "floor-gift-ranking",
+      "title": "楼层饰品排序：debuff 定价与饰品阶级 / floor gift ranking: trial prices and gift tier",
+      "aliases": [
+        "饰品排序",
+        "选饰品",
+        "饰品太弱",
+        "饰品阶级",
+        "饰品等级",
+        "四阶饰品",
+        "debuff 定价",
+        "选包 debuff",
+        "敌方增益",
+        "拼点威力",
+        "基础威力",
+        "最终威力",
+        "攻击等级",
+        "伤害词条",
+        "Mounting Trials",
+        "trial price",
+        "trial penalty",
+        "Final Power",
+        "Base Power",
+        "Clash Power",
+        "Offense Level",
+        "gift tier",
+        "gift value",
+        "gift_value",
+        "gift-facts",
+        "gift facts",
+        "GiftFacts",
+        "TIER_VALUE",
+        "import_wiki_gift_facts",
+        "EgoGift/data",
+        "floor_gift_ranking",
+        "score_components"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/floor_gifts.py",
+          "symbol": "rank"
+        },
+        {
+          "path": "src/maalimbus/floor_gifts.py",
+          "symbol": "Trial.penalty"
+        },
+        {
+          "path": "src/maalimbus/floor_gifts.py",
+          "symbol": "parse_trial"
+        },
+        {
+          "path": "src/maalimbus/gift_facts.py",
+          "symbol": "GiftFacts.value"
+        },
+        {
+          "path": "src/maalimbus/gift_facts.py",
+          "symbol": "GiftFacts.of"
+        },
+        {
+          "path": "tools/import_wiki_gift_facts.py",
+          "symbol": "facts"
+        },
+        {
+          "path": "tools/import_wiki_gift_facts.py",
+          "symbol": "entries"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#floor-gift-ranking",
+        "docs/wiki/en_us/4-business-flows.md#floor-gift-ranking"
+      ],
+      "tests": [
+        "tests/test_gift_facts.py",
+        "tests/test_trial_power_prices.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_gift_facts.py tests/test_trial_power_prices.py"
+      ],
+      "boundary": "Tier and keyword fit only: the effect terms in gift-facts.json say a description mentions a kind of effect, not for whom or how much, and do not enter the score. Trial weights marked as policy are not derived from the damage formula. The shop does not use tiers. Verified by tests, not yet seen to change a pick on a live gift page. The facts file holds no description text and no artwork."
     }
   ]
 }

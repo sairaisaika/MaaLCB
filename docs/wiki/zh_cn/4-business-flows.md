@@ -420,6 +420,32 @@ sequenceDiagram
 
 **2026-11-17 独立观察检查点**：通层事实属于 CompletionFact，不依赖下一次点击是否成功。Runner 在候选、视口操作与 handoff 之前调用 `run_wiring.observe_map_checkpoint`；它要求同 run scope/entered、原始 JSON/PNG 绑定和独立 MAP 楼层+完整主题标题，observe-only 不写账。MAP3 证明 floor2 的事实已由同一组件实证补入：[1,2]，5笔商店样本均取得同局后继结果标签；未支付/轮换/推广模型。53相关测试通过；`build/team2-floor2-observation-checkpoint-real-verification.json`。新自动入口待安装/实际观察验收，不能把零输入组件核账说成完整镜牢通关。
 
+<a id="floor-gift-ranking"></a>
+
+### 4.3.4b 楼层饰品怎么排序：debuff 定价与饰品本身的强弱
+
+**做什么。** 楼层饰品页（多数是四选二，每张卡带一条「Mounting Trials」敌方增益）上，程序给每张卡算一个分，分低的先选（`src/maalimbus/floor_gifts.py:437` (`rank`)）。分 = debuff 的代价 − 体系相符 40 + 已拥有 60 − 饰品本身的价值。前三项一直都有；最后一项是 2026-11-25 加的——在那之前程序完全不看饰品本身，四阶和一阶的饰品只要 debuff 一样，就由字母顺序决定。
+
+**debuff 的代价**（`src/maalimbus/floor_gifts.py:23` (`Trial.penalty`)）= 等级 × 30 + 各条效果 × 权重。可识别的句式是有限的一张表（`src/maalimbus/floor_gifts.py:72` (`GRAMMAR`)），表外的文字不定价、不选。
+
+| 效果 | 权重 | 在游戏公式里 |
+|---|---|---|
+| 拼点威力 +1 | 240 | 只进拼点 |
+| 基础威力 +1、最终威力 +1 | 250 | 进拼点，也进每枚硬币的伤害，所以不会比拼点威力便宜 |
+| 攻击等级 +1 | 90 | 每 3 级拼点 +1，并进伤害 |
+| 伤害增加 +1% | 20 | 只进伤害（策略数） |
+| 防御等级 +1 | 10 | 只进我方打出的伤害（策略数） |
+| 受到伤害 −1% | 3 | 同上（策略数） |
+| 最大生命 +1% | 1 | 战斗变长 |
+
+公式出处与三局实测见[第 9 章](9-execution-plan.md#public-goal)「伤害词条之间的关系」一段。标了「策略数」的权重不是从公式推出来的，没有证据时不改。
+
+**饰品本身的价值**（`src/maalimbus/gift_facts.py:61` (`GiftFacts.value`)）来自一张事实表 `assets/resource/base/gift-facts.json`：538 件镜牢饰品的名字、阶级、商店价格、体系、罪孽属性、可强化次数，以及效果描述里提到了哪几类词条。阶级换成分数（`src/maalimbus/gift_facts.py:24` (`TIER_VALUE`)）：I 阶 0、II 阶 15、III 阶 40、IV 阶 80、V 阶与 EX 100——最高也远低于一点拼点威力（240），所以更好的饰品可以换来更长的战斗，但换不来输拼点。体系不是本队的饰品记 0 分（它的效果多半触发不了）；不属于任何体系的通用饰品按阶级计；已经拥有的再来一件记 0；表里查不到的名字也是 0，不猜。屏幕上读出的标题差一两个字母时，唯一接近的那个名字算数（`src/maalimbus/gift_facts.py:43` (`GiftFacts.of`)）。
+
+**事实表从哪来。** `python tools/import_wiki_gift_facts.py --fetch` 读 Wiki 自己用来生成饰品列表的数据模块（Module:EgoGift/data，本次修订 203751），严格逐行解析（`tools/import_wiki_gift_facts.py:125` (`facts`)）：读不懂的行直接停，而不是跳过。只写事实字段，**不写效果描述原文、不写图片**；Wiki 的许可证与修订号记在文件的 `source` 里。同名的故事关卡版本、旧版（Legacy）和强化版（+／++）不单独成行。阶级分布：I 61、II 156、III 154、IV 162、V 2、EX 3。
+
+**还没做到的。** 词条（`tools/import_wiki_gift_facts.py:52` (`TERMS`)）目前只记「描述里出现了这类词」（489 件至少识别出一类），不记对谁、什么条件、多少，所以还没有参与打分；商店购买也还没用阶级。这一节的排序改动只在测试里验证过，还没有在实机的饰品页上看到它选出不同的结果。
+
 <a id="feature-4-3-5"></a>
 
 ### 4.3.5 初始礼物、搜索与楼层主题

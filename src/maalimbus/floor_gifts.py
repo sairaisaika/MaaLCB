@@ -434,7 +434,8 @@ def observe_three_free(records,size,catalog,boxes,image,select_box):
     return offers,dict(chosen=chosen,required=1)
 
 
-def rank(offers, team, selected):
+def rank(offers, team, selected, facts=None):
+    """Order the offers, cheapest first. `facts` (gift_facts.GiftFacts) adds the gift's own worth."""
     selected = {normalized(n) for n in selected}
     ranking = []
     for offer in offers:
@@ -454,6 +455,14 @@ def rank(offers, team, selected):
                             score_components=dict(trial=offer.trial.penalty,synergy=-40 if preferred else 0,
                                 already_owned=60 if offer.owned else 0,visible_benefit=-offer.visible_benefit),
                             score_source='rule',score_direction='lower_is_better',learned_applied=False))
+        if facts is not None:
+            # The gift itself: its tier, when it works for this team. A second copy of a
+            # gift already owned adds nothing, so an owned offer gets no worth.
+            gift_value=0 if offer.owned else facts.value(offer.canonical, team.keywords)
+            fact=facts.of(offer.canonical)
+            ranking[-1]['score']=score-gift_value
+            ranking[-1]['score_components']['gift_value']=-gift_value
+            ranking[-1]['gift_tier']=None if fact is None else fact['tier']
     return sorted(ranking,key=lambda r:(r['score'],r['title']))
 
 

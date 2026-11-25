@@ -420,6 +420,32 @@ sequenceDiagram
 
 **2026-11-17 independent observation checkpoint**: Floor completion is a CompletionFact, independent of the next successful click. Before candidate/view/handoff handling, Runner calls `run_wiring.observe_map_checkpoint`: same run scope/entered phase, original JSON/PNG binding and independent MAP floor+complete pack title are required; observe-only writes nothing. The same component has actually settled floor2 from MAP3: ledger[1,2],all5shop purchases now have same-run delayed labels; no payment/rotation/model promotion.53related tests passed; `build/team2-floor2-observation-checkpoint-real-verification.json`. The new automatic entry still needs installation/live-observation acceptance; zero-input component bookkeeping is not complete Mirror acceptance.
 
+<a id="floor-gift-ranking"></a>
+
+### 4.3.4b How a floor gift is ranked: trial prices and the gift's own worth
+
+**What it does.** On a floor gift page (mostly two out of four, each card carrying one "Mounting Trials" enemy buff) the program scores every card and takes the lowest first (`src/maalimbus/floor_gifts.py:437` (`rank`)). Score = the trial's price − 40 for a matching system + 60 if already owned − the gift's own worth. The first three were always there; the last was added on 2026-11-25. Before that the gift itself was not looked at: a tier IV and a tier I gift with the same trial were decided by the alphabet.
+
+**The trial's price** (`src/maalimbus/floor_gifts.py:23` (`Trial.penalty`)) = level × 30 + each effect × its weight. The sentences it can read are one finite table (`src/maalimbus/floor_gifts.py:72` (`GRAMMAR`)); text outside it is not priced and not chosen.
+
+| Effect | Weight | In the game's formulas |
+|---|---|---|
+| Clash Power +1 | 240 | the clash only |
+| Base Power +1, Final Power +1 | 250 | the clash and every coin's damage, so never cheaper than Clash Power |
+| Offense Level +1 | 90 | +1 clash per 3 levels, and damage |
+| Damage Dealt +1% | 20 | damage only (policy number) |
+| Defense Level +1 | 10 | only the damage the team deals (policy number) |
+| Damage Taken −1% | 3 | the same (policy number) |
+| Max HP +1% | 1 | longer fights |
+
+The formulas' sources and the three measured runs are in [chapter 9](9-execution-plan.md#public-goal), under "How the damage terms relate". Weights marked as policy numbers do not follow from a formula and are not changed without evidence.
+
+**The gift's own worth** (`src/maalimbus/gift_facts.py:61` (`GiftFacts.value`)) comes from a table of facts, `assets/resource/base/gift-facts.json`: name, tier, shop cost, keyword, affinity and number of enhancements of 538 Mirror Dungeon gifts, and which kinds of effect each description mentions. A tier becomes points (`src/maalimbus/gift_facts.py:24` (`TIER_VALUE`)): 0 for tier I, 15 for II, 40 for III, 80 for IV, 100 for V and EX. The top stays far below one point of Clash Power (240), so a better gift can buy a longer fight and never a lost clash. A gift filed under a system the team does not use is worth 0 (its effect mostly will not trigger); a gift under no keyword counts by tier; a second copy of an owned gift is 0; a name the table does not hold is 0, not a guess. A title read a letter or two off is the one name it is uniquely close to (`src/maalimbus/gift_facts.py:43` (`GiftFacts.of`)).
+
+**Where the table comes from.** `python tools/import_wiki_gift_facts.py --fetch` reads the data module the wiki builds its gift list from (Module:EgoGift/data, revision 203751 here) and parses it strictly, line by line (`tools/import_wiki_gift_facts.py:125` (`facts`)): a line it cannot read stops the import instead of being skipped. Facts only are written: **no description text and no artwork**; the wiki's licence and the revision id are in the file's `source`. A story-dungeon gift of the same name, an old version (Legacy) and the enhanced versions (+ and ++) get no row of their own. Tiers: I 61, II 156, III 154, IV 162, V 2, EX 3.
+
+**Not there yet.** The terms (`tools/import_wiki_gift_facts.py:52` (`TERMS`)) only record that a description mentions that kind of effect (489 gifts have at least one), not for whom, under what condition or how much, so they do not enter the score yet; shop purchases do not use the tier yet either. The ranking change in this section is verified by tests only: it has not yet been seen to pick differently on a live gift page.
+
 <a id="feature-4-3-5"></a>
 
 ### 4.3.5 Initial gifts, search and floor themes

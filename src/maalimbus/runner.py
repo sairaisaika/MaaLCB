@@ -6069,7 +6069,9 @@ class MirrorRunner:
                 profile=next((p for p in ProfileStore(self.store.path.parent/'user-team-profiles.json').load()
                               if p.slot==self.store.team_slot),None)
                 if profile is None:raise ValueError('floor_gift_saved_team_missing')
-                ranking=floor_gifts.rank(floor_offers,profile,d['selected'])
+                from .gift_facts import GiftFacts
+                ranking=floor_gifts.rank(floor_offers,profile,d['selected'],
+                                         GiftFacts(ROOT/'assets/resource/base'))
                 for offer in floor_offers:
                     if offer.unpriced:
                         from .unknown_exploration import queue_trial
