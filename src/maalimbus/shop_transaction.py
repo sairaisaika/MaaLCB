@@ -74,6 +74,8 @@ def _same_title(one, other):
 #: How alike the notice's title and the bought card's title must read, and by how much
 #: the bought card must beat every other card of the same shelf.
 NOTICE_SIMILARITY = .8
+#: How many times one card may be opened and cancelled in a visit before it is left alone.
+RETIRE_LIMIT = 2
 NOTICE_MARGIN = .15
 
 
@@ -656,6 +658,23 @@ class ShopTransaction:
         data['pending'].update(stage='confirm_intent', question=proof, confirm=target)
         self._save(data)
         return target
+
+    def held_back(self, visit, limit=None):
+        """Names this visit has opened and cancelled `limit` times: not asked for again.
+
+        A reservation whose dialog is answered with Cancel is retired and the shelf is
+        read again, which is right once -- the next frame may read. It was also all there
+        was: the same card was opened and cancelled 89 times in one visit (live
+        pi-20261125-150822, 20:35-20:53). After `RETIRE_LIMIT` cancels of one name the
+        visit leaves that card on the shelf and goes on with the rest.
+        """
+        limit = RETIRE_LIMIT if limit is None else limit
+        row = ((self.data or {}).get('visits') or {}).get(str(visit)) or {}
+        counts = {}
+        for entry in row.get('retired') or []:
+            if entry.get('name'):
+                counts[entry['name']] = counts.get(entry['name'], 0) + 1
+        return sorted(name for name, count in counts.items() if count >= limit)
 
     def retire_pending(self, scope, visit, reason=None):
         """Drop a reserved intent the page itself never asked about.

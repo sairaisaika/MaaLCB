@@ -494,6 +494,14 @@ def names_match(printed, name, budget=1):
     return sum(1 for a, b in zip(sorted(words), sorted(wanted)) if a != b) <= budget
 
 
+#: Glyph slips forgiven in the dialog's name band: one on the name alone, two when the
+#: dialog's own badge also spends exactly the reserved price from the reserved coins.
+#: Live pi-20261125-150822: "Nightvision Goggles" (184) printed as "lightvision Coggles"
+#: over the badge "2018 > 1834" for 89 dialogs in a row, each answered with Cancel and
+#: opened again -- eighteen minutes -- until one frame read the first letter.
+NAME_SLIPS, NAME_SLIPS_WITH_PRICE = 1, 2
+
+
 def purchase_dialog_answer(records, name, price, size=None, threshold=.9, coins=None,
                            coin_drift=COIN_DRIFT):
     """Which of the redesigned dialog's own two buttons answers the question.
@@ -525,10 +533,20 @@ def purchase_dialog_answer(records, name, price, size=None, threshold=.9, coins=
     names = sorted(names, key=lambda row: (row.box[1], row.box[0]))
     printed = ' '.join(row.text for row in names)
     balances = purchase_balances(records, size)
-    named = names_match(printed, name, 1)
+    named = names_match(printed, name, NAME_SLIPS)
     spent = (balances is not None and balances[1] >= 0
              and balances[0] - balances[1] == price
              and (coins is None or abs(balances[0] - coins) <= coin_drift))
+    if spent and not named and 0 < len(names) <= 3:
+        # The price is its own proof of which card was opened, so the name may carry
+        # one more slip; a different gift at the same price is still a different name.
+        # Slips are counted on the whole name, in whichever order the lines came:
+        # `names_match` falls back to counting differing *words*, and two of those
+        # would pass any two-word name for any other.
+        from itertools import permutations
+        from .vision import close_to
+        named = any(close_to(' '.join(row.text for row in order), name, NAME_SLIPS_WITH_PRICE)
+                    for order in permutations(names))
     # A dialog that does not print the two balances is not a dialog that spent the
     # wrong price: -185805 named the reserved gift and still answered Cancel ten
     # times because ``purchase_balances`` returned None (D420).  Unreadable is not

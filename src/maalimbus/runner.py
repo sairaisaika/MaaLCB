@@ -5201,6 +5201,7 @@ class MirrorRunner:
                     result['diagnostic_sample'] = ('mirror_loader', page, record['frame'], sha)
             return result
         state.pop('loading_since', None)
+        self._a_page_that_reads_ends_the_submit_clock(page)
         if not settings.observe_only and page in WAIT_PAGES:
             if page=='UNKNOWN':
                 recovered=self._explore_unknown(record,frame,candidates)
@@ -5814,6 +5815,12 @@ class MirrorRunner:
                         visit=d['current_visit']
                     state['shop_refreshes']=shop_tx.refreshes_used(self.run_id,visit)
                     state['shop_bought']=list(shop_tx.data['bought'])
+                    # A card this visit opened and cancelled twice is left on the shelf.
+                    held=shop_tx.held_back(visit)
+                    if held!=state.get('shop_held_back'):
+                        self.note('shop_offers_held_back_after_repeated_cancels',names=held,
+                                  visit=visit,input_sent=False)
+                    state['shop_held_back']=held
             except (ValueError,OSError) as error:
                 stopped=self._record(page,record,frame,candidates,None,str(error))
                 return self._result(page,None,False,stopped,done=True)
@@ -5826,7 +5833,8 @@ class MirrorRunner:
                                             active=active, scope=self.run_id,
                                             observed_floor=state['floor_now'])
             shop = shop_state(record, names,
-                              bought=[entry['name'] for entry in state['shop_bought']],
+                              bought=[entry['name'] for entry in state['shop_bought']]
+                                     +list(state.get('shop_held_back') or ()),
                               refreshes_used=state['shop_refreshes'],
                               refresh_limit=settings.shop_refreshes,reserve_coins=settings.shop_reserve_coins,
                               policy=settings.shop_policy,learning=learning,
@@ -8259,6 +8267,20 @@ class MirrorRunner:
         self.note('pending_transaction_wait_exhausted',blocked_by=blockers,waited=waited,
                   page=self.state.get('page'),limit=int(self.settings.transaction_waits))
         return True
+
+    def _a_page_that_reads_ends_the_submit_clock(self,page):
+        """The submit clock times one unreadable stretch; a page that reads ends it.
+
+        The clock started on the first unreadable page after a submit and was only
+        cleared by a *later unreadable page that had nothing pending*. Battles whose
+        pages all read never produced one, so the clock of the 20:09 battle was still
+        running at 20:56: the first unreadable frame after that battle's loader (the
+        "WAVE 1" banner) was judged 2834.7 s into a 180 s budget and the run ended
+        with `the_submitted_turn_never_showed_a_page` (live pi-20261125-150822).
+        The loader is part of the stretch and does not end it.
+        """
+        if not page_vocabulary.is_unreadable(page) and not page_vocabulary.is_loading(page):
+            self.state.pop('submit_since',None)
 
     def _submit_transition_wait(self,blockers):
         """A submitted turn is loading, and the clock -- not a count -- says when to give up.
