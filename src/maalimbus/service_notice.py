@@ -5,6 +5,29 @@ TITLE=r'^Server\s+is\s+under\s+Scheduled\s+Maintenance\.?$'
 RESUME=r'^You\s+will\s+be\s+able\s+to\s+log\s*in\s+after\s+((?:[01]?\d|2[0-3]):[0-5]\d)\s*\(KST\)\.?$'
 
 
+#: The dialog a session gets when the server will not take its next request: live
+#: pi-20261125-195746, 01:00 UTC on a Thursday, a run two minutes old. The maintenance
+#: notice came first and its one owned Close was pressed; this dialog followed, over the
+#: gift search page, which the reader then named as if nothing were in front of it.
+SHUTDOWN_TITLE=r'^Cannot\s+operate\s+the\s+game\.?$'
+SHUTDOWN_LINE=r'^Shutting\s+down\s+now\.?$'
+#: A notice that ends the invocation with no input at all, and the reason it ends with.
+STOP_REASONS={'client_update_required':'game_client_update_required',
+              'session_shutdown':'the_game_says_it_cannot_be_operated_and_is_shutting_down'}
+
+
+def session_shutdown(records,size):
+    title=find(records,SHUTDOWN_TITLE,(.30,.39,.70,.53),size,.9)
+    if not title:return None
+    line=find(records,SHUTDOWN_LINE,(.30,.43,.70,.56),size,.9)
+    close=find(records,r'^Close$',(.40,.58,.60,.73),size,.9)
+    # Its Close shuts the client down. Nothing here grants it: the notice only says
+    # who owns the foreground, and the run underneath is kept as it is.
+    return dict(kind='session_shutdown',complete=len(title)==len(line)==len(close)==1,
+                title=title[0].text,instruction=line[0].text if len(line)==1 else None,
+                close_box=list(close[0].box) if len(close)==1 else None)
+
+
 def scheduled_maintenance(records,size):
     title=find(records,TITLE,(.30,.39,.70,.53),size,.9)
     if not title:return None
@@ -36,7 +59,7 @@ def known_service_notice(records,size):
             title=title[0].text,instruction=instruction[0].text if len(instruction)==1 else None,
             close_box=list(close[0].box) if len(close)==1 else None,
             store_box=list(store[0].box) if len(store)==1 else None)
-    return scheduled_maintenance(records,size)
+    return session_shutdown(records,size) or scheduled_maintenance(records,size)
 
 
 def close_candidates(record,frame=None):
@@ -56,5 +79,5 @@ def dismissed_successor(record,page):
     # Weak/partial captions veto success; they never grant a click. A missed
     # title with the same central Close must not turn into the visible background.
     return not (from_record(record)
-        or find(rows,r'Scheduled\s+Maintenance|login\s+after',(.25,.30,.75,.60),size,.5)
+        or find(rows,r'Scheduled\s+Maintenance|login\s+after|Cannot\s+operate|Shutting\s+down',(.25,.30,.75,.60),size,.5)
         or find(rows,r'^Close$',(.40,.60,.60,.73),size,.5))

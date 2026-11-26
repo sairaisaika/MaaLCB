@@ -8813,7 +8813,8 @@ class MirrorRunner:
             self.note('server_notice_observed',notice=notice,frame=record.get('frame'),
                       image_sha256=record.get('image_sha256'),input_sent=False,
                       business_pending_preserved=True)
-            if notice['kind']=='client_update_required':return stop('game_client_update_required')
+            ending=service_notice.STOP_REASONS.get(notice['kind'])
+            if ending is not None:return stop(ending)
         if path is None:return stop('service_notice_requires_durable_navigation')
         lane=Exploration(path,path.parent.parent/'build/learning-review/transitions',
                          'service-navigation',candidate_provider=service_notice.close_candidates,

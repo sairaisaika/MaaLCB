@@ -19,6 +19,44 @@ def update_notice():
     return record
 
 
+def shutdown_notice(scene='GIFT_SEARCH'):
+    # live pi-20261125-195746 frame-0048: the dialog over the gift search page.
+    return dict(scene=scene,frame='frame-0048',size=[1920,1080],image_sha256='c'*64,ocr=[
+        dict(text='E.G.O Gift Search',box=[218,52,290,40],score=.99),
+        dict(text='Refuse Gift',box=[1302,843,152,34],score=.99),
+        dict(text='Cannot operate the game.',box=[778,466,356,36],score=1.0),
+        dict(text='Shutting down now.',box=[826,510,268,28],score=1.0),
+        dict(text='Close',box=[910,678,92,40],score=1.0)])
+
+
+@pytest.mark.parametrize('missing',[None,'Close','Shutting down now.'])
+def test_the_shutdown_dialog_ends_the_invocation_by_name_and_presses_nothing(missing,tmp_path,monkeypatch):
+    record=shutdown_notice()
+    if missing:record['ocr']=[r for r in record['ocr'] if r['text']!=missing]
+    notice=service_notice.from_record(record)
+    assert notice['kind']=='session_shutdown' and notice['complete'] is (missing is None)
+    # Its Close shuts the client down: it is never offered as a way on.
+    assert service_notice.close_candidates(record)==[]
+    loop=_loop(tmp_path);loop.state['pending']={'keep':'business'}
+    monkeypatch.setattr(loop,'_observe',lambda **kw:record)
+    result=loop.step()
+    assert result['stopped']=='the_game_says_it_cannot_be_operated_and_is_shutting_down'
+    assert not result['input_sent'] and not loop.device.clicks
+    assert loop.state['pending']=={'keep':'business'}
+    assert not runner.events(tmp_path,'window_intent')
+
+
+def test_the_page_under_the_shutdown_dialog_is_not_a_dismissed_notice():
+    for page in ('HOME','TITLE','DRIVE','MIRROR_ENTRY'):
+        assert not service_notice.dismissed_successor(shutdown_notice(page),page)
+    # The maintenance notice keeps its own kind; the two are told apart by their titles.
+    maintenance=dict(shutdown_notice(),ocr=[
+        dict(text='Server is under Scheduled Maintenance.',box=[686,470,542,28],score=1.0),
+        dict(text='You will be able to login after 12:00 (KST)',box=[674,504,566,36],score=.99),
+        dict(text='Close',box=[910,678,92,40],score=1.0)])
+    assert service_notice.from_record(maintenance)['kind']=='scheduled_maintenance'
+
+
 @pytest.mark.parametrize('page',['TITLE','UNKNOWN','LOADING','CONNECTING'])
 def test_acknowledged_login_waits_on_original_clock_without_second_input(page,tmp_path,monkeypatch):
     loop=_loop(tmp_path);clock=[100.]
