@@ -5747,7 +5747,12 @@
         "device_tasks",
         "emulator_registry",
         "分辨率",
-        "resolution"
+        "resolution",
+        "开机完成",
+        "boot_completed",
+        "emulator_android_not_booted",
+        "连不上设备",
+        "连接设备失败"
       ],
       "sources": [
         {
@@ -5785,6 +5790,10 @@
         {
           "path": "src/maalimbus/emulator_launch.py",
           "symbol": "settings"
+        },
+        {
+          "path": "src/maalimbus/emulator_launch.py",
+          "symbol": "booted"
         }
       ],
       "docs": [
@@ -5798,7 +5807,7 @@
       "checks": [
         "python tools/run_tests.py -q tests/test_emulator_launch.py tests/test_game_launch.py tests/test_device_tasks.py"
       ],
-      "boundary": "The pretask proves that the ADB address accepts a connection, not that Android has booted. It starts only the program the user configured or the emulator the detect task remembered, and accepts only a local address. Detection uses read-only manager commands beside the adb in use and recognises MuMu instances only; it changes no emulator setting and keeps four display values. Close emulator closes the one remembered instance at the connected address. Open game repairs an unproven start once and then refuses another. Shutdown, sleep and quitting the program are MXU special tasks; starting MXU at login is an MXU setting. Synthetic tests only, plus one read-only detection on the development machine: starting from the remembered record, closing the game and closing the emulator have not been run live."
+      "boundary": "The pretask waits for the ADB address and then, when an adb is known (the remembered one, or adb.exe beside the configured program), for Android to report sys.boot_completed; without an adb it waits for the address only. It starts only the program the user configured or the emulator the detect task remembered, and accepts only a local address. Detection uses read-only manager commands beside the adb in use and recognises MuMu instances only; it changes no emulator setting and keeps four display values. Close emulator closes the one remembered instance at the connected address. Open game repairs an unproven start once and then refuses another. Shutdown, sleep and quitting the program are MXU special tasks. Live on 2026-11-26 on one MuMu instance: detect, open game, close game, close emulator and two starts from the remembered record each ran once; the boot wait ran once from source. Not yet seen: the whole pretask, connect and task list sequence succeeding from the desktop window with the boot wait in the packaged app. One MXU crash after a close-emulator list followed by an outside restart of the emulator was observed once and not reproduced."
     },
     {
       "id": "shop-gift-fusion",

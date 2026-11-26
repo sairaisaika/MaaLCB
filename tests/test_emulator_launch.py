@@ -55,7 +55,7 @@ def test_an_emulator_that_already_answers_is_left_alone(program):
     world = World(answering=True)
     result = world.run(dict(program=str(program), address='127.0.0.1:16384'))
     assert result == dict(passed=True, started=False, reason='emulator_already_reachable',
-                          address='127.0.0.1:16384')
+                          address='127.0.0.1:16384', boot_checked=False)
     assert world.started == [] and world.sleeps == []
 
 
@@ -165,3 +165,94 @@ def test_the_packaged_interface_runs_the_pretask_through_the_frozen_agent():
     assert pretask['args'] == ['--pretask', 'launch_emulator']
     with pytest.raises(ValueError, match='Unknown pretask'):
         module.packaged_pretasks({'pretask': [{'exec': 'cmd', 'args': ['/c', 'anything']}]})
+
+
+# -- Android has to have booted, not only the port to answer (2026-11-26) ---------------
+# The user's own Start ran the pretask (exit 0 after 8 s); MXU connected at once, three
+# times in four seconds, failed, and the task list never began. Measured the same day: the
+# port answered 4 and 14 seconds before sys.boot_completed turned 1.
+
+class Boot:
+    """Android that reports booted `after` seconds after the world's clock passes `since`."""
+
+    def __init__(self, world, after):
+        self.world, self.after, self.asked = world, after, []
+
+    def __call__(self, adb, address):
+        self.asked.append((str(adb), address))
+        started = self.world.started_at if self.world.started_at is not None else 0.0
+        return self.world.now - started >= self.after
+
+
+def with_adb(program):
+    adb = program.parent / 'adb.exe'
+    adb.write_bytes(b'stand-in')
+    return adb
+
+
+def test_the_pretask_returns_only_when_android_has_booted(program):
+    adb = with_adb(program)
+    world = World(after=3)
+    boot = Boot(world, after=17)
+    result = emulator_launch.launch(dict(program=str(program), address='127.0.0.1:16416', wait_seconds='60'),
+                                    probe=world.probe, start=world.start, clock=world.clock, sleep=world.sleep,
+                                    boot=boot)
+    assert result['passed'] and result['reason'] == 'emulator_reachable_after_launch' and result['boot_checked']
+    # The port answered at 3 s; the pretask went on asking until Android answered at 17 s.
+    assert world.now >= 17 + emulator_launch.SETTLE_SECONDS
+    assert boot.asked and set(boot.asked) == {(str(adb), '127.0.0.1:16416')}
+
+
+def test_android_that_never_boots_is_a_named_failure_within_the_wait(program):
+    with_adb(program)
+    world = World(after=2)
+    result = emulator_launch.launch(dict(program=str(program), address='127.0.0.1:16416', wait_seconds='30'),
+                                    probe=world.probe, start=world.start, clock=world.clock, sleep=world.sleep,
+                                    boot=lambda adb, address: False)
+    assert not result['passed'] and result['started'] and result['reason'] == 'emulator_android_not_booted'
+    assert 30 <= world.now <= 32
+
+
+def test_an_emulator_that_answers_but_is_still_booting_is_waited_for_too(program):
+    with_adb(program)
+    world = World(answering=True)
+    boot = Boot(world, after=9)
+    result = emulator_launch.launch(dict(program=str(program), address='127.0.0.1:16416'),
+                                    probe=world.probe, start=world.start, clock=world.clock, sleep=world.sleep,
+                                    boot=boot)
+    assert result['passed'] and result['reason'] == 'emulator_already_reachable' and result['boot_checked']
+    assert world.started == [] and world.now >= 9
+
+
+def test_without_an_adb_beside_the_program_the_port_is_all_that_is_asked(program):
+    world = World(after=3)
+
+    def never(adb, address):
+        raise AssertionError('asked')
+    result = emulator_launch.launch(dict(program=str(program), address='127.0.0.1:16416'),
+                                    probe=world.probe, start=world.start, clock=world.clock, sleep=world.sleep,
+                                    boot=never)
+    assert result['passed'] and result['boot_checked'] is False
+    # The remembered record names its adb; a path that is not a file is not used.
+    assert emulator_launch.adb_for(dict(adb=str(program.parent / 'missing.exe'), program=str(program))) is None
+    named = with_adb(program)
+    assert emulator_launch.adb_for(dict(adb=str(named))) == named
+    assert emulator_launch.adb_for(dict(program=str(program))) == named
+
+
+def test_asking_android_is_two_read_only_adb_commands_and_any_trouble_is_not_booted():
+    from types import SimpleNamespace
+    ran = []
+
+    def run(command, **kwargs):
+        ran.append(command[1:])
+        return SimpleNamespace(returncode=0, stdout=b'1\r\n')
+    assert emulator_launch.booted('adb', '127.0.0.1:16416', run=run) is True
+    assert ran == [['connect', '127.0.0.1:16416'], ['-s', '127.0.0.1:16416', 'shell', 'getprop', 'sys.boot_completed']]
+    for answer in (SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=0, stdout=b'0\n'),
+                   SimpleNamespace(returncode=1, stdout=b'1')):
+        assert emulator_launch.booted('adb', '127.0.0.1:16416', run=lambda command, **k: answer) is False
+
+    def broken(command, **kwargs):
+        raise OSError('no adb')
+    assert emulator_launch.booted('adb', '127.0.0.1:16416', run=broken) is False

@@ -115,7 +115,11 @@ def test_the_pretask_starts_the_remembered_emulator_with_nothing_typed_in():
                   arguments='control -v 1 launch', kind='mumu')
     options = emulator_launch.settings(json.dumps({'launch_emulator_source': 'remembered'}), lambda: record)
     assert options == dict(program=record['program'], arguments='control -v 1 launch',
-                           address='127.0.0.1:16416', wait_seconds='180')
+                           address='127.0.0.1:16416', wait_seconds='180', adb='')
+    # The record's own adb travels with it, so the pretask can ask Android whether it has booted.
+    with_adb = dict(record, adb='Z:/someone/emulator/adb.exe')
+    assert emulator_launch.settings(json.dumps({'launch_emulator_source': 'remembered'}),
+                                    lambda: with_adb)['adb'] == 'Z:/someone/emulator/adb.exe'
     # Manual entry, with and without the new choice in front of it, reads the four fields.
     typed = dict(program='Z:/x.exe', arguments='', address='127.0.0.1:16384', wait_seconds='60')
     for argument in ({'launch_emulator_source': 'manual', 'launch_emulator': typed}, {'launch_emulator': typed}):

@@ -59,6 +59,8 @@ EXCEPTIONS = {
     # The stop was sent and the bounded wait for its effect ran out.
     'game_still_in_front_after_stop': 'attempts_exhausted',
     'emulator_still_answers_after_shutdown': 'attempts_exhausted',
+    # The port answers but Android did not finish booting inside the pretask's wait.
+    'emulator_android_not_booted': 'attempts_exhausted',
 }
 
 _COMPILED = tuple((re.compile(pattern), kind, why) for pattern, kind, why in RULES)
