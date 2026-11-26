@@ -50,6 +50,15 @@ EXCEPTIONS = {
     'no_offer_matches_the_gift_plan_yet': 'no_candidate',
     # the successor of a skill replacement was never confirmed; same class as unverified_*
     'skill_successor_unproven': 'bad_saved_state',
+    # Device tasks (2026-11-26). The record a task needs was never saved: run the detect
+    # task; nothing on the page can supply it.
+    'emulator_not_remembered': 'bad_saved_state',
+    # The remembered emulator is one this project cannot start or close (no manager).
+    'emulator_has_no_remembered_way_to_close': 'missing_control',
+    'no_emulator_manager_beside_the_adb_in_use': 'missing_control',
+    # The stop was sent and the bounded wait for its effect ran out.
+    'game_still_in_front_after_stop': 'attempts_exhausted',
+    'emulator_still_answers_after_shutdown': 'attempts_exhausted',
 }
 
 _COMPILED = tuple((re.compile(pattern), kind, why) for pattern, kind, why in RULES)
@@ -92,6 +101,10 @@ OUTCOME_RULES = (
     r'^the_page_stayed_on_the_map_after_the_click$',
     r'^the_party_did_not_move_after_the_click$',
     r'^a_new_target_replaced_this_one_before_the_page_settled$',
+    # What a device task ended with when it did what it was asked (device_tasks.py):
+    # the emulator or the game is closed, or the emulator is remembered. Not failures.
+    r'^(emulator|game)_(closed|remembered|already_closed)$',
+    r'^emulator_address_remembered_without_a_way_to_start_it$',
 )
 
 _INTENT = tuple(re.compile(pattern) for pattern in INTENT_RULES)

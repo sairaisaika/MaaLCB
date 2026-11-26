@@ -2,7 +2,9 @@
 from copy import deepcopy
 from .storage import ProfileStore,read_json,write_json
 
-TASKS=('open_game','mirror','experience','thread','rewards','stamina')
+TASKS=('open_game','mirror','experience','thread','rewards','stamina',
+       # Tasks on the device itself (device_tasks.py): no team, no game page.
+       'detect_emulator','close_game','close_emulator')
 
 
 class TaskPreferences:

@@ -115,7 +115,7 @@
         "launch_emulator"
       ],
       "option": [
-        "launch_emulator"
+        "launch_emulator_source"
       ]
     }
   ],
@@ -179,6 +179,36 @@
         "reward_module_budget"
       ],
       "default_check": false
+    },
+    {
+      "name": "detect_emulator",
+      "label": "$main_detect_emulator",
+      "entry": "DetectEmulatorTask",
+      "description": "$main_detect_emulator_description",
+      "default_check": false,
+      "controller": [
+        "mumu-adb"
+      ]
+    },
+    {
+      "name": "close_game",
+      "label": "$main_close_game",
+      "entry": "CloseGameTask",
+      "description": "$main_close_game_description",
+      "default_check": false,
+      "controller": [
+        "mumu-adb"
+      ]
+    },
+    {
+      "name": "close_emulator",
+      "label": "$main_close_emulator",
+      "entry": "CloseEmulatorTask",
+      "description": "$main_close_emulator_description",
+      "default_check": false,
+      "controller": [
+        "mumu-adb"
+      ]
     }
   ],
   "option": {
@@ -50342,6 +50372,25 @@
               }
             }
           }
+        }
+      ]
+    },
+    "launch_emulator_source": {
+      "type": "select",
+      "label": "$launch_emulator_source",
+      "description": "$launch_emulator_source_description",
+      "default_case": "manual",
+      "cases": [
+        {
+          "name": "remembered",
+          "label": "$launch_emulator_source_remembered"
+        },
+        {
+          "name": "manual",
+          "label": "$launch_emulator_source_manual",
+          "option": [
+            "launch_emulator"
+          ]
         }
       ]
     }

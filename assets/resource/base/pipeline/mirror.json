@@ -2357,6 +2357,39 @@
     },
     "next": []
   },
+  "DetectEmulatorTask": {
+    "recognition": "DirectHit",
+    "action": "Custom",
+    "custom_action": "limbus_main_task",
+    "custom_action_param": {
+      "task": "detect_emulator"
+    },
+    "timeout": 60000,
+    "next": [],
+    "on_error": []
+  },
+  "CloseGameTask": {
+    "recognition": "DirectHit",
+    "action": "Custom",
+    "custom_action": "limbus_main_task",
+    "custom_action_param": {
+      "task": "close_game"
+    },
+    "timeout": 60000,
+    "next": [],
+    "on_error": []
+  },
+  "CloseEmulatorTask": {
+    "recognition": "DirectHit",
+    "action": "Custom",
+    "custom_action": "limbus_main_task",
+    "custom_action_param": {
+      "task": "close_emulator"
+    },
+    "timeout": 120000,
+    "next": [],
+    "on_error": []
+  },
   "OpenGameTask": {
     "recognition": "DirectHit",
     "action": "Custom",

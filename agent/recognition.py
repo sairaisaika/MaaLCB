@@ -2278,6 +2278,7 @@ class MainTaskAction(CustomAction):
         params=json.loads(argv.custom_action_param or '{}')
         task=params['task']
         from maalimbus.task_preferences import TASKS
+        from maalimbus import device_tasks
         if task not in TASKS:raise ValueError('Unknown main task')
         directory=loop_directory(params)
         journal=Journal(directory)
@@ -2310,6 +2311,12 @@ class MainTaskAction(CustomAction):
                                                          'game_foreground_after_recovery')):
                         self.recognition.startup_window=dict(until=time.monotonic()+180,
                             serial=context.tasker.controller.info['adb_serial'])
+            elif task in device_tasks.TASKS:
+                # These act on the device, not on a game page, so no page identity is asked for.
+                result=device_tasks.run(task,context.tasker.controller,data_directory(ROOT),journal)
+                result['task']=task
+                print('MaaLimbus '+str(result.get('message') or result.get('reason')),flush=True)
+                journal.record('main_task_stopped',**{k:v for k,v in result.items() if k!='emulator'})
             else:
                 if not InputPreflight(self.recognition).run(context,argv):
                     return reject('Actual controller identity failed')

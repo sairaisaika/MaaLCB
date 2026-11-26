@@ -134,7 +134,14 @@ def interface():
 def test_the_interface_declares_the_pretask_for_the_adb_controller_only():
     value = interface()
     pretask, = value['pretask']
-    assert pretask['name'] == 'launch_emulator' and pretask['option'] == ['launch_emulator']
+    # Since 2026-11-26 the pretask offers a choice first: the remembered emulator, or the
+    # four fields, which stay where they were under 'manual' (the default, so a
+    # configuration saved before the choice existed behaves as it did).
+    assert pretask['name'] == 'launch_emulator' and pretask['option'] == ['launch_emulator_source']
+    source = value['option']['launch_emulator_source']
+    assert source['default_case'] == 'manual'
+    assert {case['name']: case.get('option') for case in source['cases']} == {
+        'remembered': None, 'manual': ['launch_emulator']}
     assert pretask['exec'] == 'python' and pretask['args'] == ['../agent/main.py', '--pretask', 'launch_emulator']
     adb = [controller['name'] for controller in value['controller'] if controller['type'] == 'Adb']
     assert pretask['controller'] == adb == ['mumu-adb']

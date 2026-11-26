@@ -21,6 +21,11 @@ import time
 from pathlib import Path
 
 OPTION = 'launch_emulator'
+#: The choice above the four fields: 'manual' uses them, 'remembered' uses what the
+#: "detect emulator" task saved. MXU passes a select option as its case name and adds
+#: the options nested under that case (read from MXU 2.7.1's own serializer).
+SOURCE = 'launch_emulator_source'
+REMEMBERED_WAIT = '180'
 ADDRESS = re.compile(r'^(127\.0\.0\.1|localhost|\[::1\]):(\d{2,5})$')
 SETTLE_SECONDS = 5
 
@@ -41,14 +46,31 @@ def start_detached(command, cwd):
                      stderr=subprocess.DEVNULL, creationflags=flags, close_fds=True)
 
 
-def settings(argument):
-    """The option values MXU passes as its last argument: ``{"launch_emulator": {...}}``."""
+def settings(argument, remembered=None):
+    """The option values MXU passes as its last argument.
+
+    ``{"launch_emulator": {...}}`` is the form before the source choice existed and the
+    form of the 'manual' choice. ``{"launch_emulator_source": "remembered"}`` asks for the
+    emulator the "detect emulator" task saved; `remembered` is the callable that loads
+    it, and a missing record is a refusal with its own reason, not an empty program.
+    """
     if not argument:
         return {}
     value = json.loads(argument)
     if not isinstance(value, dict):
         raise ValueError('Pretask options must be a JSON object')
+    source = value.get(SOURCE, 'manual')
+    if source not in ('manual', 'remembered'):
+        raise ValueError('Unknown emulator source')
+    if source == 'remembered':
+        record = remembered() if remembered is not None else None
+        if not isinstance(record, dict) or not record.get('address'):
+            raise LookupError('No emulator has been remembered')
+        return dict(program=str(record.get('program') or ''), arguments=str(record.get('arguments') or ''),
+                    address=str(record['address']), wait_seconds=REMEMBERED_WAIT)
     chosen = value.get(OPTION, value)
+    if SOURCE in chosen:
+        chosen = {}
     if not isinstance(chosen, dict):
         raise ValueError('Emulator launch options must be a JSON object')
     return {key: ('' if item is None else str(item)).strip() for key, item in chosen.items()}
@@ -97,10 +119,14 @@ def launch(options, *, probe=reachable, start=start_detached, clock=time.monoton
                        'Check the address and the instance the arguments select.' % (address, wait))
 
 
-def main(arguments, *, run=launch, out=print):
+def main(arguments, *, run=launch, out=print, remembered=None):
     """``arguments`` is what follows ``--pretask launch_emulator``: at most the option JSON."""
     try:
-        result = run(settings(arguments[0] if arguments else ''))
+        result = run(settings(arguments[0] if arguments else '', remembered))
+    except LookupError:
+        result = dict(passed=False, started=False, reason='emulator_not_remembered',
+                      detail='No emulator has been remembered yet. Run the task "Detect and remember the '
+                             'emulator" once while the emulator is connected, or choose manual entry.')
     except ValueError as error:
         result = dict(passed=False, started=False, reason='emulator_options_invalid', detail=str(error))
     out('MaaLimbus emulator pretask: %s%s' % (result['reason'],
