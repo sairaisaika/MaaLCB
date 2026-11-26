@@ -194,6 +194,19 @@ def main():
             gui_overrides=from_gui
             result['gui_choice_replayed']=False
             result['gui_choice_from_config']=sorted(from_gui)
+        # Team and keyword alone are not the player's configuration: the shop reserve, the
+        # claim choices and the rest were left at packaged defaults. When the installed
+        # interface and its saved choices can be read whole, the whole set is replayed;
+        # a set that cannot be replayed whole is reported and the two fields above stand.
+        try:
+            full,chosen=gui_preferences.task_override(interface_path=app/'interface.json')
+        except (OSError,ValueError,KeyError,TypeError) as error:
+            result['gui_choices_not_replayed']=str(error)
+        else:
+            if any(source=='saved' for _,_,source in chosen):
+                gui_overrides=full
+                result['gui_choice_from_config']=sorted(full)
+                result['gui_choices']=[list(row) for row in chosen]
     Library.open(app / 'maafw', agent_server=False)
     from maalimbus.native_evidence import configure_host
     result['native_evidence_policy']=configure_host(directory / 'debug')
