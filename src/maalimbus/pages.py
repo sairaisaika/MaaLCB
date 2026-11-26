@@ -916,6 +916,9 @@ STOP_KINDS = {
     # The server refused the session (a maintenance window opening mid-run). No input:
     # the dialog's only control closes the client, and the run is kept for later.
     'the_game_says_it_cannot_be_operated_and_is_shutting_down': 'refused_by_policy',
+    # "A new download has been added": the game wants to be closed and started again to
+    # download. No input: whether to close it and take the download is the player's call.
+    'the_game_asks_to_be_restarted_to_download_an_update': 'refused_by_policy',
     'login_response_not_observed_before_deadline': 'attempts_exhausted',
     # Measured 2026-10-24 (`packaged-mirror-20261024-144625`): the first free gift
     # showed three outlines that could not be told apart, so the loop refused to guess.

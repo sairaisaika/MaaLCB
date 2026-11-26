@@ -13,7 +13,30 @@ SHUTDOWN_TITLE=r'^Cannot\s+operate\s+the\s+game\.?$'
 SHUTDOWN_LINE=r'^Shutting\s+down\s+now\.?$'
 #: A notice that ends the invocation with no input at all, and the reason it ends with.
 STOP_REASONS={'client_update_required':'game_client_update_required',
-              'session_shutdown':'the_game_says_it_cannot_be_operated_and_is_shutting_down'}
+              'session_shutdown':'the_game_says_it_cannot_be_operated_and_is_shutting_down',
+              'restart_for_download':'the_game_asks_to_be_restarted_to_download_an_update'}
+
+
+#: Pressed for after a run was claimed (live packaged-mirror-20261126-042150, 11:08 UTC):
+#: the next request to the server answered with this dialog over the main menu, the
+#: reader named the menu behind it, and Drive was pressed under it twice before the run
+#: ended as `unexpected_successor`.
+DOWNLOAD_TITLE=r'^A\s+new\s+download\s+has\s+been\s+added\.?$'
+DOWNLOAD_LINES=(r'^The\s+game\s+will\s+be\s+closed;?\s+please\s+restart\s+the$',
+                r'^game\s+to\s+download\s+the\s+update\.?$')
+
+
+def restart_for_download(records,size):
+    title=find(records,DOWNLOAD_TITLE,(.30,.39,.70,.48),size,.9)
+    if not title:return None
+    lines=[find(records,pattern,(.30,.43,.70,.56),size,.9) for pattern in DOWNLOAD_LINES]
+    confirm=find(records,r'^[^A-Za-z]{0,2}\s*Confirm$',(.40,.62,.60,.74),size,.9)
+    # Its Confirm closes the client so that it can download on the next start. Closing
+    # the game and taking a download are the player's call, so nothing is pressed.
+    return dict(kind='restart_for_download',
+                complete=len(title)==len(confirm)==1 and all(len(found)==1 for found in lines),
+                title=title[0].text,instruction=' '.join(found[0].text for found in lines if len(found)==1) or None,
+                close_box=list(confirm[0].box) if len(confirm)==1 else None)
 
 
 def session_shutdown(records,size):
@@ -59,7 +82,8 @@ def known_service_notice(records,size):
             title=title[0].text,instruction=instruction[0].text if len(instruction)==1 else None,
             close_box=list(close[0].box) if len(close)==1 else None,
             store_box=list(store[0].box) if len(store)==1 else None)
-    return session_shutdown(records,size) or scheduled_maintenance(records,size)
+    return (restart_for_download(records,size) or session_shutdown(records,size)
+            or scheduled_maintenance(records,size))
 
 
 def close_candidates(record,frame=None):

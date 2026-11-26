@@ -29,6 +29,33 @@ def shutdown_notice(scene='GIFT_SEARCH'):
         dict(text='Close',box=[910,678,92,40],score=1.0)])
 
 
+def download_notice(scene='HOME'):
+    # live packaged-mirror-20261126-042150 frame-2244: the dialog over the main menu.
+    return dict(scene=scene,frame='frame-2244',size=[1920,1080],image_sha256='d'*64,ocr=[
+        dict(text='Window',box=[1202,968,80,28],score=.99),dict(text='Drive',box=[1438,968,68,28],score=.99),
+        dict(text='A new download has been added.',box=[712,464,488,34],score=.999),
+        dict(text='The game will be closed; please restart the',box=[650,500,618,40],score=.998),
+        dict(text='game to download the update.',box=[734,540,446,39],score=.995),
+        dict(text='Confirm',box=[926,724,114,40],score=1.0)])
+
+
+@pytest.mark.parametrize('missing',[None,'Confirm','game to download the update.'])
+def test_the_restart_to_download_dialog_ends_the_invocation_and_presses_nothing(missing,tmp_path,monkeypatch):
+    record=download_notice()
+    if missing:record['ocr']=[r for r in record['ocr'] if r['text']!=missing]
+    notice=service_notice.from_record(record)
+    assert notice['kind']=='restart_for_download' and notice['complete'] is (missing is None)
+    assert service_notice.close_candidates(record)==[]
+    loop=_loop(tmp_path);loop.state['pending']={'keep':'business'}
+    monkeypatch.setattr(loop,'_observe',lambda **kw:record)
+    result=loop.step()
+    assert result['stopped']=='the_game_asks_to_be_restarted_to_download_an_update'
+    assert not result['input_sent'] and not loop.device.clicks
+    assert loop.state['pending']=={'keep':'business'}
+    assert not runner.events(tmp_path,'window_intent')
+    assert not service_notice.dismissed_successor(record,'HOME')
+
+
 @pytest.mark.parametrize('missing',[None,'Close','Shutting down now.'])
 def test_the_shutdown_dialog_ends_the_invocation_by_name_and_presses_nothing(missing,tmp_path,monkeypatch):
     record=shutdown_notice()
