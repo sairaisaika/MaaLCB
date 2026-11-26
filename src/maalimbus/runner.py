@@ -3205,7 +3205,7 @@ def pre_battle_identity_evidence(directory, record, saved_order=(), order_badges
 
 def shop_state(record, wanted=(), bought=(), refreshes_used=0, refresh_limit=2,
                reserve_coins=0, policy='manual', learning=None, value_context=None,
-               blocked=(), carry_cap_coins=None, gift_names=()):
+               blocked=(), carry_cap_coins=None, gift_names=(), known_coins=()):
     """What the shop page offers and the one input a shop visit may spend.
 
     A shop is spent from by reading its own page: every offer prints its name and
@@ -3255,6 +3255,11 @@ def shop_state(record, wanted=(), bought=(), refreshes_used=0, refresh_limit=2,
     question = record.get('scene') == 'SHOP_PURCHASE'
     found = shop_offers(shelf_tokens(shelf_read), size)
     cash = shop_currency(records, size)
+    if cash is None and known_coins:
+        # A counter read just under the floor, printing the number the shop record
+        # already expects (shop_transaction.faint_counter): the visit goes on with it.
+        from .shop_transaction import faint_counter
+        cash = faint_counter(shelf_read, size, known_coins)
     gift_offers = [offer for offer in found if not is_skill_service(offer.name)]
     wanted_offers_now = wanted_offers(gift_offers, wanted, bought)
     buy = None
@@ -5833,6 +5838,9 @@ class MirrorRunner:
                                             active=active, scope=self.run_id,
                                             observed_floor=state['floor_now'])
             shop = shop_state(record, names,
+                              # A read-only window asks the shop record nothing but its data.
+                              known_coins=(shop_tx.held_coins() if shop_tx is not None
+                                           and not settings.observe_only else ()),
                               bought=[entry['name'] for entry in state['shop_bought']]
                                      +list(state.get('shop_held_back') or ()),
                               refreshes_used=state['shop_refreshes'],

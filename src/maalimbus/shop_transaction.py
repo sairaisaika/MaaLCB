@@ -243,10 +243,40 @@ def _unspent_skill_chooser(pending, record, texts, size, proof):
     return modal
 
 
-def _coins(texts, size):
+#: The counter is trusted on its own at .9. Between this floor and .9 it is trusted only
+#: when it prints a number the record already expects: live pi-20261126-030355 bought
+#: Bio-venom Vial for 259 out of 714, the shelf came back printing "455" at .898 on
+#: every read of that still page, and the run stopped on a purchase it had just proven.
+COUNTER_FAINT = .85
+
+
+def faint_counter(texts, size, expected):
+    """The counter's value when it reads faintly and is one of the `expected` numbers.
+
+    A faint read is not evidence of a number; it is a second witness to one that the
+    reservation and its price, or the last proven count, have already given. Anything
+    else -- no faint token, two of them, a number nobody expected -- is None.
+    """
+    wanted = {value for value in expected or () if type(value) is int}
+    if not wanted:
+        return None
+    sx, sy = _scales(size)
+    faint = [t for t in texts if COUNTER_FAINT <= t.score < .9 and PRICE_PATTERN.fullmatch(t.text)
+             and _inside(t.box, CURRENCY_X, CURRENCY_Y, sx, sy)]
+    if len(faint) != 1:
+        return None
+    value = currency(faint, size)
+    return value if value in wanted else None
+
+
+def _coins(texts, size, expected=()):
     sx, sy = _scales(size)
     candidates = [t for t in texts if t.score >= .9 and PRICE_PATTERN.fullmatch(t.text)
                   and _inside(t.box, CURRENCY_X, CURRENCY_Y, sx, sy)]
+    if not candidates:
+        value = faint_counter(texts, size, expected)
+        if value is not None:
+            return value
     if len(candidates) != 1:
         raise ValueError('Unique high-confidence shop currency not proven')
     return currency(candidates, size)
@@ -441,7 +471,7 @@ class ShopTransaction:
         record, texts, size, proof = _frame(frame_path)
         if record.get('scene') != 'SHOP' or not _shelf(texts, size):
             raise ValueError('Independent shop shelf required')
-        _coins(texts, size)
+        entered_with = _coins(texts, size)
         if self.data:
             if self.data['pending']:
                 raise ValueError('Unresolved shop intent; never reset visit')
@@ -456,6 +486,7 @@ class ShopTransaction:
         data = copy.deepcopy(self.data) if self.data else dict(
             version=1, scope=scope, visits={}, bought=[], pending=None)
         data['current_visit'] = visit
+        data['coins_proven'] = entered_with
         data['visits'][visit] = dict(entry=proof, refreshes=0, closed=False,
                                      overlay_acknowledgements=[])
         if learning_context is not None:
@@ -474,7 +505,7 @@ class ShopTransaction:
         record, texts, size, proof = _frame(frame_path)
         if record.get('scene') != 'SHOP':
             raise ValueError('Shop action needs a fresh shelf')
-        return texts, size, proof, _coins(texts, size), _shelf(texts, size)
+        return texts, size, proof, _coins(texts, size, self.held_coins()), _shelf(texts, size)
 
     def reserve_purchase(self, scope, visit, offer, coins, frame_path, reserve_coins=0, decision_context=None):
         from .shop_skill_vision import is_skill_service
@@ -532,7 +563,7 @@ class ShopTransaction:
         if record.get('scene') == 'UNKNOWN_DIALOG' and not pending.get('cancel'):
             _unspent_skill_chooser(pending, record, texts, size, proof)
             return 'chooser'
-        elif record.get('scene') == 'SHOP' and _coins(texts,size) == pending['coins']:
+        elif record.get('scene') == 'SHOP' and _coins(texts,size,self.held_coins()) == pending['coins']:
             cancel = pending.get('cancel')
             if selection and not cancel:
                 raise ValueError('Skill selection needs its own unspent Cancel before shelf settlement')
@@ -659,6 +690,21 @@ class ShopTransaction:
         self._save(data)
         return target
 
+    def held_coins(self):
+        """The numbers the coin counter may print now, by this record's own account.
+
+        With an intent open: the coins it was written against and what is left once its
+        price is paid. Otherwise the count the last proven step of this visit ended on.
+        Only these can vouch for a counter read below the usual floor (`faint_counter`).
+        """
+        data = self.data or {}
+        pending = data.get('pending') or {}
+        if type(pending.get('coins')) is int:
+            price = pending.get('price')
+            return (pending['coins'],) + ((pending['coins'] - price,) if type(price) is int else ())
+        proven = data.get('coins_proven')
+        return (proven,) if type(proven) is int else ()
+
     def held_back(self, visit, limit=None):
         """Names this visit has opened and cancelled `limit` times: not asked for again.
 
@@ -766,7 +812,7 @@ class ShopTransaction:
         # offer is sufficient; a generic GET/caller-provided title proves nothing.
         if record.get('scene') != 'SHOP':
             raise ValueError('Shop purchase receipt/shelf still unknown; preserve pending')
-        coins = _coins(texts, size)
+        coins = _coins(texts, size, self.held_coins())
         shelf = _shelf(texts, size)
         if coins == pending['coins'] and shelf:
             # An intent whose click left the shop's own purchase question behind: the
@@ -784,6 +830,7 @@ class ShopTransaction:
                     name=pending['name'], price=pending['price'], visit=visit,
                     stage=pending['stage'], successor=proof,
                     shelf_evidence='unchanged_shelf_and_untouched_currency'))
+                data['coins_proven'] = pending['coins']
                 data['pending'] = None
                 self._save(data)
                 return True
@@ -875,6 +922,7 @@ class ShopTransaction:
                                    successor_note=successor_note,
                                    decision_context=pending.get('decision_context'),
                                    overlay_acknowledgement=pending.get('overlay_acknowledgement')))
+        data['coins_proven'] = coins
         data['pending'] = None
         self._save(data)
         return True
@@ -884,7 +932,7 @@ class ShopTransaction:
         shelf = refreshed_gifts(_shelf(texts, size))
         before = refreshed_gifts(_baseline(pending) or pending['shelf'])
         fingerprint = lambda rows: sorted((_key(o['name']), o['price']) for o in rows)
-        coins = _coins(texts, size)
+        coins = _coins(texts, size, self.held_coins())
         paid = None if coins is None else pending['coins'] - coins
         # A refresh can also be free: floor 4 of pi-20261122-004911 restocked the Super
         # Shop for 0 coins (2383 before and after) while the button's own price rose
@@ -904,6 +952,7 @@ class ShopTransaction:
                 or not (registered or len(shelf) == len(before))):
             raise ValueError('Fresh refresh currency delta and complete changed shelf not proven')
         data = copy.deepcopy(self.data)
+        data['coins_proven'] = coins
         data['visits'][visit].setdefault('refresh_receipts', []).append(
             dict(before=pending['before'], successor=proof, price=pending['price'], paid=paid,
                  **({'free': True, 'next_price': next_price} if free else {})))
