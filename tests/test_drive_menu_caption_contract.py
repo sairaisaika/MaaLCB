@@ -37,9 +37,15 @@ def test_old_and_event_layouts_request_detector_and_preserve_native_box(size,row
     (1800,318,200,21),(640,318,119),None,(640.,318,119,21),(True,318,119,21)])
 def test_detector_cannot_turn_invalid_or_off_band_box_into_a_control(box):
     records=[Text('Inferno',(1610,210,150,30),.99)]
-    def native(*args):
+    image=np.zeros((1080,1920,3),np.uint8)
+    def native(kind,param,pixels):
+        # The box is the detector's answer for the frame itself. Since 2026-11-26 an
+        # empty band read is followed by enlarged slices, which are other pictures with
+        # their own coordinates (tests/test_drive_menu_magnified.py); a reader of the
+        # frame has nothing to say about them.
+        if pixels is not image:return SimpleNamespace(hit=False,filtered_results=[])
         return SimpleNamespace(hit=True,filtered_results=[SimpleNamespace(text='Dungeons',score=.99,box=box)])
-    out,proof=repair(native,np.zeros((1080,1920,3),np.uint8),records,LOCALE)
+    out,proof=repair(native,image,records,LOCALE)
     assert out==records and not proof[0]['results']
     assert classify(out,LOCALE,(1920,1080))!='DRIVE'
 
@@ -48,9 +54,10 @@ def test_detector_cannot_turn_invalid_or_off_band_box_into_a_control(box):
 def test_wrong_or_weak_native_caption_never_grants_drive(text,score):
     records=[Text('Inferno',(1610,210,150,30),.99)]
     def native(*args):
+        # The same wrong or weak caption whatever picture is read, enlarged or not.
         return SimpleNamespace(hit=True,filtered_results=[SimpleNamespace(text=text,score=score,box=(640,318,119,21))])
     out,proof=repair(native,np.zeros((1080,1920,3),np.uint8),records,LOCALE)
-    assert out==records and not proof[0]['results']
+    assert out==records and not any(row['results'] for row in proof)
 
 
 def test_native_target_and_classifier_share_declared_menu_band():
