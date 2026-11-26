@@ -471,7 +471,15 @@ class ShopTransaction:
         record, texts, size, proof = _frame(frame_path)
         if record.get('scene') != 'SHOP' or not _shelf(texts, size):
             raise ValueError('Independent shop shelf required')
-        entered_with = _coins(texts, size)
+        # Every step on the shelf comes through here, and for a visit already open it is
+        # the record's own count that vouches for a faint counter. The first frame of a
+        # new visit has nothing to vouch for it: battles since the last shop changed the
+        # number, so there the counter must read on its own. (Live pi-20261126-040650:
+        # the purchase reconciled on the faint "455" and this line stopped the very
+        # next step on the same page.)
+        reentry = bool(self.data and self.data.get('scope') == scope
+                       and visit in self.data.get('visits', {}) and not self.data.get('pending'))
+        entered_with = _coins(texts, size, self.held_coins() if reentry else ())
         if self.data:
             if self.data['pending']:
                 raise ValueError('Unresolved shop intent; never reset visit')

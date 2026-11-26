@@ -79,3 +79,36 @@ def test_the_shop_decision_goes_on_with_the_number_the_record_expects():
     assert shop_state(frame, ['Perversion'])['reason'] == 'shop_currency_not_read'
     assert shop_state(frame, ['Perversion'], known_coins=(455,))['currency'] == 455
     assert shop_state(frame, ['Perversion'], known_coins=(714,))['currency'] is None
+
+
+def shelf_frame(tmp_path, score):
+    """A shelf page written to disk the way a step records one: the counter at `score`."""
+    import hashlib
+    import json
+    import numpy as np
+    import cv2
+    image = tmp_path / 'frame-0002.png'
+    cv2.imwrite(str(image), np.zeros((1080, 1920, 3), np.uint8))
+    frame = tmp_path / 'frame-0002.json'
+    frame.write_text(json.dumps(dict(
+        scene='SHOP', size=list(SIZE), image_sha256=hashlib.sha256(image.read_bytes()).hexdigest(),
+        ocr=[dict(text='455', box=list(COUNTER), score=score),
+             dict(text='Perversion', box=[1310, 500, 110, 26], score=.99),
+             dict(text='157', box=[1340, 462, 60, 30], score=.99)])), encoding='utf-8')
+    return frame
+
+
+def test_an_open_visit_is_entered_again_on_its_own_count_and_a_new_one_is_not(tmp_path):
+    frame = shelf_frame(tmp_path, .897708)
+    visit = dict(entry=dict(png_sha256='0' * 64), refreshes=0, closed=False, overlay_acknowledgements=[])
+    # The step after a reconciled purchase: same visit, the record holds 455.
+    again = record(tmp_path, coins_proven=455, visits={'1': dict(visit)})
+    assert again.begin_visit('run', '1', str(frame)) is False
+    # The record holding another number does not vouch for this one.
+    other = record(tmp_path, coins_proven=714, visits={'1': dict(visit)})
+    with pytest.raises(ValueError, match='shop currency not proven'):
+        other.begin_visit('run', '1', str(frame))
+    # A new visit has no count of its own yet, whatever the last one ended on.
+    closed = record(tmp_path, coins_proven=455, visits={'1': dict(visit, closed=True)})
+    with pytest.raises(ValueError, match='shop currency not proven'):
+        closed.begin_visit('run', '2', str(frame))
