@@ -74,6 +74,6 @@ def test_the_preset_options_are_gone_and_the_order_lives_with_each_team():
         assert f'deployment_position_{i}' not in pi['option']
         assert f'global_team_1_order_{i}' not in pi['option']
         assert nodes[f'DeploymentOrder{i}']['max_hit']==1
-    assert [case['name'] for case in pi['option']['global_team_1_order']['cases']]==['keep','game','read','custom']
+    assert [case['name'] for case in pi['option']['global_team_1_order']['cases']]==['keep','game','record','custom']
     assert nodes['DeploymentPreset']['next']==['DeploymentOrder1']
     assert nodes['DeploymentOrderCommit']['next'][0]=='LimbusSafety'

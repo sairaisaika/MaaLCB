@@ -2455,13 +2455,32 @@ class MainTaskAction(CustomAction):
                     mirror_schedule.book_result(data_directory(ROOT),directory,datetime.now(timezone.utc))
                     return bool(result.get('passed'))
                 if task=='read_team_order':
-                    # One frame, no input: the order printed on the team page the player has open.
+                    # Down the TEAMS list from #1: one press per team row, the order read off the cards.
                     from maalimbus import team_order_task
-                    record=runner.observe(observer,time.monotonic()+30)
-                    size=tuple(record.get('size') or (1920,1080))
-                    result=team_order_task.read(data_directory(ROOT),record,
-                        runner.controls_by_id(runner._load_registry(),size),runner.frame_file(directory),
-                        team_state=runner.team_state)
+                    registry=runner._load_registry()
+                    device=runner.local_device(context.tasker.controller,tasker=AgentTasker(context),
+                                               deadline=time.monotonic()+840)
+                    limit=time.monotonic()+840
+                    def team_page(record):
+                        size=tuple(record.get('size') or (1920,1080))
+                        return runner.team_state(record,runner.controls_by_id(registry,size))
+                    def press(box):
+                        return runner.one_shot_click(device,observer,box,label='read_team_order_row',
+                            journal=journal,deadline=limit,rounds=2,interval=1.0)['settled']
+                    def drag(start,to):
+                        x,y,w,h=start
+                        return runner.one_shot_swipe(device,observer,[x+w//2,y+h//2,to[0],to[1],600],
+                            label='read_team_order_list',journal=journal,deadline=limit,rounds=2,interval=1.0)['settled']
+                    try:
+                        count=context.get_node_data('ReadTeamOrderCount')['attach']['count']
+                    except (KeyError,TypeError):
+                        count=1
+                    try:
+                        result=team_order_task.read(data_directory(ROOT),count,
+                            observe=lambda:runner.observe(observer,limit),press=press,drag=drag,
+                            team_state=team_page,frame=lambda:runner.frame_file(directory))
+                    except ValueError as error:
+                        return reject(str(error))
                     result['task']=task
                     print('MaaLimbus '+result['message'],flush=True)
                     journal.record('main_task_stopped',**result)

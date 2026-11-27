@@ -18,7 +18,7 @@
   "mirror_team_keywords": "Systems wanted",
   "mirror_team_keywords_description": "The same ten keywords, in the same order, as the shop's Keyword Refresh in the game: seven systems, then three damage types. Tick one or several; none ticked means no restriction and the program chooses by score. Keywordless, at the end, also buys gifts that work for any team.",
   "mirror_team_order": "Deployment order",
-  "mirror_team_order_description": "Who deploys first. \"Read it once\": arrange the order on the game's own team screen and choose this; the next time a Mirror run uses this team and reaches the team screen, the program reads the numbers on the cards once and saves them as this team's order, and the log shows what it read with the screenshot. To read at once without a run: open the game's team screen and run \"Read the deployment order\" from Add task. \"Follow the game\" uses whatever the game shows every time and only records it. The settings window cannot take a screenshot itself, so reading always happens while a task runs.",
+  "mirror_team_order_description": "Who deploys first. \"Use the recorded order\" takes what the order-reading task recorded for this team; while the team has no record its saved order stays as it is and the log says to read it first. \"Follow the game\" uses whatever the game shows every time and only records it. \"Write the whole order\" takes numbers or names.",
   "mirror_team_order_game": "Follow the order set in the game",
   "mirror_team_order_custom": "Write the whole order",
   "mirror_team_order_text": "Deployment order (numbers or names)",
@@ -200,11 +200,13 @@
   "launch_emulator_arguments": "Arguments (for example, which instance to start)",
   "launch_emulator_address": "ADB address of the emulator",
   "launch_emulator_wait": "Longest wait in seconds (10-600)",
-  "main_read_team_order": "Read the deployment order",
-  "main_read_team_order_description": "One press: open any team screen in the game that shows the twelve Identity cards with their deployment numbers, then run this task. It takes one screenshot, reads which TEAMS # is shown and the number on each card, saves that as the team's deployment order and writes what it read to the log. Nothing is clicked; if something cannot be read nothing is saved and the log says what was missing.",
+  "main_read_team_order": "Read the teams' deployment orders",
+  "main_read_team_order_description": "Open the team screen outside a dungeon first (the TEAMS list on the left, twelve Identity cards with their deployment numbers on the right), then run this. Starting at TEAMS #1 it selects the teams down the list one by one, reads the numbers on each team's twelve cards and records them under that team (team 1's reading under team 1), writing each order to the log. It presses only rows of the list and drags the list when needed; no card is pressed and nothing in the game is changed. A team that cannot be read completely is skipped with the reason. To use a recorded order, choose \"Use the recorded order\" under that team's deployment order in the global settings.",
   "mirror_team_stars": "Starlight buffs",
   "mirror_team_stars_description": "Which starlight buffs this team takes into the Mirror Dungeon and how much starlight it may spend. Used when the Mirror task's star rule source is \"Follow the current team\" (the default); a team with no plan keeps the saved rule.",
   "mirror_team_stars_choose": "Choose again",
   "mirror_team_star_cards": "Which starlight buffs",
-  "mirror_team_order_read": "Read it once from the game and save it"
+  "read_team_count": "How many teams to read (from TEAMS #1 down)",
+  "read_team_count_description": "The first teams from the top. 3 reads TEAMS #1, #2 and #3.",
+  "mirror_team_order_record": "Use the recorded order (read by the order-reading task)"
 }

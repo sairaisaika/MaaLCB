@@ -157,7 +157,7 @@ def test_the_interface_matches_what_the_program_reads():
         keys = [list(c['pipeline_override'][f'Global_{prefix}_keywords']['attach']) for c in keywords['cases']]
         assert keys == [['kw_' + word] for word in TEAM_CHOICES]
         order = pi['option'][prefix + '_order']
-        assert order['default_case'] == 'keep' and [c['name'] for c in order['cases']] == ['keep', 'game', 'read', 'custom']
+        assert order['default_case'] == 'keep' and [c['name'] for c in order['cases']] == ['keep', 'game', 'record', 'custom']
         assert prefix + '_starters' not in pi['option']
         assert pi['option'][prefix + '_order_text']['type'] == 'input'
         assert pi['option'][f'mirror_queue_{slot}']['default_case'] == str(slot) or slot <= 20

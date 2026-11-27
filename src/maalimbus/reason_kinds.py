@@ -62,10 +62,12 @@ EXCEPTIONS = {
     # The port answers but Android did not finish booting inside the pretask's wait.
     'emulator_android_not_booted': 'attempts_exhausted',
     # The order-reading task (team_order_task.py): the page the player left open does not
-    # show what the task reads.
+    # show what the task reads, or a row of the team list was pressed and the page did
+    # not follow.
     'team_order_cards_not_visible': 'missing_control',
     'team_order_numbers_unread': 'unreadable_text',
     'team_order_team_number_unread': 'unreadable_text',
+    'team_order_row_press_did_not_select': 'attempts_exhausted',
 }
 
 _COMPILED = tuple((re.compile(pattern), kind, why) for pattern, kind, why in RULES)
@@ -112,8 +114,8 @@ OUTCOME_RULES = (
     # the emulator or the game is closed, or the emulator is remembered. Not failures.
     r'^(emulator|game)_(closed|remembered|already_closed)$',
     r'^emulator_address_remembered_without_a_way_to_start_it$',
-    # The order-reading task did what it was asked: saved the order, or found it saved.
-    r'^team_order_(saved|unchanged)$',
+    # The order-reading task recorded the teams it was asked for, or some of them.
+    r'^team_orders_(recorded|partly_recorded)$',
 )
 
 _INTENT = tuple(re.compile(pattern) for pattern in INTENT_RULES)

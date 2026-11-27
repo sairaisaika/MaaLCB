@@ -184,7 +184,10 @@
       "label": "$main_read_team_order",
       "entry": "ReadTeamOrderTask",
       "description": "$main_read_team_order_description",
-      "default_check": false
+      "default_check": false,
+      "option": [
+        "read_team_count"
+      ]
     },
     {
       "name": "detect_emulator",
@@ -496,12 +499,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_1_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -734,12 +737,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_2_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -972,12 +975,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_3_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -1210,12 +1213,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_4_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -1448,12 +1451,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_5_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -1686,12 +1689,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_6_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -1924,12 +1927,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_7_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -2162,12 +2165,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_8_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -2400,12 +2403,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_9_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -2638,12 +2641,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_10_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -2876,12 +2879,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_11_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -3114,12 +3117,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_12_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -3352,12 +3355,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_13_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -3590,12 +3593,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_14_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -3828,12 +3831,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_15_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -4066,12 +4069,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_16_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -4304,12 +4307,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_17_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -4542,12 +4545,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_18_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -4780,12 +4783,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_19_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -5018,12 +5021,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_20_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -36214,12 +36217,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_21_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -36899,12 +36902,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_22_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -37584,12 +37587,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_23_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -38269,12 +38272,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_24_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -38954,12 +38957,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_25_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -39639,12 +39642,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_26_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -40324,12 +40327,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_27_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -41009,12 +41012,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_28_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -41694,12 +41697,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_29_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -42379,12 +42382,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_30_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -43064,12 +43067,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_31_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -43749,12 +43752,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_32_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -44434,12 +44437,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_33_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -45119,12 +45122,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_34_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -45804,12 +45807,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_35_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -46489,12 +46492,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_36_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -47174,12 +47177,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_37_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -47859,12 +47862,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_38_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -48544,12 +48547,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_39_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -49229,12 +49232,12 @@
           }
         },
         {
-          "name": "read",
-          "label": "$mirror_team_order_read",
+          "name": "record",
+          "label": "$mirror_team_order_record",
           "pipeline_override": {
             "Global_global_team_40_order": {
               "attach": {
-                "mode": "read"
+                "mode": "record"
               }
             }
           }
@@ -56621,6 +56624,454 @@
           }
         }
       }
+    },
+    "read_team_count": {
+      "type": "select",
+      "label": "$read_team_count",
+      "description": "$read_team_count_description",
+      "default_case": "1",
+      "cases": [
+        {
+          "name": "1",
+          "label": "1",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "2",
+          "label": "2",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 2
+              }
+            }
+          }
+        },
+        {
+          "name": "3",
+          "label": "3",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 3
+              }
+            }
+          }
+        },
+        {
+          "name": "4",
+          "label": "4",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 4
+              }
+            }
+          }
+        },
+        {
+          "name": "5",
+          "label": "5",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 5
+              }
+            }
+          }
+        },
+        {
+          "name": "6",
+          "label": "6",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 6
+              }
+            }
+          }
+        },
+        {
+          "name": "7",
+          "label": "7",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 7
+              }
+            }
+          }
+        },
+        {
+          "name": "8",
+          "label": "8",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 8
+              }
+            }
+          }
+        },
+        {
+          "name": "9",
+          "label": "9",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 9
+              }
+            }
+          }
+        },
+        {
+          "name": "10",
+          "label": "10",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 10
+              }
+            }
+          }
+        },
+        {
+          "name": "11",
+          "label": "11",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 11
+              }
+            }
+          }
+        },
+        {
+          "name": "12",
+          "label": "12",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 12
+              }
+            }
+          }
+        },
+        {
+          "name": "13",
+          "label": "13",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 13
+              }
+            }
+          }
+        },
+        {
+          "name": "14",
+          "label": "14",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 14
+              }
+            }
+          }
+        },
+        {
+          "name": "15",
+          "label": "15",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 15
+              }
+            }
+          }
+        },
+        {
+          "name": "16",
+          "label": "16",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 16
+              }
+            }
+          }
+        },
+        {
+          "name": "17",
+          "label": "17",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 17
+              }
+            }
+          }
+        },
+        {
+          "name": "18",
+          "label": "18",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 18
+              }
+            }
+          }
+        },
+        {
+          "name": "19",
+          "label": "19",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 19
+              }
+            }
+          }
+        },
+        {
+          "name": "20",
+          "label": "20",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 20
+              }
+            }
+          }
+        },
+        {
+          "name": "21",
+          "label": "21",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 21
+              }
+            }
+          }
+        },
+        {
+          "name": "22",
+          "label": "22",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 22
+              }
+            }
+          }
+        },
+        {
+          "name": "23",
+          "label": "23",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 23
+              }
+            }
+          }
+        },
+        {
+          "name": "24",
+          "label": "24",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 24
+              }
+            }
+          }
+        },
+        {
+          "name": "25",
+          "label": "25",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 25
+              }
+            }
+          }
+        },
+        {
+          "name": "26",
+          "label": "26",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 26
+              }
+            }
+          }
+        },
+        {
+          "name": "27",
+          "label": "27",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 27
+              }
+            }
+          }
+        },
+        {
+          "name": "28",
+          "label": "28",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 28
+              }
+            }
+          }
+        },
+        {
+          "name": "29",
+          "label": "29",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 29
+              }
+            }
+          }
+        },
+        {
+          "name": "30",
+          "label": "30",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 30
+              }
+            }
+          }
+        },
+        {
+          "name": "31",
+          "label": "31",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 31
+              }
+            }
+          }
+        },
+        {
+          "name": "32",
+          "label": "32",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 32
+              }
+            }
+          }
+        },
+        {
+          "name": "33",
+          "label": "33",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 33
+              }
+            }
+          }
+        },
+        {
+          "name": "34",
+          "label": "34",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 34
+              }
+            }
+          }
+        },
+        {
+          "name": "35",
+          "label": "35",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 35
+              }
+            }
+          }
+        },
+        {
+          "name": "36",
+          "label": "36",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 36
+              }
+            }
+          }
+        },
+        {
+          "name": "37",
+          "label": "37",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 37
+              }
+            }
+          }
+        },
+        {
+          "name": "38",
+          "label": "38",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 38
+              }
+            }
+          }
+        },
+        {
+          "name": "39",
+          "label": "39",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 39
+              }
+            }
+          }
+        },
+        {
+          "name": "40",
+          "label": "40",
+          "pipeline_override": {
+            "ReadTeamOrderCount": {
+              "attach": {
+                "count": 40
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "icon": "misc/Don-Quixote.png",

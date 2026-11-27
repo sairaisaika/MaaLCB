@@ -4585,8 +4585,16 @@
     "custom_action_param": {
       "task": "read_team_order"
     },
-    "timeout": 60000,
+    "timeout": 900000,
     "next": [],
     "on_error": []
+  },
+  "ReadTeamOrderCount": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "count": 1
+    }
   }
 }
