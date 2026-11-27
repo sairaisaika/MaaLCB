@@ -31,11 +31,12 @@ TABLE = '''return {
 	["Paper Boat (MD)"] = { name = "Paper Boat", desc = "Heal 5 HP. Deal +10% damage.", sin = "gloom", tier = "IV", cost = 400 },
 	["Paper Boat"] = { name = "Paper Boat", desc = "A story dungeon gift.", sin = "gloom", category = "Bleed", tier = "IV", cost = 400 },
 	["Paper Boat (Legacy)"] = { name = "Paper Boat", desc = "An older one.", sin = "gloom", tier = "I", cost = 100 },
+	["Paper Boat (Legacy MD5)"] = { name = "Paper Boat", desc = "An older one still.", sin = "gloom", tier = "I", cost = 100 },
 	["Story Lantern"] = { name = "Story Lantern", desc = "No tier.", sin = "pride" },
 {FILL}
 }
 '''
-FILLER = '\n'.join('\t["Filler %d"] = { name = "Filler %d", desc = "Nothing.", sin = "envy", tier = "I", cost = 100 },'
+FILLER = '\n'.join('\t["Filler %d"] = { name = "Filler %d", desc = "Heal 1 HP.", sin = "envy", tier = "I", cost = 100 },'
                    % (i, i) for i in range(100))
 
 
@@ -47,12 +48,14 @@ def test_the_table_is_read_strictly_and_only_facts_come_out():
     rows, left_out = importer.facts(table())
     by_name = {row['name']: row for row in rows}
     assert by_name['Tin Whistle'] == dict(name='Tin Whistle', tier=2, cost=200, keyword='Burn', sin='wrath',
-                                          enhancements=2, systems=['Burn'], terms=['clash_power'])
+                                          enhancements=2, systems=['Burn'], terms=['clash_power'],
+                                          sins=[], damage_types=[], restricted=False)
     # The suffixed entry is the Mirror Dungeon gift; its story twin and its legacy copy are not.
     assert by_name['Paper Boat'] == dict(name='Paper Boat', tier=4, cost=400, keyword=None, sin='gloom',
-                                         enhancements=0, systems=[], terms=['damage_up', 'heal'])
+                                         enhancements=0, systems=[], terms=['damage_up', 'heal'],
+                                         sins=[], damage_types=[], restricted=False)
     assert 'Story Lantern' not in by_name and len(rows) == 102
-    assert left_out == dict(without_tier=1, legacy=1, enhanced=2, story_dungeon_twin=1,
+    assert left_out == dict(without_tier=1, legacy=2, enhanced=2, story_dungeon_twin=1,
                             repeated_fields=['Tin Whistle+.desc'])
     assert not any('desc' in row for row in rows)
 
@@ -64,6 +67,11 @@ def test_the_table_is_read_strictly_and_only_facts_come_out():
     ('\t["Odd+"] = { name = "Odd", desc = "x", sin = "envy", tier = "I", cost = 1 },', 'no base entry'),
     ('\t["Filler 3"] = { name = "Filler 3", desc = "x", sin = "envy", tier = "I", cost = 1 },', 'twice'),
     ('\t["Odd"] = { name = "Odd", desc = "x", sin = "envy", tier = "I", cost = {1} },', 'unreadable field'),
+    # A status the closed table does not classify, and a text no term describes at all.
+    ('\t["Odd"] = { name = "Odd", desc = "Gain {{StatusEffect|Moonburn|b}}.", sin = "envy", tier = "I", cost = 1 },',
+     'Status not classified'),
+    ('\t["Odd"] = { name = "Odd", desc = "Something happens.", sin = "envy", tier = "I", cost = 1 },',
+     'no term of the vocabulary'),
 ])
 def test_a_line_the_reader_does_not_understand_stops_the_import(line, complaint):
     with pytest.raises(ValueError, match=complaint):
@@ -74,10 +82,13 @@ def test_the_committed_file_holds_facts_and_no_description():
     data = json.loads((BASE / 'gift-facts.json').read_text(encoding='utf-8'))
     assert data['source']['page'] == 'Module:EgoGift/data' and data['source']['revid'] and data['source']['license']
     assert len(data['gifts']) > 400
-    allowed = {'name', 'tier', 'cost', 'keyword', 'sin', 'enhancements', 'systems', 'terms'}
+    allowed = {'name', 'tier', 'cost', 'keyword', 'sin', 'enhancements', 'systems', 'terms',
+               'sins', 'damage_types', 'restricted'}
     for row in data['gifts']:
         assert set(row) == allowed
         assert row['tier'] in TIER_VALUE and set(row['terms']) <= set(data['source']['terms'])
+        # Covered: no gift is left without a word of the vocabulary, and none is a retired copy.
+        assert (row['terms'] or row['systems']) and '(Legacy' not in row['name']
     # Every gift a fusion recipe names is known, so a recipe's result has a tier.
     recipes = json.loads((BASE / 'gift-fusion-recipes.json').read_text(encoding='utf-8'))['recipes']
     facts = GiftFacts(BASE)

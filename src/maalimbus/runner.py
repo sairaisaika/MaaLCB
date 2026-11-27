@@ -5775,10 +5775,13 @@ class MirrorRunner:
                 fusion_recipes=load_fusion_recipes(ROOT/'assets/resource/base'/FUSION_FILE)
                 # The carry cap spends only on names it knows are gifts; the recipe table
                 # names gifts the pinned catalogue does not.
-                gift_vocabulary=tuple(catalog.entries)+tuple(fusion_recipes.names)
+                from .gift_facts import load as load_gift_facts
+                gift_facts=load_gift_facts(ROOT/'assets/resource/base')
+                gift_vocabulary=(tuple(catalog.entries)+tuple(fusion_recipes.names)
+                                 +tuple(row['name'] for row in gift_facts.by_name.values()))
                 from .shop_priority import load as load_shop_priorities
                 explicit_priorities=load_shop_priorities(ROOT/'assets/resource/base/shop-priorities.json',catalog)
-                names=shop_wanted(profile,catalog,explicit_priorities,fusion_recipes)
+                names=shop_wanted(profile,catalog,explicit_priorities,fusion_recipes,gift_facts)
                 keywords=sorted(profile.keywords)
                 state['shop_keywords']=list(keywords)
                 self.note('shop_saved_team_plan',team=profile.slot,

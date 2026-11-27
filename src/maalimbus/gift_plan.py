@@ -58,7 +58,7 @@ def wanted(plan, keyword, *, fallback=('Wound Clerid',)):
     return default or list(fallback)
 
 
-def shop_wanted(team,catalog,priorities=None,recipes=None):
+def shop_wanted(team,catalog,priorities=None,recipes=None,facts=None):
     """The active saved team's full known gift system, separate from starters.
 
     With ``recipes`` (``gift_fusion.Recipes``) the gifts that fuse into the team's
@@ -67,6 +67,13 @@ def shop_wanted(team,catalog,priorities=None,recipes=None):
     left ``Material Interference Force Field`` on the shelf, a gift of its own system
     that the catalogue does not name and a Charge recipe does. A team with no system
     chosen chases no recipe: twenty-one recipes at once is not a plan.
+
+    With ``facts`` (``gift_facts.GiftFacts``) two things change, for every team alike.
+    The gifts the game files under the team's keywords and the catalogue does not name
+    are asked for as well -- 145 of the wiki's 477 are missing from the catalogue, spread
+    over all ten keywords -- and with ``Keywordless`` ticked so are the gifts that work
+    for any team. And within one priority the better tier comes first: the order used to
+    be the alphabet, so a tier I gift was bought before a tier IV of the same system.
     """
     unknown=(set(team.allow)|set(team.block))-set(catalog.entries)
     if unknown:raise ValueError('Saved shop gift identity absent from catalogue')
@@ -76,7 +83,24 @@ def shop_wanted(team,catalog,priorities=None,recipes=None):
     preferred=[name for name,entry in catalog.entries.items()
                if name not in team.block and (name in team.allow or set(entry['keywords'])&set(team.keywords)
                                               or priorities.get(name,0)>0)]
-    ordered=sorted(preferred,key=lambda name:(-priorities.get(name,0),name not in team.allow,name))
+    worth=lambda name:0
+    if facts is not None:
+        known={row['name'] for row in (facts.of(name) for name in catalog.entries) if row is not None}
+        blocked={name.casefold() for name in team.block}
+        extra=facts.filed_under(team.keywords)
+        if 'Keywordless' in team.keywords:
+            extra+=facts.universal()
+        preferred+=[name for name in extra if name not in known and name.casefold() not in blocked
+                    and name not in catalog.entries]
+        # A catalogue name the table files under another keyword, as a Vestige or as a
+        # liability is still asked for when the player named it; otherwise the game's
+        # filing wins over the catalogue's.
+        worth=lambda name:facts.worth(name,team.keywords)['value']
+        # What the game files as a Vestige, as a liability or for named Identities is
+        # not bought on a keyword tick alone; the player's own list still asks for it.
+        preferred=[name for name in preferred if name in team.allow or priorities.get(name,0)>0
+                   or facts.relation(name,team.keywords) not in ('material','drawback','restricted')]
+    ordered=sorted(preferred,key=lambda name:(-priorities.get(name,0),name not in team.allow,-worth(name),name))
     if recipes is not None and team.keywords:
         known={name.casefold() for name in ordered}|{name.casefold() for name in team.block}
         ordered+=[row['name'] for row in recipes.shopping((),sorted(team.keywords))

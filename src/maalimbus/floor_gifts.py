@@ -458,11 +458,19 @@ def rank(offers, team, selected, facts=None):
         if facts is not None:
             # The gift itself: its tier, when it works for this team. A second copy of a
             # gift already owned adds nothing, so an owned offer gets no worth.
-            gift_value=0 if offer.owned else facts.value(offer.canonical, team.keywords)
-            fact=facts.of(offer.canonical)
+            worth=facts.worth(offer.canonical, team.keywords)
+            gift_value=0 if offer.owned else worth['value']
+            # The catalogue is a pinned import: a gift it does not name has no keywords
+            # there, and the game's own filing is what makes it this team's.
+            if worth['relation']=='own' and not preferred:
+                preferred=True
+                score-=40
+                ranking[-1].update(preferred=True)
+                ranking[-1]['score_components']['synergy']=-40
             ranking[-1]['score']=score-gift_value
             ranking[-1]['score_components']['gift_value']=-gift_value
-            ranking[-1]['gift_tier']=None if fact is None else fact['tier']
+            ranking[-1]['gift_tier']=worth['tier']
+            ranking[-1]['gift_relation']=worth['relation']
     return sorted(ranking,key=lambda r:(r['score'],r['title']))
 
 

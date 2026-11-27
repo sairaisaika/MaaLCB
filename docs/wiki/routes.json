@@ -5972,6 +5972,76 @@
         "python tools/run_tests.py -q tests/test_gift_facts.py tests/test_trial_power_prices.py"
       ],
       "boundary": "Tier and keyword fit only: the effect terms in gift-facts.json say a description mentions a kind of effect, not for whom or how much, and do not enter the score. Trial weights marked as policy are not derived from the damage formula. The shop does not use tiers. Verified by tests, not yet seen to change a pick on a live gift page. The facts file holds no description text and no artwork."
+    },
+    {
+      "id": "gift-relation",
+      "title": "饰品归属与词条全集：别的队的饰品、商店购买顺序 / gift relation: other teams, closed status table, shop order",
+      "aliases": [
+        "饰品归属",
+        "别的队的饰品",
+        "角标",
+        "关键词角标",
+        "词条全集",
+        "词条覆盖",
+        "商店买什么",
+        "商店购买顺序",
+        "通用饰品",
+        "无关键词",
+        "残骸",
+        "Vestige",
+        "gift relation",
+        "gift_relation",
+        "GiftFacts.relation",
+        "GiftFacts.worth",
+        "filed_under",
+        "STATUS_KIND",
+        "UNIQUE",
+        "Status not classified",
+        "no term of the vocabulary",
+        "shop_wanted",
+        "keyword badge",
+        "Legacy gift",
+        "restricted gift",
+        "drawback gift"
+      ],
+      "sources": [
+        {
+          "path": "src/maalimbus/gift_facts.py",
+          "symbol": "GiftFacts.relation"
+        },
+        {
+          "path": "src/maalimbus/gift_facts.py",
+          "symbol": "GiftFacts.worth"
+        },
+        {
+          "path": "src/maalimbus/gift_facts.py",
+          "symbol": "GiftFacts.filed_under"
+        },
+        {
+          "path": "src/maalimbus/gift_plan.py",
+          "symbol": "shop_wanted"
+        },
+        {
+          "path": "tools/import_wiki_gift_facts.py",
+          "symbol": "statuses"
+        },
+        {
+          "path": "tools/import_wiki_gift_facts.py",
+          "symbol": "terms"
+        }
+      ],
+      "docs": [
+        "docs/wiki/zh_cn/4-business-flows.md#gift-relation",
+        "docs/wiki/en_us/4-business-flows.md#gift-relation"
+      ],
+      "tests": [
+        "tests/test_gift_relation.py",
+        "tests/test_gift_facts.py"
+      ],
+      "checks": [
+        "python tools/run_tests.py -q tests/test_gift_relation.py tests/test_gift_facts.py"
+      ],
+      "boundary": "Filing and tier only: a term says a description mentions a kind of effect, not its condition or amount, so terms do not enter the score. Restricted is read from the opening of a description. No badge is recognised; the name decides. Tests only outside the Charge/Tremor team."
     }
   ]
 }

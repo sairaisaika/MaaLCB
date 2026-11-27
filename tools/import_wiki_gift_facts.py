@@ -32,8 +32,10 @@ TARGET = ROOT / 'assets/resource/base/gift-facts.json'
 #: The wiki appends this to a key that would collide with another page; the game prints
 #: the name without it.
 DISAMBIGUATOR = ' (MD)'
-#: An earlier version of a gift the wiki keeps for reference. Not obtainable; left out.
-LEGACY = ' (Legacy)'
+#: An earlier version of a gift the wiki keeps for reference: "Name (Legacy)", or with the
+#: season it left in, "Name (Legacy MD5)". Not obtainable; left out. Until version 2 only
+#: the bare form was recognised and 61 retired gifts sat in the table.
+LEGACY = re.compile(r' \(Legacy(?: [^)]*)?\)$')
 TIERS = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'EX': 'EX'}
 #: The seven status systems and the three damage types a gift can be filed under.
 KEYWORDS = ('Burn', 'Bleed', 'Tremor', 'Rupture', 'Sinking', 'Poise', 'Charge', 'Slash', 'Pierce', 'Blunt')
@@ -44,11 +46,78 @@ ENTRY = re.compile(r'^\s*\["((?:[^"\\]|\\.)*)"\]\s*=\s*\{(.*)\}\s*,?\s*(?:--.*)?
 FIELD = re.compile(r'(\w+)\s*=\s*(?:"((?:[^"\\]|\\.)*)"|(-?\d+))\s*(?:,|$)')
 STATUS = re.compile(r'\{\{StatusEffect\|([^|}]+)')
 
+#: Every status the descriptions name, and what kind of thing it is. This table is closed:
+#: a status the wiki names and this table does not stops the import, so a new term of the
+#: game is classified by a person before any gift carrying it is valued. A value is one of
+#: the seven systems (the status belongs to that system: Tremor Burst is Tremor), a term
+#: of ``TERMS`` below, or ``unique`` -- a mechanic that belongs to particular Identities
+#: or to the one gift that names it, about which nothing general can be said.
+STATUS_KIND = {
+    # the systems themselves and what only exists inside one of them
+    'Burn': 'Burn', 'Bleed': 'Bleed', 'Tremor': 'Tremor', 'Rupture': 'Rupture', 'Sinking': 'Sinking',
+    'Poise': 'Poise', 'Charge': 'Charge',
+    'Tremor Burst': 'Tremor', 'Amplitude Conversion': 'Tremor', 'Amplitude Entanglement': 'Tremor',
+    'Tremor - Scorch': 'Tremor', 'Tremor - Superposition': 'Tremor', 'Tremor - Decay': 'Tremor',
+    'Tremor - Chain': 'Tremor', 'Tremor - Hemorrhage': 'Tremor', 'Tremor - Reverb': 'Tremor',
+    'Tremor - Distribution': 'Tremor',
+    'Charge Barrier': 'Charge', 'Charge Identity': 'Charge',
+    'Bloodfeast': 'Bleed', 'Bloodfeast Consumed': 'Bleed', 'Bloodfeast Consumed (shared)': 'Bleed', 'Nails': 'Bleed',
+    # what an ally gains
+    'Attack Power Up': 'power_up', 'Power Up': 'power_up', 'Slash Power Up': 'power_up',
+    'Pierce Power Up': 'power_up', 'Blunt Power Up': 'power_up', 'Lust Power Up': 'power_up',
+    'Gloom Power Up': 'power_up', 'Defense Power Up': 'defense_power',
+    'Clash Power Up': 'clash_power', 'Base Power Up': 'base_power',
+    'Plus Coin Boost': 'coin_power', 'Minus Coin Boost': 'coin_power', 'Unbreakable Coin': 'unbreakable_coin',
+    'Offense Level Up': 'offense_level', 'Defense Level Up': 'defense_level',
+    'Damage Up': 'damage_up', 'Slash DMG Up': 'damage_up', 'Pierce DMG Up': 'damage_up',
+    'Blunt DMG Up': 'damage_up', 'Crit DMG Up': 'critical',
+    'Protection': 'damage_taken_down', 'Trauma Shield': 'shield',
+    'Haste': 'haste', 'Deathrite -Haste-': 'haste',
+    'HP Healing Boost': 'heal', 'HP Healing Down': 'heal',
+    'SP Heal Efficiency': 'sp', 'SP Loss Efficiency': 'sp',
+    'E.G.O Resource Amp': 'ego_resource', 'Ammo': 'ammo', 'Aggro': 'aggro', 'Discard': 'discard',
+    'Assist Defense': 'defense_power',
+    # what an enemy is given
+    'Defense Level Down': 'enemy_down', 'Offense Level Down': 'enemy_down', 'Power Down': 'enemy_down',
+    'Attack Power Down': 'enemy_down', 'Minus Coin Drop': 'enemy_down', 'Paralyze': 'paralyze',
+    'Fragile': 'fragile', 'Envy Fragility': 'fragile', 'Slash Resist Down': 'fragile',
+    'Blunt Resist Down': 'fragile', 'Bind': 'bind',
+}
+#: Mechanics of particular Identities, factions or of one gift. Listed by name so that the
+#: table above stays closed: a name in neither place is the import's error.
+UNIQUE = frozenset((
+    'Fanatic', 'Vengeance Mark', 'Curio', 'Art Medium', 'Spark of Inspiration', 'Maggots',
+    'Gluttonous Thorn (\u8caa\u98df\u68d8)', 'Backup Candy', 'Hunger (Kkomi)', "The Prescript's Target",
+    'Exquisite Aesthetics', 'Emergency Barrier Battery', 'Pink Petals', 'Strider -Mao-',
+    'Resident Reg. Microchip', 'Near-light Superbattery', 'Reflux', 'Self Resonance Circuitry',
+    'Dhy\u0101na', 'Firepower', 'Delicateness', 'Shimmering -Bloodfiend- (Ally)', 'Karmic Consequence',
+    'Torn-out Butterfly', "Dihui Star's Blade", 'Dawnherald', 'Battle Instinct', 'Maturing Textbook',
+    'Changing Room (Ishmael)', 'Mark of the King of Needleworks', 'Thundercrack', 'Dullahan', 'Coffin',
+    'K Corp. Emergency Ampule (Gift)', 'Blooming Thorn (Ally)', 'Hardblood Armor', 'Hardblood (Ally)',
+    'Blood-tinged Scissorblades (Ally)', 'Bloodied Hand (Ally)', 'Glimpse of Precognition', 'Unlock',
+    'Grace of the Prescript', 'Unlock - II', 'Requested Target', 'Blessing (E.G.O Gift)', 'Time Moratorium',
+    'Borrowed Time', 'Microprecision Time Acceleration', 'Battlefield Retreat', 'Load', 'Dimensional Rift',
+    'Hardblood Cast', 'Desperado', 'Hyped-up', 'Pheromone', 'Pheromone Mark', 'High-voltage Exoskeleton',
+    'Beauty of the Physique', 'Charm of the Beastly', 'Sword of the Homeland - Striking',
+    'Learning by Example', 'Joint Combo', 'A Test of Despair', 'The One Beyond Despair', 'Momentum',
+    "Dawn's Camaraderie", 'Embedded Spearhead', 'Nervous Impairment', 'Man in Scabbard',
+))
+#: A gift whose whole effect is written for named Identities: the description opens with
+#: the restriction. A bonus "[... Exclusive Effect]" added to a general effect is not this.
+RESTRICTED = re.compile(
+    r'^(?:The )?[\w.\' -]+?(?:-faction)? Identities(?::| gain\b)'
+    r'|^If there are \d+ or more "[^"]+" Identities')
+#: The gift is a liability until it changes: "This E.G.O Gift changes after 6 Encounter wins".
+DRAWBACK = re.compile(r'This E\.G\.O Gift changes (?:after|into)')
+SIN_WORD = re.compile(r'\b(Wrath|Lust|Sloth|Gluttony|Gloom|Pride|Envy)\b')
+TYPE_WORD = re.compile(r'\b(Slash|Pierce|Blunt)\b')
+
 #: Which kinds of effect a description mentions. The vocabulary is the one the damage
 #: formula uses (docs/wiki, chapter 9 "How the damage terms relate"), plus what a gift
-#: can do besides. A term says the words are there; it does not say for whom, when, or
-#: how much -- conditions are not modelled, so this is material for a later reader and
-#: not yet a valuation.
+#: can do besides, in a fight and between fights. A term says the words are there; it
+#: does not say when or how much -- conditions and amounts are not modelled. Every gift
+#: must show at least one term or system, or the import stops: a description this
+#: vocabulary cannot describe at all is a gap in the vocabulary.
 TERMS = (
     ('final_power', r'Final Power'),
     ('base_power', r'Base Power'),
@@ -67,7 +136,23 @@ TERMS = (
     ('critical', r'\bCritical\b'),
     ('ego_resource', r'E\.G\.O resource'),
     ('cost', r'\bCost\b'),
-    ('revive', r'\breviv'),
+    ('revive', r'\breviv|does not drop below 1|not take that damage'),
+    ('skill_power', r'Skill Power|\b(?:Slash|Pierce|Blunt) Power by'),
+    ('fixed_damage', r'fixed (?:\w+ )*damage|(?:Slash|Pierce|Blunt) Damage equal to'),
+    ('resistance', r'[Rr]esistances?\b'),
+    ('speed', r'\bSpeed\b'),
+    ('max_hp', r'% max HP\b(?! as)|gain [^.]*max HP'),
+    ('resonance', r'Resonance|A-Reson'),
+    ('extra_action', r'use the Skill one more time'),
+    ('levels', r'gain \d+ Levels'),
+    ('participants', r'Participant Limit'),
+    ('shop', r'\bin a Shop\b|\bShop\b[^.]*Cost|Fusion Probability'),
+    ('reward_cards', r'Reward Card'),
+    ('material', r'Counts as a Tier \d E\.G\.O Gift'),
+    ('drawback', DRAWBACK.pattern),
+    # what the closed status table adds; no wording of its own
+    ('defense_power', None), ('unbreakable_coin', None), ('ammo', None), ('aggro', None), ('discard', None),
+    ('enemy_down', None), ('paralyze', None), ('fragile', None), ('bind', None), ('unique', None),
 )
 
 
@@ -118,8 +203,25 @@ def entries(text, repeated=None):
     return found
 
 
+def statuses(description):
+    """The status names a description uses; one this module cannot classify is an error."""
+    found = sorted(set(STATUS.findall(description)))
+    unknown = [name for name in found if name not in STATUS_KIND and name not in UNIQUE]
+    if unknown:
+        raise ValueError('Status not classified in STATUS_KIND or UNIQUE: %r' % unknown)
+    return found
+
+
 def terms(description):
-    return [term for term, pattern in TERMS if re.search(pattern, description)]
+    kinds = {STATUS_KIND.get(name, 'unique') for name in statuses(description)}
+    return [term for term, pattern in TERMS
+            if term in kinds or (pattern is not None and re.search(pattern, description))]
+
+
+def systems(description):
+    """The systems a description touches, through the status itself or one that lives inside it."""
+    kinds = {STATUS_KIND.get(name) for name in statuses(description)}
+    return [system for system in SYSTEMS if system in kinds]
 
 
 def facts(text):
@@ -134,7 +236,7 @@ def facts(text):
             if key.rstrip('+') not in table:
                 raise ValueError('Enhanced entry %r has no base entry' % key)
             continue
-        if key.endswith(LEGACY):
+        if LEGACY.search(key):
             left_out['legacy'] += 1
             continue
         if key + DISAMBIGUATOR in table:
@@ -157,9 +259,14 @@ def facts(text):
         name = key[:-len(DISAMBIGUATOR)] if key.endswith(DISAMBIGUATOR) else key
         steps = sum(1 for plus in ('+', '++') if key + plus in table)
         description = fields['desc']
-        mentioned = [system for system in SYSTEMS if system in set(STATUS.findall(description))]
-        rows.append(dict(name=name, tier=TIERS[fields['tier']], cost=fields['cost'], keyword=keyword,
-                         sin=fields['sin'], enhancements=steps, systems=mentioned, terms=terms(description)))
+        row = dict(name=name, tier=TIERS[fields['tier']], cost=fields['cost'], keyword=keyword,
+                   sin=fields['sin'], enhancements=steps, systems=systems(description), terms=terms(description),
+                   sins=[sin.lower() for sin in dict.fromkeys(SIN_WORD.findall(description))],
+                   damage_types=list(dict.fromkeys(TYPE_WORD.findall(description))),
+                   restricted=bool(RESTRICTED.search(description)))
+        if not row['terms'] and not row['systems']:
+            raise ValueError('Gift %r: no term of the vocabulary describes it' % key)
+        rows.append(row)
     names = [row['name'] for row in rows]
     if len(set(names)) != len(names):
         raise ValueError('Two gifts print the same name: %r' % sorted({n for n in names if names.count(n) > 1}))
@@ -172,17 +279,19 @@ def build(saved, retrieved):
     rows, left_out = facts(saved['text'])
     rights = saved.get('rightsinfo') or {}
     return dict(
-        version=1,
+        version=2,
         source=dict(
             url='https://limbuscompany.wiki.gg/wiki/' + urllib.parse.quote(PAGE.replace(' ', '_')),
             page=saved['title'], pageid=saved['pageid'], revid=saved['revid'], retrieved_utc=retrieved,
             text_sha256=hashlib.sha256(saved['text'].encode('utf-8')).hexdigest(),
             license=rights.get('text'), license_url=rights.get('url'),
             scope=('gift name, tier, shop cost, keyword, affinity, number of enhancements, and which kinds of '
-                   'effect the description mentions; no description text and no artwork'),
+                   'effect, systems, affinities and damage types the description mentions and whether it is '
+                   'written for named Identities; no description text and no artwork'),
             name_rule='the wiki key suffix %r is dropped: the game prints the name without it' % DISAMBIGUATOR,
             left_out=left_out,
-            terms=[term for term, _ in TERMS]),
+            terms=[term for term, _ in TERMS],
+            statuses_classified=len(STATUS_KIND) + len(UNIQUE)),
         gifts=rows)
 
 
@@ -208,7 +317,7 @@ def main(argv=None):
     key = lambda row: json.dumps(row, sort_keys=True, ensure_ascii=False)
     before, after = {key(row) for row in previous}, {key(row) for row in data['gifts']}
     if not args.dry_run:
-        lines = ['{', ' "version": 1,', ' "source": ' + json.dumps(data['source'], ensure_ascii=False) + ',', ' "gifts": [']
+        lines = ['{', ' "version": 2,', ' "source": ' + json.dumps(data['source'], ensure_ascii=False) + ',', ' "gifts": [']
         lines += ['  ' + json.dumps(row, ensure_ascii=False) + (',' if index + 1 < len(data['gifts']) else '')
                   for index, row in enumerate(data['gifts'])]
         args.target.write_text('\n'.join(lines + [' ]', '}']) + '\n', encoding='utf-8')
