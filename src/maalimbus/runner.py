@@ -5563,6 +5563,16 @@ class MirrorRunner:
                           frame=entry['frame'],changed=entry['changed'],input_sent=False)
                 try:print('MaaLimbus '+team_order_record.line(slot,entry),flush=True)
                 except (OSError,UnicodeError):pass
+                # "Read it once" in the team's settings: what was just read becomes the saved order.
+                try:
+                    kept=team_order_record.save_if_armed(_data_directory(ROOT),slot,entry)
+                except (OSError,ValueError,TypeError):
+                    kept=False
+                if kept:
+                    self.note('deployment_order_saved_from_game',slot=slot,order=entry['order'],
+                              frame=entry['frame'],input_sent=False)
+                    try:print('MaaLimbus 已按「一键读取」把这个顺序保存为队伍 %s 的出战顺序。'%slot,flush=True)
+                    except (OSError,UnicodeError):pass
         if page=='PRE_BATTLE_TEAM' and team is not None and team.get('order'):
             # Badges verify reuse of the saved order; they do not replace the user's
             # desired order merely because another permutation is readable.

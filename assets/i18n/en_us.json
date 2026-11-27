@@ -18,7 +18,7 @@
   "mirror_team_keywords": "Systems wanted",
   "mirror_team_keywords_description": "The same ten keywords, in the same order, as the shop's Keyword Refresh in the game: seven systems, then three damage types. Tick one or several; none ticked means no restriction and the program chooses by score. Keywordless, at the end, also buys gifts that work for any team.",
   "mirror_team_order": "Deployment order",
-  "mirror_team_order_description": "Who deploys first. \"Follow the game\" is recommended: arrange the order on the game's own team screen and the program uses it as it is; the order it read is written to the log and recorded with its screenshot, so you can check it.",
+  "mirror_team_order_description": "Who deploys first. \"Read it once\": arrange the order on the game's own team screen and choose this; the next time a Mirror run uses this team and reaches the team screen, the program reads the numbers on the cards once and saves them as this team's order, and the log shows what it read with the screenshot. To read at once without a run: open the game's team screen and run \"Read the deployment order\" from Add task. \"Follow the game\" uses whatever the game shows every time and only records it. The settings window cannot take a screenshot itself, so reading always happens while a task runs.",
   "mirror_team_order_game": "Follow the order set in the game",
   "mirror_team_order_custom": "Write the whole order",
   "mirror_team_order_text": "Deployment order (numbers or names)",
@@ -205,5 +205,6 @@
   "mirror_team_stars": "Starlight buffs",
   "mirror_team_stars_description": "Which starlight buffs this team takes into the Mirror Dungeon and how much starlight it may spend. Used when the Mirror task's star rule source is \"Follow the current team\" (the default); a team with no plan keeps the saved rule.",
   "mirror_team_stars_choose": "Choose again",
-  "mirror_team_star_cards": "Which starlight buffs"
+  "mirror_team_star_cards": "Which starlight buffs",
+  "mirror_team_order_read": "Read it once from the game and save it"
 }

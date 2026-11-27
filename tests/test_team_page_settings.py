@@ -174,3 +174,49 @@ def test_inside_a_dungeon_the_page_prints_no_team_number_and_the_run_names_the_t
     # A page that does print the number is believed over the ledger.
     other = team_order_task.read(tmp_path, {}, {}, None, team_state=team_page(numbers, 5))
     assert other['slot'] == 5 and other['slot_source'] == 'page'
+
+
+def order_nodes(slot, mode):
+    prefix = 'Global_global_team_%d' % slot
+
+    def get(name):
+        if name == prefix + '_order':
+            return dict(attach=dict(mode=mode))
+        if name.endswith(('_keywords', '_star_cards')):
+            return dict(attach={})
+        if name.endswith('_order_text'):
+            return dict(attach=dict(order=''))
+        if name.endswith('_star_budget'):
+            return dict(attach=dict(budget='0'))
+        return dict(attach=dict(mode='keep'))
+    return get
+
+
+def test_read_it_once_is_a_choice_of_the_order_dropdown_and_saves_what_the_run_reads(tmp_path):
+    # The user looked for the reading in this dropdown (2026-11-27): "这里面东西没加啊".
+    from maalimbus import team_order_record
+    for slot in (1, 40):
+        cases = PI['option']['global_team_%d_order' % slot]['cases']
+        assert [case['name'] for case in cases] == ['keep', 'game', 'read', 'custom']
+    ProfileStore(tmp_path / 'user-team-profiles.json').save(
+        [Team(2, frozenset({'Charge'}), deployment=tuple(SINNERS)), Team(3, frozenset())])
+    edits = collect_builds(order_nodes(2, 'read'))
+    assert edits == {'2': dict(keywords='keep', order='read')}
+    assert apply_builds(tmp_path, edits) == [2]
+    # Like "follow the game" the saved order is forgotten, and the team is marked.
+    assert ProfileStore(tmp_path / 'user-team-profiles.json').load()[0].deployment == ()
+    assert json.loads((tmp_path / team_order_record.CAPTURE).read_text(encoding='utf-8'))['slots'] == [2]
+    numbers = [4, 6, 1, 2, 8, 12, 5, 9, 3, 10, 11, 7]
+    entry = team_order_record.record(tmp_path, 2, numbers, tmp_path / 'frame-0001.json')
+    assert team_order_record.save_if_armed(tmp_path, 3, entry) is False        # another team was not asked for
+    assert team_order_record.save_if_armed(tmp_path, 2, entry) is True
+    saved = ProfileStore(tmp_path / 'user-team-profiles.json').load()[0]
+    assert list(saved.deployment) == entry['order'] and saved.deployment[0] == 'Don Quixote'
+    assert saved.keywords == frozenset({'Charge'})
+    # Once: the mark is used up, and choosing another order removes a mark that was not.
+    assert team_order_record.save_if_armed(tmp_path, 2, entry) is False
+    apply_builds(tmp_path, collect_builds(order_nodes(3, 'read')))
+    apply_builds(tmp_path, collect_builds(order_nodes(3, 'game')))
+    assert json.loads((tmp_path / team_order_record.CAPTURE).read_text(encoding='utf-8'))['slots'] == []
+    source = (ROOT / 'src/maalimbus/runner.py').read_text(encoding='utf-8')
+    assert 'team_order_record.save_if_armed(' in source and 'deployment_order_saved_from_game' in source

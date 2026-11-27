@@ -18,7 +18,7 @@
   "mirror_team_keywords": "要哪些体系",
   "mirror_team_keywords_description": "与游戏商店「关键词刷新」里的十个关键词一致、顺序相同：前七个是体系，后三个是伤害类型。可以勾一个或几个；一个都不勾表示不限定，由程序按评分自由选择。最后的「无关键词」表示也买对任何队伍都有用的通用饰品。",
   "mirror_team_order": "出战顺序",
-  "mirror_team_order_description": "谁先上场。推荐「跟随游戏」：在游戏自己的编队界面按顺序点好，程序就照着用、不再改动；每次读到的顺序会写进日志并连同截图记录下来，方便核对。",
+  "mirror_team_order_description": "谁先上场。「一键读取」：先在游戏自己的编队界面把顺序点好，选这一项；下一次镜牢用到这支队伍、走到编队界面时，程序读一次卡上的编号并保存为这支队伍的顺序，日志里会写出读到的结果和截图。想马上读、不等镜牢：打开游戏的编队界面，运行「添加任务」里的「读取编队顺序」。「跟随游戏」每次都照游戏里的顺序用，只记录、不保存。设置界面本身不能截图，所以读取总是发生在任务运行的时候。",
   "mirror_team_order_game": "跟随游戏里排好的顺序",
   "mirror_team_order_custom": "手动写出完整顺序",
   "mirror_team_order_text": "出战顺序（编号或名字）",
@@ -205,5 +205,6 @@
   "mirror_team_stars": "星光增益",
   "mirror_team_stars_description": "这支队伍进镜牢时选哪些星光增益、最多花多少星光。镜牢任务里「星光规则来源」选「跟随当前编队」（默认）时使用这里的方案；没设过方案的队伍沿用已保存的旧规则。",
   "mirror_team_stars_choose": "重新选择",
-  "mirror_team_star_cards": "要哪些星光增益"
+  "mirror_team_star_cards": "要哪些星光增益",
+  "mirror_team_order_read": "一键读取：读游戏里的顺序并保存"
 }

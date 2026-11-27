@@ -29,6 +29,10 @@ from .storage import ProfileStore, SINNERS, KEYWORDS, read_json
 
 KEEP = 'keep'
 GAME = 'game'
+#: "Read it once": follow the game like GAME, and save what the run reads on the team page
+#: as the team's order (`team_order_record.arm`). The settings window cannot take a
+#: screenshot, so the reading happens in the run; the user asked for it in this dropdown.
+READ = 'read'
 #: What a player may type instead of the two English words.
 KEEP_WORDS = ('', 'keep', '不变', '保持', '保持不变', 'そのまま')
 GAME_WORDS = ('game', '游戏', '跟随游戏', 'ゲーム')
@@ -100,7 +104,7 @@ def collect_builds(get_node):
             stars = get_node(prefix + '_stars')['attach'].get('mode', KEEP)
         except KeyError:
             stars = KEEP    # a pipeline packaged before the team's starlight setting existed
-        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'custom') or stars not in (KEEP, 'choose'):
+        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, READ, 'custom') or stars not in (KEEP, 'choose'):
             raise ValueError('Unknown Mirror team setting')
         if systems == KEEP and order == KEEP and stars == KEEP:
             continue
@@ -132,7 +136,7 @@ def apply_builds(directory, edits):
         raise ValueError('Global build edits must be an object')
     store = ProfileStore(directory / 'user-team-profiles.json')
     teams = list(store.load()) if store.path.exists() else []
-    changed = []
+    changed, marks = [], []
     ledger = directory / 'user-run-ledger.json'
     active = read_json(ledger).get('active') if ledger.exists() else None
     for key, edit in edits.items():
@@ -142,7 +146,10 @@ def apply_builds(directory, edits):
             raise ValueError('A team edit names its systems and its deployment order')
         slot = int(key)
         old = next((t for t in teams if t.slot == slot), None)
-        keywords, order = edit['keywords'], parse_order(edit['order'])
+        capture = edit['order'] == READ
+        keywords, order = edit['keywords'], GAME if capture else parse_order(edit['order'])
+        if edit['order'] != KEEP:
+            marks.append((slot, capture))
         fields = {}
         if keywords != KEEP:
             # An empty choice is allowed: the team is tied to no system.
@@ -172,4 +179,9 @@ def apply_builds(directory, edits):
             changed.append(slot)
     if changed:
         store.save(teams)
+    # After the profiles: a team whose order is to be read once is marked, and a team
+    # given any other order loses the mark.
+    from . import team_order_record
+    for slot, capture in marks:
+        (team_order_record.arm if capture else team_order_record.disarm)(directory, slot)
     return changed

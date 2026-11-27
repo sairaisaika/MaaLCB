@@ -48,6 +48,51 @@ def record(directory, slot, badges, frame, *, now=None):
     return dict(entry, changed=True)
 
 
+CAPTURE = 'user-team-order-capture.json'
+
+
+def _armed(directory):
+    path = Path(directory) / CAPTURE
+    data = read_json(path) if path.exists() else {}
+    slots = data.get('slots') if isinstance(data, dict) and data.get('version') == 1 else []
+    return [slot for slot in slots or [] if type(slot) is int]
+
+
+def arm(directory, slot):
+    """Mark `slot`: the next order a run reads for it is saved as the team's own."""
+    slots = _armed(directory)
+    if slot not in slots:
+        write_json(Path(directory) / CAPTURE, dict(version=1, slots=sorted(slots + [slot])))
+
+
+def disarm(directory, slot):
+    slots = _armed(directory)
+    if slot in slots:
+        write_json(Path(directory) / CAPTURE, dict(version=1, slots=[one for one in slots if one != slot]))
+
+
+def save_if_armed(directory, slot, entry):
+    """Save a recorded order as the team's deployment when the player asked for it; True if saved.
+
+    `entry` is what `record` returned. The mark is used up: the order is read once.
+    """
+    if not entry or slot not in _armed(directory):
+        return False
+    from dataclasses import replace
+    from .storage import ProfileStore, Team
+    store = ProfileStore(Path(directory) / 'user-team-profiles.json')
+    teams = list(store.load()) if store.path.exists() else []
+    old = next((team for team in teams if team.slot == slot), None)
+    new = replace(old or Team(slot, frozenset()), deployment=tuple(entry['order']))
+    if old is None:
+        teams.append(new)
+    else:
+        teams[teams.index(old)] = new
+    store.save(teams)
+    disarm(directory, slot)
+    return True
+
+
 def line(slot, entry):
     """The task-log line for a recorded order."""
     names = '、'.join(DISPLAY[position - 1] for position in entry['positions'])
