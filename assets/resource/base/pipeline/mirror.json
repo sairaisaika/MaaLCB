@@ -3697,5 +3697,896 @@
     },
     "action": "DoNothing",
     "next": []
+  },
+  "Global_global_team_1_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_1_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_1_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_2_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_2_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_2_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_3_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_3_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_3_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_4_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_4_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_4_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_5_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_5_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_5_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_6_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_6_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_6_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_7_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_7_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_7_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_8_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_8_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_8_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_9_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_9_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_9_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_10_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_10_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_10_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_11_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_11_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_11_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_12_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_12_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_12_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_13_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_13_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_13_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_14_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_14_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_14_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_15_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_15_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_15_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_16_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_16_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_16_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_17_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_17_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_17_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_18_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_18_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_18_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_19_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_19_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_19_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_20_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_20_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_20_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_21_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_21_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_21_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_22_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_22_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_22_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_23_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_23_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_23_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_24_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_24_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_24_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_25_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_25_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_25_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_26_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_26_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_26_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_27_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_27_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_27_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_28_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_28_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_28_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_29_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_29_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_29_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_30_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_30_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_30_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_31_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_31_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_31_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_32_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_32_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_32_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_33_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_33_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_33_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_34_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_34_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_34_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_35_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_35_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_35_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_36_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_36_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_36_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_37_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_37_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_37_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_38_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_38_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_38_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_39_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_39_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_39_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "Global_global_team_40_stars": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "mode": "keep"
+    }
+  },
+  "Global_global_team_40_star_cards": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {}
+  },
+  "Global_global_team_40_star_budget": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "budget": "0"
+    }
+  },
+  "ReadTeamOrderTask": {
+    "recognition": "DirectHit",
+    "action": "Custom",
+    "custom_action": "limbus_main_task",
+    "custom_action_param": {
+      "task": "read_team_order"
+    },
+    "timeout": 60000,
+    "next": [],
+    "on_error": []
   }
 }

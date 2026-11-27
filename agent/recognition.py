@@ -2209,8 +2209,12 @@ class MirrorLoopAction(CustomAction):
             # window into a safety net -- a five-floor dungeon must not be cut halfway by a
             # window number the user picked to mean 'three dungeons'.
             window = 1 if settings.observe_only else int(settings.steps)
-            if not settings.observe_only and int(getattr(settings, 'run_count', 0) or 0) > 0:
-                window = max(window, 4000)
+            if not settings.observe_only:
+                # The step window is not a setting any more: it is only the net under a
+                # loop that never ends on its own. A run takes roughly 600 to 800 steps,
+                # so the net is far above what the runs asked for can use; the run count,
+                # the stall watch and each page's own bounded tries are what stop a window.
+                window = max(window, 4000, 1500 * int(getattr(settings, 'run_count', 0) or 0))
             result = loop.run(steps=window,
                               interval=float(settings.interval),
                               round_limit=1 if settings.observe_only else window,
@@ -2449,6 +2453,19 @@ class MainTaskAction(CustomAction):
                     # A run finished by this task (reward claimed, lobby reached) is a Mirror run of today.
                     from maalimbus import mirror_schedule
                     mirror_schedule.book_result(data_directory(ROOT),directory,datetime.now(timezone.utc))
+                    return bool(result.get('passed'))
+                if task=='read_team_order':
+                    # One frame, no input: the order printed on the team page the player has open.
+                    from maalimbus import team_order_task
+                    record=runner.observe(observer,time.monotonic()+30)
+                    size=tuple(record.get('size') or (1920,1080))
+                    result=team_order_task.read(data_directory(ROOT),record,
+                        runner.controls_by_id(runner._load_registry(),size),runner.frame_file(directory),
+                        team_state=runner.team_state)
+                    result['task']=task
+                    print('MaaLimbus '+result['message'],flush=True)
+                    journal.record('main_task_stopped',**result)
+                    write_loop_result(directory,result)
                     return bool(result.get('passed'))
                 if task in ('experience','thread'):
                     from maalimbus.lux_task import prepare, execute as execute_lux

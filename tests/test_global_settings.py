@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+from maalimbus.game_vocabulary import TEAM_CHOICES
 from maalimbus.global_settings import GAME, KEEP, apply_builds, collect_builds, parse_order
 from maalimbus.policies import Team
 from maalimbus.storage import KEYWORDS, ProfileStore, SINNERS, write_json
@@ -140,19 +141,21 @@ def test_the_interface_matches_what_the_program_reads():
     pipeline = json.loads((ROOT / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
     sections = [s for s in pi['setting'] if s['name'].startswith('global_team_')]
     assert len(sections) == 40 and len(set(pi['global_option'])) == len(pi['global_option'])
-    assert len([name for name in pi['option'] if name.startswith('global_team_')]) == 160      # it was 600
+    # It was 600. Four per team for systems and order, three more for the team's starlight.
+    assert len([name for name in pi['option'] if name.startswith('global_team_')]) == 280
     assert collect_builds(pipeline.__getitem__) == {}        # the shipped defaults change nothing
     for slot in range(1, 41):
         prefix = f'global_team_{slot}'
         section = next(s for s in sections if s['name'] == prefix)
-        assert section['label'] == f'$mirror_team_{slot}' and section['option'] == [prefix + '_systems', prefix + '_order']
+        assert section['label'] == f'$mirror_team_{slot}' and section['option'] == [prefix + '_systems', prefix + '_order', prefix + '_stars']
         systems, keywords = pi['option'][prefix + '_systems'], pi['option'][prefix + '_keywords']
         assert systems['default_case'] == 'keep' and [c['name'] for c in systems['cases']] == ['keep', 'choose']
         assert keywords['type'] == 'checkbox' and keywords['default_case'] == []
-        assert [c['name'] for c in keywords['cases']] == list(KEYWORDS)
+        # The game's ten keywords in the game's order, then the program's own switch.
+        assert [c['name'] for c in keywords['cases']] == list(TEAM_CHOICES)
         # Every ticked case sets its own attach key on one node, so several can be ticked at once.
         keys = [list(c['pipeline_override'][f'Global_{prefix}_keywords']['attach']) for c in keywords['cases']]
-        assert keys == [['kw_' + word] for word in KEYWORDS]
+        assert keys == [['kw_' + word] for word in TEAM_CHOICES]
         order = pi['option'][prefix + '_order']
         assert order['default_case'] == 'keep' and [c['name'] for c in order['cases']] == ['keep', 'game', 'custom']
         assert prefix + '_starters' not in pi['option']
@@ -162,4 +165,4 @@ def test_the_interface_matches_what_the_program_reads():
         option = pi['option'][name]
         assert option['default_case'] in {case['name'] for case in option['cases']}
     assert pipeline['GlobalSettingsApply']['next'] == ['MirrorLoop']
-    assert len([name for name in pipeline if name.startswith('Global_global_team_')]) == 160
+    assert len([name for name in pipeline if name.startswith('Global_global_team_')]) == 280

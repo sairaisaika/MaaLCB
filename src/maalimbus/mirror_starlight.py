@@ -49,6 +49,11 @@ def resolve(directory,slot):
     else:
         team=next((t for t in ProfileStore(directory/'user-team-profiles.json').load() if t.slot==slot),None)
         if team is None:raise ValueError('Current star team is not saved')
+        if source=='team' and team.grace_budget is None:
+            # No plan was ever set for this team (the budget is the plan's own mark): the
+            # saved rule stands, exactly as when no source was chosen. "Follow the team"
+            # is the default source, so it must not stop a team nobody configured.
+            return None
         if any(len(g)!=1 for g in team.graces):raise ValueError('Enhanced stars are not supported by this native rule')
         if source=='team':selected=plan(dict(choices=[int(g) for g in team.graces],budget=team.grace_budget))
         else:

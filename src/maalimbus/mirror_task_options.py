@@ -6,7 +6,13 @@ from .storage import KEYWORDS
 def collect(get_node):
     keyword = get_node('MirrorInitialKeyword')['attach']['keyword']
     search = get_node('MirrorGiftSearch')['attach']['mode']
-    bounds = get_node('MirrorRunBounds')['attach']['steps']
+    # The step bound is not offered any more (2026-11-27: the player counts runs, and a
+    # number of loop steps means nothing to them). The node is still read so that a
+    # pipeline or a saved choice that carries a number behaves as it did.
+    try:
+        bounds = get_node('MirrorRunBounds').get('attach', {}).get('steps', 'saved')
+    except KeyError:
+        bounds = 'saved'
     # The run count is a later node than the rest: a pipeline built before it existed
     # simply carries no value, and that reads as "no number named" rather than as a
     # failure to start the window.

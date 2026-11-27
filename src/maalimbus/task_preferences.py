@@ -4,7 +4,9 @@ from .storage import ProfileStore,read_json,write_json
 
 TASKS=('open_game','mirror','experience','thread','rewards','stamina',
        # Tasks on the device itself (device_tasks.py): no team, no game page.
-       'detect_emulator','close_game','close_emulator')
+       'detect_emulator','close_game','close_emulator',
+       # Reads the team page the player has open and saves its order (team_order_task.py).
+       'read_team_order')
 
 
 class TaskPreferences:

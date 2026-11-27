@@ -4491,7 +4491,7 @@
     },
     {
       "id": "team-settings",
-      "title": "镜牢队伍设置：勾选藏品体系，出战顺序跟随游戏并留记录 / Mirror team settings: ticked gift systems, order followed from the game and recorded",
+      "title": "镜牢队伍设置：关键词词典、出战顺序（跟随游戏或一键读取）、队伍星光 / Mirror team settings: keyword dictionary, deployment order (followed or read on demand), team starlight",
       "aliases": [
         "队伍设置",
         "编队设置",
@@ -4525,7 +4525,30 @@
         "读到的顺序",
         "team_order_record",
         "user-team-order-records",
-        "deployment_order_read_from_game"
+        "deployment_order_read_from_game",
+        "读取编队顺序",
+        "一键读取",
+        "编队顺序",
+        "read_team_order",
+        "ReadTeamOrderTask",
+        "team_order_task",
+        "team_order_saved",
+        "team_order_numbers_unread",
+        "team_order_cards_not_visible",
+        "队伍星光",
+        "星光增益",
+        "global_team_stars",
+        "星光规则来源",
+        "关键词词典",
+        "属性词典",
+        "关键词刷新",
+        "Keyword Refresh",
+        "game_vocabulary",
+        "GIFT_KEYWORDS",
+        "TEAM_CHOICES",
+        "步数上限",
+        "mirror_run_bounds",
+        "MirrorRunBounds"
       ],
       "sources": [
         {
@@ -4551,6 +4574,22 @@
         {
           "path": "src/maalimbus/team_order.py",
           "symbol": "order_from_badges"
+        },
+        {
+          "path": "src/maalimbus/team_order_task.py",
+          "symbol": "read"
+        },
+        {
+          "path": "src/maalimbus/game_vocabulary.py",
+          "symbol": "GIFT_KEYWORDS"
+        },
+        {
+          "path": "src/maalimbus/mirror_starlight.py",
+          "symbol": "resolve"
+        },
+        {
+          "path": "src/maalimbus/mirror_task_options.py",
+          "symbol": "collect"
         }
       ],
       "docs": [
@@ -4559,7 +4598,8 @@
       ],
       "tests": [
         "tests/test_global_settings.py",
-        "tests/test_team_order_record.py"
+        "tests/test_team_order_record.py",
+        "tests/test_team_page_settings.py"
       ],
       "checks": [
         "python tools/run_tests.py -q tests/test_global_settings.py tests/test_team_order_record.py"

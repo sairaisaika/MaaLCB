@@ -114,7 +114,7 @@ def test_the_pipeline_chain_and_the_interface_agree_on_the_same_nodes():
     assert 'team_keywords' not in tasks['mirror_loop']['option']
     assert tasks['mirror_loop']['option']==['mirror_team_mode','mirror_star_source',
         'mirror_initial_keyword','mirror_shop_policy','mirror_shop_refresh_limit',
-            'mirror_shop_coin_reserve','mirror_shop_fusion','mirror_run_bounds','mirror_run_count','mirror_defeat_accept','mirror_reward_claim',
+            'mirror_shop_coin_reserve','mirror_shop_fusion','mirror_run_count','mirror_defeat_accept','mirror_reward_claim',
         'mirror_schedule',
         'mirror_preferences',
         'mirror_battle_assignment']
@@ -126,4 +126,5 @@ def test_every_keyword_a_build_can_name_is_one_the_engine_knows():
     pi = json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
     offered = {case['name'] for slot in (1, 20, 40)
                for case in pi['option'][f'global_team_{slot}_keywords']['cases']}
-    assert offered == set(KEYWORDS)
+    # A Vestige is a material, not a keyword: the engine still loads a team that names it.
+    assert offered == set(KEYWORDS) - {'Vestige'}
