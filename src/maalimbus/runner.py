@@ -4854,6 +4854,14 @@ class MirrorRunner:
                     # target left nothing and the loop answered "no destination" three times.
                     self.note('map_refused_all_fell_back', dropped=dropped,
                               reason='refusing_the_last_candidate_would_refuse_every_input')
+                    # Every destination ahead was pressed and ignored: the battle the party
+                    # stands on may still be owed, so its own node is tried once first.
+                    from .run_wiring import own_node_offer
+                    own_node = own_node_offer(self.state, party_now, _side_hint, candidates, refused_all=True)
+                    if own_node is not None:
+                        self.note('map_own_node_offered', box=own_node, party=list(party_now),
+                                  after='every_destination_ahead_was_refused', input_sent=False)
+                        candidates = [own_node]
         # A click can only take the party one tile: `-194702` alternated between a target 1.1
         # tiles away and one 2.0 tiles away, and the far one can never be walked to, so half
         # the intents were dead on arrival (D427).  Measured with the frame's own box side as

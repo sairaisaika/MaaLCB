@@ -26,7 +26,7 @@ MAP_FORWARD_REASON = 'map_node_click_is_the_only_proven_forward_input'
 OWN_NODE_AFTER_EMPTY_READS = 2
 
 
-def own_node_offer(state, party, side, offered):
+def own_node_offer(state, party, side, offered, refused_all=False):
     """The party's own node as the one destination, once, when the map offers nothing ahead.
 
     A battle the session left before it ended (the game closed, another app brought to
@@ -38,23 +38,35 @@ def own_node_offer(state, party, side, offered):
     is offered once; a map that offers a destination again clears the memory. If the
     press changes nothing the run stops as it did.
 
+    The other shape of the same debt (live pi-20261126-231526): the map does offer the
+    node ahead, the game ignores every press on it because the battle behind is owed,
+    and the memory of refused targets ends up refusing the only candidate. With
+    `refused_all` the own node is offered at once instead of that candidate again.
+
     `state` is the loop's own dict and is updated in place. Returns the box to offer,
     or None.
     """
-    if offered:
-        state['map_empty_offers'] = 0
-        state['map_own_node_tried'] = False
+    if offered and not refused_all:
+        if list(offered[0]) != state.get('map_own_node_box'):
+            # A real destination again: the debt, if there was one, is paid.
+            state['map_empty_offers'] = 0
+            state['map_own_node_tried'] = False
+            state['map_own_node_box'] = None
         return None
     if not party:
         return None
-    state['map_empty_offers'] = int(state.get('map_empty_offers') or 0) + 1
-    if state['map_empty_offers'] < OWN_NODE_AFTER_EMPTY_READS or state.get('map_own_node_tried'):
+    if not refused_all:
+        state['map_empty_offers'] = int(state.get('map_empty_offers') or 0) + 1
+        if state['map_empty_offers'] < OWN_NODE_AFTER_EMPTY_READS:
+            return None
+    if state.get('map_own_node_tried'):
         return None
     state['map_own_node_tried'] = True
     # The ruler is the frame's own node size when the reader had one; without it the
     # box is the smallest that still lands on the node under the party.
     half = max(16, side // 6) if type(side) is int and side > 0 else 16
-    return [int(party[0]) - half, int(party[1]) - half, 2 * half, 2 * half]
+    state['map_own_node_box'] = [int(party[0]) - half, int(party[1]) - half, 2 * half, 2 * half]
+    return list(state['map_own_node_box'])
 #: the two inputs that settle the claim, from ``maalimbus.window``.
 REWARD_CONFIRM_REASON = 'the_reward_claim_is_confirmed_and_never_cancelled'
 ENTRY_CONFIRM_REASON = 'dungeon_team_confirm_brings_the_chosen_team_in'

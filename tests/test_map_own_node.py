@@ -28,7 +28,7 @@ def test_a_map_that_offers_a_destination_again_clears_the_memory():
     own_node_offer(state, PARTY, SIDE, [])
     own_node_offer(state, PARTY, SIDE, [])
     assert own_node_offer(state, PARTY, SIDE, [[100, 100, 192, 192]]) is None
-    assert state == dict(map_empty_offers=0, map_own_node_tried=False)
+    assert state == dict(map_empty_offers=0, map_own_node_tried=False, map_own_node_box=None)
     assert own_node_offer(state, PARTY, SIDE, []) is None
     assert own_node_offer(state, PARTY, SIDE, []) is not None      # a later interrupted battle is owed too
 
@@ -42,3 +42,20 @@ def test_without_a_party_nothing_is_offered_and_without_a_ruler_the_box_is_the_s
         state = {}
         own_node_offer(state, PARTY, side, [])
         assert own_node_offer(state, PARTY, side, []) == [939 - 16, 447 - 16, 32, 32]
+
+
+def test_when_every_destination_ahead_was_refused_the_own_node_is_offered_at_once_and_once():
+    # live pi-20261126-231526: the node ahead was offered and pressed three times with no
+    # effect, the progress panel was tried, and the run ended on
+    # `map_resume_did_not_restore_navigation`.
+    ahead = [[1041, 707, 93, 47]]
+    state = {}
+    box = own_node_offer(state, PARTY, SIDE, ahead, refused_all=True)
+    assert box == [939 - 32, 447 - 32, 64, 64] and state['map_own_node_tried']
+    # The step that carries the own node as its one candidate does not clear the memory...
+    assert own_node_offer(state, PARTY, SIDE, [box]) is None and state['map_own_node_tried']
+    # ...so a second refusal of everything does not press it again,
+    assert own_node_offer(state, PARTY, SIDE, ahead, refused_all=True) is None
+    # and a destination the game accepts afterwards does clear it.
+    assert own_node_offer(state, PARTY, SIDE, ahead) is None and not state['map_own_node_tried']
+    assert own_node_offer({}, None, SIDE, ahead, refused_all=True) is None
