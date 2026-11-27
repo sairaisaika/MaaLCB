@@ -268,6 +268,11 @@ erDiagram
         int version
         array teams
     }
+    user-mirror-starlight {
+        int version
+        string source
+        object task
+    }
     user-launch {
         string graces
         int grace_budget

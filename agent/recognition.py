@@ -2412,8 +2412,8 @@ class MainTaskAction(CustomAction):
                                 gifts=self.recognition.gift_catalog().entries,
                                 packs=self.recognition.theme_catalog().names)
                         from maalimbus.mirror_starlight import collect,apply
-                        source,star_task,star_edit=collect(context.get_node_data)
-                        apply(data_directory(ROOT),source,star_task,star_edit)
+                        source,star_task=collect(context.get_node_data)
+                        apply(data_directory(ROOT),source,star_task)
                         node=context.get_node_data('MirrorLoop')
                         from maalimbus.mirror_task_options import collect as collect_task_options
                         loop_params=dict(node['action']['param']['custom_action_param'])

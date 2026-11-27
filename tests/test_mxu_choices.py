@@ -52,3 +52,10 @@ def test_unknown_saved_selection_is_rejected_before_creating_any_controller():
     with pytest.raises(ValueError,match='Unknown'):resolve_choices(interface,current)
     current['taskName']='prepare_deployment'
     with pytest.raises(ValueError,match='no longer exists'):resolve_choices(interface,current)
+
+def test_a_saved_case_the_interface_no_longer_offers_replays_the_default():
+    # The star source was saved as "saved" before 2026-11-27; that case is gone.
+    interface=json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
+    assert 'saved' not in [c['name'] for c in interface['option']['mirror_star_source']['cases']]
+    patches=resolve_choices(interface,task('single'))
+    assert patches['MirrorStarSource']['attach']['source']=='team'

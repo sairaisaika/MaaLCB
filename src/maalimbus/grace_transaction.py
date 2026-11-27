@@ -155,10 +155,13 @@ class GraceTransaction:
         write_json(self.path,d)
         return list(chosen)
 
-    def intent(self,card,cost,available,proof):
+    def intent(self,card,cost,available,proof,stock=0):
+        """Book the press that buys `card`. `stock` is what may still come from the owned
+        starlight past the run's allowance (zero unless the player allowed it), so a card
+        that costs more than the allowance left is refused exactly as before without it."""
         d=self.data
         if (d['pending'] or card not in d['requested'] or card in d['selected'] or cost<=0
-                or cost>available or d['spent']+cost>d['budget']
+                or cost>available+max(0,stock) or d['spent']+cost>d['budget']
                 or ('auto_costs' in d and d['auto_costs'].get(str(card))!=cost)):
             raise ValueError('Grace purchase is not authorized by this transaction')
         d['pending']=dict(card=card,cost=cost,before=available,proof=str(proof))

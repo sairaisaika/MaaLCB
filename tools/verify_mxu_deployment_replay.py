@@ -30,6 +30,10 @@ from maalimbus.jobs import wait_job,wait_task
 from verify_deployment_replay import Replay
 
 
+#: Saved choices of cases that were removed from the interface, by option.
+RETIRED_CASES={'mirror_star_source':('saved','auto')}     # removed 2026-11-27: the game keeps no selection
+
+
 def resolve_choices(interface, task):
     """Select only active children, using exact stored case names."""
     spec=next((t for t in interface['task'] if t['name']==task['taskName']),None)
@@ -46,6 +50,13 @@ def resolve_choices(interface, task):
             value={'type':'select','caseName':default}
         if value['type']!='select':raise ValueError('Expected fixed select option')
         case=next((c for c in interface['option'][name]['cases'] if c['name']==value['caseName']),None)
+        if case is None and value['caseName'] in RETIRED_CASES.get(name,()):
+            # A case the interface offered once and no longer does: MXU itself shows the
+            # option's default for such a saved value (seen live for a removed order
+            # choice), so the replay does the same. Only the cases named here; any other
+            # unknown value is still refused before a controller exists.
+            default=interface['option'][name].get('default_case')
+            case=next((c for c in interface['option'][name]['cases'] if c['name']==default),None)
         if case is None:raise ValueError('Unknown saved option case')
         for node,params in case.get('pipeline_override',{}).items():
             if node in overrides:raise ValueError('Unexpected overlapping PI nodes')

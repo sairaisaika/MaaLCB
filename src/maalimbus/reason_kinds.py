@@ -71,6 +71,11 @@ EXCEPTIONS = {
     # The orders were read and the client's settings could not be written: its web
     # service is off or did not answer. The result carries the lines to paste.
     'team_orders_read_but_not_written': 'missing_control',
+    # The Graces page: the owned stock was to be used and was not read; a card's price
+    # is no multiple of its base cost; a level button was pressed twice without effect.
+    'starlight_owned_balance_not_proven': 'unreadable_text',
+    'grace_cost_is_not_a_known_level': 'bad_saved_state',
+    'grace_level_not_set_after_two_presses': 'attempts_exhausted',
     # Why the client's settings could not be written (mxu_settings.py).
     'mxu_web_service_is_off': 'missing_control',
     'mxu_web_service_did_not_answer': 'missing_control',

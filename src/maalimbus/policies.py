@@ -26,8 +26,13 @@ class Team:
     initial_gifts: tuple[int, ...] = ()
     auto_team: bool = False
     grace_budget: int | None = None
+    #: The most starlight a run may take from the owned stock past its allowance for
+    #: this team's graces; zero keeps the stock untouched.
+    grace_stock: int = 0
 
     def __post_init__(self):
+        if type(self.grace_stock) is not int or not 0<=self.grace_stock<=1000000:
+            raise ValueError('Team starlight taken from the stock must be 0..1000000')
         if self.grace_budget is not None and (type(self.grace_budget) is not int or not 0<=self.grace_budget<=1000000):
             raise ValueError('Team starlight budget must be an explicit nonnegative integer')
         if type(self.slot) is not int or not 1 <= self.slot <= 40:

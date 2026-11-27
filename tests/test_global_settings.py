@@ -141,8 +141,9 @@ def test_the_interface_matches_what_the_program_reads():
     pipeline = json.loads((ROOT / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
     sections = [s for s in pi['setting'] if s['name'].startswith('global_team_')]
     assert len(sections) == 40 and len(set(pi['global_option'])) == len(pi['global_option'])
-    # It was 600. Four per team for systems and order, three more for the team's starlight.
-    assert len([name for name in pi['option'] if name.startswith('global_team_')]) == 280
+    # It was 600. Four per team for systems and order, six for the team's starlight plan:
+    # the plan, a row of ticks per level, and what may come from the stock.
+    assert len([name for name in pi['option'] if name.startswith('global_team_')]) == 400
     assert collect_builds(pipeline.__getitem__) == {}        # the shipped defaults change nothing
     for slot in range(1, 41):
         prefix = f'global_team_{slot}'
@@ -165,4 +166,4 @@ def test_the_interface_matches_what_the_program_reads():
         option = pi['option'][name]
         assert option['default_case'] in {case['name'] for case in option['cases']}
     assert pipeline['GlobalSettingsApply']['next'] == ['MirrorLoop']
-    assert len([name for name in pipeline if name.startswith('Global_global_team_')]) == 280
+    assert len([name for name in pipeline if name.startswith('Global_global_team_')]) == 400

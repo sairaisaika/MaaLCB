@@ -100,7 +100,8 @@ def collect_builds(get_node):
             stars = get_node(prefix + '_stars')['attach'].get('mode', KEEP)
         except KeyError:
             stars = KEEP    # a pipeline packaged before the team's starlight setting existed
-        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'custom') or stars not in (KEEP, 'choose'):
+        if (systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'custom')
+                or stars not in (KEEP, 'none', 'all', 'all_plus', 'all_plusplus', 'custom')):
             raise ValueError('Unknown Mirror team setting')
         if systems == KEEP and order == KEEP and stars == KEEP:
             continue
@@ -113,17 +114,12 @@ def collect_builds(get_node):
             if not isinstance(order, str) or not order.strip():
                 raise ValueError('Write the deployment order, or choose another way to set it')
         result[str(slot)] = dict(keywords=keywords, order=order)
-        if stars == 'choose':
-            # The team's own starlight plan: which of the ten cards (Lix zero-based, one
-            # attach key per ticked card) and the most starlight it may spend.
-            ticked = get_node(prefix + '_star_cards').get('attach') or {}
-            budget = get_node(prefix + '_star_budget')['attach'].get('budget', '0')
-            if not isinstance(budget, str) or not budget.isdecimal() or len(budget) > 7:
-                raise ValueError('Star budget must be decimal digits')
-            result[str(slot)]['stars'] = dict(
-                choices=sorted(int(key[5:]) for key, on in ticked.items()
-                               if key.startswith('star_') and key[5:].isdecimal() and on is True),
-                budget=int(budget))
+        if stars != KEEP:
+            # The team's own starlight plan: a preset or ticked cards, each at its level,
+            # and what may be taken from the stock (mirror_starlight.from_nodes).
+            from .mirror_starlight import from_nodes, team_nodes
+            chosen = from_nodes(get_node, team_nodes(slot))
+            result[str(slot)]['stars'] = dict(levels=chosen['levels'], stock=chosen['stock'])
     return result
 
 
@@ -157,10 +153,11 @@ def apply_builds(directory, edits):
         elif order != KEEP:
             fields['deployment'] = order
         if 'stars' in edit:
-            from .mirror_starlight import plan
+            from .mirror_starlight import notation, plan
             stars = plan(edit['stars'])
-            fields['graces'] = tuple(str(card) for card in stars['choices'])
+            fields['graces'] = notation(stars)
             fields['grace_budget'] = stars['budget']
+            fields['grace_stock'] = stars['stock']
         new = replace(old or Team(slot, frozenset()), **fields)
         if active and active.get('team') == slot and old != new:
             raise ValueError('Finish the active run before editing its team')

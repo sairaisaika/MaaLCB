@@ -52,9 +52,24 @@ GLOSSARY = {
                                                   'them bought. The detail line names '
                                                   'the requested cards, the bought ones '
                                                   'and the prices, so the working set is '
-                                                  'the configured Graces (team profile '
-                                                  'or --graces) against the balance the '
-                                                  'page printed.',
+                                                  'the plan (the team\'s or the task\'s, '
+                                                  'with its levels) against the balance '
+                                                  'the page printed and the stock the '
+                                                  'plan may use.',
+    'starlight_owned_balance_not_proven': 'the plan may take starlight from the owned '
+                                          'stock, and the "Owned" counter on the Grace '
+                                          'page could not be read, so how much the stock '
+                                          'can give is unknown and nothing is bought past '
+                                          'the run\'s allowance.',
+    'grace_cost_is_not_a_known_level': 'a Grace card printed a price that is neither one, '
+                                       'two nor three times its base cost, so its level '
+                                       'cannot be told and it is not bought. The season\'s '
+                                       'cost table (grace_vision.CARDS) is probably out of '
+                                       'date; the detail line names the card and the price.',
+    'grace_level_not_set_after_two_presses': 'a Grace card\'s own + or ++ button was '
+                                             'pressed twice and its price still does not '
+                                             'match the level the plan asks for, so the '
+                                             'card is not bought at a level nobody chose.',
     'page_is_observe_only': 'the page has no proven control, so the runner records it '
                             'instead of guessing a tap. Look at the frame named below: a '
                             'page that should have a plan is a missing plan, not a '

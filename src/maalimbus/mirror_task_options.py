@@ -45,6 +45,16 @@ def collect(get_node):
         # What happens once a wiped stage has used up its retries: accept the result, which
         # ends the run, or stop on the page and leave it to the player.
         result['defeat_accept'] = wipe == 'accept'
+    try:
+        free = get_node('MirrorShopRefreshPaid').get('attach', {}).get('free_only')
+    except KeyError:
+        free = None  # A pipeline packaged before the choice existed carries no node.
+    if free is not None:
+        if type(free) is not bool:
+            raise ValueError('Unknown shop refresh payment choice')
+        # Refresh a shop only while the refresh costs nothing (the free refreshes a grace
+        # gives); a refresh that would cost coins is left alone.
+        result['shop_free_refresh_only'] = free
     if battle not in ('saved','win_rate','damage','observe'):
         raise ValueError('Unknown battle assignment mode')
     if battle!='saved':result['battle_assignment']=battle

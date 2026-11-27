@@ -57,6 +57,17 @@ AVAILABLE_LABEL = r'^Ava[l1i]{1,3}ab[l1i]e$'
 #: also scores lower — the live card costs read .75 to .86 that way against 1.0 clean —
 #: so a token that proves its digits through this pattern is accepted from DIGIT_FLOOR.
 AVAILABLE_PATTERN = r'^[^\d]{0,3}\d{1,5}[^\d]{0,2}$'
+#: Past the run's own allowance the counter prints what is taken from the stock as a
+#: second number: live packaged-mirror-20261127-180801 reads ``*0+90`` at .85 beside
+#: "Available" and ``3607-90`` at 1.0 beside "Owned", with cards 1, 5 and 6 selected at
+#: ``++`` (30 + 90 + 90 against an allowance of 120).
+OVERDRAWN_PATTERN = re.compile(r'^[^\d]{0,3}(\d{1,5})\+(\d{1,5})[^\d]{0,2}$')
+OWNED_LABEL = r'^Owned$'
+OWNED_PATTERN = re.compile(r'^[^\d]{0,3}(\d{1,6})(?:-(\d{1,5}))?[^\d]{0,2}$')
+#: What a card costs at each level, as a multiple of its base cost. Read on the same
+#: page: every card at ``++`` costs three times its base (30, 30, 60, 60, 90, 90, 120,
+#: 120, 150, 180) and every card at ``+`` twice (20, 20, 40, 40, 60, 60, 80, 80, 100, 120).
+LEVEL_FACTOR = (1, 2, 3)
 AVAILABLE_DIGITS = re.compile(r'\d{1,5}')
 DIGIT_FLOOR = 0.70
 #: A balance of exactly zero is one lone glyph beside the starlight icon. The detector
@@ -152,9 +163,16 @@ def available_starlight(records, size, *, band=AVAILABLE_BAND, expect_zero=False
     hits=[];weak=[]
     for item in records:
         bx,by,bw,bh=item.box
-        if not (re.fullmatch(AVAILABLE_PATTERN,item.text or '')
-                and bx>=x+w-10*scale and bx+bw/2<=x+w+200*scale
+        if not (bx>=x+w-10*scale and bx+bw/2<=x+w+200*scale
                 and abs((by+bh/2)-(y+h/2))<=25*scale):
+            continue
+        overdrawn=OVERDRAWN_PATTERN.fullmatch(item.text or '')
+        if overdrawn and item.score>=DIGIT_FLOOR:
+            # The allowance left, less what is taken from the stock: one number that a
+            # purchase lowers by exactly its cost on both sides of zero.
+            hits.append(int(overdrawn.group(1))-int(overdrawn.group(2)))
+            continue
+        if not re.fullmatch(AVAILABLE_PATTERN,item.text or ''):
             continue
         if item.score>=DIGIT_FLOOR:
             hits.append(int(AVAILABLE_DIGITS.search(item.text).group()))
@@ -163,6 +181,42 @@ def available_starlight(records, size, *, band=AVAILABLE_BAND, expect_zero=False
     if hits or not expect_zero:
         return agreeing_number(hits)
     return 0 if weak and all(digits=='0' for digits in weak) else None
+
+
+def owned_starlight(records, size, *, band=(0.52, 0.02, 0.80, 0.12)):
+    """``(stock, taken)`` beside "Owned": the stock of starlight and what this page takes from it.
+
+    ``3607`` is ``(3607, 0)`` and ``3607-90`` is ``(3607, 90)``. None when the frame does
+    not read exactly one such number, which is not zero stock.
+    """
+    import maalimbus.vision as vision
+
+    records=list(records)
+    labels=vision.find(records,OWNED_LABEL,band,size,.85)
+    if len(labels)!=1:return None
+    x,y,w,h=labels[0].box
+    scale=size[0]/1920
+    found=set()
+    for item in records:
+        bx,by,bw,bh=item.box
+        match=OWNED_PATTERN.fullmatch(item.text or '')
+        if (match and item.score>=DIGIT_FLOOR and bx>=x+w-10*scale and bx+bw/2<=x+w+220*scale
+                and abs((by+bh/2)-(y+h/2))<=25*scale):
+            found.add((int(match.group(1)),int(match.group(2) or 0)))
+    return found.pop() if len(found)==1 else None
+
+
+def level_of(index, cost):
+    """The level a card's printed cost says it is at: 0, 1 (``+``) or 2 (``++``); None if neither."""
+    base=COSTS[index-1]
+    for level,factor in enumerate(LEVEL_FACTOR):
+        if cost==base*factor:return level
+    return None
+
+
+def cost_at(index, level):
+    """What card `index` costs at `level`, from the season's base cost."""
+    return COSTS[index-1]*LEVEL_FACTOR[level]
 
 
 def zero_only_corroborated(records, size, *, band=AVAILABLE_BAND):
@@ -218,7 +272,7 @@ def observed_board(image, records, wanted):
     boxes=star_vision.grid(image)
     if boxes is None:return None
     height,width=image.shape[:2]
-    costs=[0]*10;points={}
+    costs=[0]*10;points={};levels={}
     for index in wanted:
         if not 1<=index<=10:return None
         box=boxes[index-1]
@@ -228,7 +282,8 @@ def observed_board(image, records, wanted):
         costs[index-1]=cost
         x,y,w,h=star_vision.target_box(box)
         points[index]=(x+w//2,y+h//2)
-    return {'costs':costs,'points':points}
+        levels[index]={level:star_vision.level_box(box,level) for level in (1,2)}
+    return {'costs':costs,'points':points,'level_boxes':levels}
 
 
 def plan_purchases(wanted, available, *, bought=(), costs=COSTS):

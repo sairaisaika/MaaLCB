@@ -104,6 +104,23 @@ def cost_roi(box):
     return (x+round(205*sx),y+round(3*sy),round(72*sx),round(32*sy))
 
 
+#: Where a card's own ``+`` and ``++`` buttons sit, from the card box's corner, in the
+#: 1920x1080 card frame. Measured on evidence/runtime/packaged-mirror-20261127-180801
+#: frame-0001: card 2's cost at [714,236] puts its box at x 509, its ``+`` reads at
+#: [572,510,16,20] and its ``++`` at [682,508,34,22]; the second row's sit at y 869.
+LEVEL_OFFSET = {1: (71, 289), 2: (190, 289)}
+LEVEL_SIZE = (56, 26)
+
+
+def level_box(box, level):
+    """The card's own ``+`` (level 1) or ``++`` (level 2) button."""
+    x,y,w,h=box
+    sx,sy=w/W,h/H
+    dx,dy=LEVEL_OFFSET[level]
+    width,height=round(LEVEL_SIZE[0]*sx),round(LEVEL_SIZE[1]*sy)
+    return (x+round(dx*sx)-width//2,y+round(dy*sy)-height//2,width,height)
+
+
 def target_box(box):
     x,y,w,h=box
     # Upper card body; never the +/++ controls near the bottom.

@@ -470,6 +470,33 @@ Five of the 126 keywordless gifts mention a system; checked, each does so as a b
 
 **Not done, not verified.** A term records that a description mentions that kind of effect, not the condition or the amount, so terms do not enter the score: two gifts of the same tier and relation still cannot be told apart. Restricted only recognises the restriction at the opening of a description; a general gift with an added "Exclusive Effect" section is not restricted. Tier points are policy, not derived from the damage formula. The relation and the lists have tests only; no team other than Charge/Tremor has a live record; badge recognition is not built.
 
+<a id="grace-levels"></a>
+
+### 4.3.4d Graces: three levels, the run's allowance and the stock
+
+**What the page is** (pressed in the game on 2026-11-27, with the user's own selection left on it; OCR in `evidence/runtime/packaged-mirror-20261127-180801` and `-181009`). "Grace of the Sisyphean Star" has ten cards with three levels each: plain, `+` and `++`, costing one, two and three times the base (`src/maalimbus/grace_vision.py:70` (`LEVEL_FACTOR`)).
+
+| Card | plain / + / ++ |
+|---|---|
+| 1 Star of the Beginning, 2 Cumulating Starcloud | 10 / 20 / 30 |
+| 3 Interstellar Travel, 4 Star-shower | 20 / 40 / 60 |
+| 5 Binary Star-shop, 6 Moon Star-shop | 30 / 60 / 90 |
+| 7 Favor of the Nebulae, 8 Starlight Guidance | 40 / 80 / 120 |
+| 9 Chance Comet | 50 / 100 / 150 |
+| 10 Perfected Possibility | 60 / 120 / 180 |
+
+- A card's own `+` / `++` button changes that card's level and price, selects nothing and spends nothing; pressing the lit button returns the card to plain. "Enhance All" does the same for all ten, "Select All Graces" selects them. Pressing the card's body selects it.
+- "Available", top right, is the run's allowance of starlight (120 here); what is left becomes starting Cost at 1 to 5. When the selection costs more, the counter becomes `0+90` and "Owned" becomes `3607-90`: the rest comes from the stock.
+- The game remembers no selection; the page opens empty every run.
+
+**A plan** (`src/maalimbus/mirror_starlight.py:34` (`plan`)) is three things: which cards, each card's level, and the most that may be taken from the stock (0 by default: the stock is not touched). A plan belongs to a team (in the global settings, next to its gift systems and deployment order) or to the Mirror task; the task only chooses whose: the current team's (the default; a team with no plan borrows the task's) or the task's. The two older sources, "saved" and "auto", are removed; "saved" read a file nothing in the settings wrote.
+
+**How many presses in the settings.** Presets: none, all plain, all `+`, all `++`, one choice each (in the game: "Select All Graces" and "Enhance All", two presses). Ticking your own: one row of ten ticks per level; tick a card in the row of the level you want, and a card ticked in two rows takes the higher (`src/maalimbus/mirror_starlight.py:80` (`from_nodes`)). Cards 1, 5 and 6 at `++` are three ticks; 1 and 5 at `+` with 6 at `++` are three ticks too. The same choice in the game is a level press and a body press per card, four to six presses.
+
+**How a run buys** (the `STAR_GRACES` branch of `src/maalimbus/runner.py`). For the next card to buy: its price is read and gives its level (`src/maalimbus/grace_vision.py:209` (`level_of`)); if that is not the plan's, the card's own level button is pressed (`src/maalimbus/star_vision.py:115` (`level_box`)), with no entry in the books and at most twice; only when the price agrees is the card's body pressed, through the transaction as before: intent, press, proof by the balance. The balance is one number, the allowance left less what is taken from the stock (`0+90` reads as -90); buying a card lowers it by exactly the card's price on both sides of zero. Only when the player allowed the stock is "Owned" read and the usable stock added to the budget (`src/maalimbus/grace_vision.py:186` (`owned_starlight`)); the stock is extra room the transaction is told about (`stock` of `GraceTransaction.intent`), and without it a card past the allowance is refused as before.
+
+**Not verified.** The readings and button positions were checked against OCR of the real page, and the level buttons and card bodies were pressed there by adb; **the purchase flow as a whole has not run live**. In particular the confirmation that follows Enter past the allowance was not looked at, since pressing it spends owned starlight, and a plan with levels has never been bought end to end. Enhanced graces also lead to pages the program has not seen: card 10 lets the player choose tier III gifts at entry, a page the loop probably does not know and would stop on.
+
 <a id="feature-4-3-5"></a>
 
 ### 4.3.5 Initial gifts, search and floor themes

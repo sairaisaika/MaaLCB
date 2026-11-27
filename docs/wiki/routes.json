@@ -2518,7 +2518,7 @@
     },
     {
       "id": "stars",
-      "title": "星光余额、卡片和已发送购买恢复",
+      "title": "星光增益：三档强化、本局额度与库存、卡片购买与恢复 / graces: levels, allowance and stock, purchases and recovery",
       "aliases": [
         "星光",
         "余额",
@@ -2530,7 +2530,31 @@
         "零余额",
         "zero balance",
         "lone zero",
-        "grace_zero_balance_corroborated"
+        "grace_zero_balance_corroborated",
+        "星光增益",
+        "星光强化",
+        "强化档位",
+        "Enhance All",
+        "Select All Graces",
+        "库存星光",
+        "Owned",
+        "Available",
+        "0+90",
+        "grace_levels",
+        "grace_stock",
+        "level_of",
+        "level_box",
+        "owned_starlight",
+        "from_nodes",
+        "mirror_star_task_plan",
+        "grace_level_not_set_after_two_presses",
+        "grace_cost_is_not_a_known_level",
+        "starlight_owned_balance_not_proven",
+        "只用免费刷新",
+        "free_refresh_only",
+        "mirror_shop_refresh_paid",
+        "星光规则来源",
+        "星光方案"
       ],
       "sources": [
         {
@@ -2556,11 +2580,33 @@
         {
           "path": "src/maalimbus/grace_transaction.py",
           "symbol": "GraceTransaction.is_zero_expected"
+        },
+        {
+          "path": "src/maalimbus/mirror_starlight.py",
+          "symbol": "plan"
+        },
+        {
+          "path": "src/maalimbus/mirror_starlight.py",
+          "symbol": "from_nodes"
+        },
+        {
+          "path": "src/maalimbus/grace_vision.py",
+          "symbol": "owned_starlight"
+        },
+        {
+          "path": "src/maalimbus/grace_vision.py",
+          "symbol": "level_of"
+        },
+        {
+          "path": "src/maalimbus/star_vision.py",
+          "symbol": "level_box"
         }
       ],
       "docs": [
         "docs/wiki/zh_cn/4-business-flows.md#feature-4-3-5",
-        "docs/wiki/en_us/4-business-flows.md#feature-4-3-5"
+        "docs/wiki/en_us/4-business-flows.md#feature-4-3-5",
+        "docs/wiki/zh_cn/4-business-flows.md#grace-levels",
+        "docs/wiki/en_us/4-business-flows.md#grace-levels"
       ],
       "tests": [
         "tests/test_grace_balance_native.py",

@@ -630,7 +630,9 @@ class ShopTransaction:
 
     def reserve_refresh(self, scope, visit, cost, coins, limit, frame_path, kind='regular', reserve_coins=0):
         self._ready(scope, visit)
-        _integer(cost, 'refresh cost', 1)
+        # Zero is a price too: a refresh a grace made free prints 0, and "only free
+        # refreshes" presses nothing else.
+        _integer(cost, 'refresh cost', 0)
         _integer(coins, 'currency')
         _integer(limit, 'refresh limit')
         _integer(reserve_coins, 'reserve')

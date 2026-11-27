@@ -1156,6 +1156,13 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
         # and Enter [1740,986,102,42]).
         buy = graces or {}
         point = buy.get('point')
+        if buy.get('level_card') and buy.get('box'):
+            # The card's own + or ++ button, pressed before the card is selected: it
+            # changes the card's level and price and buys nothing, so the detail names
+            # no `card` and no purchase is booked for this press.
+            return _plan(page, CLICK, target=list(buy['box']), expect=(ANY,), advance=True,
+                         reason='grace_card_is_bought_within_the_available_starlight',
+                         detail={'level_card': buy['level_card'], 'level': buy['level']})
         if point is not None and buy.get('card'):
             return _plan(page, CLICK,
                          target=[point[0] - 45, point[1] - 23, 90, 46],

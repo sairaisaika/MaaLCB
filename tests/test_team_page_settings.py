@@ -19,7 +19,6 @@ import pytest
 
 from maalimbus import game_vocabulary, team_order_task
 from maalimbus.global_settings import apply_builds, collect_builds
-from maalimbus.mirror_starlight import apply as apply_stars, resolve
 from maalimbus.mirror_task_options import collect as collect_task_options
 from maalimbus.policies import Team
 from maalimbus.storage import KEYWORDS, SINNERS, ProfileStore, write_json
@@ -68,58 +67,16 @@ def test_the_keyword_choices_are_the_games_dictionary_in_the_games_order():
     assert cases == ['saved'] + [word.lower() for word in game_vocabulary.TEAM_CHOICES]
 
 
-def star_nodes(slot, cards, budget, mode='choose'):
-    prefix = 'Global_global_team_%d' % slot
-    chosen = {prefix + '_stars': dict(attach=dict(mode=mode)),
-              prefix + '_star_cards': dict(attach={'star_%d' % card: True for card in cards}),
-              prefix + '_star_budget': dict(attach=dict(budget=budget))}
-
-    def get(name):
-        if name in chosen:
-            return chosen[name]
-        if name.endswith(('_keywords', '_star_cards')):
-            return dict(attach={})
-        if name.endswith('_star_budget'):
-            return dict(attach=dict(budget='0'))
-        if name.endswith('_order_text'):
-            return dict(attach=dict(order=''))
-        return dict(attach=dict(mode='keep'))
-    return get
-
-
-def test_a_teams_starlight_is_set_with_the_team_and_followed_by_default(tmp_path):
+def test_starlight_is_set_with_the_team_and_the_task_only_chooses_whose_plan():
+    # The plan itself, its levels and the stock are covered in tests/test_mirror_starlight.py.
     for slot in (1, 40):
         name = 'global_team_%d' % slot
         section = next(s for s in PI['setting'] if s['name'] == name)
         assert section['option'] == [name + '_systems', name + '_order', name + '_stars']
         assert name + '_stars' in PI['global_option']
-        assert [case['name'] for case in PI['option'][name + '_star_cards']['cases']] == [str(n) for n in range(10)]
-        for suffix in ('_stars', '_star_cards', '_star_budget'):
-            assert 'Global_' + name + suffix in NODES
-    # The task chooses the source only; the per-team editor it used to carry is gone.
     source = PI['option']['mirror_star_source']
-    assert source['default_case'] == 'team'
+    assert source['default_case'] == 'team' and [case['name'] for case in source['cases']] == ['team', 'task']
     assert not [name for name in PI['option'] if name.startswith('mirror_star_team_')]
-    assert all('mirror_star_team_editor' not in case.get('option', ()) for case in source['cases'])
-
-    edits = collect_builds(star_nodes(2, (0, 3, 5), '120'))
-    assert edits == {'2': dict(keywords='keep', order='keep', stars=dict(choices=[0, 3, 5], budget=120))}
-    assert collect_builds(star_nodes(2, (0,), '5', mode='keep')) == {}
-    write_json(tmp_path / 'user-team-profiles.json', dict(version=1, teams=[]))
-    ProfileStore(tmp_path / 'user-team-profiles.json').save(
-        [Team(2, frozenset({'Charge'}), deployment=tuple(SINNERS)), Team(3, frozenset({'Burn'}))])
-    assert apply_builds(tmp_path, edits) == [2]
-    saved = {team.slot: team for team in ProfileStore(tmp_path / 'user-team-profiles.json').load()}
-    assert saved[2].graces == ('0', '3', '5') and saved[2].grace_budget == 120
-    assert saved[2].keywords == frozenset({'Charge'}) and saved[2].deployment == tuple(SINNERS)   # the rest is kept
-    # "Follow the team": the team with a plan uses it, the team without one keeps the saved rule.
-    apply_stars(tmp_path, 'team', dict(choices=[], budget=0))
-    assert resolve(tmp_path, 2) == dict(graces='1,4,6', grace_budget=120, grace_auto=False, star_source='team', team=2)
-    assert resolve(tmp_path, 3) is None
-    with pytest.raises(ValueError, match='decimal digits'):
-        collect_builds(star_nodes(2, (0,), 'many'))
-    with pytest.raises(ValueError, match='Star choices'):
-        apply_builds(tmp_path, {'2': dict(keywords='keep', order='keep', stars=dict(choices=[11], budget=1))})
 
 
 class TeamScreen:

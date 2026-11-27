@@ -239,6 +239,11 @@ def _defaults():
         'battle_assignment':'win_rate', 'loop_guard': 3, 'claim_tries': 6,
         'exempt_rounds': 6,
         'observe_only': False, 'stop_page': None, 'grace_budget': 60, 'grace_auto': False,
+        # Each grace's level as "card:level" pairs (1-based card; 1 is +, 2 is ++), and
+        # the most starlight a run may take from the owned stock past its allowance.
+        'grace_levels': '', 'grace_stock': 0,
+        # Refresh a shop only while the refresh is free.
+        'shop_free_refresh_only': False,
         'observe_page': False, 'defeat_tries': 2, 'defeat_accept': False,
         'graces': '1,3,5,6,8', 'map_points': '', 'flow': None, 'flow_timeout': None,
         'after_flow': False, 'swipe': None, 'click_box': None, 'label': 'one_shot_click',
@@ -3205,7 +3210,8 @@ def pre_battle_identity_evidence(directory, record, saved_order=(), order_badges
 
 def shop_state(record, wanted=(), bought=(), refreshes_used=0, refresh_limit=2,
                reserve_coins=0, policy='manual', learning=None, value_context=None,
-               blocked=(), carry_cap_coins=None, gift_names=(), known_coins=()):
+               blocked=(), carry_cap_coins=None, gift_names=(), known_coins=(),
+               free_refresh_only=False):
     """What the shop page offers and the one input a shop visit may spend.
 
     A shop is spent from by reading its own page: every offer prints its name and
@@ -3316,7 +3322,10 @@ def shop_state(record, wanted=(), bought=(), refreshes_used=0, refresh_limit=2,
                     and refreshes_used < refresh_limit
                     and plain is not None and plain.box is not None
                     and plain.cost is not None and cash is not None
-                    and cash >= 2 * plain.cost and cash-plain.cost>=reserve_coins)
+                    and cash >= 2 * plain.cost and cash-plain.cost>=reserve_coins
+                    # "Only free refreshes": the button must print a cost of zero. A cost
+                    # that was not read is not zero.
+                    and (not free_refresh_only or plain.cost == 0))
         if worth_it and policy=='learned':
             from .shop_learning import refresh_decision
             worth_it,policy_trace=refresh_decision(learning or [],policy_trace)
@@ -3721,7 +3730,7 @@ class MirrorRunner:
             from .mirror_starlight import resolve
             star=resolve(self.store.path.parent,self.store.team_slot)
             if star is not None:
-                self.settings=Settings({**self.settings.as_dict(),**{k:star[k] for k in ('graces','grace_budget','grace_auto')}})
+                self.settings=Settings({**self.settings.as_dict(),**{k:star[k] for k in ('graces','grace_budget','grace_auto','grace_levels','grace_stock')}})
                 if journal is not None:journal.record('mirror_star_rule_resolved',**star,enhance=False,conversion=False)
         self.flow = flow
         self.log = log
@@ -5864,6 +5873,7 @@ class MirrorRunner:
                                      +list(state.get('shop_held_back') or ()),
                               refreshes_used=state['shop_refreshes'],
                               refresh_limit=settings.shop_refreshes,reserve_coins=settings.shop_reserve_coins,
+                              free_refresh_only=bool(settings.shop_free_refresh_only),
                               policy=settings.shop_policy,learning=learning,
                               blocked=sorted(profile.block) if profile else (),
                               carry_cap_coins=visit_cap,
@@ -6598,15 +6608,42 @@ class MirrorRunner:
                 self._detail(requested=state['grace_wanted'],
                              bought=sorted(state['grace_bought']))
                 return self._result(page,None,False,stopped,done=True)
+            from .grace_vision import cost_at, level_of, owned_starlight
+            levels = state.get('grace_levels') or {}
+            stock_room = 0
+            if int(settings.grace_stock or 0) > 0:
+                # The player allowed this plan to draw on the owned stock: read the stock
+                # and what this page already takes from it.
+                owned = owned_starlight(records, record.get('size') or (1920, 1080))
+                if owned is None:
+                    retry = self._unread_grace_retry(state, page, 'starlight_owned_balance_not_proven')
+                    if retry is not None:
+                        return retry
+                    stopped = self._record(page, record, frame, candidates, None,
+                                           'starlight_owned_balance_not_proven')
+                    self._detail(requested=state['grace_wanted'], bought=sorted(state['grace_bought']))
+                    return self._result(page, None, False, stopped, done=True)
+                stock_room = max(0, min(int(settings.grace_stock), owned[0]) - owned[1])
+            state['grace_stock_room'] = stock_room
             state['grace_read_attempts'] = 0
+            # What every card costs once it stands at the level asked for; a bought card
+            # costs what it shows. The page's own number is checked again before a press.
+            costs = list(board['costs'])
+            for index in state['grace_wanted']:
+                if index not in state['grace_bought']:
+                    costs[index - 1] = cost_at(index, levels.get(index, 0))
             spent = sum(board['costs'][index-1] for index in state['grace_bought'])
-            total_budget = min(settings.grace_budget, available + spent)
+            # `available` is the allowance left less what is taken from the stock, so past
+            # the allowance it is negative; the stock room is what may still be taken.
+            total_budget = min(settings.grace_budget, spent + max(0, available) + stock_room)
             wanted = plan_purchases(state['grace_wanted'], total_budget,
-                                    bought=state['grace_bought'], costs=board['costs'])
+                                    bought=state['grace_bought'], costs=costs)
             points = board['points']
             self.journal.record('grace_purchase_plan', requested=state['grace_wanted'],
                                 bought=sorted(state['grace_bought']), available=available,
-                                budget=settings.grace_budget, costs=board['costs'], next=wanted)
+                                budget=settings.grace_budget, costs=board['costs'], next=wanted,
+                                levels={str(index): levels.get(index, 0) for index in state['grace_wanted']},
+                                target_costs=costs, stock_room=stock_room)
             remaining = set(state['grace_wanted']) - state['grace_bought']
             if remaining and not wanted:
                 # The page's balance is the hard limit on how much of the configured set
@@ -6619,7 +6656,7 @@ class MirrorRunner:
                 try:
                     narrowed=transaction.seal_affordable(
                         self.run_id,[int(n) for n in str(settings.graces).split(',') if n.strip()],
-                        settings.grace_budget,total_budget,board['costs'],frame_file(directory))
+                        settings.grace_budget,total_budget,costs,frame_file(directory))
                 except ValueError as error:
                     stopped=self._record(page,record,frame,candidates,None,
                                          'configured_graces_incomplete_within_budget')
@@ -6636,10 +6673,37 @@ class MirrorRunner:
                           budget=total_budget,unaffordable=sorted(remaining))
                 state['grace_wanted']=narrowed
                 wanted=plan_purchases(state['grace_wanted'],total_budget,
-                                      bought=state['grace_bought'],costs=board['costs'])
+                                      bought=state['grace_bought'],costs=costs)
             if wanted and wanted[0] in points:
-                graces = {'card': wanted[0], 'point': points[wanted[0]],
-                          'available': available}
+                card = wanted[0]
+                asked = levels.get(card, 0)
+                shown = level_of(card, board['costs'][card - 1])
+                if shown is None:
+                    # Neither one, two nor three times the card's base cost: the season's
+                    # cost table is out of date, and a press would buy at an unknown price.
+                    stopped = self._record(page, record, frame, candidates, None,
+                                           'grace_cost_is_not_a_known_level')
+                    self._detail(card=card, cost=board['costs'][card - 1], asked_level=asked)
+                    return self._result(page, None, False, stopped, done=True)
+                if shown != asked:
+                    # The card's own + / ++ button first: it changes the level and the
+                    # price, selects nothing and spends nothing. Pressing the lit button
+                    # again returns the card to plain.
+                    tries = state.setdefault('grace_level_tries', {})
+                    tries[card] = tries.get(card, 0) + 1
+                    if tries[card] > 2:
+                        stopped = self._record(page, record, frame, candidates, None,
+                                               'grace_level_not_set_after_two_presses')
+                        self._detail(card=card, shown_level=shown, asked_level=asked,
+                                     cost=board['costs'][card - 1])
+                        return self._result(page, None, False, stopped, done=True)
+                    press = asked if asked else shown
+                    graces = {'level_card': card, 'level': press, 'available': available,
+                              'box': list(board['level_boxes'][card][press])}
+                    self.note('grace_level_press', card=card, shown_level=shown, asked_level=asked,
+                              button=press, attempt=tries[card], input_sent=False)
+                else:
+                    graces = {'card': card, 'point': points[card], 'available': available}
         elif page!='STAR_CONFIRM':
             state['grace_bought'] = set()
         check = check_of(directory, record, page=page)
@@ -6843,7 +6907,8 @@ class MirrorRunner:
             self.store.entry_warning_intent(self.run_id,frame_file(directory))
         if page=='STAR_GRACES' and (plan.get('detail') or {}).get('card') and transaction is not None:
             card=plan['detail']['card']
-            transaction.intent(card,board['costs'][card-1],available,frame_file(directory))
+            transaction.intent(card,board['costs'][card-1],available,frame_file(directory),
+                               stock=int(state.get('grace_stock_room') or 0))
         if page=='INITIAL_GIFTS' and (initial or {}).get('gift'):
             g=initial['gift'];self.initial_transaction.intent(g['row'],g['title'],count,frame_file(directory))
         if page=='GIFT_PICK' and (gift or {}).get('title'):
@@ -9574,6 +9639,11 @@ def _fresh_state(settings, store=None):
         wanted_plan = None
     grace_wanted = [int(part) for part in str(settings.graces).replace(' ', '').split(',')
                     if part.strip().isdigit()]
+    grace_levels = {}
+    for part in str(settings.grace_levels or '').replace(' ', '').split(','):
+        card, _, level = part.partition(':')
+        if card.isdigit() and level in ('0', '1', '2') and 1 <= int(card) <= 10:
+            grace_levels[int(card)] = int(level)
     map_points = []
     for part in str(settings.map_points or '').split(';'):
         pieces = [piece.strip() for piece in part.split(',') if piece.strip()]
@@ -9590,7 +9660,7 @@ def _fresh_state(settings, store=None):
             'team_slot_picked': None, 'defeat_row_sent': False, 'defeat_attempts': 0,
             'defeat_accept_sent': False,
             'identity_sha': None, 'session_ended': None,
-            'tutorial_cards': set(), 'grace_wanted': grace_wanted, 'grace_bought': set(),
+            'tutorial_cards': set(), 'grace_wanted': grace_wanted, 'grace_bought': set(), 'grace_levels': grace_levels,
             'gift_plan': wanted_plan, 'map_points': map_points,
             # Whether the run this window is paying out earned its payout: it starts
             # from the ledger (a window that begins on a claim still knows what it is
