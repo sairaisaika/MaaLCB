@@ -51,7 +51,11 @@ HEADER_FLOOR_PATTERN = r'^Floor\s*([1-5])?$'
 #: 'Exploring·Floor' and the page consequently stayed UNKNOWN for 32 of 36 frames,
 #: producing no map click at all).  Normalising the separator once, here, keeps the
 #: header patterns readable instead of growing a tolerance per glyph.
-HEADER_SEPARATORS = '\u00b7\u2022\u22c5\u0387\u30fb|'
+#: A full stop and a comma joined the list on 2026-11-26: with a node under the caption
+#: the map read 'Exploring Floor.1' and 'Exploring Floor,1' (live pi-20261126-181001
+#: frame-0044 and frame-0055), the page stayed unnamed, and the sixth run ended on
+#: `page_unreadable_after_waiting` two minutes after it was resumed.
+HEADER_SEPARATORS = '\u00b7\u2022\u22c5\u0387\u30fb|.,'
 
 
 def normalise_header_text(text):
