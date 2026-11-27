@@ -4876,6 +4876,14 @@ class MirrorRunner:
                 self.note('map_candidates_too_far', dropped=len(candidates) - len(_kept),
                           left=len(_kept), side=_side_hint)
                 candidates = _kept
+        if candidates is not None:
+            # Nothing ahead, twice: the party may be standing on a battle it still owes.
+            from .run_wiring import own_node_offer
+            own_node = own_node_offer(self.state, record.get('map_party'), _side_hint, candidates)
+            if own_node is not None:
+                self.note('map_own_node_offered', box=own_node, party=list(record['map_party']),
+                          empty_reads=self.state['map_empty_offers'], input_sent=False)
+                candidates = [own_node]
         # The commitment has to be re-applied after every filter that may drop it: the
         # refused-target memory above is exactly a list of tiles this party already failed
         # on, so a committed target that was refused once vanished here and the plan went
