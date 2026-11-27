@@ -128,6 +128,7 @@ class TeamScreen:
     def __init__(self, orders, selected=1, top=1, visible=6, ignore_press=()):
         self.orders, self.selected, self.top, self.visible = dict(orders), selected, top, visible
         self.ignore_press, self.presses, self.drags = set(ignore_press), [], 0
+        self.counter = {}
 
     def observe(self):
         rows = [dict(text='TEAMS #%d' % slot, box=[110, 480 + 60 * index, 130, 36], score=.99)
@@ -135,7 +136,10 @@ class TeamScreen:
         return dict(size=[1920, 1080], ocr=rows, shown=self.selected)
 
     def team_state(self, record):
-        return dict(numbers=list(self.orders.get(record['shown'], [None] * 12)), saved_team=record['shown'])
+        numbers = list(self.orders.get(record['shown'], [None] * 12))
+        picked = sum(type(number) is int for number in numbers)
+        return dict(numbers=numbers, saved_team=record['shown'],
+                    participants=self.counter.get(record['shown'], (picked, 12)))
 
     def press(self, box):
         slot = self.top + round((box[1] - 480) / 60)
@@ -171,8 +175,10 @@ def test_the_task_goes_down_the_team_list_and_records_each_team_under_its_own_nu
     result = run_task(tmp_path, screen, 3)
     assert result['passed'] and result['reason'] == 'team_orders_recorded' and result['input_sent']
     assert [one['slot'] for one in result['recorded']] == [1, 2, 3] and not result['failed']
-    # Team 2 was showing: team 1's row was pressed first, then 2 and 3 in turn. No card was pressed.
-    assert screen.presses == [1, 2, 3] and screen.drags == 0
+    # Team 2 was showing: team 1's row was pressed first, then 2 and 3 in turn, and at the end
+    # the row of team 2 again, so the game is left on the team the player had selected.
+    assert screen.presses == [1, 2, 3, 2] and screen.drags == 0
+    assert screen.selected == 2 and result['shown_at_start'] == 2 and result['restored'] is True
     # Team 1's reading is under team 1: position 1 is the card that printed 1, the tenth, Sinclair.
     assert team_order_record.latest(tmp_path, 1)['order'][:3] == ['Sinclair', 'Ishmael', 'Heathcliff']
     assert team_order_record.latest(tmp_path, 2)['order'][0] == 'Don Quixote'
@@ -188,14 +194,17 @@ def test_a_team_below_the_visible_rows_is_reached_by_dragging_the_list(tmp_path)
     screen = TeamScreen({slot: ORDER_B for slot in range(1, 9)})
     result = run_task(tmp_path, screen, 8)
     assert result['passed'] and [one['slot'] for one in result['recorded']] == list(range(1, 9))
-    assert screen.drags >= 1 and screen.presses == list(range(2, 9))      # team 1 was already showing
+    # Team 1 was already showing; after team 8 the list is dragged back and team 1 selected again.
+    assert screen.drags >= 2 and screen.presses == list(range(2, 9)) + [1] and screen.selected == 1
     assert team_order_record.latest(tmp_path, 8)['positions'][0] == 3
 
 
 def test_a_team_that_cannot_be_read_is_skipped_by_name_and_the_others_are_still_recorded(tmp_path):
     from maalimbus import team_order_record
-    partial = [1, 2, 3, None, None, None, None, None, None, None, None, None]     # only three picked
+    # Four numbers on the cards while the page's counter says five are picked: one was not read.
+    partial = [1, 2, 3, None, 4, None, None, None, None, None, None, None]
     screen = TeamScreen({1: ORDER_A, 2: partial, 3: ORDER_B, 4: ORDER_B}, ignore_press={4})
+    screen.counter[2] = (5, 12)
     result = run_task(tmp_path, screen, 4)
     assert not result['passed'] and result['reason'] == 'team_orders_partly_recorded'
     assert [one['slot'] for one in result['recorded']] == [1, 3]
@@ -204,6 +213,7 @@ def test_a_team_that_cannot_be_read_is_skipped_by_name_and_the_others_are_still_
     assert team_order_record.latest(tmp_path, 2) is None and team_order_record.latest(tmp_path, 4) is None
     assert '队伍 2（编号没有读全' in result['message'] and '队伍 4（' in result['message']
     assert screen.presses.count(4) == team_order_task.PRESSES
+    assert screen.selected == 1 and result['restored'] is True
 
 
 def test_a_page_without_cards_records_nothing_and_a_dungeon_page_is_the_runs_team(tmp_path):
@@ -263,3 +273,23 @@ def test_a_teams_settings_can_take_its_recorded_order_and_keep_what_they_have_wi
     # The half-day version that read during the next run is gone.
     source = (ROOT / 'src/maalimbus/runner.py').read_text(encoding='utf-8')
     assert 'save_if_armed' not in source and not hasattr(team_order_record, 'arm')
+
+
+def test_a_team_that_is_not_full_is_recorded_with_the_unpicked_cards_after_the_picked(tmp_path):
+    # Live pi-20261127-032808: TEAMS #2 showed 5/12 with these numbers and was skipped as unread.
+    from maalimbus import team_order_record
+    live = [None, None, 1, 2, 5, 3, None, None, 4, None, None, None]
+    assert team_order_task.completed(live, (5, 12)) == ([6, 7, 1, 2, 5, 3, 8, 9, 4, 10, 11, 12], 5)
+    assert team_order_task.completed(live, None) is None                 # no counter: unread and unpicked look alike
+    assert team_order_task.completed(live, (6, 12)) is None              # the counter says a number is missing
+    assert team_order_task.completed([None] * 12, (0, 12)) is None
+    assert team_order_task.completed(ORDER_A, (12, 12)) == (ORDER_A, 12)
+    screen = TeamScreen({1: ORDER_A, 2: live})
+    result = run_task(tmp_path, screen, 2)
+    assert result['passed'] and [one['slot'] for one in result['recorded']] == [1, 2]
+    assert result['recorded'][1]['picked'] == 5
+    order = team_order_record.latest(tmp_path, 2)['order']
+    # Don Quixote, Ryoshu, Hong Lu, Rodion, Meursault as the game numbered them, then the rest in roster order.
+    assert order[:5] == ['Don Quixote', 'Ryoshu', 'Hong Lu', 'Rodion', 'Meursault']
+    assert order[5:] == ['Yi Sang', 'Faust', 'Heathcliff', 'Ishmael', 'Sinclair', 'Outis', 'Gregor']
+    assert '只选了前 5 位' in result['message']

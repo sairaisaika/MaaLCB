@@ -13,11 +13,20 @@ the settings.
 
 What it sends: one press on a row of the ``TEAMS`` list per team, and a drag of that list
 when the row is not on screen (`team_navigation.browse`, the search the run itself uses
-to find its team). Nothing on a card is pressed and nothing is saved by the game.
+to find its team). Nothing on a card is pressed. Selecting a row does change which team
+the game has selected on that screen, so when the reading is done the team that was
+showing at the start is selected again (live pi-20261127-032808 left TEAMS #3 selected
+where the player had TEAMS #1); the result says whether that worked.
 
 A team is recorded only when the page says it shows that team (``TEAMS #n`` in the
 header) and all twelve numbers read as a complete 1..12. Anything less records nothing
 for that team and the result says which team and why; the others are still read.
+
+A team need not be full. Live pi-20261127-032808: TEAMS #2 showed 5/12, five cards
+numbered 1..5 and seven with no number, and the first version skipped it as unread. The
+page's own counter says how many are picked; when the numbers read are exactly 1..picked
+the reading is complete, and the cards the game left unnumbered follow in roster order,
+the same rule a typed order uses for the sinners it does not name.
 
 The team page inside a dungeon has no list and prints no ``TEAMS #n``: the run's team is
 fixed there (replayed on eight frames of pi-20261126-233844: twelve numbers, no team
@@ -56,6 +65,27 @@ def _texts(record):
     return [Text(item['text'], tuple(item['box']), item['score']) for item in (record or {}).get('ocr') or []]
 
 
+def completed(numbers, participants):
+    """The twelve numbers with the unpicked cards filled in, and how many were picked; or None.
+
+    `participants` is the page's counter, ``(picked, capacity)``. A partial team is
+    accepted only when the counter was read and the numbers on the cards are exactly
+    1..picked: a card whose number was merely not read is then impossible to confuse
+    with a card the game left out.
+    """
+    values = list(numbers or ())
+    if len(values) != 12:
+        return None
+    read = [number for number in values if type(number) is int]
+    if len(read) == 12:
+        return values, 12
+    picked = participants[0] if participants else None
+    if type(picked) is not int or not 1 <= picked < 12 or sorted(read) != list(range(1, picked + 1)):
+        return None
+    rest = iter(range(picked + 1, 13))
+    return [number if type(number) is int else next(rest) for number in values], picked
+
+
 def read(directory, count, *, observe, press, drag, team_state, frame, browse=team_navigation.browse):
     """Record the orders of teams 1..`count`; returns the task result with a `message`.
 
@@ -91,16 +121,18 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
         return dict(passed=True, reason='team_orders_recorded', input_sent=False, slot_source='run_in_progress',
                     recorded=[dict(slot=slot, positions=list(order))], failed=[],
                     message='这一页是镜牢里的编队页，只有正在进行的这一局所用的队伍 %d：已录入 %s。' % (slot, _names(order)))
+    shown_at_start = team.get('saved_team')
     for slot in range(1, count + 1):
         state, unread, presses, outcome = {}, 0, 0, None
         for _ in range(TRIES):
             team = team_state(record) or {}
             numbers = team.get('numbers') or []
             if team.get('saved_team') == slot:
-                order, reason = order_from_badges(numbers)
+                full = completed(numbers, team.get('participants'))
+                order, reason = order_from_badges(full[0] if full else numbers)
                 if order is not None:
-                    team_order_record.record(directory, slot, numbers, frame())
-                    outcome = dict(slot=slot, positions=list(order))
+                    team_order_record.record(directory, slot, full[0], frame())
+                    outcome = dict(slot=slot, positions=list(order), picked=full[1])
                     break
                 unread += 1
                 if unread >= UNREAD:
@@ -125,16 +157,38 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
         if outcome is None:
             outcome = dict(slot=slot, reason='team_list_search_budget_exhausted')
         (recorded if 'positions' in outcome else failed).append(outcome)
-    lines = ['队伍 %d：%s' % (one['slot'], _names(one['positions'])) for one in recorded]
+    # Put the screen back on the team the player had selected.
+    restored = None
+    if type(shown_at_start) is int and inputs:
+        state = {}
+        for _ in range(TRIES):
+            if (team_state(record) or {}).get('saved_team') == shown_at_start:
+                restored = True
+                break
+            step = browse(_texts(record), tuple(record.get('size') or size), shown_at_start, state)
+            if step.get('target'):
+                inputs += 1
+                record = press(step['target'])
+            elif step.get('start'):
+                inputs += 1
+                record = drag(step['start'], step['to'])
+            else:
+                break
+        restored = bool(restored)
+    lines = ['队伍 %d：%s%s' % (one['slot'], _names(one['positions']),
+                              '（游戏里只选了前 %d 位，其余按罪人编号顺序排在后面）' % one['picked']
+                              if one.get('picked', 12) < 12 else '') for one in recorded]
     missed = ['队伍 %d（%s%s）' % (one['slot'], FAILED.get(one['reason'], one['reason']),
                                  '：' + WHY.get(one['detail'], one['detail']) if one.get('detail') else '')
               for one in failed]
-    message = ('已录入 %d 支队伍的出战顺序。%s' % (len(recorded), '；'.join(lines)) if recorded else '没有录入任何队伍。')
+    message = ('已录入 %d 支队伍的出战顺序。%s。' % (len(recorded), '；'.join(lines)) if recorded else '没有录入任何队伍。')
     if missed:
         message += ' 没读到：%s。' % '、'.join(missed)
     if recorded:
         message += ' 要使用，请在总设置里该队伍的「出战顺序」选「使用录入记录」。'
+    if restored is False:
+        message += ' 注意：没能把游戏里的选中队伍切回开始时的 TEAMS #%d，请自己点回去。' % shown_at_start
     reason = ('team_orders_recorded' if not failed else
               'team_orders_partly_recorded' if recorded else failed[0]['reason'])
     return dict(passed=not failed, reason=reason, input_sent=inputs > 0, clicks_sent=inputs, asked=count,
-                recorded=recorded, failed=failed, message=message)
+                recorded=recorded, failed=failed, shown_at_start=shown_at_start, restored=restored, message=message)
