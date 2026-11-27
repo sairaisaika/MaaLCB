@@ -4596,5 +4596,13 @@
     "attach": {
       "count": 1
     }
+  },
+  "ReadTeamOrderAction": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "next": [],
+    "attach": {
+      "action": "read"
+    }
   }
 }

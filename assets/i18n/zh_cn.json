@@ -18,7 +18,7 @@
   "mirror_team_keywords": "要哪些体系",
   "mirror_team_keywords_description": "与游戏商店「关键词刷新」里的十个关键词一致、顺序相同：前七个是体系，后三个是伤害类型。可以勾一个或几个；一个都不勾表示不限定，由程序按评分自由选择。最后的「无关键词」表示也买对任何队伍都有用的通用饰品。",
   "mirror_team_order": "出战顺序",
-  "mirror_team_order_description": "谁先上场。「使用录入记录」：采用「一键读取队伍排序」任务为这支队伍读到的顺序；这支队伍还没有录入记录时保持原来保存的顺序不变，并在日志里提示先去读取。「跟随游戏」每次都照游戏里的顺序用，只记录、不保存。「手动写出」自己写编号或名字。",
+  "mirror_team_order_description": "谁先上场。「使用录入记录」：每次镜牢任务开始时，采用「一键读取队伍排序」为这支队伍录入的最新一条记录，并在日志里写出用的是哪条；所以重新读取后下一次就用新的。这支队伍没有录入记录时保持原来保存的顺序不变，并提示先去读取。「跟随游戏」每次都照游戏里的顺序用，只记录、不保存。「手动写出」自己写编号或名字。",
   "mirror_team_order_game": "跟随游戏里排好的顺序",
   "mirror_team_order_custom": "手动写出完整顺序",
   "mirror_team_order_text": "出战顺序（编号或名字）",
@@ -206,7 +206,12 @@
   "mirror_team_stars_description": "这支队伍进镜牢时选哪些星光增益、最多花多少星光。镜牢任务里「星光规则来源」选「跟随当前编队」（默认）时使用这里的方案；没设过方案的队伍沿用已保存的旧规则。",
   "mirror_team_stars_choose": "重新选择",
   "mirror_team_star_cards": "要哪些星光增益",
-  "read_team_count": "读几支队伍（从 TEAMS #1 往下）",
-  "read_team_count_description": "从上到下读前几支队伍。选 3 就是读 TEAMS #1、#2、#3。",
-  "mirror_team_order_record": "使用录入记录（「一键读取队伍排序」读到的）"
+  "read_team_count": "前几支队伍（从 TEAMS #1 往下）",
+  "read_team_count_description": "读取、查看或删除前几支队伍。选 3 就是 TEAMS #1、#2、#3。",
+  "mirror_team_order_record": "使用录入记录（「一键读取队伍排序」读到的）",
+  "read_team_action": "做什么",
+  "read_team_action_description": "「读取并录入」需要游戏停在镜牢外的编队界面，会点队伍列表。「只查看」和「删除」不看游戏、不点任何东西，只处理已保存的记录。每支队伍只保留最新的一条记录：再读一次就覆盖；镜牢运行时读到的顺序不会覆盖你用本任务录入的。删除记录不会改动队伍已经采用的出战顺序。",
+  "read_team_action_read": "读取并录入",
+  "read_team_action_show": "只查看已有的录入记录",
+  "read_team_action_clear": "删除录入记录"
 }

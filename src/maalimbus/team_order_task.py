@@ -7,6 +7,11 @@ and records them for that team -- team 1's reading under team 1, and so on
 (`team_order_record`, ``user-team-order-records.json``). A team's settings can then
 choose "use the recorded order" (`global_settings`, ``RECORD``).
 
+One record per team, the latest: reading a team again replaces its record. The task can
+also show what is recorded (`show`) and delete records (`clear`); neither looks at the
+game. A record is a reading and not a setting: deleting it does not change an order a
+team already took from it.
+
 The user asked for it in this shape (2026-11-27) after the first version, which read one
 frame and wrote the order straight into the team's profile: read in the task, choose in
 the settings.
@@ -86,6 +91,34 @@ def completed(numbers, participants):
     return [number if type(number) is int else next(rest) for number in values], picked
 
 
+def show(directory, count):
+    """What is recorded for teams 1..`count`. Reads the file only; no page, no input."""
+    lines, missing = [], []
+    for slot in range(1, count + 1):
+        entry = team_order_record.latest(directory, slot)
+        (lines.append('队伍 %d：%s' % (slot, team_order_record.described(entry))) if entry else missing.append(slot))
+    message = ('前 %d 支队伍里有 %d 支有录入记录。%s。' % (count, len(lines), '；'.join(lines)) if lines
+               else '前 %d 支队伍都没有录入记录。' % count)
+    if missing and lines:
+        message += ' 没有记录的：%s。' % '、'.join('队伍 %d' % slot for slot in missing)
+    return dict(passed=True, reason='team_order_records_shown', input_sent=False, asked=count,
+                recorded=[slot for slot in range(1, count + 1) if slot not in missing], message=message)
+
+
+def clear(directory, count):
+    """Delete the records of teams 1..`count`. Reads and writes the file only; no page, no input.
+
+    A team that already took its record as its order keeps that order: the record is the
+    reading, the team's order is the team's own setting.
+    """
+    removed = team_order_record.forget(directory, list(range(1, count + 1)))
+    message = ('已删除 %s 的录入记录。已经采用过记录的队伍，保存下来的出战顺序不受影响；'
+               '要让它不再用这个顺序，请在总设置里把「出战顺序」改成别的选项。' % '、'.join('队伍 %d' % slot for slot in removed)
+               if removed else '前 %d 支队伍本来就没有录入记录，没有删除任何东西。' % count)
+    return dict(passed=True, reason='team_order_records_deleted', input_sent=False, asked=count,
+                removed=removed, message=message)
+
+
 def read(directory, count, *, observe, press, drag, team_state, frame, browse=team_navigation.browse):
     """Record the orders of teams 1..`count`; returns the task result with a `message`.
 
@@ -117,7 +150,7 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
             return dict(passed=False, reason='team_order_numbers_unread', input_sent=False, recorded=[], failed=[],
                         numbers=list(numbers), message='编号没有读全，没有录入：%s。' % WHY.get(reason, reason))
         slot = active['team']
-        team_order_record.record(directory, slot, numbers, frame())
+        team_order_record.record(directory, slot, numbers, frame(), source='task')
         return dict(passed=True, reason='team_orders_recorded', input_sent=False, slot_source='run_in_progress',
                     recorded=[dict(slot=slot, positions=list(order))], failed=[],
                     message='这一页是镜牢里的编队页，只有正在进行的这一局所用的队伍 %d：已录入 %s。' % (slot, _names(order)))
@@ -131,7 +164,7 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
                 full = completed(numbers, team.get('participants'))
                 order, reason = order_from_badges(full[0] if full else numbers)
                 if order is not None:
-                    team_order_record.record(directory, slot, full[0], frame())
+                    team_order_record.record(directory, slot, full[0], frame(), source='task')
                     outcome = dict(slot=slot, positions=list(order), picked=full[1])
                     break
                 unread += 1
@@ -185,7 +218,7 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
     if missed:
         message += ' 没读到：%s。' % '、'.join(missed)
     if recorded:
-        message += ' 要使用，请在总设置里该队伍的「出战顺序」选「使用录入记录」。'
+        message += ' 每支队伍只保留最新的一条记录，再读一次会覆盖。要使用，请在总设置里该队伍的「出战顺序」选「使用录入记录」。'
     if restored is False:
         message += ' 注意：没能把游戏里的选中队伍切回开始时的 TEAMS #%d，请自己点回去。' % shown_at_start
     reason = ('team_orders_recorded' if not failed else

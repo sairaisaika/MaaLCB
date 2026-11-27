@@ -18,7 +18,7 @@
   "mirror_team_keywords": "Systems wanted",
   "mirror_team_keywords_description": "The same ten keywords, in the same order, as the shop's Keyword Refresh in the game: seven systems, then three damage types. Tick one or several; none ticked means no restriction and the program chooses by score. Keywordless, at the end, also buys gifts that work for any team.",
   "mirror_team_order": "Deployment order",
-  "mirror_team_order_description": "Who deploys first. \"Use the recorded order\" takes what the order-reading task recorded for this team; while the team has no record its saved order stays as it is and the log says to read it first. \"Follow the game\" uses whatever the game shows every time and only records it. \"Write the whole order\" takes numbers or names.",
+  "mirror_team_order_description": "Who deploys first. \"Use the recorded order\": at every start of a Mirror task the latest record the order-reading task made for this team is taken, and the log says which one; so a team read again uses its new record next time. With no record the team keeps the order it has and the log says to read first. \"Follow the game\" uses whatever the game shows every time and only records it. \"Write the whole order\" takes numbers or names.",
   "mirror_team_order_game": "Follow the order set in the game",
   "mirror_team_order_custom": "Write the whole order",
   "mirror_team_order_text": "Deployment order (numbers or names)",
@@ -206,7 +206,12 @@
   "mirror_team_stars_description": "Which starlight buffs this team takes into the Mirror Dungeon and how much starlight it may spend. Used when the Mirror task's star rule source is \"Follow the current team\" (the default); a team with no plan keeps the saved rule.",
   "mirror_team_stars_choose": "Choose again",
   "mirror_team_star_cards": "Which starlight buffs",
-  "read_team_count": "How many teams to read (from TEAMS #1 down)",
-  "read_team_count_description": "The first teams from the top. 3 reads TEAMS #1, #2 and #3.",
-  "mirror_team_order_record": "Use the recorded order (read by the order-reading task)"
+  "read_team_count": "The first how many teams (from TEAMS #1 down)",
+  "read_team_count_description": "Read, show or delete the first teams from the top. 3 means TEAMS #1, #2 and #3.",
+  "mirror_team_order_record": "Use the recorded order (read by the order-reading task)",
+  "read_team_action": "What to do",
+  "read_team_action_description": "\"Read and record\" needs the game on the team screen outside a dungeon and presses the team list. \"Show\" and \"Delete\" do not look at the game or press anything; they only handle saved records. One record is kept per team, the latest: reading again replaces it, and an order a Mirror run reads never replaces one you recorded with this task. Deleting a record does not change an order a team already took from it.",
+  "read_team_action_read": "Read and record",
+  "read_team_action_show": "Show what is recorded",
+  "read_team_action_clear": "Delete records"
 }

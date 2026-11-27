@@ -186,6 +186,7 @@
       "description": "$main_read_team_order_description",
       "default_check": false,
       "option": [
+        "read_team_action",
         "read_team_count"
       ]
     },
@@ -57067,6 +57068,47 @@
             "ReadTeamOrderCount": {
               "attach": {
                 "count": 40
+              }
+            }
+          }
+        }
+      ]
+    },
+    "read_team_action": {
+      "type": "select",
+      "label": "$read_team_action",
+      "description": "$read_team_action_description",
+      "default_case": "read",
+      "cases": [
+        {
+          "name": "read",
+          "label": "$read_team_action_read",
+          "pipeline_override": {
+            "ReadTeamOrderAction": {
+              "attach": {
+                "action": "read"
+              }
+            }
+          }
+        },
+        {
+          "name": "show",
+          "label": "$read_team_action_show",
+          "pipeline_override": {
+            "ReadTeamOrderAction": {
+              "attach": {
+                "action": "show"
+              }
+            }
+          }
+        },
+        {
+          "name": "clear",
+          "label": "$read_team_action_clear",
+          "pipeline_override": {
+            "ReadTeamOrderAction": {
+              "attach": {
+                "action": "clear"
               }
             }
           }

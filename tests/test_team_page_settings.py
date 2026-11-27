@@ -168,7 +168,9 @@ def test_the_task_goes_down_the_team_list_and_records_each_team_under_its_own_nu
     from maalimbus import team_order_record
     assert 'read_team_order' in TASKS
     task = next(task for task in PI['task'] if task['name'] == 'read_team_order')
-    assert task['entry'] == 'ReadTeamOrderTask' and task['option'] == ['read_team_count']
+    assert task['entry'] == 'ReadTeamOrderTask' and task['option'] == ['read_team_action', 'read_team_count']
+    assert [case['name'] for case in PI['option']['read_team_action']['cases']] == ['read', 'show', 'clear']
+    assert NODES['ReadTeamOrderAction']['attach'] == dict(action='read')
     assert [case['name'] for case in PI['option']['read_team_count']['cases']] == [str(n) for n in range(1, 41)]
     assert NODES['ReadTeamOrderCount']['attach'] == dict(count=1)
     screen = TeamScreen({1: ORDER_A, 2: ORDER_B, 3: list(range(1, 13))}, selected=2)
@@ -293,3 +295,53 @@ def test_a_team_that_is_not_full_is_recorded_with_the_unpicked_cards_after_the_p
     assert order[:5] == ['Don Quixote', 'Ryoshu', 'Hong Lu', 'Rodion', 'Meursault']
     assert order[5:] == ['Yi Sang', 'Faust', 'Heathcliff', 'Ishmael', 'Sinclair', 'Outis', 'Gregor']
     assert '只选了前 5 位' in result['message']
+
+
+def test_one_record_per_team_counted_shown_deleted_and_not_replaced_by_a_run(tmp_path):
+    # The user's questions (2026-11-27): how many times is a team recorded, and can a record be deleted?
+    from maalimbus import team_order_record
+    screen = TeamScreen({1: ORDER_A, 2: ORDER_B})
+    run_task(tmp_path, screen, 2)
+    first = team_order_record.latest(tmp_path, 1)
+    assert first['source'] == 'task' and first['readings'] == 1
+    # Read again: still one record, the same order keeps its first frame and the count goes up.
+    run_task(tmp_path, screen, 2)
+    again = team_order_record.latest(tmp_path, 1)
+    assert again['readings'] == 2 and again['at'] == first['at'] and again['order'] == first['order']
+    # The order changed in the game and the team is read a third time: the record is replaced.
+    screen.orders[1] = list(range(1, 13))
+    run_task(tmp_path, screen, 1)
+    third = team_order_record.latest(tmp_path, 1)
+    assert third['order'] == list(SINNERS) and third['readings'] == 3
+    assert len(json.loads((tmp_path / 'user-team-order-records.json').read_text(encoding='utf-8'))['teams']) == 2
+    # A Mirror run that follows the game reads team 2 differently: the task's record stands.
+    seen = team_order_record.record(tmp_path, 2, list(range(12, 0, -1)), tmp_path / 'frame-0900.json')
+    assert seen['changed'] is False and seen['kept'] == 'task_record'
+    assert team_order_record.latest(tmp_path, 2)['order'][0] == 'Don Quixote'
+    # A team only a run has read is recorded by the run, and a later task reading takes it over.
+    team_order_record.record(tmp_path, 5, ORDER_A, tmp_path / 'frame-0901.json')
+    assert team_order_record.latest(tmp_path, 5)['source'] == 'run' and team_order_record.latest(tmp_path, 5)['readings'] == 0
+    shown = team_order_task.show(tmp_path, 3)
+    assert shown['passed'] and shown['recorded'] == [1, 2] and not shown['input_sent']
+    assert '读取任务录入' in shown['message'] and '共读取 3 次' in shown['message'] and '队伍 3' in shown['message']
+    # Deleting: the record goes, the order a team already took from it stays.
+    ProfileStore(tmp_path / 'user-team-profiles.json').save([Team(2, frozenset())])
+    apply_builds(tmp_path, {'2': dict(keywords='keep', order='record')})
+    taken = ProfileStore(tmp_path / 'user-team-profiles.json').load()[0].deployment
+    cleared = team_order_task.clear(tmp_path, 3)
+    assert cleared['passed'] and cleared['removed'] == [1, 2] and not cleared['input_sent']
+    assert team_order_record.latest(tmp_path, 1) is None and team_order_record.latest(tmp_path, 2) is None
+    assert team_order_record.latest(tmp_path, 5) is not None                       # outside the first three
+    assert ProfileStore(tmp_path / 'user-team-profiles.json').load()[0].deployment == taken
+    assert team_order_task.clear(tmp_path, 3)['removed'] == []
+    assert team_order_task.show(tmp_path, 3)['recorded'] == []
+
+
+def test_showing_and_deleting_records_do_not_ask_for_the_game(tmp_path):
+    # They handle a saved file, so the agent answers them before it asks what is on screen.
+    source = (ROOT / 'agent/recognition.py').read_text(encoding='utf-8')
+    early = source.index("elif task=='read_team_order' and _team_order_choice(context)[0] in ('show','clear'):")
+    identity = source.index("if not InputPreflight(self.recognition).run(context,argv):\n                    return reject('Actual controller identity failed')")
+    assert early < identity
+    with pytest.raises(ValueError, match='1..40'):
+        team_order_task.read(tmp_path, 41, observe=None, press=None, drag=None, team_state=None, frame=None)

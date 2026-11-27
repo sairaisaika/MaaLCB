@@ -2270,6 +2270,18 @@ def _mirror_preflight_stop_detail(config, active):
     return detail
 
 
+def _team_order_choice(context):
+    """What the order-reading task was asked to do and for how many teams: ``(action, count)``."""
+    def attach(node,key,default):
+        try:
+            return context.get_node_data(node)['attach'][key]
+        except (KeyError,TypeError,AttributeError):
+            return default
+    action=attach('ReadTeamOrderAction','action','read')
+    count=attach('ReadTeamOrderCount','count',1)
+    return (action if action in ('read','show','clear') else 'read'), count
+
+
 class MainTaskAction(CustomAction):
     """Six task entries, one controller owner and explicit task evidence."""
     def __init__(self, recognition):
@@ -2315,6 +2327,17 @@ class MainTaskAction(CustomAction):
                                                          'game_foreground_after_recovery')):
                         self.recognition.startup_window=dict(until=time.monotonic()+180,
                             serial=context.tasker.controller.info['adb_serial'])
+            elif task=='read_team_order' and _team_order_choice(context)[0] in ('show','clear'):
+                # Showing and deleting records handle a saved file: no page, no game identity, no input.
+                from maalimbus import team_order_task
+                action,count=_team_order_choice(context)
+                try:
+                    result=(team_order_task.show if action=='show' else team_order_task.clear)(data_directory(ROOT),count)
+                except ValueError as error:
+                    return reject(str(error))
+                result['task']=task
+                print('MaaLimbus '+result['message'],flush=True)
+                journal.record('main_task_stopped',**result)
             elif task in device_tasks.TASKS:
                 # These act on the device, not on a game page, so no page identity is asked for.
                 result=device_tasks.run(task,context.tasker.controller,data_directory(ROOT),journal)
@@ -2471,10 +2494,7 @@ class MainTaskAction(CustomAction):
                         x,y,w,h=start
                         return runner.one_shot_swipe(device,observer,[x+w//2,y+h//2,to[0],to[1],600],
                             label='read_team_order_list',journal=journal,deadline=limit,rounds=2,interval=1.0)['settled']
-                    try:
-                        count=context.get_node_data('ReadTeamOrderCount')['attach']['count']
-                    except (KeyError,TypeError):
-                        count=1
+                    count=_team_order_choice(context)[1]
                     try:
                         result=team_order_task.read(data_directory(ROOT),count,
                             observe=lambda:runner.observe(observer,limit),press=press,drag=drag,

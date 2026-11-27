@@ -156,6 +156,9 @@ def apply_builds(directory, edits):
                       '本次保持原来的顺序。请先打开游戏的编队界面运行「一键读取队伍排序」。' % slot, flush=True)
                 missing.append(slot)
             order = KEEP if entry is None else tuple(entry['order'])
+            if entry is not None:
+                # Taken again at every start, so a team read again uses its new record next time.
+                print('MaaLimbus 队伍 %d 的出战顺序采用录入记录：%s' % (slot, team_order_record.described(entry)), flush=True)
         else:
             order = parse_order(edit['order'])
         fields = {}

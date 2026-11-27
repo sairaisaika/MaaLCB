@@ -116,6 +116,7 @@ OUTCOME_RULES = (
     r'^emulator_address_remembered_without_a_way_to_start_it$',
     # The order-reading task recorded the teams it was asked for, or some of them.
     r'^team_orders_(recorded|partly_recorded)$',
+    r'^team_order_records_(shown|deleted)$',
 )
 
 _INTENT = tuple(re.compile(pattern) for pattern in INTENT_RULES)
