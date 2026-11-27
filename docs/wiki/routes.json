@@ -4548,7 +4548,15 @@
         "TEAM_CHOICES",
         "步数上限",
         "mirror_run_bounds",
-        "MirrorRunBounds"
+        "MirrorRunBounds",
+        "mxu_settings",
+        "write_orders",
+        "写进设置",
+        "/api/config",
+        "team_orders_written_to_settings",
+        "team_orders_read_but_not_written",
+        "mxu_web_service_is_off",
+        "Web 服务"
       ],
       "sources": [
         {
@@ -4590,6 +4598,10 @@
         {
           "path": "src/maalimbus/mirror_task_options.py",
           "symbol": "collect"
+        },
+        {
+          "path": "src/maalimbus/mxu_settings.py",
+          "symbol": "write_orders"
         }
       ],
       "docs": [

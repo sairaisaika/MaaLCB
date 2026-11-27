@@ -3,18 +3,17 @@
 The order a team deploys in is printed on the game's own team screen, one number on each
 of the twelve cards. The player opens that screen, says how many teams to read, and the
 task goes down the ``TEAMS`` list from #1: it selects a team, reads its twelve numbers
-and records them for that team -- team 1's reading under team 1, and so on
-(`team_order_record`, ``user-team-order-records.json``). A team's settings can then
-choose "use the recorded order" (`global_settings`, ``RECORD``).
+and writes them into that team's "deployment order" in the settings the player sees
+(`mxu_settings.write_orders`): the choice becomes "write the whole order" and the input
+holds the names. The order is then where an order is set: it can be seen there, edited
+and replaced by another choice, and the next Mirror task applies it like any typed order.
 
-One record per team, the latest: reading a team again replaces its record. The task can
-also show what is recorded (`show`) and delete records (`clear`); neither looks at the
-game. A record is a reading and not a setting: deleting it does not change an order a
-team already took from it.
-
-The user asked for it in this shape (2026-11-27) after the first version, which read one
-frame and wrote the order straight into the team's profile: read in the task, choose in
-the settings.
+Four shapes in one day, the first three built before asking where the player would look
+for it (2026-11-27): one frame written into the team's profile; a settings choice that
+read during the next run; a file of records with "use the record" in the settings and
+show and delete in the task. The user's answer to the last was that the order belongs in
+the settings themselves. What each frame showed is still noted with its frame
+(`team_order_record`), as evidence of the reading and nothing more.
 
 What it sends: one press on a row of the ``TEAMS`` list per team, and a drag of that list
 when the row is not on screen (`team_navigation.browse`, the search the run itself uses
@@ -36,7 +35,10 @@ the same rule a typed order uses for the sinners it does not name.
 The team page inside a dungeon has no list and prints no ``TEAMS #n``: the run's team is
 fixed there (replayed on eight frames of pi-20261126-233844: twelve numbers, no team
 number). On that page the one team shown is the run's, which the ledger names, and it
-is recorded for that team whatever number was asked for.
+is the team written, whatever number was asked for.
+
+When the settings cannot be written (the client's web service is off or does not answer)
+nothing is lost: the result carries each team's line for the player to paste.
 """
 from . import team_navigation, team_order_record
 from .storage import read_json
@@ -54,6 +56,12 @@ FAILED = dict(
     team_list_search_stalled='在列表里上下都找过了，没有这一行',
     team_list_search_budget_exhausted='在列表里找这一行用完了次数',
     saved_team_slot_invalid='队伍编号无效')
+#: Why the orders could not be put into the settings.
+UNWRITTEN = dict(
+    mxu_web_service_is_off='设置里的「Web 服务」没有开启',
+    mxu_web_service_did_not_answer='程序的 Web 服务没有应答',
+    mxu_configuration_not_recognised='没认出程序的配置格式',
+    mxu_refused_the_configuration='程序没有接受新的配置')
 #: How often one team may be looked at before it is given up: reads, presses and drags together.
 TRIES = 16
 #: How often the header may show the team with numbers that do not make an order.
@@ -91,41 +99,15 @@ def completed(numbers, participants):
     return [number if type(number) is int else next(rest) for number in values], picked
 
 
-def show(directory, count):
-    """What is recorded for teams 1..`count`. Reads the file only; no page, no input."""
-    lines, missing = [], []
-    for slot in range(1, count + 1):
-        entry = team_order_record.latest(directory, slot)
-        (lines.append('队伍 %d：%s' % (slot, team_order_record.described(entry))) if entry else missing.append(slot))
-    message = ('前 %d 支队伍里有 %d 支有录入记录。%s。' % (count, len(lines), '；'.join(lines)) if lines
-               else '前 %d 支队伍都没有录入记录。' % count)
-    if missing and lines:
-        message += ' 没有记录的：%s。' % '、'.join('队伍 %d' % slot for slot in missing)
-    return dict(passed=True, reason='team_order_records_shown', input_sent=False, asked=count,
-                recorded=[slot for slot in range(1, count + 1) if slot not in missing], message=message)
-
-
-def clear(directory, count):
-    """Delete the records of teams 1..`count`. Reads and writes the file only; no page, no input.
-
-    A team that already took its record as its order keeps that order: the record is the
-    reading, the team's order is the team's own setting.
-    """
-    removed = team_order_record.forget(directory, list(range(1, count + 1)))
-    message = ('已删除 %s 的录入记录。已经采用过记录的队伍，保存下来的出战顺序不受影响；'
-               '要让它不再用这个顺序，请在总设置里把「出战顺序」改成别的选项。' % '、'.join('队伍 %d' % slot for slot in removed)
-               if removed else '前 %d 支队伍本来就没有录入记录，没有删除任何东西。' % count)
-    return dict(passed=True, reason='team_order_records_deleted', input_sent=False, asked=count,
-                removed=removed, message=message)
-
-
-def read(directory, count, *, observe, press, drag, team_state, frame, browse=team_navigation.browse):
+def read(directory, count, *, observe, press, drag, team_state, frame, write, language='zh',
+         browse=team_navigation.browse):
     """Record the orders of teams 1..`count`; returns the task result with a `message`.
 
     `observe()` gives a fresh frame record, `team_state(record)` is the run's own reading
     of the team page, `press(box)` and `drag(start_box, to_point)` send the two inputs
-    and return the frame that followed, and `frame()` names the frame file a record
-    points at.
+    and return the frame that followed, `frame()` names the frame file a note points at,
+    and `write({slot: line})` puts the orders into the settings and says which it wrote
+    (`mxu_settings.write_orders`).
     """
     if type(count) is not int or not 1 <= count <= 40:
         raise ValueError('The number of teams to read must be 1..40')
@@ -150,10 +132,9 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
             return dict(passed=False, reason='team_order_numbers_unread', input_sent=False, recorded=[], failed=[],
                         numbers=list(numbers), message='编号没有读全，没有录入：%s。' % WHY.get(reason, reason))
         slot = active['team']
-        team_order_record.record(directory, slot, numbers, frame(), source='task')
-        return dict(passed=True, reason='team_orders_recorded', input_sent=False, slot_source='run_in_progress',
-                    recorded=[dict(slot=slot, positions=list(order))], failed=[],
-                    message='这一页是镜牢里的编队页，只有正在进行的这一局所用的队伍 %d：已录入 %s。' % (slot, _names(order)))
+        team_order_record.record(directory, slot, numbers, frame())
+        return _finish(count, [dict(slot=slot, positions=list(order), picked=12)], [], 0, None, None, write, language,
+                       slot_source='run_in_progress')
     shown_at_start = team.get('saved_team')
     for slot in range(1, count + 1):
         state, unread, presses, outcome = {}, 0, 0, None
@@ -164,7 +145,7 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
                 full = completed(numbers, team.get('participants'))
                 order, reason = order_from_badges(full[0] if full else numbers)
                 if order is not None:
-                    team_order_record.record(directory, slot, full[0], frame(), source='task')
+                    team_order_record.record(directory, slot, full[0], frame())
                     outcome = dict(slot=slot, positions=list(order), picked=full[1])
                     break
                 unread += 1
@@ -208,20 +189,41 @@ def read(directory, count, *, observe, press, drag, team_state, frame, browse=te
             else:
                 break
         restored = bool(restored)
-    lines = ['队伍 %d：%s%s' % (one['slot'], _names(one['positions']),
-                              '（游戏里只选了前 %d 位，其余按罪人编号顺序排在后面）' % one['picked']
+    return _finish(count, recorded, failed, inputs, shown_at_start, restored, write, language)
+
+
+def _finish(count, recorded, failed, inputs, shown_at_start, restored, write, language, **extra):
+    """Write what was read into the settings and word the result."""
+    from .mxu_settings import order_text
+    lines = {one['slot']: order_text(one['positions'], one.get('picked', 12), language) for one in recorded}
+    outcome = write(lines) if lines else dict(written=[], reason='nothing_to_write')
+    written = set(outcome.get('written') or ())
+    for one in recorded:
+        one.update(line=lines[one['slot']], in_settings=one['slot'] in written)
+    shown = ['队伍 %d：%s%s' % (one['slot'], _names(one['positions'][:one.get('picked', 12)]),
+                              '（游戏里只选了这 %d 位，其余会按罪人编号顺序排在后面）' % one['picked']
                               if one.get('picked', 12) < 12 else '') for one in recorded]
     missed = ['队伍 %d（%s%s）' % (one['slot'], FAILED.get(one['reason'], one['reason']),
                                  '：' + WHY.get(one['detail'], one['detail']) if one.get('detail') else '')
               for one in failed]
-    message = ('已录入 %d 支队伍的出战顺序。%s。' % (len(recorded), '；'.join(lines)) if recorded else '没有录入任何队伍。')
+    everything = bool(lines) and written == set(lines)
+    if not recorded:
+        message = '没有读到任何队伍的出战顺序。'
+    elif everything:
+        message = ('已读到 %d 支队伍的出战顺序，并写进了总设置里各队伍的「出战顺序」（选项现在是「手动写出完整顺序」，'
+                   '打开设置就能看到和修改）。%s。' % (len(recorded), '；'.join(shown)))
+    else:
+        message = ('已读到 %d 支队伍的出战顺序，但没能自动写进设置（%s）。请把下面每支队伍的这一行，'
+                   '自己粘贴到总设置里该队伍的「出战顺序 → 手动写出完整顺序」输入框。%s。'
+                   % (len(recorded), UNWRITTEN.get(outcome.get('reason'), outcome.get('reason')),
+                      '；'.join('队伍 %d：%s' % (one['slot'], one['line']) for one in recorded)))
     if missed:
         message += ' 没读到：%s。' % '、'.join(missed)
-    if recorded:
-        message += ' 每支队伍只保留最新的一条记录，再读一次会覆盖。要使用，请在总设置里该队伍的「出战顺序」选「使用录入记录」。'
     if restored is False:
         message += ' 注意：没能把游戏里的选中队伍切回开始时的 TEAMS #%d，请自己点回去。' % shown_at_start
-    reason = ('team_orders_recorded' if not failed else
-              'team_orders_partly_recorded' if recorded else failed[0]['reason'])
-    return dict(passed=not failed, reason=reason, input_sent=inputs > 0, clicks_sent=inputs, asked=count,
-                recorded=recorded, failed=failed, shown_at_start=shown_at_start, restored=restored, message=message)
+    reason = ('team_orders_written_to_settings' if everything and not failed else
+              'team_orders_read_but_not_written' if recorded and not everything else
+              'team_orders_partly_read' if recorded else failed[0]['reason'])
+    return dict(passed=everything and not failed, reason=reason, input_sent=inputs > 0, clicks_sent=inputs, asked=count,
+                recorded=recorded, failed=failed, shown_at_start=shown_at_start, restored=restored,
+                settings=outcome, message=message, **extra)

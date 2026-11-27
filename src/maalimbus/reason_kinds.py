@@ -68,6 +68,15 @@ EXCEPTIONS = {
     'team_order_numbers_unread': 'unreadable_text',
     'team_order_team_number_unread': 'unreadable_text',
     'team_order_row_press_did_not_select': 'attempts_exhausted',
+    # The orders were read and the client's settings could not be written: its web
+    # service is off or did not answer. The result carries the lines to paste.
+    'team_orders_read_but_not_written': 'missing_control',
+    # Why the client's settings could not be written (mxu_settings.py).
+    'mxu_web_service_is_off': 'missing_control',
+    'mxu_web_service_did_not_answer': 'missing_control',
+    'mxu_configuration_not_recognised': 'bad_saved_state',
+    'mxu_refused_the_configuration': 'refused_by_policy',
+    'nothing_to_write': 'no_candidate',
 }
 
 _COMPILED = tuple((re.compile(pattern), kind, why) for pattern, kind, why in RULES)
@@ -114,9 +123,10 @@ OUTCOME_RULES = (
     # the emulator or the game is closed, or the emulator is remembered. Not failures.
     r'^(emulator|game)_(closed|remembered|already_closed)$',
     r'^emulator_address_remembered_without_a_way_to_start_it$',
-    # The order-reading task recorded the teams it was asked for, or some of them.
-    r'^team_orders_(recorded|partly_recorded)$',
-    r'^team_order_records_(shown|deleted)$',
+    # The order-reading task read the teams it was asked for, or some of them, and put
+    # them into the settings.
+    r'^team_orders_(written_to_settings|partly_read)$',
+    r'^mxu_settings_written$',
 )
 
 _INTENT = tuple(re.compile(pattern) for pattern in INTENT_RULES)

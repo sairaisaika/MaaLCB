@@ -6,10 +6,10 @@
 * Starlight belongs to the team: it is set where the team's systems and order are set,
   and the Mirror task only chooses the source.
 * A task reads the deployment orders off the game's team screen, team by team down the
-  TEAMS list, and records them; a team's settings can choose to use its record. (The
-  first version read one frame into the profile, the second put a choice in the settings
-  that read during the next run; the user then set this shape: read in the task, choose
-  in the settings.)
+  TEAMS list, and writes each into that team's "deployment order" in the settings the
+  player sees. (Three earlier shapes missed it: one frame into the profile; a settings
+  choice that read during the next run; a file of records with "use the record". The
+  user's answer to the last: the order belongs in the settings themselves.)
 """
 import importlib.util
 import json
@@ -159,127 +159,104 @@ ORDER_A = [12, 10, 4, 11, 5, 9, 3, 2, 7, 1, 8, 6]      # the user's screenshot o
 ORDER_B = [4, 6, 1, 2, 8, 12, 5, 9, 3, 10, 11, 7]
 
 
-def run_task(tmp_path, screen, count):
-    return team_order_task.read(tmp_path, count, observe=screen.observe, press=screen.press, drag=screen.drag,
-                                team_state=screen.team_state, frame=lambda: tmp_path / 'frame-0001.json')
+class Settings:
+    """The client's configuration as its local service hands it out and takes it back."""
+
+    def __init__(self, tmp_path, enabled=True, answers=True):
+        self.directory = tmp_path / 'client'
+        self.directory.mkdir(exist_ok=True)
+        self.config = dict(version='1.0', instances=[dict(id='a')], settings=dict(language='zh-CN'),
+                           globalOptionValues={'global_team_1_systems': dict(type='select', caseName='keep'),
+                                               'global_team_9_order': dict(type='select', caseName='game')})
+        write_json(self.directory / 'mxu-MaaLimbus.json',
+                   dict(settings=dict(language='zh-CN', webServerEnabled=enabled, webServerPort=12711)))
+        self.answers, self.calls = answers, []
+
+    def ask(self, port, method='GET', body=None):
+        self.calls.append((port, method))
+        if not self.answers:
+            raise OSError('connection refused')
+        if method == 'PUT':
+            self.config = json.loads(json.dumps(body))
+            return dict(ok=True)
+        return json.loads(json.dumps(self.config))
+
+    def write(self, lines):
+        from maalimbus import mxu_settings
+        return mxu_settings.write_orders(self.directory, lines, ask=self.ask)
+
+    def order(self, slot):
+        values = self.config['globalOptionValues']
+        return (values.get('global_team_%d_order' % slot, {}).get('caseName'),
+                values.get('global_team_%d_order_text' % slot, {}).get('values', {}).get('order'))
 
 
-def test_the_task_goes_down_the_team_list_and_records_each_team_under_its_own_number(tmp_path):
-    from maalimbus import team_order_record
+def run_task(tmp_path, screen, count, settings=None):
+    settings = settings or Settings(tmp_path)
+    result = team_order_task.read(tmp_path, count, observe=screen.observe, press=screen.press, drag=screen.drag,
+                                  team_state=screen.team_state, frame=lambda: tmp_path / 'frame-0001.json',
+                                  write=settings.write)
+    return result, settings
+
+
+def test_the_task_goes_down_the_team_list_and_writes_each_order_into_that_teams_settings(tmp_path):
     assert 'read_team_order' in TASKS
     task = next(task for task in PI['task'] if task['name'] == 'read_team_order')
-    assert task['entry'] == 'ReadTeamOrderTask' and task['option'] == ['read_team_action', 'read_team_count']
-    assert [case['name'] for case in PI['option']['read_team_action']['cases']] == ['read', 'show', 'clear']
-    assert NODES['ReadTeamOrderAction']['attach'] == dict(action='read')
+    assert task['entry'] == 'ReadTeamOrderTask' and task['option'] == ['read_team_count']
     assert [case['name'] for case in PI['option']['read_team_count']['cases']] == [str(n) for n in range(1, 41)]
     assert NODES['ReadTeamOrderCount']['attach'] == dict(count=1)
     screen = TeamScreen({1: ORDER_A, 2: ORDER_B, 3: list(range(1, 13))}, selected=2)
-    result = run_task(tmp_path, screen, 3)
-    assert result['passed'] and result['reason'] == 'team_orders_recorded' and result['input_sent']
+    result, settings = run_task(tmp_path, screen, 3)
+    assert result['passed'] and result['reason'] == 'team_orders_written_to_settings' and result['input_sent']
     assert [one['slot'] for one in result['recorded']] == [1, 2, 3] and not result['failed']
     # Team 2 was showing: team 1's row was pressed first, then 2 and 3 in turn, and at the end
     # the row of team 2 again, so the game is left on the team the player had selected.
     assert screen.presses == [1, 2, 3, 2] and screen.drags == 0
     assert screen.selected == 2 and result['shown_at_start'] == 2 and result['restored'] is True
-    # Team 1's reading is under team 1: position 1 is the card that printed 1, the tenth, Sinclair.
-    assert team_order_record.latest(tmp_path, 1)['order'][:3] == ['Sinclair', 'Ishmael', 'Heathcliff']
-    assert team_order_record.latest(tmp_path, 2)['order'][0] == 'Don Quixote'
-    assert team_order_record.latest(tmp_path, 3)['order'] == list(SINNERS)
-    assert team_order_record.latest(tmp_path, 4) is None
-    # Recording is not saving: no team's own settings were touched.
+    # Team 1's order is in team 1's own setting, as the line a player would have typed:
+    # position 1 is the card that printed 1, the tenth, Sinclair.
+    assert settings.order(1) == ('custom', '辛克莱 以实玛利 希斯克利夫 堂吉诃德 默尔索 格里高尔 罗佳 奥提斯 鸿璐 浮士德 良秀 李箱')
+    assert settings.order(2)[1].startswith('堂吉诃德 良秀') and settings.order(3)[0] == 'custom'
+    # Everything else in the client's configuration went back as it came.
+    assert settings.config['globalOptionValues']['global_team_1_systems'] == dict(type='select', caseName='keep')
+    assert settings.order(9) == ('game', None) and settings.config['instances'] == [dict(id='a')]
+    assert settings.calls == [(12711, 'GET'), (12711, 'PUT')]
+    # The line is one the settings read back as the same order.
+    from maalimbus.global_settings import parse_order
+    assert parse_order(settings.order(1)[1])[:3] == ('Sinclair', 'Ishmael', 'Heathcliff')
+    assert '写进了总设置' in result['message'] and '队伍 1：辛克莱' in result['message']
+    # The task writes the settings, not a team's saved profile: the next Mirror task applies them.
     assert not (tmp_path / 'user-team-profiles.json').exists()
-    assert '队伍 1：辛克莱' in result['message'] and '使用录入记录' in result['message']
 
 
 def test_a_team_below_the_visible_rows_is_reached_by_dragging_the_list(tmp_path):
-    from maalimbus import team_order_record
     screen = TeamScreen({slot: ORDER_B for slot in range(1, 9)})
-    result = run_task(tmp_path, screen, 8)
+    result, settings = run_task(tmp_path, screen, 8)
     assert result['passed'] and [one['slot'] for one in result['recorded']] == list(range(1, 9))
     # Team 1 was already showing; after team 8 the list is dragged back and team 1 selected again.
     assert screen.drags >= 2 and screen.presses == list(range(2, 9)) + [1] and screen.selected == 1
-    assert team_order_record.latest(tmp_path, 8)['positions'][0] == 3
+    assert settings.order(8)[0] == 'custom'
 
 
-def test_a_team_that_cannot_be_read_is_skipped_by_name_and_the_others_are_still_recorded(tmp_path):
-    from maalimbus import team_order_record
+def test_a_team_that_cannot_be_read_is_skipped_by_name_and_the_others_are_still_written(tmp_path):
     # Four numbers on the cards while the page's counter says five are picked: one was not read.
     partial = [1, 2, 3, None, 4, None, None, None, None, None, None, None]
     screen = TeamScreen({1: ORDER_A, 2: partial, 3: ORDER_B, 4: ORDER_B}, ignore_press={4})
     screen.counter[2] = (5, 12)
-    result = run_task(tmp_path, screen, 4)
-    assert not result['passed'] and result['reason'] == 'team_orders_partly_recorded'
+    result, settings = run_task(tmp_path, screen, 4)
+    assert not result['passed'] and result['reason'] == 'team_orders_partly_read'
     assert [one['slot'] for one in result['recorded']] == [1, 3]
     assert [(one['slot'], one['reason']) for one in result['failed']] == [
         (2, 'team_order_numbers_unread'), (4, 'team_order_row_press_did_not_select')]
-    assert team_order_record.latest(tmp_path, 2) is None and team_order_record.latest(tmp_path, 4) is None
+    assert settings.order(1)[0] == 'custom' and settings.order(3)[0] == 'custom'
+    assert settings.order(2) == (None, None) and settings.order(4) == (None, None)       # untouched
     assert '队伍 2（编号没有读全' in result['message'] and '队伍 4（' in result['message']
     assert screen.presses.count(4) == team_order_task.PRESSES
     assert screen.selected == 1 and result['restored'] is True
 
 
-def test_a_page_without_cards_records_nothing_and_a_dungeon_page_is_the_runs_team(tmp_path):
-    from maalimbus import team_order_record
-    blank = TeamScreen({})
-    result = run_task(tmp_path, blank, 2)
-    assert not result['passed'] and result['reason'] == 'team_order_cards_not_visible' and not result['input_sent']
-    # Inside a dungeon: twelve numbers, no list and no TEAMS #n (replayed on pi-20261126-233844).
-    dungeon = dict(observe=lambda: dict(size=[1920, 1080], ocr=[]), press=None, drag=None,
-                   team_state=lambda record: dict(numbers=list(ORDER_B), saved_team=None),
-                   frame=lambda: tmp_path / 'frame-0002.json')
-    nobody = team_order_task.read(tmp_path, 3, **dungeon)
-    assert not nobody['passed'] and nobody['reason'] == 'team_order_team_number_unread'
-    write_json(tmp_path / 'user-run-ledger.json', dict(active=dict(team=2)))
-    inside = team_order_task.read(tmp_path, 3, **dungeon)
-    assert inside['passed'] and inside['recorded'] == [dict(slot=2, positions=team_order_record.latest(tmp_path, 2)['positions'])]
-    assert inside['slot_source'] == 'run_in_progress' and not inside['input_sent']
-    with pytest.raises(ValueError, match='1..40'):
-        team_order_task.read(tmp_path, 0, **dungeon)
-
-
-def order_nodes(slot, mode):
-    prefix = 'Global_global_team_%d' % slot
-
-    def get(name):
-        if name == prefix + '_order':
-            return dict(attach=dict(mode=mode))
-        if name.endswith(('_keywords', '_star_cards')):
-            return dict(attach={})
-        if name.endswith('_order_text'):
-            return dict(attach=dict(order=''))
-        if name.endswith('_star_budget'):
-            return dict(attach=dict(budget='0'))
-        return dict(attach=dict(mode='keep'))
-    return get
-
-
-def test_a_teams_settings_can_take_its_recorded_order_and_keep_what_they_have_without_one(tmp_path, capsys):
-    from maalimbus import team_order_record
-    for slot in (1, 40):
-        cases = PI['option']['global_team_%d_order' % slot]['cases']
-        assert [case['name'] for case in cases] == ['keep', 'game', 'record', 'custom']
-    ProfileStore(tmp_path / 'user-team-profiles.json').save(
-        [Team(2, frozenset({'Charge'}), deployment=tuple(SINNERS)), Team(3, frozenset(), deployment=tuple(SINNERS))])
-    team_order_record.record(tmp_path, 2, ORDER_B, tmp_path / 'frame-0001.json')
-    edits = collect_builds(order_nodes(2, 'record'))
-    assert edits == {'2': dict(keywords='keep', order='record')}
-    assert apply_builds(tmp_path, edits) == [2]
-    saved = {team.slot: team for team in ProfileStore(tmp_path / 'user-team-profiles.json').load()}
-    assert list(saved[2].deployment) == team_order_record.latest(tmp_path, 2)['order']
-    assert saved[2].deployment[0] == 'Don Quixote' and saved[2].keywords == frozenset({'Charge'})
-    assert apply_builds(tmp_path, edits) == []                 # the same record again changes nothing
-    # No record for team 3: its order stays, the run is not refused, and the log says what to do.
-    assert apply_builds(tmp_path, collect_builds(order_nodes(3, 'record'))) == []
-    assert ProfileStore(tmp_path / 'user-team-profiles.json').load()[1].deployment == tuple(SINNERS)
-    assert '队伍 3' in capsys.readouterr().out
-    # The half-day version that read during the next run is gone.
-    source = (ROOT / 'src/maalimbus/runner.py').read_text(encoding='utf-8')
-    assert 'save_if_armed' not in source and not hasattr(team_order_record, 'arm')
-
-
-def test_a_team_that_is_not_full_is_recorded_with_the_unpicked_cards_after_the_picked(tmp_path):
+def test_a_team_that_is_not_full_is_written_as_the_sinners_the_game_numbered(tmp_path):
     # Live pi-20261127-032808: TEAMS #2 showed 5/12 with these numbers and was skipped as unread.
-    from maalimbus import team_order_record
     live = [None, None, 1, 2, 5, 3, None, None, 4, None, None, None]
     assert team_order_task.completed(live, (5, 12)) == ([6, 7, 1, 2, 5, 3, 8, 9, 4, 10, 11, 12], 5)
     assert team_order_task.completed(live, None) is None                 # no counter: unread and unpicked look alike
@@ -287,61 +264,67 @@ def test_a_team_that_is_not_full_is_recorded_with_the_unpicked_cards_after_the_p
     assert team_order_task.completed([None] * 12, (0, 12)) is None
     assert team_order_task.completed(ORDER_A, (12, 12)) == (ORDER_A, 12)
     screen = TeamScreen({1: ORDER_A, 2: live})
-    result = run_task(tmp_path, screen, 2)
-    assert result['passed'] and [one['slot'] for one in result['recorded']] == [1, 2]
-    assert result['recorded'][1]['picked'] == 5
-    order = team_order_record.latest(tmp_path, 2)['order']
-    # Don Quixote, Ryoshu, Hong Lu, Rodion, Meursault as the game numbered them, then the rest in roster order.
-    assert order[:5] == ['Don Quixote', 'Ryoshu', 'Hong Lu', 'Rodion', 'Meursault']
-    assert order[5:] == ['Yi Sang', 'Faust', 'Heathcliff', 'Ishmael', 'Sinclair', 'Outis', 'Gregor']
-    assert '只选了前 5 位' in result['message']
+    result, settings = run_task(tmp_path, screen, 2)
+    assert result['passed'] and result['recorded'][1]['picked'] == 5
+    # Only the five the game numbered are written; the settings put the rest after them themselves.
+    assert settings.order(2) == ('custom', '堂吉诃德 良秀 鸿璐 罗佳 默尔索')
+    from maalimbus.global_settings import parse_order
+    assert parse_order(settings.order(2)[1]) == (
+        'Don Quixote', 'Ryoshu', 'Hong Lu', 'Rodion', 'Meursault',
+        'Yi Sang', 'Faust', 'Heathcliff', 'Ishmael', 'Sinclair', 'Outis', 'Gregor')
+    assert '只选了这 5 位' in result['message']
 
 
-def test_one_record_per_team_counted_shown_deleted_and_not_replaced_by_a_run(tmp_path):
-    # The user's questions (2026-11-27): how many times is a team recorded, and can a record be deleted?
-    from maalimbus import team_order_record
-    screen = TeamScreen({1: ORDER_A, 2: ORDER_B})
-    run_task(tmp_path, screen, 2)
-    first = team_order_record.latest(tmp_path, 1)
-    assert first['source'] == 'task' and first['readings'] == 1
-    # Read again: still one record, the same order keeps its first frame and the count goes up.
-    run_task(tmp_path, screen, 2)
-    again = team_order_record.latest(tmp_path, 1)
-    assert again['readings'] == 2 and again['at'] == first['at'] and again['order'] == first['order']
-    # The order changed in the game and the team is read a third time: the record is replaced.
-    screen.orders[1] = list(range(1, 13))
-    run_task(tmp_path, screen, 1)
-    third = team_order_record.latest(tmp_path, 1)
-    assert third['order'] == list(SINNERS) and third['readings'] == 3
-    assert len(json.loads((tmp_path / 'user-team-order-records.json').read_text(encoding='utf-8'))['teams']) == 2
-    # A Mirror run that follows the game reads team 2 differently: the task's record stands.
-    seen = team_order_record.record(tmp_path, 2, list(range(12, 0, -1)), tmp_path / 'frame-0900.json')
-    assert seen['changed'] is False and seen['kept'] == 'task_record'
-    assert team_order_record.latest(tmp_path, 2)['order'][0] == 'Don Quixote'
-    # A team only a run has read is recorded by the run, and a later task reading takes it over.
-    team_order_record.record(tmp_path, 5, ORDER_A, tmp_path / 'frame-0901.json')
-    assert team_order_record.latest(tmp_path, 5)['source'] == 'run' and team_order_record.latest(tmp_path, 5)['readings'] == 0
-    shown = team_order_task.show(tmp_path, 3)
-    assert shown['passed'] and shown['recorded'] == [1, 2] and not shown['input_sent']
-    assert '读取任务录入' in shown['message'] and '共读取 3 次' in shown['message'] and '队伍 3' in shown['message']
-    # Deleting: the record goes, the order a team already took from it stays.
-    ProfileStore(tmp_path / 'user-team-profiles.json').save([Team(2, frozenset())])
-    apply_builds(tmp_path, {'2': dict(keywords='keep', order='record')})
-    taken = ProfileStore(tmp_path / 'user-team-profiles.json').load()[0].deployment
-    cleared = team_order_task.clear(tmp_path, 3)
-    assert cleared['passed'] and cleared['removed'] == [1, 2] and not cleared['input_sent']
-    assert team_order_record.latest(tmp_path, 1) is None and team_order_record.latest(tmp_path, 2) is None
-    assert team_order_record.latest(tmp_path, 5) is not None                       # outside the first three
-    assert ProfileStore(tmp_path / 'user-team-profiles.json').load()[0].deployment == taken
-    assert team_order_task.clear(tmp_path, 3)['removed'] == []
-    assert team_order_task.show(tmp_path, 3)['recorded'] == []
+def test_when_the_settings_cannot_be_written_the_lines_are_handed_to_the_player(tmp_path):
+    from maalimbus import mxu_settings
+    for options, why in ((dict(enabled=False), 'mxu_web_service_is_off'),
+                         (dict(answers=False), 'mxu_web_service_did_not_answer')):
+        settings = Settings(tmp_path, **options)
+        result, _ = run_task(tmp_path, TeamScreen({1: ORDER_A}), 1, settings)
+        assert not result['passed'] and result['reason'] == 'team_orders_read_but_not_written'
+        assert result['settings']['reason'] == why and result['recorded'][0]['in_settings'] is False
+        # Nothing is lost: the line to paste is in the message.
+        assert '队伍 1：辛克莱 以实玛利' in result['message'] and '粘贴' in result['message']
+        assert settings.calls == ([] if why == 'mxu_web_service_is_off' else [(12711, 'GET')])
+    # A configuration the writer does not recognise is not sent back at all.
+    odd = Settings(tmp_path)
+    odd.config = dict(something='else')
+    assert odd.write({1: 'x'}) == dict(written=[], reason='mxu_configuration_not_recognised')
+    assert odd.calls == [(12711, 'GET')]
+    assert mxu_settings.order_text([10, 8, 7], 3, 'en') == 'Sinclair Ishmael Heathcliff'
+    assert mxu_settings.service(tmp_path / 'nowhere') == (None, 'zh')
 
 
-def test_showing_and_deleting_records_do_not_ask_for_the_game(tmp_path):
-    # They handle a saved file, so the agent answers them before it asks what is on screen.
-    source = (ROOT / 'agent/recognition.py').read_text(encoding='utf-8')
-    early = source.index("elif task=='read_team_order' and _team_order_choice(context)[0] in ('show','clear'):")
-    identity = source.index("if not InputPreflight(self.recognition).run(context,argv):\n                    return reject('Actual controller identity failed')")
-    assert early < identity
+def test_a_page_without_cards_writes_nothing_and_a_dungeon_page_is_the_runs_team(tmp_path):
+    blank = TeamScreen({})
+    result, settings = run_task(tmp_path, blank, 2)
+    assert not result['passed'] and result['reason'] == 'team_order_cards_not_visible' and not result['input_sent']
+    assert settings.calls == []
+    # Inside a dungeon: twelve numbers, no list and no TEAMS #n (replayed on pi-20261126-233844).
+    inside = Settings(tmp_path)
+    dungeon = dict(observe=lambda: dict(size=[1920, 1080], ocr=[]), press=None, drag=None,
+                   team_state=lambda record: dict(numbers=list(ORDER_B), saved_team=None),
+                   frame=lambda: tmp_path / 'frame-0002.json', write=inside.write)
+    nobody = team_order_task.read(tmp_path, 3, **dungeon)
+    assert not nobody['passed'] and nobody['reason'] == 'team_order_team_number_unread'
+    write_json(tmp_path / 'user-run-ledger.json', dict(active=dict(team=2)))
+    result = team_order_task.read(tmp_path, 3, **dungeon)
+    assert result['passed'] and result['slot_source'] == 'run_in_progress' and not result['input_sent']
+    assert inside.order(2)[0] == 'custom' and inside.order(2)[1].startswith('堂吉诃德 良秀')
     with pytest.raises(ValueError, match='1..40'):
-        team_order_task.read(tmp_path, 41, observe=None, press=None, drag=None, team_state=None, frame=None)
+        team_order_task.read(tmp_path, 0, **dungeon)
+
+
+def test_the_record_mode_and_its_show_and_delete_are_gone():
+    # "一些不用的资产就删了": the order lives in the settings now, so nothing chooses a record.
+    from maalimbus import global_settings, team_order_record
+    for slot in (1, 40):
+        assert [case['name'] for case in PI['option']['global_team_%d_order' % slot]['cases']] == ['keep', 'game', 'custom']
+    assert 'read_team_action' not in PI['option'] and 'ReadTeamOrderAction' not in NODES
+    assert not hasattr(global_settings, 'RECORD') and not hasattr(team_order_task, 'show')
+    assert not hasattr(team_order_record, 'latest') and not hasattr(team_order_record, 'forget')
+    for language in ('zh_cn', 'en_us', 'ja_jp'):
+        text = json.loads((ROOT / 'assets/i18n' / (language + '.json')).read_text(encoding='utf-8'))
+        assert not [key for key in text if key.startswith('read_team_action') or key == 'mirror_team_order_record']
+    source = (ROOT / 'agent/recognition.py').read_text(encoding='utf-8')
+    assert '_team_order_choice' not in source and 'mxu_settings.write_orders(client,lines)' in source

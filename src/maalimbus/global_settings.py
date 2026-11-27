@@ -29,10 +29,6 @@ from .storage import ProfileStore, SINNERS, KEYWORDS, read_json
 
 KEEP = 'keep'
 GAME = 'game'
-#: Take the order the order-reading task recorded for this team (`team_order_task`,
-#: `team_order_record.latest`). The user's design of 2026-11-27: read in the task, choose
-#: here. A team with no record keeps what it has.
-RECORD = 'record'
 #: What a player may type instead of the two English words.
 KEEP_WORDS = ('', 'keep', '不变', '保持', '保持不变', 'そのまま')
 GAME_WORDS = ('game', '游戏', '跟随游戏', 'ゲーム')
@@ -104,7 +100,7 @@ def collect_builds(get_node):
             stars = get_node(prefix + '_stars')['attach'].get('mode', KEEP)
         except KeyError:
             stars = KEEP    # a pipeline packaged before the team's starlight setting existed
-        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, RECORD, 'custom') or stars not in (KEEP, 'choose'):
+        if systems not in (KEEP, 'choose') or order not in (KEEP, GAME, 'custom') or stars not in (KEEP, 'choose'):
             raise ValueError('Unknown Mirror team setting')
         if systems == KEEP and order == KEEP and stars == KEEP:
             continue
@@ -136,7 +132,7 @@ def apply_builds(directory, edits):
         raise ValueError('Global build edits must be an object')
     store = ProfileStore(directory / 'user-team-profiles.json')
     teams = list(store.load()) if store.path.exists() else []
-    changed, missing = [], []
+    changed = []
     ledger = directory / 'user-run-ledger.json'
     active = read_json(ledger).get('active') if ledger.exists() else None
     for key, edit in edits.items():
@@ -146,21 +142,7 @@ def apply_builds(directory, edits):
             raise ValueError('A team edit names its systems and its deployment order')
         slot = int(key)
         old = next((t for t in teams if t.slot == slot), None)
-        keywords = edit['keywords']
-        if edit['order'] == RECORD:
-            from . import team_order_record
-            entry = team_order_record.latest(directory, slot)
-            if entry is None:
-                # Not an error that stops the night's run: the team keeps its order and says so.
-                print('MaaLimbus 队伍 %d 的「出战顺序」选了「使用录入记录」，但还没有录入记录；'
-                      '本次保持原来的顺序。请先打开游戏的编队界面运行「一键读取队伍排序」。' % slot, flush=True)
-                missing.append(slot)
-            order = KEEP if entry is None else tuple(entry['order'])
-            if entry is not None:
-                # Taken again at every start, so a team read again uses its new record next time.
-                print('MaaLimbus 队伍 %d 的出战顺序采用录入记录：%s' % (slot, team_order_record.described(entry)), flush=True)
-        else:
-            order = parse_order(edit['order'])
+        keywords, order = edit['keywords'], parse_order(edit['order'])
         fields = {}
         if keywords != KEEP:
             # An empty choice is allowed: the team is tied to no system.

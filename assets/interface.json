@@ -186,7 +186,6 @@
       "description": "$main_read_team_order_description",
       "default_check": false,
       "option": [
-        "read_team_action",
         "read_team_count"
       ]
     },
@@ -500,17 +499,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_1_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -733,17 +721,6 @@
             "Global_global_team_2_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_2_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -976,17 +953,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_3_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -1209,17 +1175,6 @@
             "Global_global_team_4_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_4_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -1452,17 +1407,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_5_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -1685,17 +1629,6 @@
             "Global_global_team_6_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_6_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -1928,17 +1861,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_7_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -2161,17 +2083,6 @@
             "Global_global_team_8_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_8_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -2404,17 +2315,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_9_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -2637,17 +2537,6 @@
             "Global_global_team_10_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_10_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -2880,17 +2769,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_11_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -3113,17 +2991,6 @@
             "Global_global_team_12_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_12_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -3356,17 +3223,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_13_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -3589,17 +3445,6 @@
             "Global_global_team_14_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_14_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -3832,17 +3677,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_15_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -4065,17 +3899,6 @@
             "Global_global_team_16_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_16_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -4308,17 +4131,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_17_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -4541,17 +4353,6 @@
             "Global_global_team_18_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_18_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -4784,17 +4585,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_19_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -5017,17 +4807,6 @@
             "Global_global_team_20_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_20_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -36218,17 +35997,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_21_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -36898,17 +36666,6 @@
             "Global_global_team_22_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_22_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -37588,17 +37345,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_23_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -38268,17 +38014,6 @@
             "Global_global_team_24_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_24_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -38958,17 +38693,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_25_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -39638,17 +39362,6 @@
             "Global_global_team_26_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_26_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -40328,17 +40041,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_27_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -41008,17 +40710,6 @@
             "Global_global_team_28_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_28_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -41698,17 +41389,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_29_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -42378,17 +42058,6 @@
             "Global_global_team_30_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_30_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -43068,17 +42737,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_31_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -43748,17 +43406,6 @@
             "Global_global_team_32_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_32_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -44438,17 +44085,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_33_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -45118,17 +44754,6 @@
             "Global_global_team_34_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_34_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -45808,17 +45433,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_35_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -46488,17 +46102,6 @@
             "Global_global_team_36_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_36_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -47178,17 +46781,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_37_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -47858,17 +47450,6 @@
             "Global_global_team_38_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_38_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -48548,17 +48129,6 @@
           }
         },
         {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_39_order": {
-              "attach": {
-                "mode": "record"
-              }
-            }
-          }
-        },
-        {
           "name": "custom",
           "label": "$mirror_team_order_custom",
           "option": [
@@ -49228,17 +48798,6 @@
             "Global_global_team_40_order": {
               "attach": {
                 "mode": "game"
-              }
-            }
-          }
-        },
-        {
-          "name": "record",
-          "label": "$mirror_team_order_record",
-          "pipeline_override": {
-            "Global_global_team_40_order": {
-              "attach": {
-                "mode": "record"
               }
             }
           }
@@ -57068,47 +56627,6 @@
             "ReadTeamOrderCount": {
               "attach": {
                 "count": 40
-              }
-            }
-          }
-        }
-      ]
-    },
-    "read_team_action": {
-      "type": "select",
-      "label": "$read_team_action",
-      "description": "$read_team_action_description",
-      "default_case": "read",
-      "cases": [
-        {
-          "name": "read",
-          "label": "$read_team_action_read",
-          "pipeline_override": {
-            "ReadTeamOrderAction": {
-              "attach": {
-                "action": "read"
-              }
-            }
-          }
-        },
-        {
-          "name": "show",
-          "label": "$read_team_action_show",
-          "pipeline_override": {
-            "ReadTeamOrderAction": {
-              "attach": {
-                "action": "show"
-              }
-            }
-          }
-        },
-        {
-          "name": "clear",
-          "label": "$read_team_action_clear",
-          "pipeline_override": {
-            "ReadTeamOrderAction": {
-              "attach": {
-                "action": "clear"
               }
             }
           }
