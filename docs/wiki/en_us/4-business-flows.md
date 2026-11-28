@@ -486,7 +486,7 @@ Five of the 126 keywordless gifts mention a system; checked, each does so as a b
 | 10 Perfected Possibility | 60 / 120 / 180 |
 
 - A card's own `+` / `++` button changes that card's level and price, selects nothing and spends nothing; pressing the lit button returns the card to plain. "Enhance All" does the same for all ten, "Select All Graces" selects them. Pressing the card's body selects it.
-- "Available", top right, is the run's allowance of starlight (120 here); what is left becomes starting Cost at 1 to 5. When the selection costs more, the counter becomes `0+90` and "Owned" becomes `3607-90`: the rest comes from the stock.
+- "Available", top right, is the run's allowance of starlight (120 here); what is left goes to the clear rewards unless the page's "Convert Starlight to Cost" is ticked, which this program does not do. (This line used to say it becomes starting Cost at 1 to 5; that was wrong.) When the selection costs more, the counter becomes `0+90` and "Owned" becomes `3607-90`: the rest comes from the stock.
 - The game remembers no selection; the page opens empty every run.
 
 **A plan** (`src/maalimbus/mirror_starlight.py:34` (`plan`)) is three things: which cards, each card's level, and the most that may be taken from the stock (0 by default: the stock is not touched). A plan belongs to a team (in the global settings, next to its gift systems and deployment order) or to the Mirror task; the task only chooses whose: the current team's (the default; a team with no plan borrows the task's) or the task's. The two older sources, "saved" and "auto", are removed; "saved" read a file nothing in the settings wrote.

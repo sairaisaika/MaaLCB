@@ -4005,6 +4005,7 @@ class MirrorRunner:
             map_dispatch.retire_judged_target(self.state,target)
             self.state['map_refused_streak'] = 0
             self.state.pop('map_resume_attempted',None)
+            self.state.pop('map_escape_own_node',None)
             self.state.pop('resume_requested',None)
             return 'accepted'
         # A refusal is a fact the run must keep: the game does not accept that step from
@@ -6239,25 +6240,38 @@ class MirrorRunner:
         if map_dispatch.resume_return_has_untried_path(state,record,candidates):
             self.note('map_resume_return_offers_untried_path',frame=record.get('frame'),input_sent=False)
         if page=='MAP' and map_escape_wanted(state):
+            # Every node ahead refused: the battle the party stands on may still be owed.
+            # Its node is pressed once before the panel, or before the stop when the
+            # panel came first (see `run_wiring.escape_own_node`).
+            _own_node_first=None
             if not settings.observe_only and not stop_requested:
-                probe = self._explore_unknown(record,frame,candidates)
-                if probe is not None:
-                    return probe
-            if state.get('map_resume_attempted'):
-                stopped=self._record(page,record,frame,candidates,None,
-                    'map_resume_did_not_restore_navigation')
-                return self._result(page,None,False,stopped,done=True)
-            # Nine refusals before `entry -> Enter -> Dungeon Progress -> Resume` and one
-            # click after it (see `window.plan_map`): a map that is read but refuses every
-            # node may be a run that was never resumed, and the resume lives behind the map's
-            # own progress control at the top right of the page.  The ladder answers the
-            # first two refusals (D91): see `MAP_ESCAPE_REFUSALS`.
-            plan_controls['map.progress_button']=list(frame_coordinates(MAP_PROGRESS_CONTROL,record['size']))
-            # Carry the intent across the page change: the streak is reset when the
-            # progress panel takes over, so the panel below cannot read it.  Live run
-            # `packaged-mirror-20261023-053843` opened the panel four times and then
-            # fell into `window_recovery`, because by then the streak was 0.
-            state['resume_requested']=True
+                from .run_wiring import escape_own_node
+                _own_node_first=escape_own_node(state,record.get('map_party'),_side_hint)
+            if _own_node_first is not None:
+                self.note('map_own_node_offered',box=_own_node_first,party=list(record['map_party']),
+                          after='the_refusal_streak_asked_for_the_progress_panel',
+                          resumed=bool(state.get('map_resume_attempted')),input_sent=False)
+                candidates=[_own_node_first]
+            else:
+                if not settings.observe_only and not stop_requested:
+                    probe = self._explore_unknown(record,frame,candidates)
+                    if probe is not None:
+                        return probe
+                if state.get('map_resume_attempted'):
+                    stopped=self._record(page,record,frame,candidates,None,
+                        'map_resume_did_not_restore_navigation')
+                    return self._result(page,None,False,stopped,done=True)
+                # Nine refusals before `entry -> Enter -> Dungeon Progress -> Resume` and one
+                # click after it (see `window.plan_map`): a map that is read but refuses every
+                # node may be a run that was never resumed, and the resume lives behind the map's
+                # own progress control at the top right of the page.  The ladder answers the
+                # first two refusals (D91): see `MAP_ESCAPE_REFUSALS`.
+                plan_controls['map.progress_button']=list(frame_coordinates(MAP_PROGRESS_CONTROL,record['size']))
+                # Carry the intent across the page change: the streak is reset when the
+                # progress panel takes over, so the panel below cannot read it.  Live run
+                # `packaged-mirror-20261023-053843` opened the panel four times and then
+                # fell into `window_recovery`, because by then the streak was 0.
+                state['resume_requested']=True
         if page=='TUTORIAL' and record.get('overlay_dismissal',{}):
             closer=record['overlay_dismissal']
             if closer.get('kind')=='tutorial_book':

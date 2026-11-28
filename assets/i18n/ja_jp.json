@@ -213,7 +213,7 @@
   "mirror_star_row_plusplus": "++ に強化するカード",
   "mirror_star_row_description": "チェック一つで、その段階でそのカードを選びます。",
   "mirror_star_spend": "星光が足りないとき",
-  "mirror_star_spend_description": "毎回、その周回で使える星光の枠（画面右上の Available）があり、残りは開始コストになります。プランが枠を超えると、ゲームは所持星光（Owned）から差し引きます。既定では所持分に手を付けず、枠で買える分だけ順番に買います。",
+  "mirror_star_spend_description": "毎回、その周回で使える星光の枠（画面右上の Available）があり、残りは既定でクリア報酬に回り、画面の「Convert Starlight to Cost」にチェックを入れたときだけ開始コストになります（本プログラムはチェックしません）。プランが枠を超えると、ゲームは所持星光（Owned）から差し引きます。既定では所持分に手を付けず、枠で買える分だけ順番に買います。",
   "mirror_star_spend_allowance": "その周回の枠だけ。所持分は使わない",
   "mirror_star_spend_stock_cap": "所持分を使ってよい（周回ごとの上限あり）",
   "mirror_star_spend_stock_all": "所持分を使ってよい（プランに必要なだけ）",

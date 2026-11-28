@@ -62,11 +62,36 @@ def own_node_offer(state, party, side, offered, refused_all=False):
     if state.get('map_own_node_tried'):
         return None
     state['map_own_node_tried'] = True
-    # The ruler is the frame's own node size when the reader had one; without it the
-    # box is the smallest that still lands on the node under the party.
-    half = max(16, side // 6) if type(side) is int and side > 0 else 16
-    state['map_own_node_box'] = [int(party[0]) - half, int(party[1]) - half, 2 * half, 2 * half]
+    state['map_own_node_box'] = own_node_box(party, side)
     return list(state['map_own_node_box'])
+
+
+def own_node_box(party, side):
+    """A box on the node under the party.
+
+    The ruler is the frame's own node size when the reader had one; without it the box
+    is the smallest that still lands on the node under the party.
+    """
+    half = max(16, side // 6) if type(side) is int and side > 0 else 16
+    return [int(party[0]) - half, int(party[1]) - half, 2 * half, 2 * half]
+
+
+def escape_own_node(state, party, side):
+    """The own node, once per refusal streak, before the map's progress panel is used.
+
+    Live pi-20261127-224438 (floor 4, after the game had been closed in a battle):
+    three nodes ahead were pressed and refused, the viewport was panned, the progress
+    panel and the entry's Resume came next, and the run stopped with
+    `map_resume_did_not_restore_navigation` without the node under the party ever
+    being pressed. `own_node_offer` could not help: the map kept offering a node ahead,
+    which clears its memory on every read. This one is remembered in
+    `map_escape_own_node` until a node click is accepted. Returns the box or None.
+    """
+    if not party or state.get('map_escape_own_node'):
+        return None
+    box = own_node_box(party, side)
+    state['map_escape_own_node'] = list(box)
+    return box
 #: the two inputs that settle the claim, from ``maalimbus.window``.
 REWARD_CONFIRM_REASON = 'the_reward_claim_is_confirmed_and_never_cancelled'
 ENTRY_CONFIRM_REASON = 'dungeon_team_confirm_brings_the_chosen_team_in'

@@ -213,7 +213,7 @@
   "mirror_star_row_plusplus": "Cards enhanced ++",
   "mirror_star_row_description": "One tick takes the card at this level.",
   "mirror_star_spend": "When the starlight runs short",
-  "mirror_star_spend_description": "Each run has an allowance of starlight (Available, top right of the page); what is left becomes starting Cost. When a plan costs more than the allowance the game takes the rest from your owned stock. By default the stock is not touched: cards are bought in order as far as the allowance goes.",
+  "mirror_star_spend_description": "Each run has an allowance of starlight (Available, top right of the page); what is left goes to the clear rewards unless the page's \"Convert Starlight to Cost\" is ticked (this program does not tick it). When a plan costs more than the allowance the game takes the rest from your owned stock. By default the stock is not touched: cards are bought in order as far as the allowance goes.",
   "mirror_star_spend_allowance": "The run's allowance only; leave the stock alone",
   "mirror_star_spend_stock_cap": "May use the stock, up to this much a run",
   "mirror_star_spend_stock_all": "May use the stock, as much as the plan needs",

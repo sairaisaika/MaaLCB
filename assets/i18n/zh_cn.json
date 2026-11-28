@@ -213,7 +213,7 @@
   "mirror_star_row_plusplus": "强化 ++ 的卡",
   "mirror_star_row_description": "勾一下就是选这张卡并定在这一档。",
   "mirror_star_spend": "星光不够时",
-  "mirror_star_spend_description": "每局有一笔本局可用的星光额度（页面右上角 Available），没花完的会变成开局金币。方案的花费超过额度时，游戏会从你的库存星光（Owned）里扣。默认不动库存：只按卡片顺序买额度内买得起的。",
+  "mirror_star_spend_description": "每局有一笔本局可用的星光额度（页面右上角 Available），没花完的默认留到通关奖励里，只有勾选页面上的「Convert Starlight to Cost」才换成开局金币（本程序不勾）。方案的花费超过额度时，游戏会从你的库存星光（Owned）里扣。默认不动库存：只按卡片顺序买额度内买得起的。",
   "mirror_star_spend_allowance": "只用本局额度，不动库存",
   "mirror_star_spend_stock_cap": "可以用库存，每局最多拿这么多",
   "mirror_star_spend_stock_all": "可以用库存，方案要多少拿多少",
