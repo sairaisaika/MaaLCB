@@ -81,3 +81,19 @@ def test_a_lit_switch_is_not_pressed_again_after_a_submit_that_changed_nothing()
     # A new turn that was just assigned goes to the dial either way.
     assert plan('assign', True)['reason'] == 'start_button_submits_the_assigned_turn'
     assert plan('assign', False)['reason'] == 'start_button_submits_the_assigned_turn'
+
+
+def test_a_dial_right_of_the_usual_band_is_found_and_a_chip_far_left_of_it_is_not():
+    # Live pi-20261127-203541 frame-1898, turn 5 with twelve sinners: the dial stood at
+    # 1550..1672 beside `Win Rate` at 1716, past 0.82 of the width where the search ended,
+    # and the largest warm piece left of the caption was an orange skill chip at 1292..1415.
+    captions = [Text('Win', (1719, 795, 40, 22), 1.0), Text('Rate', (1716, 814, 44, 22), 1.0),
+                Text('Damage', (1700, 862, 76, 26), 1.0), Text('TURN', (20, 96, 42, 22), 1.0),
+                Text('5', (94, 90, 40, 42), 1.0)]
+    image = np.full((1080, 1920, 3), 20, np.uint8)
+    image[768:900, 1550:1672] = WARM            # the dial
+    image[733:873, 1292:1415] = WARM            # a highlighted chip, larger than any other piece
+    x, y, w, h = bv.dial_beside_caption(captions, SIZE, image)
+    assert 1550 <= x + w / 2 <= 1672 and 768 <= y + h / 2 <= 900
+    image[768:900, 1550:1672] = 20              # no dial at all: the chip is still not the dial
+    assert bv.dial_beside_caption(captions, SIZE, image) is None

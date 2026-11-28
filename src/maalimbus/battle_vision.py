@@ -188,7 +188,9 @@ def dial_beside_caption(records, size, image):
     label = buttons['win_rate']
     height, width = image.shape[:2]
     x0, y0 = int(width * 0.55), int(height * 0.55)
-    x1, y1 = int(width * 0.82), int(height * 0.95)
+    # The search reaches the caption itself: with twelve sinners the dial stands right of
+    # 0.82 of the width (frame-1898 of pi-20261127-203541: x 1550..1672, cut at 1574).
+    x1, y1 = max(int(width * 0.82), int(label[0])), int(height * 0.95)
     crop = image[y0:y1, x0:x1]
     if crop.size == 0:
         return None
@@ -203,6 +205,15 @@ def dial_beside_caption(records, size, image):
             continue
         centre_x, centre_y = bx + x0 + bwidth / 2, by + y0 + bheight / 2
         if centre_x >= label[0] + label[2] * 0.5:
+            continue
+        # The dial ends just left of its caption, inside the band the ring fallback uses.
+        # A warm piece that ends further left is a highlighted skill chip: live
+        # pi-20261127-203541 frame-1898 (turn 5, twelve sinners) chose an orange chip at
+        # x 1292..1415 while the dial stood at 1550..1672 beside `Win Rate` at 1716, and
+        # six presses on the chip ended the run with
+        # `the_exempt_input_repeated_without_progress`. (A glow joined to the dial still
+        # ends at the dial, so it stays.)
+        if bx + x0 + bwidth < label[0] - 230 * width / 1920:
             continue
         if not (label[1] - 40 <= centre_y <= label[1] + label[3] + 90):
             continue
