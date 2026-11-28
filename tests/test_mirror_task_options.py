@@ -60,15 +60,14 @@ def test_unknown_battle_mode_is_rejected():
     with pytest.raises(ValueError):collect(nodes(battle='unknown'))
 
 
-def test_the_skill_check_is_off_unless_a_pipeline_asks_for_it():
-    # The check opens the skill chooser, selects a card and cancels; it never buys. It was
-    # offered in the app as "Skill Replacement Check" until 2026-11-23, when entries with no
-    # real function left the interface. The node and its three modes remain for development.
+def test_the_skill_replacement_is_off_unless_the_player_chooses_it():
+    # Offered as "Skill Replacement Check" until 2026-11-23 (it selected and cancelled,
+    # never bought) and back since 2026-11-27 as a purchase, Confirm and receipt included.
     import json
     from pathlib import Path
     root=Path(__file__).resolve().parents[1]/'assets'
     pi=json.loads((root/'interface.json').read_bytes())
-    assert 'mirror_shop_skill_mode' not in pi['option']
+    assert pi['option']['mirror_shop_skill_mode']['default_case']=='off'
     pipeline=json.loads((root/'resource/base/pipeline/mirror.json').read_bytes())
     assert pipeline['MirrorShopSkillMode']['attach']['mode']=='off'
     for mode in ('off','keep_one_each','keep_one_s2'):

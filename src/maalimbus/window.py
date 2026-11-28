@@ -1471,6 +1471,13 @@ def _plan_step(page, *, controls=None, start_box=None, auto_assign=None,
             return _plan(page, CLICK, target=choice, expect=('UNKNOWN_DIALOG','SHOP'),
                          control_id='shop.skill_choice',
                          reason='select_proven_shop_skill_replacement')
+        confirm = controls.get('shop.skill_confirm')
+        if confirm is not None:
+            # The purchase itself: the card was selected on an earlier step and a later
+            # chooser proved it unchanged (shop_transaction.reserve_skill_confirm).
+            return _plan(page, CLICK, target=confirm, expect=('UNKNOWN_DIALOG','SHOP'),
+                         control_id='shop.skill_confirm',
+                         reason='select_proven_shop_skill_replacement')
         cancel = controls.get('shop.skill_cancel')
         if cancel is not None:
             return _plan(page, CLICK, target=cancel, expect=('SHOP',), advance=True,

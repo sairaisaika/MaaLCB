@@ -5698,7 +5698,17 @@ class MirrorRunner:
                     self.note('shop_skill_service_observed',outcome=outcome,input_sent=False)
                 else:
                     receipt=shop_tx.reconcile_skill_replacement(self.run_id,pending_skill['visit'],frame_file(directory))
-                    self.note('shop_skill_receipt_verified',receipt=receipt,input_sent=False)
+                    if receipt.get('unspent'):
+                        self.note('shop_skill_confirm_spent_nothing',settled_on=receipt['settled_on'],input_sent=False)
+                        if receipt['settled_on']=='chooser':
+                            # The open intent is back; the next, independent chooser frame is
+                            # read as its own and answered with Cancel.
+                            return self._result(page,None,False,None,waiting=True)
+                    else:
+                        self.note('shop_skill_receipt_verified',receipt=receipt,input_sent=False)
+                        try:print('MaaLimbus 商店技能替换已购买：%s 的 %d 阶技能换成 3 阶，花费 %d 金币，剩 %d。'%(
+                            receipt['sinner'],receipt['from_tier'],receipt['price'],receipt['coins_after']),flush=True)
+                        except (OSError,UnicodeError):pass
             except (ValueError,OSError) as error:
                 waits=state.setdefault('shop_settle_waits',{})
                 key=pending_skill['kind']+':'+str(pending_skill['before'].get('png_sha256','unknown'))
@@ -6365,7 +6375,15 @@ class MirrorRunner:
                     choice=propose_replacement(replacement,settings.shop_skill_mode,settings.shop_reserve_coins)
                     if choice:
                         plan_controls['shop.skill_choice']=list(choice.quote.select_box)
-                box=replacement.cancel_box
+                if (skill_chooser and pending_skill.get('selection') and not pending_skill.get('cancel')
+                        and not pending_skill.get('confirm_unspent') and identity and identity['role']=='frontline'
+                        and pending_skill['skill']['mode']==settings.shop_skill_mode
+                        and pending_skill['skill']['reserve_coins']==settings.shop_reserve_coins):
+                    # The card chosen on the step before is still the plan, on a chooser
+                    # that proved it unchanged: Confirm buys it. Never twice; a Confirm
+                    # that changed nothing is followed by Cancel.
+                    plan_controls['shop.skill_confirm']=list(replacement.confirm_box)
+                box=None if 'shop.skill_confirm' in plan_controls else replacement.cancel_box
             else:
                 box=dialog_dismissal(texts,size,self.locale_dictionary())
             if box:
@@ -7025,6 +7043,11 @@ class MirrorRunner:
         if skill_chooser and plan.get('control_id') == 'shop.skill_cancel':
             shop_tx.reserve_skill_service_cancel(self.run_id,pending_skill['visit'],frame_file(directory),
                                                  plan['target'])
+        if skill_chooser and plan.get('control_id') == 'shop.skill_confirm':
+            target=shop_tx.reserve_skill_confirm(self.run_id,pending_skill['visit'],frame_file(directory),
+                settings.shop_skill_mode,settings.shop_reserve_coins,self.deployment_transaction.data,plan['target'])
+            self.note('shop_skill_confirm_intent',sinner=shop_tx.data['pending']['skill']['sinner'],
+                      price=shop_tx.data['pending']['price'],target=target,input_sent=False)
         if skill_chooser and plan.get('control_id') == 'shop.skill_choice':
             selection=shop_tx.reserve_skill_selection(self.run_id,pending_skill['visit'],frame_file(directory),
                 settings.shop_skill_mode,settings.shop_reserve_coins,self.deployment_transaction.data,plan['target'])

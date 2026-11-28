@@ -232,8 +232,9 @@ def _unspent_skill_chooser(pending, record, texts, size, proof):
         raise ValueError('Skill chooser owner or unchanged balance not proven')
     selection = pending.get('selection')
     if selection:
-        before, before_texts, before_size = _verify(selection.get('frame'))
-        if proof['png_sha256'] == selection['frame']['png_sha256']:
+        reference = pending.get('confirm_unspent') or selection.get('frame')
+        before, before_texts, before_size = _verify(reference)
+        if proof['png_sha256'] == reference['png_sha256']:
             raise ValueError('Wait for an independent skill selection successor')
         _later_skill_capture(before, record)
         previous = read_replacement_modal(before_texts, before_size)
@@ -616,6 +617,35 @@ class ShopTransaction:
         self._save(data)
         return selection
 
+    def reserve_skill_confirm(self, scope, visit, frame_path, mode, reserve_coins, deployment, expected_target):
+        """Press the chooser's Confirm once for the card already selected; this is the purchase.
+
+        Until 2026-11-27 the flow stopped at the selection and cancelled, so the option was
+        taken out of the interface as a check that never bought. The Confirm is reserved
+        only on a later chooser that still shows the same sinner, the same balance and the
+        same counts as the selection's own frame, with the policy unchanged, and only once:
+        the open intent becomes a `skill_replacement` intent that keeps the selection.
+        """
+        from .pre_battle_identity import submitted_identity
+
+        pending, record, texts, size, proof = self._pending(scope, visit, 'skill_service', frame_path)
+        skill = pending['skill']
+        selection = pending.get('selection')
+        if (not selection or pending.get('cancel') or pending.get('confirm_unspent')
+                or skill['mode'] != mode or skill['reserve_coins'] != reserve_coins):
+            raise ValueError('Skill Confirm needs the unchanged selection intent and can be sent only once')
+        modal = _unspent_skill_chooser(pending, record, texts, size, proof)
+        identity = submitted_identity(deployment, scope, skill['sinner'])
+        if not identity or identity['role'] != 'frontline' or list(modal.confirm_box) != list(expected_target):
+            raise ValueError('Skill Confirm target or frontline identity not proven')
+        data = copy.deepcopy(self.data)
+        data['pending'] = dict(kind='skill_replacement', stage='skill_confirm_intent', scope=scope, visit=visit,
+                               coins=pending['coins'], price=selection['price'], before=pending['before'],
+                               question=proof, shelf=[], click=list(modal.confirm_box), selection=selection,
+                               skill=dict(skill, from_tier=selection['from_tier']))
+        self._save(data)
+        return list(modal.confirm_box)
+
     def reserve_skill_service_cancel(self, scope, visit, frame_path, expected_target):
         """Cancel the matched unspent chooser once, even across restarts."""
         pending, record, texts, size, proof = self._pending(scope, visit, 'skill_service', frame_path)
@@ -976,31 +1006,67 @@ class ShopTransaction:
         from .shop_skill_vision import read_replacement_modal
 
         pending, record, texts, size, proof = self._pending(scope, visit, 'skill_replacement', frame_path)
-        if record.get('scene') != 'UNKNOWN_DIALOG' or proof['png_sha256'] == pending['before']['png_sha256']:
+        if record.get('scene') not in ('UNKNOWN_DIALOG', 'SHOP') or proof['png_sha256'] == pending['question']['png_sha256']:
             raise ValueError('Independent skill chooser successor required')
         question, before_texts, before_size = _verify(pending['question'])
         _later_skill_capture(question, record)
         before = read_replacement_modal(before_texts, before_size)
-        after = read_replacement_modal(texts, size)
         skill = pending['skill']
-        if (question.get('scene') != 'UNKNOWN_DIALOG' or before is None or after is None
-                or before.sinner != skill.get('sinner') or after.sinner != before.sinner
-                or before.balance != pending['coins']):
+        if (question.get('scene') != 'UNKNOWN_DIALOG' or before is None
+                or before.sinner != skill.get('sinner') or before.balance != pending['coins']):
             raise ValueError('Matching skill chooser and owner not proven')
         proposal = propose_replacement(before, skill.get('mode'), skill.get('reserve_coins'))
         if (proposal is None or proposal.quote.from_tier != skill.get('from_tier')
                 or proposal.quote.price != pending['price']):
             raise ValueError('Retained skill replacement quote differs from the reserved policy')
+        data = copy.deepcopy(self.data)
+        if record.get('scene') == 'SHOP':
+            # What the game shows after Confirm has not been seen yet. If it is the shelf,
+            # its coin counter alone settles the press: the exact price paid is the
+            # purchase (the counts are then not read), the same coins mean nothing was
+            # bought. Anything else stays pending.
+            coins = _coins(texts, size, (pending['coins'], proposal.coins_after))
+            if coins == proposal.coins_after:
+                receipt = dict(sinner=before.sinner, from_tier=proposal.quote.from_tier, to_tier=3,
+                               price=proposal.quote.price, counts_before=list(before.counts), counts_after=None,
+                               coins_before=before.balance, coins_after=coins,
+                               before=pending['question'], successor=proof, settled_on='shelf')
+                data['visits'][visit].setdefault('skill_receipts', []).append(receipt)
+                data['pending'] = None
+                data['coins_proven'] = coins
+                self._save(data)
+                return receipt
+            if coins == pending['coins']:
+                data['visits'][visit].setdefault('unspent_skill_services', []).append(
+                    dict(before=pending['before'], successor=proof, sinner=skill['sinner'], confirm_pressed=True))
+                data['pending'] = None
+                data['coins_proven'] = coins
+                self._save(data)
+                return dict(unspent=True, settled_on='shelf')
+            raise ValueError('Exact skill coin delta not proven on the shelf; preserve pending')
+        after = read_replacement_modal(texts, size)
+        if after is None or after.sinner != before.sinner:
+            raise ValueError('Matching skill chooser and owner not proven')
+        if after.counts == before.counts and after.balance == before.balance:
+            # Confirm changed nothing (the selection had not taken, or the button was not
+            # live): nothing was bought. The open intent comes back, marked so that the
+            # next input is the chooser's Cancel and never a second Confirm.
+            data['pending'] = dict(kind='skill_service', stage='skill_open_intent', scope=pending['scope'],
+                                   visit=pending['visit'], coins=pending['coins'], before=pending['before'],
+                                   shelf=[], click=pending.get('click'), selection=pending.get('selection'),
+                                   confirm_unspent=proof,
+                                   skill={k: v for k, v in skill.items() if k != 'from_tier'})
+            self._save(data)
+            return dict(unspent=True, settled_on='chooser')
         if after.counts != proposal.counts_after or after.balance != proposal.coins_after:
             raise ValueError('Exact skill counts and coin delta not proven; preserve pending')
-
-        data = copy.deepcopy(self.data)
         receipt = dict(sinner=before.sinner, from_tier=proposal.quote.from_tier, to_tier=3,
                        price=proposal.quote.price, counts_before=list(before.counts), counts_after=list(after.counts),
                        coins_before=before.balance, coins_after=after.balance,
                        before=pending['question'], successor=proof)
         data['visits'][visit].setdefault('skill_receipts', []).append(receipt)
         data['pending'] = None
+        data['coins_proven'] = after.balance
         self._save(data)
         return receipt
 

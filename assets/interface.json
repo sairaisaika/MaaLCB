@@ -142,6 +142,7 @@
         "mirror_shop_refresh_paid",
         "mirror_shop_coin_reserve",
         "mirror_shop_fusion",
+        "mirror_shop_skill_mode",
         "mirror_run_count",
         "mirror_defeat_accept",
         "mirror_reward_claim",
@@ -70199,6 +70200,47 @@
             "MirrorShopRefreshPaid": {
               "attach": {
                 "free_only": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_shop_skill_mode": {
+      "type": "select",
+      "label": "$mirror_shop_skill_mode",
+      "description": "$mirror_shop_skill_mode_description",
+      "default_case": "off",
+      "cases": [
+        {
+          "name": "off",
+          "label": "$mirror_shop_skill_off",
+          "pipeline_override": {
+            "MirrorShopSkillMode": {
+              "attach": {
+                "mode": "off"
+              }
+            }
+          }
+        },
+        {
+          "name": "keep_one_each",
+          "label": "$mirror_shop_skill_keep_one_each",
+          "pipeline_override": {
+            "MirrorShopSkillMode": {
+              "attach": {
+                "mode": "keep_one_each"
+              }
+            }
+          }
+        },
+        {
+          "name": "keep_one_s2",
+          "label": "$mirror_shop_skill_keep_one_s2",
+          "pipeline_override": {
+            "MirrorShopSkillMode": {
+              "attach": {
+                "mode": "keep_one_s2"
               }
             }
           }

@@ -221,5 +221,10 @@
   "mirror_shop_refresh_paid": "商店刷新花不花钱",
   "mirror_shop_refresh_paid_description": "「只用免费刷新」：只有刷新按钮上的价格是 0 时才刷新（免费刷新来自星光增益，例如 Star of the Beginning、Moon Star-shop），要花金币的刷新一律不点。刷新次数仍受上面的「商店刷新上限」限制。",
   "mirror_shop_refresh_paid_any": "免费的和花金币的都可以",
-  "mirror_shop_refresh_paid_free": "只用免费刷新"
+  "mirror_shop_refresh_paid_free": "只用免费刷新",
+  "mirror_shop_skill_mode": "商店技能替换",
+  "mirror_shop_skill_mode_description": "商店货架上的「Replace … Skill」：把初始前排某个人格的一张低阶技能换成 3 阶技能，花金币。只给开局时确实上场的前排人格换，每次进店每人最多一次；只在金币保留额以上时买，挑最便宜的那一档。程序先选卡，下一帧确认没变再按 Confirm，然后用金币差额和技能张数核对是否买到；按了没反应就取消退出，不会重复按。",
+  "mirror_shop_skill_off": "关闭",
+  "mirror_shop_skill_keep_one_each": "买，至少各留一张 1 阶和 2 阶技能",
+  "mirror_shop_skill_keep_one_s2": "买，至少留一张 2 阶技能"
 }

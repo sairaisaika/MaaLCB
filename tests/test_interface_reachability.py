@@ -89,9 +89,11 @@ def test_the_interface_does_not_offer_what_the_program_cannot_do():
     screenshot, then "not implemented"), the gift search choice (both cases refuse) and the
     shop's "learned" mode (no model, no samples: the manual rules under another name).
     They left the interface; this keeps them out until there is something behind them.
+    The skill replacement came back on 2026-11-27 with its Confirm and receipt
+    (shop_transaction.reserve_skill_confirm, reconcile_skill_replacement).
     """
     data = interface()
-    for option in ('software_auto_update', 'mirror_shop_skill_mode', 'mirror_gift_search'):
+    for option in ('software_auto_update', 'mirror_gift_search'):
         assert option not in data['option'] and option not in data['global_option']
     assert 'stamina' not in [task['name'] for task in data['task']]
     assert [case['name'] for case in data['option']['mirror_shop_policy']['cases']] == ['saved', 'manual']

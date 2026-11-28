@@ -221,5 +221,10 @@
   "mirror_shop_refresh_paid": "Paying for shop refreshes",
   "mirror_shop_refresh_paid_description": "\"Free refreshes only\": the shop is refreshed only while the refresh button prints a price of 0 (free refreshes come from graces such as Star of the Beginning and Moon Star-shop); a refresh that costs coins is never pressed. The refresh limit above still applies.",
   "mirror_shop_refresh_paid_any": "Free and paid refreshes",
-  "mirror_shop_refresh_paid_free": "Free refreshes only"
+  "mirror_shop_refresh_paid_free": "Free refreshes only",
+  "mirror_shop_skill_mode": "Shop skill replacement",
+  "mirror_shop_skill_mode_description": "The shelf's \"Replace … Skill\": swap one lower skill of an opening frontline Identity for a tier 3 skill, for coins. Only for Identities that were deployed at the start, at most once per sinner per shop visit, only above the coin reserve, and the cheapest option. The program selects the card, checks on the next frame that nothing changed, presses Confirm, and checks the coin difference and the skill counts; if Confirm changed nothing it cancels and never presses it again.",
+  "mirror_shop_skill_off": "Off",
+  "mirror_shop_skill_keep_one_each": "Buy, keeping at least one tier 1 and one tier 2 skill",
+  "mirror_shop_skill_keep_one_s2": "Buy, keeping at least one tier 2 skill"
 }

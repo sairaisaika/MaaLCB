@@ -221,5 +221,10 @@
   "mirror_shop_refresh_paid": "ショップ更新にお金を使うか",
   "mirror_shop_refresh_paid_description": "「無料の更新だけ」：更新ボタンの値段が 0 のときだけ更新します（無料更新は Star of the Beginning や Moon Star-shop などの星光バフで得られます）。コストのかかる更新は押しません。上の更新回数の上限はそのまま有効です。",
   "mirror_shop_refresh_paid_any": "無料でも有料でも更新する",
-  "mirror_shop_refresh_paid_free": "無料の更新だけ"
+  "mirror_shop_refresh_paid_free": "無料の更新だけ",
+  "mirror_shop_skill_mode": "ショップのスキル交換",
+  "mirror_shop_skill_mode_description": "ショップ棚の「Replace … Skill」：開始時の前衛人格の低いスキル一枚を 3 段階スキルに替える（コスト使用）。開始時に実際に出撃した前衛だけ、入店ごとに一人一回まで、保留コストより上でのみ、最も安い選択肢を買います。カードを選び、次の画面で変化がないことを確かめてから Confirm を押し、コスト差とスキル枚数で購入を確認します。押しても変化がなければキャンセルし、二度押しはしません。",
+  "mirror_shop_skill_off": "オフ",
+  "mirror_shop_skill_keep_one_each": "買う（1 段階と 2 段階を少なくとも一枚ずつ残す）",
+  "mirror_shop_skill_keep_one_s2": "買う（2 段階を少なくとも一枚残す）"
 }
