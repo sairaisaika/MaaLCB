@@ -557,7 +557,12 @@ def _released_poll_diagnostics(rows):
     return {name: identity for name, identity in released.items() if name not in kept}
 
 
-def _run_rows(run,current,recent,selection_index=None,hud_index=None,viewport_index=None):
+#: Finished runs newer than these, per runtime folder, keep their structural frames.
+#: Older finished runs leave for the archive whole, except what a reference pins.
+AGED_AFTER_RUNS=5
+
+
+def _run_rows(run,current,recent,selection_index=None,hud_index=None,viewport_index=None,aged=False):
     records=sorted(run.glob('frame-*.json'))
     if not records:return []
     events=run/'events.jsonl'
@@ -565,6 +570,15 @@ def _run_rows(run,current,recent,selection_index=None,hud_index=None,viewport_in
     try:
         rows=[json.loads(line) for line in events.read_text(encoding='utf8').splitlines()]
         if any(not isinstance(row,dict) for row in rows):return []
+        if aged and not current and any(row.get('event') in CLOSED_EVENTS for row in rows):
+            # An older finished run: every frame may leave for the archive (moved with
+            # its record, never deleted). Before 2026-11-28 only a few kinds of frame of
+            # a run that ended `passed` could move, almost every task ends on some stop,
+            # and the live install held 7 GB of frames over a 3 GB warning line.
+            # References (state, data folder, reports, sources) and causal components
+            # still pin what they pin; the caller removes those.
+            return [(p,dict(json.loads(p.read_text(encoding='utf8')),_retention='aged_closed_run'))
+                    for p in records]
         readonly=False
         result=run/'result.json'
         if not current and run.name.startswith('map-live-') and result.is_file() and not workspace._linked(result):
@@ -761,11 +775,17 @@ def diagnostic_groups(application_root,directory=None,*,recent=8,raw_only=True):
         # A closed session retains its own recent captures and outstanding
         # boundaries; being one of the newest five does not pin its entire
         # otherwise eligible history. Active foreign sessions still refuse.
-        runs.extend((p,False) for p in closed if p!=directory)
-    if directory is not None:runs.append((directory,True))
+        # Recency is when the run last wrote its journal, not its name: folders
+        # of several prefixes share a runtime and their names do not sort by time.
+        def written(p):
+            try:return (p/'events.jsonl').stat().st_mtime
+            except OSError:return p.stat().st_mtime
+        newest=set(sorted((p for p in closed if p!=directory),key=written)[-AGED_AFTER_RUNS:])
+        runs.extend((p,False,p not in newest) for p in closed if p!=directory)
+    if directory is not None:runs.append((directory,True,False))
     candidates={}
-    for run,current in runs:
-        for record,data in _run_rows(run,current,recent,selection_index,hud_index,viewport_index):
+    for run,current,aged in runs:
+        for record,data in _run_rows(run,current,recent,selection_index,hud_index,viewport_index,aged=aged):
             png=record.with_suffix('.png')
             if png.resolve() in kept or record.resolve() in kept or (raw_only and not png.is_file()):continue
             candidates[png]=(record,data)
@@ -827,6 +847,8 @@ def _plan(application_root,directory,additional_bytes,*,recent=8,budget=None,pre
                 discarded_by_run[png.parent]=_discarded_capacity_plans(png.parent,trace)
             if png.stem in discarded_by_run[png.parent]:
                 row['diagnostic_role']='discarded_noninput_plan'
+            if data.get('_retention')=='aged_closed_run':
+                row['diagnostic_role']='aged_closed_run'
             selected.append(row)
         result['files'].extend(selected);freed+=sum(row['bytes'] for row in selected)
         overhead=8192+4096*len(result['files'])

@@ -152,10 +152,37 @@ def protected_evidence(root, *, original_byte_documents=()):
                 if not path.resolve().is_relative_to(root) or path.stat().st_size>16*1024*1024:continue
                 lexical.update(cached_references(path,root,'state',parse))
             except (OSError,ValueError):continue
+    # The private state an installation is bound to (`user-data-root.json`) lives outside
+    # the project: the live install keeps its ledgers and transactions in another folder,
+    # and they name frames of the project's runs as proof (a shop visit, a deployment
+    # reset). Measured 2026-11-28: none of those were read here, which only mattered
+    # once whole finished runs could leave for the archive.
+    for bound in bound_data_directories(root):
+        for path in bound.rglob('*.json'):
+            try:
+                if path in original_byte_documents or _linked(path):continue
+                if path.stat().st_size>16*1024*1024:continue
+                lexical.update(cached_references(path,root,'state',parse))
+            except (OSError,ValueError):continue
     for candidate in resolve_references(lexical):
         if any(candidate.is_relative_to(runtime) for runtime in runtimes):
             kept.update((candidate,candidate.with_suffix('.png'),candidate.with_suffix('.json')))
     return kept
+
+
+def bound_data_directories(root):
+    """The private-state folders this project's `config` folders are bound to, if any."""
+    found=[]
+    for marker in (pathlib.Path(root)/'config/user-data-root.json',
+                   pathlib.Path(root)/'dist/MaaLimbus/config/user-data-root.json'):
+        try:
+            value=json.loads(marker.read_text(encoding='utf-8'))
+        except (OSError,ValueError):continue
+        if not isinstance(value,dict) or value.get('version')!=1 or not isinstance(value.get('directory'),str):continue
+        target=pathlib.Path(value['directory'])
+        if target.is_absolute() and target.is_dir() and not _linked(target) and target not in found:
+            found.append(target)
+    return found
 
 
 def candidates(root=None, *, protected=None) -> list:
