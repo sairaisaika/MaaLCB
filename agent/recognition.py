@@ -94,6 +94,23 @@ def _json_or_named(data):
         return json.dumps(safe, ensure_ascii=False, indent=2, default=str)
 
 
+def frame_box(box, width, height):
+    """An OCR box as whole pixels inside the image, the shape every frame reader checks.
+
+    A reader that scales a region read from the 1280x720 reference space hands over
+    fractional boxes; live pi-20261128-072916 wrote the faint floor-name row as
+    [28.5, 259.5, 303.0, 88.5], and the shop transaction's strict reader refused the
+    whole map frame ("Invalid shop OCR record"), which ended the run on its first step.
+    """
+    try:
+        x, y, w, h = (int(round(float(v))) for v in box)
+    except (TypeError, ValueError):
+        return box
+    x = min(max(x, 0), max(width - 1, 0))
+    y = min(max(y, 0), max(height - 1, 0))
+    return [x, y, max(1, min(w, width - x)), max(1, min(h, height - y))]
+
+
 class Journal:
     def __init__(self, directory, *, history_maintenance=False):
         self.directory = Path(directory)
@@ -263,7 +280,8 @@ class Journal:
         data = {'frame': name, 'scene': scene, 'size': [frame.shape[1], frame.shape[0]],
                 'utc': datetime.now(timezone.utc).isoformat(),
                 'image_sha256': hashlib.sha256(pixels).hexdigest(),
-                'ocr': [{'text': t.text, 'score': t.score, 'box': t.box} for t in records],**extra}
+                'ocr': [{'text': t.text, 'score': t.score, 'box': frame_box(t.box, frame.shape[1], frame.shape[0])}
+                        for t in records],**extra}
         metadata = _json_or_named(data).encode('utf-8')
         validate_capture_metadata(metadata)
         # Reserve the pair and stop-report room before creating either file.
@@ -560,7 +578,7 @@ class LimbusRecognition(CustomRecognition):
                         box=(b.x,b.y,b.w,b.h) if hasattr(b,'x') else tuple(b)
                         # Maa reports roi reads in the 1280x720 reference space while the
                         # frame is 1920x1080; unscaled the row misses the pack band.
-                        scaled=(box[0]*w/1280,box[1]*h/720,box[2]*w/1280,box[3]*h/720)
+                        scaled=tuple(int(round(v)) for v in (box[0]*w/1280,box[1]*h/720,box[2]*w/1280,box[3]*h/720))
                         faint_rows.append([result.text,list(box),result.score])
                         records.append(Text(result.text,scaled,result.score))
             resolved=None
