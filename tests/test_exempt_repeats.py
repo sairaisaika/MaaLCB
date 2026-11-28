@@ -84,3 +84,15 @@ def test_the_new_ending_has_a_kind():
     from maalimbus import pages
     assert pages.STOP_KINDS['the_exempt_input_repeated_without_progress'] == 'attempts_exhausted'
     assert pages.recovery_for('attempts_exhausted') == 'escalate_ladder'
+
+
+def test_the_team_join_may_fill_all_twelve_slots(tmp_path):
+    # live pi-20261128-001149: the inherited order was cleared, the twelve identities
+    # were joined one tap each, and the run stopped on the seventh tap.
+    loop = _loop(tmp_path)
+    reason = 'team_card_joins_the_next_unpicked_identity'
+    verdicts = [loop._exempt_step('PRE_BATTLE_TEAM', reason) for _ in range(14)]
+    assert verdicts == ['allow'] * 13 + ['exhausted']
+    # the other exemptions keep the setting
+    other = 'the_skill_detail_popup_is_dismissed_off_the_board'
+    assert [loop._exempt_step('BATTLE_TIP', other) for _ in range(7)][-1] == 'exhausted'

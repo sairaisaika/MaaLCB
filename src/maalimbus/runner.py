@@ -129,6 +129,14 @@ LOOP_GUARD_EXEMPT_REASONS = (
     # guard called a repeat and stopped the run on. The step budget bounds it.
     'the_cutscene_is_skipped_to_resume_the_run',
 )
+#: exempt reasons whose own count of legitimate repeats is larger than `exempt_rounds`.
+#: The team page joins one identity per tap and a deployment holds twelve: live
+#: pi-20261128-001149 cleared the inherited order on the next run's first battle, joined
+#: seven identities in seven taps (each one committed) and stopped on the seventh with
+#: `the_exempt_input_repeated_without_progress`. Twelve slots and one spare.
+EXEMPT_REPEATS = {
+    'team_card_joins_the_next_unpicked_identity': 13,
+}
 
 #: the observation pipeline ``prepare()`` writes; the window drives these nodes and
 #: an agent action registers the matching custom recognitions/actions.
@@ -8081,7 +8089,8 @@ class MirrorRunner:
                 entry['passed'] = False
                 entry['stopped'] = 'the_exempt_input_repeated_without_progress'
                 self.note('window_exempt_guard', page=page, reason=plan.get('reason'),
-                          repeats=max(1, settings.exempt_rounds))
+                          repeats=max(1, settings.exempt_rounds,
+                                      EXEMPT_REPEATS.get(plan.get('reason'), 0)))
                 return self._result(page, plan.get('target'), True, entry['stopped'],
                                     done=True)
         state['step'] += 1
@@ -9099,7 +9108,7 @@ class MirrorRunner:
         key = (page, reason)
         steps = self.state.setdefault('exempt_steps', {})
         steps[key] = steps.get(key, 0) + 1
-        if steps[key] > max(1, self.settings.exempt_rounds):
+        if steps[key] > max(1, self.settings.exempt_rounds, EXEMPT_REPEATS.get(reason, 0)):
             return 'exhausted'
         self.state['exempt_steps'] = {key: steps[key]}
         return 'allow'
