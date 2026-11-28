@@ -69,3 +69,45 @@ def test_an_unfinished_old_run_is_not_aged(tmp_path, monkeypatch):
     assert not any(png.parent == open_run and data.get('_retention') for members in groups
                    for png, record, data in members)
     assert folders[0] / 'frame-0001.png' in moving
+
+
+def test_a_run_killed_long_ago_ages_like_a_finished_one(tmp_path, monkeypatch):
+    # 64 of 141 live folders had no closing event (the app quit, a Stop, a crash).
+    root = tmp_path / 'project'
+    folders = runs(root, 6)
+    killed = run(root, 'pi-00-killed')
+    stamp = time.time() - retention.STALE_RUN_SECONDS - 60
+    os.utime(killed / 'events.jsonl', (stamp, stamp))
+    groups = retention.diagnostic_groups(root, run(root, 'pi-99'))
+    assert any(png.parent == killed and data.get('_retention') for members in groups
+               for png, record, data in members)
+
+
+def test_a_tidy_with_nothing_new_skips_the_full_plan(tmp_path, monkeypatch):
+    monkeypatch.setattr(retention, '_SETTLE_STATE', {})
+    root = tmp_path / 'project'
+    folders = runs(root, 7)
+    pinned = folders[0] / 'frame-0005.json'
+    (root / 'config').mkdir()
+    data = tmp_path / 'private'
+    data.mkdir()
+    write_json(root / 'config/user-data-root.json', dict(version=1, directory=str(data)))
+    write_json(data / 'user-shop.json', dict(proof=str(pinned)))
+    monkeypatch.setattr(workspace, 'BUDGET_BYTES', 50_000)
+    monkeypatch.setattr(retention, 'SETTLE_HEADROOM', 1_000)
+    current = run(root, 'pi-90', closed=True)
+    first = retention.settle(root, current)
+    assert not first.get('skipped') and first['moved'] > 0
+    assert retention._SETTLE_STATE[str(root.resolve())]['fruitless'] is False
+    planned = []
+    real = retention._plan
+    monkeypatch.setattr(retention, '_plan', lambda *a, **k: planned.append(1) or real(*a, **k))
+    # A plan that moved something runs again; this one finds only the pinned frame.
+    second = retention.settle(root, current)
+    assert not second.get('skipped') and second['moved'] == 0 and planned == [1]
+    # Nothing aged since that fruitless plan: the next tidy answers without one.
+    third = retention.settle(root, current)
+    assert third['skipped'] == 'nothing_new_to_reclaim' and planned == [1]
+    # A newer finished run ages one more folder: the plan runs again.
+    fourth = retention.settle(root, run(root, 'pi-91', closed=True))
+    assert not fourth.get('skipped') and planned == [1, 1]

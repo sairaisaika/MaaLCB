@@ -560,6 +560,21 @@ def _released_poll_diagnostics(rows):
 #: Finished runs newer than these, per runtime folder, keep their structural frames.
 #: Older finished runs leave for the archive whole, except what a reference pins.
 AGED_AFTER_RUNS=5
+#: A run folder that never wrote a closing event (its task was killed: the app quit, a
+#: Stop, a crash) counts as finished once its journal has been quiet this long. Measured
+#: 2026-11-28: 64 of 141 folders had no closing event and held 1.3 GB nothing could move.
+STALE_RUN_SECONDS=6*3600
+
+
+def _finished(run, rows):
+    """A closing event, or a journal quiet for `STALE_RUN_SECONDS`."""
+    if any(row.get('event') in CLOSED_EVENTS for row in rows):
+        return True
+    import time
+    try:
+        return time.time()-(run/'events.jsonl').stat().st_mtime>STALE_RUN_SECONDS
+    except OSError:
+        return False
 
 
 def _run_rows(run,current,recent,selection_index=None,hud_index=None,viewport_index=None,aged=False):
@@ -570,7 +585,7 @@ def _run_rows(run,current,recent,selection_index=None,hud_index=None,viewport_in
     try:
         rows=[json.loads(line) for line in events.read_text(encoding='utf8').splitlines()]
         if any(not isinstance(row,dict) for row in rows):return []
-        if aged and not current and any(row.get('event') in CLOSED_EVENTS for row in rows):
+        if aged and not current and _finished(run,rows):
             # An older finished run: every frame may leave for the archive (moved with
             # its record, never deleted). Before 2026-11-28 only a few kinds of frame of
             # a run that ended `passed` could move, almost every task ends on some stop,
@@ -1088,6 +1103,32 @@ SETTLE_HEADROOM=400_000_000
 #: The longest the moving phase of one end-of-task reclaim may take. What it did not
 #: reach keeps its intent in the trail and is the first thing the next task moves.
 SETTLE_SECONDS=180.0
+#: What the last full plan saw, so the next task can tell whether another one can help.
+#: Kept in memory: the agent lives for the client's whole session, and a file inside the
+#: project would itself change the size the plan measures. A new session plans afresh.
+_SETTLE_STATE={}
+#: Growth of the project since the last full plan that is worth another one by itself.
+SETTLE_GROWTH=300_000_000
+
+
+def _aged_runs(runtimes,directory):
+    """Names of finished runs beyond the newest `AGED_AFTER_RUNS` that still hold a frame."""
+    found=[]
+    for runtime in runtimes:
+        if not runtime.is_dir() or workspace._linked(runtime):continue
+        folders=[p for p in runtime.iterdir() if p.is_dir() and not workspace._linked(p) and p!=directory]
+        def written(p):
+            try:return (p/'events.jsonl').stat().st_mtime
+            except OSError:return p.stat().st_mtime
+        newest=set(sorted(folders,key=written)[-AGED_AFTER_RUNS:])
+        for run in folders:
+            if run in newest or not any(run.glob('frame-*.png')):continue
+            try:
+                rows=[json.loads(line) for line in (run/'events.jsonl').read_text(encoding='utf8').splitlines() if line.strip()]
+            except (OSError,ValueError):continue
+            if _finished(run,[row for row in rows if isinstance(row,dict)]):
+                found.append(str(run.relative_to(runtime.parent.parent)) if runtime.parent.parent in run.parents else run.name)
+    return found
 #: How long one full read of the references is trusted while frames are being moved.
 SETTLE_RECHECK_SECONDS=15.0
 #: The program never trims the archive. Past this size it says how large the archive is.
@@ -1129,6 +1170,21 @@ def settle(application_root,directory,*,headroom=None,recent=8,budget=None,secon
     used=workspace.size(root)
     summary=dict(kind='capture_settle',used_bytes=used,target_bytes=target,line_bytes=line,moved=0,moved_bytes=0,
                  left=0)
+    # The full plan re-verifies every kept frame of the installation: 60 to 90 s even
+    # when nothing may move (profiled 2026-11-28 on a 4 GB project: 75 s, nothing moved;
+    # live, beside the emulator, 191 s). When no run has aged since the last full plan
+    # and the project has not grown by `SETTLE_GROWTH`, a plan that found nothing to
+    # move last time cannot find more. A plan that moved something, or ran out of time,
+    # always runs again.
+    aged_now=_aged_runs(runtimes,Path(directory).resolve())
+    previous=_SETTLE_STATE.get(str(root))
+    if (used>target and isinstance(previous,dict) and previous.get('fruitless') is True
+            and isinstance(previous.get('aged'),list)
+            and type(previous.get('used_bytes')) is int and set(aged_now)<=set(previous['aged'])
+            and used<=previous['used_bytes']+SETTLE_GROWTH):
+        return dict(summary,skipped='nothing_new_to_reclaim',after_bytes=used,reached=False,
+                    over_line=used>line,archive_notice=False)
+    files=None
     if used>target:
         with verified_reads():
             current=_plan(application_root,directory,0,recent=recent,budget=target)
@@ -1140,6 +1196,8 @@ def settle(application_root,directory,*,headroom=None,recent=8,budget=None,secon
                 summary.update(moved=moved,moved_bytes=sum(row['bytes'] for row in files[:moved]),
                                left=len(files)-moved)
         used=workspace.size(root)
+        _SETTLE_STATE[str(root)]=dict(aged=sorted(_aged_runs(runtimes,Path(directory).resolve())),
+                                      used_bytes=used,fruitless=not files)
     archive=root.parent/(root.name+ARCHIVE_SUFFIX)
     archive_bytes=workspace.size(archive)
     summary.update(after_bytes=used,reached=used<=target,over_line=used>line,
