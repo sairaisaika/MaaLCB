@@ -1199,6 +1199,23 @@ def settle_evidence(directory):
     """
     import time as clock
     from maalimbus import capture_retention
+    # The reclaim measures and re-verifies every kept frame of the installation before it
+    # can tell whether anything may move: 60 to 90 s on a 9 GB project, measured on the
+    # live install 2026-11-28 (91 s profiled, nothing moved). It ran after every task, so
+    # "open game" and "close game", which write no frame, each held the task list that
+    # long after their result was printed, and a Stop pressed in that silence killed the
+    # agent before the next task. A task that wrote no frame has added nothing to reclaim.
+    try:
+        wrote_frames=any(Path(directory).glob('frame-*.png'))
+    except OSError:
+        wrote_frames=True
+    if not wrote_frames:
+        return dict(kind='capture_settle',skipped='the_task_wrote_no_frames',moved=0,moved_bytes=0,
+                    over_line=False,archive_notice=False)
+    try:
+        print('MaaLimbus 任务已结束，正在整理诊断截图（通常要一到两分钟），整理完才交还任务列表。',flush=True)
+    except (OSError,UnicodeError):
+        pass
     started=clock.monotonic()
     try:
         summary=capture_retention.settle(ROOT,directory)

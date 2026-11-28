@@ -113,3 +113,29 @@ def test_a_new_run_does_not_inherit_the_previous_runs_receipts(tmp_path):
     t.prepare('run-b',ORDER,(12,12))
     assert t.revived_cards()==[]
     assert DeploymentTransaction(p).revived_cards()==[]
+
+
+def test_an_empty_board_after_the_game_was_closed_restarts_the_unsubmitted_picks(tmp_path):
+    # live pi-20261128-013643: seven picks committed, the game closed, the same battle
+    # reopened at 0/12. The run stopped with 'Participant count diverged'.
+    p=tmp_path/'deployment.json';t=DeploymentTransaction(p)
+    t.prepare('run',ORDER,(0,12))
+    for index,card in enumerate(ORDER[:7]):
+        t.intent('card',(index,12),card);t.observe((index+1,12))
+    resumed=DeploymentTransaction(p)
+    plan=resumed.prepare('run',ORDER,(0,12))
+    assert not plan['reset_required'] and not plan['order_verified']
+    assert resumed.data['sequence']==[] and resumed.data['dropped_sequences']==[ORDER[:7]]
+    resumed.intent('card',(0,12),ORDER[0]);resumed.observe((1,12))
+    assert DeploymentTransaction(p).data['sequence']==ORDER[:1]
+    # any other count still disagrees with the record
+    with pytest.raises(ValueError,match='diverged'):DeploymentTransaction(p).prepare('run',ORDER,(3,12))
+
+
+def test_an_empty_board_does_not_forget_a_pending_pick(tmp_path):
+    p=tmp_path/'deployment.json';t=DeploymentTransaction(p)
+    t.prepare('run',ORDER,(0,12))
+    t.intent('card',(0,12),ORDER[0]);t.observe((1,12))
+    t.intent('card',(1,12),ORDER[1])
+    with pytest.raises(ValueError):DeploymentTransaction(p).prepare('run',ORDER,(0,12))
+    assert DeploymentTransaction(p).data['sequence']==ORDER[:1]

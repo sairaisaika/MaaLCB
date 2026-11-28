@@ -57,6 +57,15 @@ class DeploymentTransaction:
                 write_json(self.path,d)
             else:
                 raise ValueError('Deployment order changed during selection')
+        if (d['sequence'] and count[0]==0 and not d.get('pending') and not d.get('submitted')
+                and not d.get('submit_pending')):
+            # The game forgets an unsubmitted selection when it is closed: live
+            # pi-20261128-013643 came back to the same battle's team page at 0/12 with
+            # seven picks committed before the close. No input of ours is pending, so
+            # nothing of ours can have emptied it; the picks start over and the lost
+            # ones are kept for the record.
+            d.setdefault('dropped_sequences',[]).append(list(d['sequence']))
+            d['sequence']=[];write_json(self.path,d)
         if d['sequence'] and count[0]!=len(d['sequence']):raise ValueError('Participant count diverged from verified deployment')
         from .team_vision import carries_saved_order
         inherited=carries_saved_order(numbers,order,count)

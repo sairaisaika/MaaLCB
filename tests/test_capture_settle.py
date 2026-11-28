@@ -178,3 +178,30 @@ def test_references_are_read_once_per_interval_while_frames_move_not_once_per_fr
     retention._delete_rows(other, other_folder, retention.plan(other, other_folder, 0, budget=other_line - 10_000)['files'],
                            20_480, budget=workspace.size(other))
     assert len(reads) == planning + 3
+
+
+def test_a_task_that_wrote_no_frame_skips_the_reclaim_and_says_nothing(tmp_path, monkeypatch, capsys):
+    # live 2026-11-28: "open game" and "close game" wrote no frame and still held the
+    # task list 60 to 80 s each while the reclaim re-verified a 9 GB project.
+    recognition = agent_module()
+    root, folder, line = project(tmp_path, monkeypatch, over=50_000)
+    monkeypatch.setattr(recognition, 'ROOT', root)
+    empty = folder.parent / 'pi-20261128-000000'
+    empty.mkdir()
+    (empty / 'events.jsonl').write_text('', encoding='utf-8')
+    monkeypatch.setattr(retention, 'settle', lambda *a, **k: (_ for _ in ()).throw(AssertionError('ran')))
+    summary = recognition.settle_evidence(empty)
+    assert summary['skipped'] == 'the_task_wrote_no_frames' and summary['moved'] == 0
+    assert capsys.readouterr().out == '' and not (empty / 'storage-settle.json').exists()
+
+
+def test_a_reclaim_that_runs_says_so_before_it_starts(tmp_path, monkeypatch, capsys):
+    recognition = agent_module()
+    root, folder, line = project(tmp_path, monkeypatch, over=50_000)
+    monkeypatch.setattr(recognition, 'ROOT', root)
+    monkeypatch.setattr(retention, 'SETTLE_HEADROOM', 10_000)
+    said = []
+    real = retention.settle
+    monkeypatch.setattr(retention, 'settle', lambda *a, **k: (said.append(capsys.readouterr().out), real(*a, **k))[1])
+    recognition.settle_evidence(folder)
+    assert '正在整理诊断截图' in said[0]
