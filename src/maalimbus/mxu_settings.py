@@ -52,14 +52,15 @@ def service(config_directory):
 
 
 def order_text(positions, picked=12, language='zh'):
-    """The order as the settings' own input line: names, first to deploy first.
+    """The order as the settings' own input line: sinner numbers, first to deploy first.
 
-    `positions[i]` is the roster number of the sinner in deployment place ``i + 1``.
-    A team that is not full lists only the sinners the game numbered; the settings put
-    the rest after them in roster order by themselves (`global_settings.parse_order`).
+    `positions[i]` is the roster number of the sinner in deployment place ``i + 1``
+    (1 Yi Sang ... 12 Gregor), the numbering the field's own description lists. The
+    user asked on 2026-11-28 for numbers rather than names. A team that is not full lists
+    only the sinners the game numbered; the settings put the rest after them in roster
+    order by themselves (`global_settings.parse_order`). `language` is kept for callers.
     """
-    names = NAMES.get(language, NAMES['en'])
-    return ' '.join(names[position - 1] for position in list(positions)[:picked])
+    return ' '.join(str(int(position)) for position in list(positions)[:picked])
 
 
 def _ask(port, method='GET', body=None):

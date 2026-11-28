@@ -160,7 +160,12 @@ def apply_builds(directory, edits):
             fields['grace_stock'] = stars['stock']
         new = replace(old or Team(slot, frozenset()), **fields)
         if active and active.get('team') == slot and old != new:
-            raise ValueError('Finish the active run before editing its team')
+            # The deployment order alone may change during a run: the next team page picks
+            # the new order (the deployment transaction re-points an order nothing has been
+            # picked for yet). Systems and starlight steer the run's gifts and its entry,
+            # so they wait for the next run.
+            if old is None or replace(new, deployment=old.deployment) != old:
+                raise ValueError('Finish the active run before editing its team')
         if old != new:
             if old is None:
                 teams.append(new)

@@ -1421,10 +1421,28 @@ class GlobalSettingsAction(CustomAction):
             write_run_log(directory,result)
             return False
 
-    def apply(self, context):
-        """Let MainTask handle expected preparation failures without poisoning callbacks."""
+    def apply(self, context, running_team=None):
+        """Let MainTask handle expected preparation failures without poisoning callbacks.
+
+        With a run in progress (`running_team`), only that team keeps its loadout and the
+        queue is left alone; every other team still takes its saved settings, because the
+        rotation may start one of them inside this very task. Live 2026-11-28: every start
+        since 11-26 resumed a run, the whole step was skipped, and team 2's next run
+        deployed the order saved on 11-16 instead of the one written in its settings.
+        """
         directory = data_directory(ROOT)
-        changed = apply_builds(directory, collect_builds(context.get_node_data))
+        edits = collect_builds(context.get_node_data)
+        if running_team is not None:
+            # The running team takes only its deployment order now (the next team page
+            # deploys it); its systems and starlight wait for the run to end.
+            edits = {slot: (edit if slot != str(running_team) else dict(keywords='keep', order=edit['order']))
+                     for slot, edit in edits.items()}
+            changed = apply_builds(directory, edits)
+            self.recognition.journal.record('global_build_settings_applied', slots=changed,
+                                            kept_for_the_run=running_team, mirror_queue=None,
+                                            device_input=False)
+            return True
+        changed = apply_builds(directory, edits)
         choice = collect_mirror_queue(context.get_node_data)
         if choice is not None:
             TaskPreferences(directory).set_mirror_queue(*choice)
@@ -1715,10 +1733,12 @@ class MainTaskAction(CustomAction):
                         if active is None:
                             GlobalSettingsAction(self.recognition).apply(context)
                         else:
-                            # Queue and team options only steer a run that is about to start;
-                            # one already in progress keeps the loadout it entered with, so the
-                            # saved settings wait for the next entry instead of refusing.
-                            print('MaaLimbus 当前阶段：旧局仍在进行，跳过开新局的设置应用。',flush=True)
+                            # The run in progress keeps the loadout it entered with and the
+                            # queue waits for the next entry; the other teams take their
+                            # settings now, since the rotation may start one of them.
+                            GlobalSettingsAction(self.recognition).apply(context,running_team=active.get('team'))
+                            print('MaaLimbus 当前阶段：旧局仍在进行；队伍 %s 只更新出战顺序（下一场战斗起生效），'
+                                  '体系和星光等这一局结束后再用；其他队伍的设置已应用。' % active.get('team'),flush=True)
                             journal.record('mirror_entry_preparation',retired=False,
                                 reason='a_run_is_still_in_progress',game_input=False)
                     except (ValueError,KeyError,OSError,RuntimeError,TimeoutError,TypeError) as error:

@@ -172,8 +172,8 @@ def test_the_task_goes_down_the_team_list_and_writes_each_order_into_that_teams_
     assert screen.selected == 2 and result['shown_at_start'] == 2 and result['restored'] is True
     # Team 1's order is in team 1's own setting, as the line a player would have typed:
     # position 1 is the card that printed 1, the tenth, Sinclair.
-    assert settings.order(1) == ('custom', '辛克莱 以实玛利 希斯克利夫 堂吉诃德 默尔索 格里高尔 罗佳 奥提斯 鸿璐 浮士德 良秀 李箱')
-    assert settings.order(2)[1].startswith('堂吉诃德 良秀') and settings.order(3)[0] == 'custom'
+    assert settings.order(1) == ('custom', '10 8 7 3 5 12 9 11 6 2 4 1')
+    assert settings.order(2)[1].startswith('3 4') and settings.order(3)[0] == 'custom'
     # Everything else in the client's configuration went back as it came.
     assert settings.config['globalOptionValues']['global_team_1_systems'] == dict(type='select', caseName='keep')
     assert settings.order(9) == ('game', None) and settings.config['instances'] == [dict(id='a')]
@@ -224,7 +224,7 @@ def test_a_team_that_is_not_full_is_written_as_the_sinners_the_game_numbered(tmp
     result, settings = run_task(tmp_path, screen, 2)
     assert result['passed'] and result['recorded'][1]['picked'] == 5
     # Only the five the game numbered are written; the settings put the rest after them themselves.
-    assert settings.order(2) == ('custom', '堂吉诃德 良秀 鸿璐 罗佳 默尔索')
+    assert settings.order(2) == ('custom', '3 4 6 9 5')
     from maalimbus.global_settings import parse_order
     assert parse_order(settings.order(2)[1]) == (
         'Don Quixote', 'Ryoshu', 'Hong Lu', 'Rodion', 'Meursault',
@@ -241,14 +241,14 @@ def test_when_the_settings_cannot_be_written_the_lines_are_handed_to_the_player(
         assert not result['passed'] and result['reason'] == 'team_orders_read_but_not_written'
         assert result['settings']['reason'] == why and result['recorded'][0]['in_settings'] is False
         # Nothing is lost: the line to paste is in the message.
-        assert '队伍 1：辛克莱 以实玛利' in result['message'] and '粘贴' in result['message']
+        assert '队伍 1：10 8 7 3' in result['message'] and '粘贴' in result['message']
         assert settings.calls == ([] if why == 'mxu_web_service_is_off' else [(12711, 'GET')])
     # A configuration the writer does not recognise is not sent back at all.
     odd = Settings(tmp_path)
     odd.config = dict(something='else')
     assert odd.write({1: 'x'}) == dict(written=[], reason='mxu_configuration_not_recognised')
     assert odd.calls == [(12711, 'GET')]
-    assert mxu_settings.order_text([10, 8, 7], 3, 'en') == 'Sinclair Ishmael Heathcliff'
+    assert mxu_settings.order_text([10, 8, 7], 3, 'en') == '10 8 7'
     assert mxu_settings.service(tmp_path / 'nowhere') == (None, 'zh')
 
 
@@ -267,7 +267,7 @@ def test_a_page_without_cards_writes_nothing_and_a_dungeon_page_is_the_runs_team
     write_json(tmp_path / 'user-run-ledger.json', dict(active=dict(team=2)))
     result = team_order_task.read(tmp_path, 3, **dungeon)
     assert result['passed'] and result['slot_source'] == 'run_in_progress' and not result['input_sent']
-    assert inside.order(2)[0] == 'custom' and inside.order(2)[1].startswith('堂吉诃德 良秀')
+    assert inside.order(2)[0] == 'custom' and inside.order(2)[1].startswith('3 4')
     with pytest.raises(ValueError, match='1..40'):
         team_order_task.read(tmp_path, 0, **dungeon)
 
