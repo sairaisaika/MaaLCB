@@ -15599,7 +15599,10 @@
                 "source": "team"
               }
             }
-          }
+          },
+          "option": [
+            "mirror_star_task_plan"
+          ]
         },
         {
           "name": "task",

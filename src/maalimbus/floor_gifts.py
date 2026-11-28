@@ -145,6 +145,8 @@ def observe(records, size, catalog, *, image=None, select_box=None):
         return observe_three_free(records,size,catalog,boxes,image,select_box)
     if state is None or not 1 <= len(boxes) <= 6:
         raise ValueError('floor_gift_counter_or_cards_not_proven')
+    if state['required'] == len(boxes) and not find(records, r'^Mounting Trials$', (0, .55, 1, .64), size, .9):
+        return observe_acquire_all(records, size, catalog, boxes, state)
     centers = [b[0]+b[2]/2 for b in boxes]
     bounds = [0]+[(a+b)/2 for a,b in zip(centers,centers[1:])]+[size[0]]
     offers = []
@@ -185,6 +187,36 @@ def observe(records, size, catalog, *, image=None, select_box=None):
     if not 0 <= state['chosen'] <= state['required'] <= len(offers):
         raise ValueError('floor_gift_counter_out_of_range')
     return offers, state
+
+
+def observe_acquire_all(records, size, catalog, boxes, state):
+    """Every card on the page is to be taken: no trial, and the counter asks for all of them.
+
+    Live pi-20261127-195850 frame-0016, right after the floor-1 theme pack: three cards
+    each under an "Acquire E.G.O Gift" band, no "Mounting Trials", the counter at 0/3,
+    Refuse Gift and Select. The floor gift reader asked for a trial under every card and
+    stopped the run (`floor_gift_enemy_trial_not_unique`). Nothing on this page costs
+    anything; each card is an offer with no trial and the counter is the pick count.
+    """
+    if find(records, r'(Enemy Level|Mounting|Trials|Lunacy|Modules?)', (0, .55, 1, .80), size, .9):
+        raise ValueError('floor_gift_enemy_trial_not_unique')
+    centers = [b[0]+b[2]/2 for b in boxes]
+    bounds = [0]+[(a+b)/2 for a,b in zip(centers,centers[1:])]+[size[0]]
+    offers = []
+    for index, box in enumerate(boxes):
+        left, right = bounds[index]/size[0], bounds[index+1]/size[0]
+        titles = find(records, r'.+', (left,.245,right,.30), size,.9)
+        if not 1 <= len(titles) <= 3 or len({r.box for r in titles}) != len(titles):
+            raise ValueError('floor_gift_title_not_unique')
+        title = ' '.join(r.text for r in sorted(titles, key=lambda r: (r.box[1]+r.box[3]/2, r.box[0])))
+        canonical = identity_of(catalog, title)
+        owned = bool(find(records,r'^Owned$',(left,.13,right,.25),size,.9))
+        offers.append(Offer(title,canonical,keywords_of(catalog,canonical),tuple(box),Trial(0,'none',0),owned))
+    if len({normalized(o.title) for o in offers}) != len(offers):
+        raise ValueError('floor_gift_duplicate_identity')
+    if not 0 <= state['chosen'] <= state['required']:
+        raise ValueError('floor_gift_counter_out_of_range')
+    return offers, dict(state, evidence='acquire_all')
 
 
 SINGLE_FREE_NOUNS = re.compile(

@@ -95,6 +95,9 @@ def test_the_presets_are_one_choice_and_a_custom_plan_is_one_tick_a_card():
 def test_the_interface_offers_two_sources_the_presets_and_a_row_per_level():
     source = PI['option']['mirror_star_source']
     assert [case['name'] for case in source['cases']] == ['team', 'task'] and source['default_case'] == 'team'
+    # Live pi-20261127-195850: with the source on the team, a plan nested under "task" was never
+    # sent, and the team without a plan borrowed an empty one. It sits under both now.
+    assert all(case['option'] == ['mirror_star_task_plan'] for case in source['cases'])
     assert NODES['MirrorStarSource']['attach'] == dict(source='team')
     task = PI['option']['mirror_star_task_plan']
     assert [case['name'] for case in task['cases']] == ['none', 'all', 'all_plus', 'all_plusplus', 'custom']
