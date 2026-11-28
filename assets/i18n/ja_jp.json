@@ -223,8 +223,15 @@
   "mirror_shop_refresh_paid_any": "無料でも有料でも更新する",
   "mirror_shop_refresh_paid_free": "無料の更新だけ",
   "mirror_shop_skill_mode": "ショップのスキル交換",
-  "mirror_shop_skill_mode_description": "ショップ棚の「Replace … Skill」：開始時の前衛人格の低いスキル一枚を 3 段階スキルに替える（コスト使用）。開始時に実際に出撃した前衛だけ、入店ごとに一人一回まで、保留コストより上でのみ、最も安い選択肢を買います。カードを選び、次の画面で変化がないことを確かめてから Confirm を押し、コスト差とスキル枚数で購入を確認します。押しても変化がなければキャンセルし、二度押しはしません。",
+  "mirror_shop_skill_mode_description": "ショップの「Replace … Skill」：コインで人格の 1 段階または 2 段階スキル 1 枚を 3 段階スキルに替えます。オンにしたら下で誰のスキルを替えるか、各人格が最低何を残すかを選びます。来店ごとに各人格 1 回まで。コイン保留額を超える分だけで、いちばん安いものを買います。カードを選び、次のフレームで変化がないことを確かめてから Confirm を押し、コインの差とスキル枚数で購入を確認します。反応がなければキャンセルし、二度は押しません。",
   "mirror_shop_skill_off": "オフ",
-  "mirror_shop_skill_keep_one_each": "買う（1 段階と 2 段階を少なくとも一枚ずつ残す）",
-  "mirror_shop_skill_keep_one_s2": "買う（2 段階を少なくとも一枚残す）"
+  "mirror_shop_skill_on": "オン",
+  "mirror_shop_skill_who": "誰のスキルを替えるか",
+  "mirror_shop_skill_who_description": "「前列のみ」：その周回の開始時に出撃した人格（編成画面で SELECTED）だけ。「全員」：控え（BACKUP）も替えます。控えは前列が倒れるまで出ないので、たいてい割に合いません。",
+  "mirror_shop_skill_who_front": "前列のみ（開始時に出撃した人格）",
+  "mirror_shop_skill_who_all": "全員（控えを含む）",
+  "mirror_shop_skill_keep": "各人格が最低残す",
+  "mirror_shop_skill_keep_description": "チェックした段階のスキルは各人格が最低 1 枚残し、すべて替えることはありません。両方外すと自由に替えます。既定は 2 段階を 1 枚残します。",
+  "mirror_shop_skill_keep_s2": "2 段階スキル 1 枚",
+  "mirror_shop_skill_keep_s1": "1 段階スキル 1 枚"
 }

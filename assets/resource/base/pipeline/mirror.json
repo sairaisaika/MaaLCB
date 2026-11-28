@@ -2021,6 +2021,20 @@
     },
     "next": []
   },
+  "MirrorShopSkillWho": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {
+      "who": "front"
+    },
+    "next": []
+  },
+  "MirrorShopSkillKeep": {
+    "recognition": "DirectHit",
+    "action": "DoNothing",
+    "attach": {},
+    "next": []
+  },
   "MirrorShopCoinReserve": {
     "recognition": "DirectHit",
     "action": "DoNothing",

@@ -5909,7 +5909,8 @@ class MirrorRunner:
                     attempted=shop_tx.data['visits'][visit].get('skill_service_attempts', ())
                     service=choose_skill_service(named_skill_services(record['ocr'],record['size']),
                                                  shop['currency'],settings.shop_reserve_coins,
-                                                 deployment,self.run_id,attempted,profile.block if profile else ())
+                                                 deployment,self.run_id,attempted,profile.block if profile else (),
+                                                 mode=settings.shop_skill_mode)
                     if service is not None:
                         shop['buy']=service
             if on_shelf and settings.shop_skill_mode != 'off' and record.get('frame_ref'):
@@ -6374,7 +6375,7 @@ class MirrorRunner:
                 stopped = self._record(page,record,frame,candidates,None,'shop_skill_chooser_controls_not_proven')
                 return self._result(page,None,False,stopped,done=True)
             if replacement is not None:
-                from .shop_skill_policy import SKILL_MODES, propose_replacement
+                from .shop_skill_policy import SKILL_MODES, eligible, propose_replacement
                 from .pre_battle_identity import submitted_identity
                 deployment=self.deployment_transaction.data if self.deployment_transaction else None
                 identity=submitted_identity(deployment,self.run_id,replacement.sinner)
@@ -6391,14 +6392,16 @@ class MirrorRunner:
                           quotes=[dict(from_tier=q.from_tier,to_tier=q.to_tier,price=q.price,
                                        tiers_verified=q.tiers_verified) for q in replacement.quotes],
                           previews=previews,deployment_identity=identity,input_authorized=False)
-                if (skill_chooser and not pending_skill.get('selection') and identity and identity['role']=='frontline'
+                if (skill_chooser and not pending_skill.get('selection') and identity
+                        and eligible(settings.shop_skill_mode,identity['role'])
                         and pending_skill['skill']['mode']==settings.shop_skill_mode
                         and pending_skill['skill']['reserve_coins']==settings.shop_reserve_coins):
                     choice=propose_replacement(replacement,settings.shop_skill_mode,settings.shop_reserve_coins)
                     if choice:
                         plan_controls['shop.skill_choice']=list(choice.quote.select_box)
                 if (skill_chooser and pending_skill.get('selection') and not pending_skill.get('cancel')
-                        and not pending_skill.get('confirm_unspent') and identity and identity['role']=='frontline'
+                        and not pending_skill.get('confirm_unspent') and identity
+                        and eligible(settings.shop_skill_mode,identity['role'])
                         and pending_skill['skill']['mode']==settings.shop_skill_mode
                         and pending_skill['skill']['reserve_coins']==settings.shop_reserve_coins):
                     # The card chosen on the step before is still the plan, on a chooser

@@ -132,7 +132,9 @@ def test_the_option_is_back_in_the_mirror_task_as_a_purchase():
     assert 'mirror_shop_skill_mode' in task['option']
     option = pi['option']['mirror_shop_skill_mode']
     assert option['default_case'] == 'off'
-    assert [case['name'] for case in option['cases']] == ['off', 'keep_one_each', 'keep_one_s2']
+    # A switch since 2026-11-28; whose skills and which copies to keep sit under "on"
+    # (tests/test_shop_skill_choice.py).
+    assert [case['name'] for case in option['cases']] == ['off', 'on']
     text = json.loads((ROOT / 'assets/i18n/zh_cn.json').read_text(encoding='utf-8'))
     assert 'Confirm' in text['mirror_shop_skill_mode_description'] and '核验' not in text['mirror_shop_skill_mode']
     source = (ROOT / 'src/maalimbus/runner.py').read_text(encoding='utf-8')

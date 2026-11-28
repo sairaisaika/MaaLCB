@@ -223,8 +223,15 @@
   "mirror_shop_refresh_paid_any": "免费的和花金币的都可以",
   "mirror_shop_refresh_paid_free": "只用免费刷新",
   "mirror_shop_skill_mode": "商店技能替换",
-  "mirror_shop_skill_mode_description": "商店货架上的「Replace … Skill」：把初始前排某个人格的一张低阶技能换成 3 阶技能，花金币。只给开局时确实上场的前排人格换，每次进店每人最多一次；只在金币保留额以上时买，挑最便宜的那一档。程序先选卡，下一帧确认没变再按 Confirm，然后用金币差额和技能张数核对是否买到；按了没反应就取消退出，不会重复按。",
+  "mirror_shop_skill_mode_description": "商店货架上的「Replace … Skill」：花金币把某个人格的一张 1 阶或 2 阶技能换成 3 阶技能。开启后下面选给谁换、每人至少留哪几张。每次进店每人最多换一次；只在金币保留额以上时买，挑最便宜的那一档。程序先选卡，下一帧确认没变再按 Confirm，然后用金币差额和技能张数核对是否买到；按了没反应就取消退出，不会重复按。",
   "mirror_shop_skill_off": "关闭",
-  "mirror_shop_skill_keep_one_each": "买，至少各留一张 1 阶和 2 阶技能",
-  "mirror_shop_skill_keep_one_s2": "买，至少留一张 2 阶技能"
+  "mirror_shop_skill_on": "开启",
+  "mirror_shop_skill_who": "替换谁",
+  "mirror_shop_skill_who_description": "「只换前排」：只给这一局开局时上场的人格换（编队页上标 SELECTED 的）。「所有人」：替补（标 BACKUP 的）也换；替补要等前排有人倒下才上场，花在他们身上通常不太划算。",
+  "mirror_shop_skill_who_front": "只换前排（开局上场的人格）",
+  "mirror_shop_skill_who_all": "所有人（含替补）",
+  "mirror_shop_skill_keep": "每人至少留",
+  "mirror_shop_skill_keep_description": "勾上的那一阶技能，每个人格至少留一张，不会被换光；两个都不勾就是随便换。默认只留一张 2 阶。",
+  "mirror_shop_skill_keep_s2": "一张 2 阶技能",
+  "mirror_shop_skill_keep_s1": "一张 1 阶技能"
 }

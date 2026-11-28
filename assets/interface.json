@@ -70227,23 +70227,78 @@
           }
         },
         {
-          "name": "keep_one_each",
-          "label": "$mirror_shop_skill_keep_one_each",
+          "name": "on",
+          "label": "$mirror_shop_skill_on",
+          "option": [
+            "mirror_shop_skill_who",
+            "mirror_shop_skill_keep"
+          ],
           "pipeline_override": {
             "MirrorShopSkillMode": {
               "attach": {
-                "mode": "keep_one_each"
+                "mode": "on"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_shop_skill_who": {
+      "type": "select",
+      "label": "$mirror_shop_skill_who",
+      "description": "$mirror_shop_skill_who_description",
+      "default_case": "front",
+      "cases": [
+        {
+          "name": "front",
+          "label": "$mirror_shop_skill_who_front",
+          "pipeline_override": {
+            "MirrorShopSkillWho": {
+              "attach": {
+                "who": "front"
               }
             }
           }
         },
         {
-          "name": "keep_one_s2",
-          "label": "$mirror_shop_skill_keep_one_s2",
+          "name": "all",
+          "label": "$mirror_shop_skill_who_all",
           "pipeline_override": {
-            "MirrorShopSkillMode": {
+            "MirrorShopSkillWho": {
               "attach": {
-                "mode": "keep_one_s2"
+                "who": "all"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mirror_shop_skill_keep": {
+      "type": "checkbox",
+      "label": "$mirror_shop_skill_keep",
+      "description": "$mirror_shop_skill_keep_description",
+      "default_case": [
+        "s2"
+      ],
+      "cases": [
+        {
+          "name": "s2",
+          "label": "$mirror_shop_skill_keep_s2",
+          "pipeline_override": {
+            "MirrorShopSkillKeep": {
+              "attach": {
+                "keep_s2": true
+              }
+            }
+          }
+        },
+        {
+          "name": "s1",
+          "label": "$mirror_shop_skill_keep_s1",
+          "pipeline_override": {
+            "MirrorShopSkillKeep": {
+              "attach": {
+                "keep_s1": true
               }
             }
           }

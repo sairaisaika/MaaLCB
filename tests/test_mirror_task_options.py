@@ -70,7 +70,19 @@ def test_the_skill_replacement_is_off_unless_the_player_chooses_it():
     assert pi['option']['mirror_shop_skill_mode']['default_case']=='off'
     pipeline=json.loads((root/'resource/base/pipeline/mirror.json').read_bytes())
     assert pipeline['MirrorShopSkillMode']['attach']['mode']=='off'
-    for mode in ('off','keep_one_each','keep_one_s2'):
+    for mode in ('off','keep_one_each','keep_one_s2','front_keep_s2','all_keep_none'):
         assert collect(nodes(steps=120,skill=mode))==dict(steps=120,shop_skill_mode=mode)
+    # The switch on: whose skills and the two "keep one" boxes name the mode.
+    def on(who=None,keep=None):
+        data=nodes(steps=120,skill='on')
+        get=lambda name:{'MirrorShopSkillWho':{'attach':{} if who is None else {'who':who}},
+                         'MirrorShopSkillKeep':{'attach':keep or {}}}.get(name) or data(name)
+        return collect(get)['shop_skill_mode']
+    assert on()=='front_keep_none'
+    assert on('front',{'keep_s2':True})=='front_keep_s2'
+    assert on('all',{'keep_s1':True,'keep_s2':True})=='all_keep_s1s2'
+    assert on('all',{'keep_s1':True})=='all_keep_s1'
+    with pytest.raises(ValueError,match='Unknown shop skill policy'):
+        on('backups_only')
     with pytest.raises(ValueError,match='Unknown shop skill policy'):
         collect(nodes(skill='unlimited'))

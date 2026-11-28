@@ -1,5 +1,5 @@
 """Independent native task nodes avoid MXU's shallow action-param replacement."""
-from .shop_skill_policy import SKILL_MODES
+from .shop_skill_policy import SKILL_MODES, mode_of
 from .storage import KEYWORDS
 
 
@@ -23,6 +23,11 @@ def collect(get_node):
         skill = get_node('MirrorShopSkillMode').get('attach', {}).get('mode')
     except KeyError:
         skill = None  # Older packaged pipelines have no skill option carrier.
+    if skill == 'on':
+        # The switch is on: whose skills, and which "keep one" boxes are ticked.
+        who = get_node('MirrorShopSkillWho').get('attach', {}).get('who', 'front')
+        keep = get_node('MirrorShopSkillKeep').get('attach', {})
+        skill = mode_of(who, keep.get('keep_s1') is True, keep.get('keep_s2') is True)
     if skill is not None:
         if skill not in SKILL_MODES:
             raise ValueError('Unknown shop skill policy')

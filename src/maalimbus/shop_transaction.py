@@ -554,8 +554,8 @@ class ShopTransaction:
         matches = [offer for offer in named_skill_services(texts,size) if offer['name'] == name]
         attempts = self.data['visits'][visit].get('skill_service_attempts', [])
         if (mode not in SKILL_MODES[1:] or len(matches) != 1
-                or not choose_skill_service(matches,coins,reserve_coins,deployment,scope,attempts,())):
-            raise ValueError('Skill service needs an untried exact frontline identity and enabled policy')
+                or not choose_skill_service(matches,coins,reserve_coins,deployment,scope,attempts,(),mode=mode)):
+            raise ValueError('Skill service needs an untried exact identity the policy covers and enabled policy')
         match = matches[0]
         data = copy.deepcopy(self.data)
         data['visits'][visit].setdefault('skill_service_attempts', []).append(match['sinner'])
@@ -593,7 +593,7 @@ class ShopTransaction:
     def reserve_skill_selection(self, scope, visit, frame_path, mode, reserve_coins, deployment, expected_target):
         """Select the proposed card once. This intent has no permission to Confirm."""
         from .pre_battle_identity import submitted_identity
-        from .shop_skill_policy import propose_replacement
+        from .shop_skill_policy import eligible, propose_replacement
         from .shop_skill_vision import read_replacement_modal
 
         pending, record, texts, size, proof = self._pending(scope,visit,'skill_service',frame_path)
@@ -604,8 +604,8 @@ class ShopTransaction:
         modal = read_replacement_modal(texts,size)
         identity = submitted_identity(deployment,scope,skill['sinner'])
         if (not modal or modal.sinner != skill['sinner'] or modal.balance != pending['coins']
-                or not identity or identity['role'] != 'frontline'):
-            raise ValueError('Exact skill chooser and frontline identity not proven')
+                or not identity or not eligible(mode, identity['role'])):
+            raise ValueError('Exact skill chooser and an identity the policy covers not proven')
         choice = propose_replacement(modal,mode,reserve_coins)
         if not choice or list(choice.quote.select_box) != list(expected_target):
             raise ValueError('Verified skill choice changed before dispatch')
@@ -636,8 +636,9 @@ class ShopTransaction:
             raise ValueError('Skill Confirm needs the unchanged selection intent and can be sent only once')
         modal = _unspent_skill_chooser(pending, record, texts, size, proof)
         identity = submitted_identity(deployment, scope, skill['sinner'])
-        if not identity or identity['role'] != 'frontline' or list(modal.confirm_box) != list(expected_target):
-            raise ValueError('Skill Confirm target or frontline identity not proven')
+        from .shop_skill_policy import eligible
+        if not identity or not eligible(mode, identity['role']) or list(modal.confirm_box) != list(expected_target):
+            raise ValueError('Skill Confirm target or an identity the policy covers not proven')
         data = copy.deepcopy(self.data)
         data['pending'] = dict(kind='skill_replacement', stage='skill_confirm_intent', scope=scope, visit=visit,
                                coins=pending['coins'], price=selection['price'], before=pending['before'],
