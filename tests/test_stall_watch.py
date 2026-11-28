@@ -177,10 +177,13 @@ def test_a_watch_is_never_longer_than_the_run_it_protects():
     """A watchdog may not outlive its run: 450 s budget, 1058 s run, 905 s block
     (`packaged-mirror-20261023-124006`, gap `window_intent -> window_no_progress`)."""
     from maalimbus.jobs import bounded_limit
-    now = time.monotonic()
-    assert bounded_limit(900.0, now + 100.0) <= 100.0
+    # A fixed clock: on a fast machine `now + 100 - monotonic()` can come back as
+    # 100.00000000000006 when the clock has not moved (CI run of 0b546e7).
+    clock = lambda: 1000.0
+    assert bounded_limit(900.0, 1100.0, clock=clock) == 100.0
     assert bounded_limit(900.0, None) == 900.0
-    assert bounded_limit(900.0, now + 5000.0) == 900.0
+    assert bounded_limit(900.0, 6000.0, clock=clock) == 900.0
+    assert bounded_limit(900.0, time.monotonic() + 100.0) <= 100.0 + 1e-6
 
 
 def test_a_screen_that_answers_a_reread_is_not_pronounced_frozen():
