@@ -15,7 +15,10 @@ from maa.tasker import Tasker
 from maa.toolkit import Toolkit
 from maalimbus.replay import ReplayController
 
-from verify_theme_replay import ROOT, Journal, LimbusRecognition, LimbusTerminal, wait_job, wait_task
+ROOT=_pathlib.Path(__file__).resolve().parents[1]
+_sys.path[:0]=[str(ROOT/'src'),str(ROOT/'agent')]
+from recognition import Journal,LimbusRecognition,LimbusTerminal
+from maalimbus.jobs import wait_job,wait_task
 
 PIPELINE = {
     'OfflineMapHeader': {

@@ -122,7 +122,9 @@ def test_no_replay_tool_re_implements_the_mechanical_surface():
     assert data['problems'] == []
     # The capture-profile verifier adds one scenario-only ReplayController
     # subclass; it inherits all mechanics and input refusal from the shared layer.
-    assert data['owning_a_controller'] == 17
+    # It was 17 until 2026-11-27, when the nine replays of the pipeline-only Mirror
+    # layer (native, star, theme, deployment, battle plan, gift, team, home) left.
+    assert data['owning_a_controller'] == 8
 
 
 def test_every_owning_tool_inherits_the_shared_layer():
@@ -132,38 +134,19 @@ def test_every_owning_tool_inherits_the_shared_layer():
             assert controller['shared'], (row['tool'], controller)
 
 
-REPO = pathlib.Path(__file__).resolve().parents[1]
-
-
-def _tool_module(name):
-    """Load a tool by filename, so its own scene expectation can be asked a question."""
-    import sys
-
-    for path in (REPO / 'tools', REPO / 'src'):
-        if str(path) not in sys.path:
-            sys.path.insert(0, str(path))
-    spec = importlib.util.spec_from_file_location(name, REPO / 'tools' / (name + '.py'))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
 def test_the_neighbour_imports_are_reported_and_only_shrink():
-    """Five tools still take a controller from a tool that owns a real scene.
+    """No tool takes a controller from a tool that owns a real scene any more.
 
     It was 46 until D54 flattened the 32 that imported a body of "store this frame",
     then 12 until D55 gave the layer the two capabilities seven of them existed for
-    (a screen that advances when the input is accepted, and a click log). What is
-    left is one scene replay reused by another tool of the same scene -- deployment
-    twice, battle, native, theme -- which is a dependency, not a duplicate. The
-    number may fall but not grow, and the sources are named so a new one cannot
-    arrive unnoticed.
+    (a screen that advances when the input is accepted, and a click log), then 5:
+    one scene replay reused by another tool of the same scene -- deployment twice,
+    battle, native, theme. Those five replayed pipeline tasks that were removed on
+    2026-11-27, and they went with them. The number may not grow.
     """
     data = _inventory_module().report()
-    assert data['importing_a_controller_from_a_tool'] == 5
-    sources = {edge[0] for edges in data['controller_imports'].values() for edge in edges}
-    assert sources == {'verify_theme_replay', 'verify_deployment_replay',
-                       'verify_native_replay', 'verify_battle_plan_replay'}, sources
+    assert data['importing_a_controller_from_a_tool'] == 0
+    assert not data['controller_imports'], data['controller_imports']
 
 
 def test_the_counter_example_a_neighbour_import_is_named(tmp_path):
@@ -217,7 +200,7 @@ def test_the_inventory_tool_runs_clean(capsys):
     module = _inventory_module()
     assert module.main([]) == 0
     out = capsys.readouterr().out
-    assert 'inheriting the shared layer: 17' in out
+    assert 'inheriting the shared layer: 8' in out
     assert 'problems: none' in out
 
 
@@ -244,10 +227,3 @@ def test_an_accepted_input_moves_the_screen_on_and_a_refused_one_does_not():
     assert no.screencap()[0, 0, 0] == 0, 'a refused input never moves the screen'
     assert no.clicks == []
 
-
-def test_a_scene_expectation_built_from_flags_still_refuses_the_other_box():
-    """The migration kept each tool's own box, and the boxes still say no."""
-    expects = _tool_module('verify_hard_toggle_replay').expects_toggle
-    assert expects('click', 0, 1380, 70) is True
-    assert expects('click', 0, 900, 500) is False
-    assert expects('swipe', 0, 1, 2, 3, 4) is False

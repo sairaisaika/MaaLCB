@@ -422,33 +422,25 @@ Lines 48-69 of `agent/main.py` are the whole registration surface:
 
 | Name | Implementation | Anchor |
 |---|---|---|
-| `limbus_scene` | `LimbusRecognition(locale)` | `agent/main.py:48` |
+| `limbus_scene` | `LimbusRecognition(locale)` | `agent/main.py:128` |
 
-`LimbusRecognition` is a `CustomRecognition` subclass (`agent/recognition.py:103`); MaaFramework calls its `analyze(self, context, argv)` (`agent/recognition.py:397`), which reads the frame, compares it against the `scene` named in `custom_recognition_param`, and returns `None` when it does not match.
+`LimbusRecognition` is a `CustomRecognition` subclass (`agent/recognition.py:312`); MaaFramework calls its `analyze(self, context, argv)` (`agent/recognition.py:759`), which reads the frame, compares it against the `scene` named in `custom_recognition_param`, and returns `None` when it does not match.
 
-**Custom actions (15 in total)**
+**Custom actions (5 in total)**
 
 | Name | Implementation class | Anchor |
 |---|---|---|
-| `limbus_terminal` | `LimbusTerminal` | `agent/main.py:49` |
-| `limbus_team` | `TeamAction` | `:50` |
-| `limbus_star_proof` | `StarProof` | `:51` |
-| `limbus_initial_gift_proof` | `InitialGiftProof` | `:52` |
-| `limbus_initial_receipt_proof` | `InitialReceiptProof` | `:53` |
-| `limbus_difficulty_proof` | `DifficultyProof` | `:54` |
-| `limbus_preflight` | `InputPreflight` | `:55` |
-| `limbus_theme_observe` | `ThemeObservation` | `:56` |
-| `limbus_deployment_proof` | `DeploymentProof` | `:57` |
-| `limbus_battle_plan_observe` | `BattlePlanObservation` | `:58` |
-| `limbus_map_observe` | `MapObservation` | `:63` |
-| `limbus_battle_observe` | `BattleObservation` | `:64` |
-| `limbus_mirror_loop` | `MirrorLoopAction` | `:67` |
-| `limbus_global_settings` | `GlobalSettingsAction` | `:68` |
-| `limbus_main_task` | `MainTaskAction` | `:69` |
+| `limbus_terminal` | `LimbusTerminal` | `agent/main.py:129` |
+| `limbus_map_observe` | `MapObservation` | `:135` |
+| `limbus_battle_observe` | `BattleObservation` | `:136` |
+| `limbus_mirror_loop` | `MirrorLoopAction` | `:139` |
+| `limbus_main_task` | `MainTaskAction` | `:140` |
 
-`main.py:59-62` keeps a comment explaining why the two read-only observation nodes must be registered too: a node whose `custom_action` is not registered cannot run at all.
+`main.py:130-134` keeps a comment explaining why the two read-only observation nodes must be registered too: a node whose `custom_action` is not registered cannot run at all.
 
-The matching pipeline nodes (`assets/resource/base/pipeline/mirror.json`): `WindowMapObserve` (`:1455-1462`, `custom_action: limbus_map_observe`), `WindowBattleObserve` (`:1463-1470`), `MirrorLoop` (`:1526-1552`, `custom_action: limbus_mirror_loop`, parameters including `steps: 400` / `interval: 4.0` / `rounds: 3` / `run_store: config/user-run-ledger.json`), `MirrorLoopDone` (`:1553-1558`, `DoNothing`). `GlobalSettingsApply` (`:1559-1568`) → `MirrorLoop` is a second entry path. The `PIPELINE` constant at `runner.py:121-141` is the Python copy of the same node set (`prepare()` writes it out).
+Until 2026-11-27 there were 15. The other ten (`limbus_team`, `limbus_star_proof`, `limbus_initial_gift_proof`, `limbus_initial_receipt_proof`, `limbus_difficulty_proof`, `limbus_preflight`, `limbus_theme_observe`, `limbus_deployment_proof`, `limbus_battle_plan_observe`, `limbus_global_settings`) were named only by nodes of the pipeline-only Mirror layer and were removed with it; see [the cleanup record in chapter 9](9-execution-plan.md#legacy-pipeline-layer-removed). The classes `InputPreflight` and `GlobalSettingsAction` remain: `MainTaskAction` calls them directly, and they are no longer registered as pipeline actions.
+
+The matching pipeline nodes (`assets/resource/base/pipeline/mirror.json`): `WindowMapObserve` (`:108-115`, `custom_action: limbus_map_observe`), `WindowBattleObserve` (`:116-123`), `MirrorLoop` (`:124-150`, `custom_action: limbus_mirror_loop`, parameters including `steps: 400` / `interval: 4.0` / `rounds: 3` / `run_store: config/user-run-ledger.json`), `MirrorLoopDone` (`:151-156`, `DoNothing`). `MirrorDrive` (`:2-22`) is the only click node the loop posts by name; its `next` and `on_error` are empty lists. The `PIPELINE` constant at `runner.py:135-156` is the Python copy of the same node set (`prepare()` writes it out).
 
 ### 3.4.2 Agent-side registration and callbacks
 
@@ -516,6 +508,7 @@ This section gives the real commands and where their artifacts land. The scripts
 - `-Locale` accepts only `en` / `jp` (default `en`); `-Seconds` ranges over 1..3600 (default 180) (`tools/start_native.ps1:5-6`).
 - It elevates through `-Verb RunAs` (standard Windows UAC) and never approves on behalf of the user (`tools/start_native.ps1:32-33`); if a controller is already running (`MaaLimbusAgent.exe` / `MaaLimbus.exe`, or a python process whose command line points at this repository `run_native.py`), the script throws `MaaLimbus already has a running controller; inspect its session first` before starting anything (`tools/start_native.ps1:12-16`).
 - The real process is started by `tools/native_session.ps1`: `python -u tools/run_native.py --binary <dir> --locale <en|jp> --seconds <n> --live` (`tools/native_session.ps1:18-19`); it force-kills the child after `Seconds + 45` seconds and fixes the timeout exit code at `124` (`tools/native_session.ps1:22-28`).
+- That command passes no `--entry`, so it runs the default entry of `run_native.py`. Since 2026-11-27 the default is `MirrorTask` (the interface's Mirror task: the loop with the saved settings, still bounded by `-Seconds`); before that it was `MirrorHard`, which only navigated the entry and was removed with the pipeline-only Mirror layer ([cleanup record](9-execution-plan.md#legacy-pipeline-layer-removed)). The launcher has not been run on a live device since the change.
 
 **Where the artifacts land** (each one is readable in the scripts):
 
@@ -525,7 +518,7 @@ This section gives the real commands and where their artifacts land. The scripts
 | Wrapper process record | `build/native-launch.json` | `tools/start_native.ps1:45-47` |
 | Exit code and whether it timed out | `build/native-launch-result.json` | `tools/native_session.ps1:29-31` |
 | Live stdout / stderr | `build/native-live.stdout.log` / `build/native-live.stderr.log` | `tools/native_session.ps1:11-12` |
-| Current session description | `build/live-session.json` | `tools/run_native.py:153` |
+| Current session description | `build/live-session.json` | `tools/run_native.py:148` |
 | Run evidence directory | `evidence/runtime/` (the agent side names its own `pi-<yyyymmdd-hhmmss>`) | `README.md:64`; `agent/recognition.py:1337-1347` |
 
 **Entry point two: `tools/window_step.py`** (419 lines; a one-shot window tool that builds its own device, evidence directory and ledger):

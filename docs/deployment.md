@@ -1,5 +1,9 @@
 # 出战顺序准备
 
+> **已移除（2026-11-27）。** 本页描述的开发任务「Prepare deployment」（`DeploymentStart` 管线任务、`limbus_deployment_proof`
+> 动作）以及 `tools/verify_deployment_replay.py`、`tools/verify_mxu_deployment_replay.py` 已随纯管线的旧镜牢层删除，
+> 下面的命令不能再运行。出战顺序现在是每支队伍自己的设置，由镜牢循环在出战页执行。本页作为当时的记录保留；见 [Wiki 第 9 章的清理记录](wiki/zh_cn/9-execution-plan.md#legacy-pipeline-layer-removed)。
+
 开发任务「Prepare deployment」只处理当前战斗准备页，完成顺序观察后停止，
 不会点击战斗开始按钮。该任务默认关闭，仍需真实准备画面验证位置与标记。
 

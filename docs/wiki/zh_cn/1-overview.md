@@ -114,7 +114,7 @@ flowchart TB
 | 1 | Controller | 控制器 | 设备/窗口截图与输入 | `src/maalimbus/windows_controller.py:9 def controller_profile(interface_path: Path, name: str)`；`src/maalimbus/adb_device.py:26 def discover(serial, adb_path=None)`、`adb_device.py:46 def input_policy(record, allow_fallback=True)` |
 | 2 | Resource | 资源 | 图像/模型/Pipeline/本地化 | 声明在 `assets/interface.json:69-86`（en/jp）；`assets/resource/base/anchors.json:6`；`assets/resource/base/pipeline/mirror.json`、`assets/resource/base/pipeline/sinner-neural.json`；`assets/i18n/{zh_cn,en_us,ja_jp}.json` |
 | 3 | Tasker | 任务执行器 | 执行 Pipeline 的识别-动作循环 | 上游 MaaFramework 二进制（运行包内 `dist/MaaLimbus/maafw/`）；版本与出处核验见 `docs/maaframework-conformance.md:8-27` |
-| 4 | Agent | 智能体 | 自定义识别/动作与业务逻辑 | `agent/main.py:20 def main()`；`agent/main.py:48-55` 注册自定义识别与动作（`limbus_scene`、`limbus_terminal`、`limbus_team`、`limbus_star_proof`、`limbus_initial_gift_proof`、`limbus_initial_receipt_proof`、`limbus_difficulty_proof`、`limbus_preflight`）；实现体在 `src/maalimbus/` |
+| 4 | Agent | 智能体 | 自定义识别/动作与业务逻辑 | `agent/main.py:20 def main()`；`agent/main.py:128-140` 注册自定义识别与动作（`limbus_scene`、`limbus_terminal`、`limbus_map_observe`、`limbus_battle_observe`、`limbus_mirror_loop`、`limbus_main_task`）；实现体在 `src/maalimbus/` |
 | 5 | **Client（本项目扩展，MaaFramework 无此层）** | 客户端 GUI | ProjectInterface V2 客户端界面 | `desktop/mxu/limbus_update.rs`、`desktop/mxu/SoftwareUpdatePanel.tsx`、`desktop/mxu/TeamBuildEditor.tsx`、`desktop/mxu/teamOrder.ts` |
 
 ### 规范词典：唯一语义入口

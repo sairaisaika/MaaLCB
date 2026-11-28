@@ -1,5 +1,9 @@
 # 主题包选择
 
+> **已移除（2026-11-27）。** 本页描述的开发任务「Select theme pack」（`ThemePackStart` 管线任务、`limbus_theme_observe`
+> 动作）以及 `tools/verify_theme_replay.py` 已随纯管线的旧镜牢层删除，下面的命令不能再运行。
+> 主题包偏好现在通过镜牢任务设置，由镜牢循环在选包页执行。本页作为当时的记录保留；见 [Wiki 第 9 章的清理记录](wiki/zh_cn/9-execution-plan.md#legacy-pipeline-layer-removed)。
+
 开发任务「Select theme pack」只用于当前已打开的困难主题包选择页。
 它不会自行入场，尚未接通镜牢地图和五层循环。
 

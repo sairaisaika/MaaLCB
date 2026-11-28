@@ -11,10 +11,9 @@ if getattr(sys, 'frozen', False):
 
 from maa.agent.agent_server import AgentServer
 from maa.library import Library
-from recognition import LimbusRecognition, LimbusTerminal, TeamAction, InputPreflight, ThemeObservation, DeploymentProof, BattlePlanObservation
-from recognition import StarProof,InitialGiftProof,InitialReceiptProof,DifficultyProof
+from recognition import LimbusRecognition, LimbusTerminal
 from recognition import MapObservation, BattleObservation
-from recognition import MirrorLoopAction, GlobalSettingsAction, MainTaskAction
+from recognition import MirrorLoopAction, MainTaskAction
 
 
 def main():
@@ -128,25 +127,16 @@ def run_agent(*,capture_probe=False):
     recognition.journal.record('pi_controller', profile=json.loads(os.environ.get('PI_CONTROLLER', '{}')))
     AgentServer.register_custom_recognition('limbus_scene', recognition)
     AgentServer.register_custom_action('limbus_terminal', LimbusTerminal(recognition))
-    AgentServer.register_custom_action('limbus_team', TeamAction(recognition))
-    AgentServer.register_custom_action('limbus_star_proof',StarProof(recognition))
-    AgentServer.register_custom_action('limbus_initial_gift_proof',InitialGiftProof(recognition))
-    AgentServer.register_custom_action('limbus_initial_receipt_proof',InitialReceiptProof(recognition))
-    AgentServer.register_custom_action('limbus_difficulty_proof',DifficultyProof(recognition))
-    AgentServer.register_custom_action('limbus_preflight',InputPreflight(recognition))
-    AgentServer.register_custom_action('limbus_theme_observe',ThemeObservation(recognition))
-    AgentServer.register_custom_action('limbus_deployment_proof',DeploymentProof(recognition))
-    AgentServer.register_custom_action('limbus_battle_plan_observe',BattlePlanObservation(recognition))
     # The map and battle observation nodes are read-only recorders that the pipeline
     # names (`MapObserve` / `BattleObserve`) and the toolkit drives directly; a node
     # whose custom_action was never registered cannot run at all, so both names must
-    # be here even though no task entry reaches them yet.
+    # be here even though no task entry reaches them. `WindowMapObserve` and
+    # `WindowBattleObserve`, which the loop posts for every read, use the same two.
     AgentServer.register_custom_action('limbus_map_observe',MapObservation(recognition))
     AgentServer.register_custom_action('limbus_battle_observe',BattleObservation(recognition))
     # `MirrorLoop` is the whole dungeon: it drives `maalimbus.runner` inside this task,
     # so the packaged app runs the same loop the command line runs.
     AgentServer.register_custom_action('limbus_mirror_loop',MirrorLoopAction(recognition))
-    AgentServer.register_custom_action('limbus_global_settings',GlobalSettingsAction(recognition))
     AgentServer.register_custom_action('limbus_main_task',MainTaskAction(recognition))
     if capture_probe:
         # Explicit read-only diagnostic mode only; absent from normal registration.

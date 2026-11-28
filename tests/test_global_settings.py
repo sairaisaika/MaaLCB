@@ -165,5 +165,5 @@ def test_the_interface_matches_what_the_program_reads():
     for name in ('experience_team', 'thread_team'):
         option = pi['option'][name]
         assert option['default_case'] in {case['name'] for case in option['cases']}
-    assert pipeline['GlobalSettingsApply']['next'] == ['MirrorLoop']
+    assert 'GlobalSettingsApply' not in pipeline   # removed 2026-11-27: the Mirror task applies them
     assert len([name for name in pipeline if name.startswith('Global_global_team_')]) == 400

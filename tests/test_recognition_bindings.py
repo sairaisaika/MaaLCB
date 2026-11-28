@@ -25,8 +25,11 @@ def test_the_map_header_helpers_are_bound():
 
 def test_the_writer_no_longer_hardcodes_no_party():
     source = (ROOT / 'agent' / 'recognition.py').read_text(encoding='utf-8')
-    assert 'map_player=(party_point(image)' in source, \
-        'the header-path writer must read the party, not assume None'
+    # The header-path writer this was written for (`ThemeObservation`) was removed on
+    # 2026-11-27; the remaining writer reads the party from its own frame.
+    assert "party=party_point(image) if scene=='MAP' else None" in source, \
+        'the map writer must read the party, not assume None'
+    assert 'map_player=None if party is None else list(party)' in source
 
 
 def test_actual_agent_adapter_keeps_context_route_after_a_composite_pinch():

@@ -2357,7 +2357,6 @@
         "a node plan needs a Maa tasker",
         "RESUME_DIALOG entry",
         "Resume 续跑",
-        "MirrorResume",
         "resume token",
         "unknown_or_bounded_transition_exhausted",
         "任务续不上一局",
@@ -2366,12 +2365,8 @@
         "page decides",
         "屏幕说了算",
         "任务判决不等于屏幕",
-        "MirrorInside",
         "already inside",
         "已经在内",
-        "entry task coverage",
-        "入口任务覆盖",
-        "DoNothing 终局",
         "LOADING",
         "加载页",
         "scene loader",
@@ -2405,24 +2400,8 @@
           "symbol": "AgentTasker.post_task"
         },
         {
-          "path": "assets/resource/base/pipeline/mirror.json",
-          "needle": "\"MirrorResume\": {"
-        },
-        {
-          "path": "tests/test_entry_task_resume.py",
-          "symbol": "_problems"
-        },
-        {
           "path": "src/maalimbus/runner.py",
           "needle": "    def _page_after_a_failed_node(self, page):"
-        },
-        {
-          "path": "tests/test_entry_task_inside.py",
-          "symbol": "_reachable"
-        },
-        {
-          "path": "assets/resource/base/pipeline/mirror.json",
-          "needle": "\"MirrorInside\": {"
         },
         {
           "path": "src/maalimbus/vision.py",
@@ -2464,8 +2443,6 @@
       ],
       "tests": [
         "tests/test_agent_loop.py",
-        "tests/test_entry_task_inside.py",
-        "tests/test_entry_task_resume.py",
         "tests/test_loading_screen.py",
         "tests/test_main_task_dispatch.py",
         "tests/test_plan_successors.py",
@@ -4635,7 +4612,7 @@
         },
         {
           "path": "src/maalimbus/game_vocabulary.py",
-          "symbol": "GIFT_KEYWORDS"
+          "needle": "GIFT_KEYWORDS = SYSTEMS + ATTACK_TYPES"
         },
         {
           "path": "src/maalimbus/mirror_starlight.py",
@@ -4847,8 +4824,7 @@
         "tests/test_replay_runtime.py"
       ],
       "checks": [
-        "python tools/replay_inventory.py",
-        "python tools/verify_hard_toggle_replay.py --binary build/mxu-probe-271/maafw --frame evidence/runtime/hard-toggle-replay-1791255518617925400-unchanged/frame-0001.png"
+        "python tools/replay_inventory.py"
       ],
       "boundary": "这一层证明的是拒绝、取帧与记账；它不证明某个场景的期望合理，也没有把 29 个仍然经邻居 import Replay 的工具摊平——清单如实报出这条链。 D53 adds the runtime proof: the layer is built in a test, so a construction failure cannot hide behind a static count; the 46 neighbour imports are reported, not flattened. D54 flattened every tool whose source class only stored a frame (46 -> 12 neighbour imports), so what remains is exactly the tools whose expectation needs flattening one at a time. D55: the layer holds the mechanical half (frames, advance, records); a scene still owns its own expectation, and the five remaining scene reuses keep theirs."
     },

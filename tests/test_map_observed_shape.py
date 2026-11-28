@@ -6,6 +6,10 @@ a run whose frames all yielded a position offline (measured 2026-10-23, run
 `packaged-mirror-20261023-160255`: `party_point` = (703,316) on five frames, journal 0).
 A same-name event written by two sites with different fields is the defect; this ratchet
 makes the divergence a failing test instead of a silent gap.
+
+The second writer (`ThemeObservation`, behind the `ThemePackObserve` node) was removed on
+2026-11-27 with the pipeline-only Mirror layer, so one writer is left. The ratchet stays for
+the next one: any writer of this event has to carry the field.
 """
 
 import ast
@@ -28,7 +32,7 @@ def _map_observed_calls(tree):
 def test_every_map_observed_writer_declares_map_player():
     tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
     calls = list(_map_observed_calls(tree))
-    assert len(calls) >= 2, "the scan must see every writer, or it proves nothing"
+    assert len(calls) >= 1, "the scan must see every writer, or it proves nothing"
     missing = []
     for call in calls:
         keywords = {kw.arg for kw in call.keywords}

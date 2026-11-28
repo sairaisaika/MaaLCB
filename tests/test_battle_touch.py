@@ -125,7 +125,7 @@ def test_right_shifted_layouts_are_found_before_and_after_auto_assign():
         assert start_button(records, size) == start
 
 
-def test_battle_auto_assign_node_is_bounded_and_not_wired_to_the_theme_drag():
+def test_battle_auto_assign_node_is_bounded_and_not_wired_to_the_map_read():
     nodes = json.loads((ROOT / 'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
     node = nodes['BattleAutoAssign']
     assert node['custom_recognition_param'] == {'scene': 'BATTLE_HUD', 'battle_mode': 'win_rate'}
@@ -138,9 +138,8 @@ def test_battle_auto_assign_node_is_bounded_and_not_wired_to_the_theme_drag():
     assert turn['next'] == ['BattleObserve']
     observe = nodes['BattleObserve']
     assert observe['custom_action'] == 'limbus_battle_observe' and observe['max_hit'] == 1
-    for entry in ('ThemePackDrag', 'MapObserve'):
-        assert 'BattleAutoAssign' not in nodes[entry]['next']
-        assert 'BattleStartTurn' not in nodes[entry]['next']
+    assert 'BattleAutoAssign' not in nodes['MapObserve']['next']
+    assert 'BattleStartTurn' not in nodes['MapObserve']['next']
     run_native = (ROOT / 'tools/run_native.py').read_text(encoding='utf-8')
     assert "'limbus_battle_observe'" in run_native
     agent = (ROOT / 'agent/recognition.py').read_text(encoding='utf-8')

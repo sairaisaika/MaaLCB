@@ -24,8 +24,8 @@ from maa.library import Library
 from maa.resource import Resource
 from maa.tasker import Tasker
 from maa.toolkit import Toolkit
-from recognition import Journal, LimbusRecognition, LimbusTerminal, TeamAction, InputPreflight, ThemeObservation, DeploymentProof, BattlePlanObservation, MapObservation, BattleObservation
-from recognition import StarProof,InitialGiftProof,InitialReceiptProof,DifficultyProof, MirrorLoopAction, GlobalSettingsAction, MainTaskAction
+from recognition import Journal, LimbusRecognition, LimbusTerminal, MapObservation, BattleObservation
+from recognition import MirrorLoopAction, MainTaskAction
 from maalimbus.windows_preflight import check_window, InputPermissionError, process_identity
 from maalimbus.controller_lease import ControllerLease
 from maalimbus.jobs import wait_job, wait_task
@@ -36,7 +36,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--locale', choices=['en', 'jp'], default='en')
-    parser.add_argument('--entry', default='MirrorHard')
+    # The interface's own Mirror entry. The pipeline-only `MirrorHard` chain that used to
+    # be the default was removed on 2026-11-27.
+    parser.add_argument('--entry', default='MirrorTask')
     parser.add_argument('--adb', type=Path)
     parser.add_argument('--address', help='Explicit Android serial; requires --adb')
     parser.add_argument('--observe', action='store_true', help='Capture only, never submit a task')
@@ -129,21 +131,10 @@ def execute_task(args, directory, journal, state, controller, window, profile, s
     recognition.input_validator = (lambda: controller_foreground(controller.info)) if args.address else (lambda: check_window(window.hwnd))
     resource.register_custom_recognition('limbus_scene', recognition)
     resource.register_custom_action('limbus_terminal', LimbusTerminal(recognition))
-    resource.register_custom_action('limbus_team', TeamAction(recognition))
-    resource.register_custom_action('limbus_star_proof',StarProof(recognition))
-    resource.register_custom_action('limbus_initial_gift_proof',InitialGiftProof(recognition))
-    resource.register_custom_action('limbus_initial_receipt_proof',InitialReceiptProof(recognition))
-    resource.register_custom_action('limbus_difficulty_proof',DifficultyProof(recognition))
-    preflight = InputPreflight(recognition)
-    resource.register_custom_action('limbus_preflight', preflight)
-    resource.register_custom_action('limbus_theme_observe',ThemeObservation(recognition))
     resource.register_custom_action('limbus_map_observe',MapObservation(recognition))
     resource.register_custom_action('limbus_battle_observe',BattleObservation(recognition))
-    resource.register_custom_action('limbus_deployment_proof',DeploymentProof(recognition))
-    resource.register_custom_action('limbus_battle_plan_observe',BattlePlanObservation(recognition))
     # `--entry MirrorLoop` drives the whole dungeon through this hook.
     resource.register_custom_action('limbus_mirror_loop',MirrorLoopAction(recognition))
-    resource.register_custom_action('limbus_global_settings',GlobalSettingsAction(recognition))
     resource.register_custom_action('limbus_main_task',MainTaskAction(recognition))
     wait_job(resource.post_bundle(ROOT / 'assets/resource/base'), timeout=20, deadline=deadline)
     wait_job(resource.post_bundle(ROOT / f'assets/resource/{args.locale}'), timeout=20, deadline=deadline)

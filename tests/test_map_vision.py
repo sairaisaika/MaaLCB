@@ -428,9 +428,6 @@ def test_map_observe_node_is_a_bounded_read_only_continuation():
     assert node['action'] == 'Custom' and node['custom_action'] == 'limbus_map_observe'
     assert node['max_hit'] == 1 and node['next'] == []
     assert node['on_error'] == ['LimbusUnknown']
-    # It must not be reachable from the theme-pack drag, which stays a stop point.
-    drag = nodes['ThemePackDrag']
-    assert 'MapObserve' not in drag['next']
     run_native = (root / 'tools/run_native.py').read_text(encoding='utf-8')
     assert "'limbus_map_observe'" in run_native
 

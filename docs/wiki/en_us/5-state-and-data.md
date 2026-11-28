@@ -283,9 +283,6 @@ erDiagram
     }
     user-mirror-settings {
         int version
-        array graces
-        bool enhance
-        int max_starlight
         int max_reward_modules
         bool module_budget_pending
         int max_floor
@@ -293,7 +290,6 @@ erDiagram
         int refill_lunacy
         int convert_modules
         string source
-        bool convert_remaining_starlight
         string reward_budget_scope
         string reward_budget_authorization
     }
@@ -393,29 +389,6 @@ erDiagram
         int failures
         object payload
         string status
-    }
-    difficulty-switch-progress {
-        object pending
-        string confirmed
-        string proof
-    }
-    initial-gift-progress {
-        array selected
-        object pending
-        string proof
-        object commit_pending
-        object receipt_pending
-        array acknowledged
-        array receipt_evidence
-        object search_refuse_pending
-        object search_confirm_pending
-    }
-    star-selection-progress {
-        array selected
-        object pending
-        int available_after
-        object entry_pending
-        object confirmation_pending
     }
 
     user-team-profiles ||--o{ user-run-ledger : "team_slots is exactly the teams.slot order"
@@ -527,7 +500,7 @@ Entities mapped to files and writers:
 | `user-launch` | `config/user-launch.json` | the user / the launcher |
 | `user-mirror-settings` | `config/user-mirror-settings.json` | the user; `module_budget_pending` together with the resource-side `budget.json.status` forms the "do not spend" constraint |
 | `user-difficulty-transaction` | `config/user-difficulty-transaction.json` | the difficulty-evidence transaction (`hard=true`, account-level) |
-| `difficulty-switch-progress` / `initial-gift-progress` / `star-selection-progress` | `config/*.json` | three progress files holding account-level prior choices and a `pending` interruption point |
+| `difficulty-switch-progress` / `initial-gift-progress` / `star-selection-progress` | `config/*.json` | No reader since 2026-11-27. These three progress files were read and written only by the pipeline-only Mirror layer; with that layer removed the program no longer reads them, and it does not delete files a user's directory already holds. The same goes for the `graces` / `enhance` / `max_starlight` / `convert_remaining_starlight` fields of `user-mirror-settings.json`: starlight purchases are now set with the team or the task option and read by the loop itself |
 | `user-*-transaction` × 4 | `config/user-{deployment,floor-gift,grace,initial,theme}-transaction.json` | see the 5.2 table |
 | `user-reward-claim-transaction` | `config/user-reward-claim-transaction.json` | `src/maalimbus/reward_claim_transaction.py`; the native reward task also writes it directly (`src/maalimbus/reward_task.py:47-48`) |
 | `user-shop-*` / `user-exploration-*` | `config/user-shop-<scope>.json` etc. | one file per run; `<scope>` in the file name equals the `scope` field |

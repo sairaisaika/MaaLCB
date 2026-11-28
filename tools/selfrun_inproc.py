@@ -35,27 +35,15 @@ from maalimbus import runner
 
 import selfrun_finish
 
-from recognition import (Journal, BattleObservation, BattlePlanObservation, DeploymentProof,
-                         DifficultyProof, GlobalSettingsAction, InitialGiftProof,
-                         InitialReceiptProof, InputPreflight, LimbusRecognition,
-                         LimbusTerminal, MainTaskAction, MapObservation,
-                         MirrorLoopAction, StarProof, TeamAction, ThemeObservation)
+from recognition import (Journal, BattleObservation, LimbusRecognition, LimbusTerminal,
+                         MainTaskAction, MapObservation, MirrorLoopAction)
 
 # The same table `agent/main.py` registers against the agent server, pointed at a client-side
 # resource instead.  Kept as data so a new custom is one line here and one line there.
-CUSTOM_ACTIONS = ((('limbus_terminal', LimbusTerminal), ('limbus_team', TeamAction),
-                   ('limbus_star_proof', StarProof),
-                   ('limbus_initial_gift_proof', InitialGiftProof),
-                   ('limbus_initial_receipt_proof', InitialReceiptProof),
-                   ('limbus_difficulty_proof', DifficultyProof),
-                   ('limbus_preflight', InputPreflight),
-                   ('limbus_theme_observe', ThemeObservation),
-                   ('limbus_deployment_proof', DeploymentProof),
-                   ('limbus_battle_plan_observe', BattlePlanObservation),
+CUSTOM_ACTIONS = ((('limbus_terminal', LimbusTerminal),
                    ('limbus_map_observe', MapObservation),
                    ('limbus_battle_observe', BattleObservation),
                    ('limbus_mirror_loop', MirrorLoopAction),
-                   ('limbus_global_settings', GlobalSettingsAction),
                    ('limbus_main_task', MainTaskAction)))
 
 

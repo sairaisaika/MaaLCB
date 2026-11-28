@@ -466,7 +466,7 @@ the page was not MAP. That exit must not be reported as an offline device.
 Two read-only native handoffs now expose the intermediate page instead of running past
 it: MirrorEnter/MirrorEntryConfirm stop at **DUNGEON_TEAM**, and DungeonTeamConfirm at
 **LEVEL_WARNING**. There are 15 new tests; the selected group passed **56 with 18 skipped**.
-The separate legacy MirrorHard route remains open; these tests do not certify every entry.
+The separate legacy MirrorHard route remained open at the time; it was removed on 2026-11-27 together with the handoff nodes these tests covered.
 
 The actual unspent STAR entry had used default **Team1**. `recover_unspent_entry` used
 one native arrow to return to **MIRROR_ENTRY**, preserving all four canonical hashes and

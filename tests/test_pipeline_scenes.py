@@ -19,13 +19,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SCENES = frozenset({
-    'BATTLE_HUD', 'BATTLE_PLANNING', 'BATTLE_RESULT', 'DEFEAT', 'DEPLOYMENT', 'DRIVE', 'DUNGEON_TEAM',
-    'ENTRY_CONFIRM', 'EXPIRED_SESSION', 'GIFT_GET', 'GIFT_SEARCH', 'GIFT_SEARCH_FORGO',
-    'HOME', 'INITIAL_GIFTS', 'LEVEL_WARNING', 'MAP', 'MIRROR_ENTRY', 'RESOURCE_DIALOG',
-    'RESUME_DIALOG',
-    'STAR_CONFIRM', 'STAR_GRACES', 'TEAM_LIBRARY', 'THEME_PACKS', 'TUTORIAL',
-})
+# Three since 2026-11-27. The other 21 (HOME, MIRROR_ENTRY, STAR_GRACES, INITIAL_GIFTS,
+# THEME_PACKS, DEPLOYMENT and so on) were named only by nodes of the pipeline-only Mirror
+# layer, which was removed; the loop reads those pages itself and asks no node about them.
+SCENES = frozenset({'BATTLE_HUD', 'BATTLE_RESULT', 'DRIVE'})
 
 
 def pipeline_scene_nodes() -> list:

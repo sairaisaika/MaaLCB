@@ -3,7 +3,11 @@ import pathlib as _pathlib
 import sys as _sys
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / 'src'))
 import json,time,cv2
-from verify_theme_replay import ROOT,Library,Resource,Tasker,wait_job,wait_task
+ROOT=_pathlib.Path(__file__).resolve().parents[1]
+from maa.library import Library
+from maa.resource import Resource
+from maa.tasker import Tasker
+from maalimbus.jobs import wait_job,wait_task
 from maalimbus.replay import ReplayController as Replay
 from maa.custom_recognition import CustomRecognition
 from maa.pipeline import JOCR,JRecognitionType

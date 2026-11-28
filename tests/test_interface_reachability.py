@@ -8,8 +8,6 @@ tests. They were removed. This keeps the count at zero.
 import importlib.util
 import json
 from pathlib import Path
-import subprocess
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 REMOVED = ([f'deployment_position_{n}' for n in range(1, 13)]
@@ -63,12 +61,11 @@ def test_expanding_the_team_slots_does_not_bring_a_removed_option_back():
     assert not [name for name in REMOVED if name in expanded['option']]
 
 
-def test_the_skeleton_script_refuses_to_replace_the_maintained_interface(tmp_path):
-    before = (ROOT / 'assets/interface.json').read_bytes()
-    result = subprocess.run([sys.executable, str(ROOT / 'tools/prepare_resources.py'), '--ocr', str(tmp_path)],
-                            capture_output=True, text=True, encoding='utf-8')
-    assert result.returncode != 0 and 'maintained interface' in result.stderr
-    assert (ROOT / 'assets/interface.json').read_bytes() == before
+def test_the_skeleton_script_that_could_replace_the_interface_is_gone():
+    # `tools/prepare_resources.py` wrote the early five-task interface, its pipeline and three
+    # short locale files; since 2026-11-23 it refused to run over the maintained interface.
+    # Every file it wrote is now maintained by hand, so it was removed on 2026-11-27.
+    assert not (ROOT / 'tools/prepare_resources.py').exists()
 
 
 def test_every_text_key_is_used_and_every_used_key_has_every_language():

@@ -6,7 +6,13 @@ import json
 import time
 import cv2
 from maalimbus.replay import ReplayController as Replay
-from verify_theme_replay import ROOT,Library,Resource,Tasker,Journal,LimbusRecognition,wait_job,wait_task
+ROOT=_pathlib.Path(__file__).resolve().parents[1]
+_sys.path[:0]=[str(ROOT/'src'),str(ROOT/'agent')]
+from maa.library import Library
+from maa.resource import Resource
+from maa.tasker import Tasker
+from recognition import Journal,LimbusRecognition
+from maalimbus.jobs import wait_job,wait_task
 from maalimbus.theme_vision import selection_floor,theme_page
 from maalimbus.vision import Text
 

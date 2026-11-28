@@ -6,7 +6,11 @@ import json,time,cv2
 from maa.custom_action import CustomAction
 from maa.pipeline import JOCR,JRecognitionType
 from maalimbus.replay import ReplayController as Replay
-from verify_theme_replay import ROOT,Library,Resource,Tasker,wait_job,wait_task
+ROOT=_pathlib.Path(__file__).resolve().parents[1]
+from maa.library import Library
+from maa.resource import Resource
+from maa.tasker import Tasker
+from maalimbus.jobs import wait_job,wait_task
 
 
 class Probe(CustomAction):

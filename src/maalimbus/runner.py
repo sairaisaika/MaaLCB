@@ -3423,8 +3423,10 @@ def flow_token(record, step):
 def run_node(tasker, name, deadline):
     """Run one pipeline node and wait it out inside the window's deadline."""
     # The loop owns the next observation/intent. The legacy standalone Drive
-    # graph also enters/confirms a new run; following it here bypassed the loop
-    # and tore down the controller on a maintenance modal (2026-11-19).
+    # graph also entered/confirmed a new run; following it here bypassed the loop
+    # and tore down the controller on a maintenance modal (2026-11-19). That graph
+    # was removed from the resources on 2026-11-27; the override stays so a resource
+    # that still carries those edges cannot be followed either.
     job = (tasker.post_task(name,{name:{'next':[],'on_error':[]}})
            if name=='MirrorDrive' else tasker.post_task(name))
     try:

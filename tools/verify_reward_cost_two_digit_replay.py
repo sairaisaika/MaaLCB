@@ -11,7 +11,13 @@ import sys as _sys
 _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / 'src'))
 import argparse,json,time,cv2
 from maalimbus.replay import ReplayController as Replay
-from verify_theme_replay import ROOT,Library,Resource,Tasker,Journal,LimbusRecognition,wait_job,wait_task
+ROOT=_pathlib.Path(__file__).resolve().parents[1]
+_sys.path[:0]=[str(ROOT/'src'),str(ROOT/'agent')]
+from maa.library import Library
+from maa.resource import Resource
+from maa.tasker import Tasker
+from recognition import Journal,LimbusRecognition
+from maalimbus.jobs import wait_job,wait_task
 
 FRAME=ROOT/'dist/MaaLimbus/evidence/runtime/pi-20261120-193352/frame-0269.png'
 OFFER=dict(currency='enkephalin_modules',cost=18,weekly=3)

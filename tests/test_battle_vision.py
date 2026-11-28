@@ -1,5 +1,4 @@
 from pathlib import Path
-import json
 
 import cv2
 import numpy as np
@@ -48,12 +47,3 @@ def test_labels_are_diagnostic_local_and_not_a_survival_authorization():
     assert [r['label'] for r in result]==['neutral','favored']
     assert result[0]['attention'] and not result[1]['attention']
 
-
-def test_battle_task_never_submits_or_retries_turn():
-    interface=json.loads((ROOT/'assets/interface.json').read_text(encoding='utf-8'))
-    nodes=json.loads((ROOT/'assets/resource/base/pipeline/mirror.json').read_text(encoding='utf-8'))
-    assert all(t['entry']!='BattlePlanStart' for t in interface['task'])
-    assert nodes['BattlePlanOnce']['action']=='ClickKey' and nodes['BattlePlanOnce']['key']==80
-    assert nodes['BattlePlanOnce']['max_hit']==1
-    assert nodes['BattlePlanOnce']['next']==['BattlePlanObserve']
-    assert nodes['BattlePlanBoundary']['custom_action_param']['reason']=='battle_plan_observed_turn_submission_pending'

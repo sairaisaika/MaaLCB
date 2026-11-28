@@ -5,7 +5,13 @@ _sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parents[1] / 'src'))
 import json,time,cv2
 from pathlib import Path
 from maa.controller import CustomController
-from verify_theme_replay import ROOT,Library,Resource,Tasker,Journal,LimbusRecognition,wait_job,wait_task
+ROOT=_pathlib.Path(__file__).resolve().parents[1]
+_sys.path[:0]=[str(ROOT/'src'),str(ROOT/'agent')]
+from maa.library import Library
+from maa.resource import Resource
+from maa.tasker import Tasker
+from recognition import Journal,LimbusRecognition
+from maalimbus.jobs import wait_job,wait_task
 from maalimbus.grace_vision import available_starlight
 from maalimbus.replay import ReplayController
 class Replay(ReplayController):

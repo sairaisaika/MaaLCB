@@ -63,7 +63,7 @@ CONTROLLER_NAMES = ('Replay', 'Offline', 'ReplayController', 'CustomController')
 def imported_controllers(tree, modules):
     """(module, name) pairs where a tool takes a controller class from a *tool*.
 
-    This is the relation D52 did not flatten: `from verify_star_replay import
+    This is the relation D52 did not flatten: `from verify_source_replay import
     Replay` brings that tool's expectations along, so deleting the source tool or
     changing its click assertion changes a different tool's answer. Reported, not
     gated -- the target to aim at is `maalimbus.replay`, and each import has to be

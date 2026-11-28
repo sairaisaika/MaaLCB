@@ -31,19 +31,9 @@ if phase != "minimal":
         AgentServer.register_custom_recognition("limbus_scene", recognition)
         for name, factory in (
             ("limbus_terminal", full_main.LimbusTerminal),
-            ("limbus_team", full_main.TeamAction),
-            ("limbus_star_proof", full_main.StarProof),
-            ("limbus_initial_gift_proof", full_main.InitialGiftProof),
-            ("limbus_initial_receipt_proof", full_main.InitialReceiptProof),
-            ("limbus_difficulty_proof", full_main.DifficultyProof),
-            ("limbus_preflight", full_main.InputPreflight),
-            ("limbus_theme_observe", full_main.ThemeObservation),
-            ("limbus_deployment_proof", full_main.DeploymentProof),
-            ("limbus_battle_plan_observe", full_main.BattlePlanObservation),
             ("limbus_map_observe", full_main.MapObservation),
             ("limbus_battle_observe", full_main.BattleObservation),
             ("limbus_mirror_loop", full_main.MirrorLoopAction),
-            ("limbus_global_settings", full_main.GlobalSettingsAction),
             ("limbus_main_task", full_main.MainTaskAction)):
             AgentServer.register_custom_action(name, factory(recognition))
         print("registered", flush=True)

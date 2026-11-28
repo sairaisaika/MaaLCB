@@ -422,33 +422,25 @@ flowchart TD
 
 | 名字 | 实现 | 锚点 |
 |---|---|---|
-| `limbus_scene` | `LimbusRecognition(locale)` | `agent/main.py:48` |
+| `limbus_scene` | `LimbusRecognition(locale)` | `agent/main.py:128` |
 
-`LimbusRecognition` 是 `CustomRecognition` 子类（`agent/recognition.py:103`），MaaFramework 调它的 `analyze(self, context, argv)`（`agent/recognition.py:397`）——`custom_recognition_param` 里给 `scene`，`analyze` 读帧后比对，不等就返回 `None`。
+`LimbusRecognition` 是 `CustomRecognition` 子类（`agent/recognition.py:312`），MaaFramework 调它的 `analyze(self, context, argv)`（`agent/recognition.py:759`）——`custom_recognition_param` 里给 `scene`，`analyze` 读帧后比对，不等就返回 `None`。
 
-**自定义动作（共 15 个）**
+**自定义动作（共 5 个）**
 
 | 名字 | 实现类 | 锚点 |
 |---|---|---|
-| `limbus_terminal` | `LimbusTerminal` | `agent/main.py:49` |
-| `limbus_team` | `TeamAction` | `:50` |
-| `limbus_star_proof` | `StarProof` | `:51` |
-| `limbus_initial_gift_proof` | `InitialGiftProof` | `:52` |
-| `limbus_initial_receipt_proof` | `InitialReceiptProof` | `:53` |
-| `limbus_difficulty_proof` | `DifficultyProof` | `:54` |
-| `limbus_preflight` | `InputPreflight` | `:55` |
-| `limbus_theme_observe` | `ThemeObservation` | `:56` |
-| `limbus_deployment_proof` | `DeploymentProof` | `:57` |
-| `limbus_battle_plan_observe` | `BattlePlanObservation` | `:58` |
-| `limbus_map_observe` | `MapObservation` | `:63` |
-| `limbus_battle_observe` | `BattleObservation` | `:64` |
-| `limbus_mirror_loop` | `MirrorLoopAction` | `:67` |
-| `limbus_global_settings` | `GlobalSettingsAction` | `:68` |
-| `limbus_main_task` | `MainTaskAction` | `:69` |
+| `limbus_terminal` | `LimbusTerminal` | `agent/main.py:129` |
+| `limbus_map_observe` | `MapObservation` | `:135` |
+| `limbus_battle_observe` | `BattleObservation` | `:136` |
+| `limbus_mirror_loop` | `MirrorLoopAction` | `:139` |
+| `limbus_main_task` | `MainTaskAction` | `:140` |
 
-`main.py:59-62` 留了一条注释解释为什么两个只读观察节点也必须注册：`custom_action` 未注册的节点根本跑不起来。
+`main.py:130-134` 留了一条注释解释为什么两个只读观察节点也必须注册：`custom_action` 未注册的节点根本跑不起来。
 
-Pipeline 侧的对应节点（`assets/resource/base/pipeline/mirror.json`）：`WindowMapObserve`（`:1455-1462`，`custom_action: limbus_map_observe`）、`WindowBattleObserve`（`:1463-1470`）、`MirrorLoop`（`:1526-1552`，`custom_action: limbus_mirror_loop`，参数含 `steps: 400`/`interval: 4.0`/`rounds: 3`/`run_store: config/user-run-ledger.json`）、`MirrorLoopDone`（`:1553-1558`，`DoNothing`）。`GlobalSettingsApply`（`:1559-1568`）→ `MirrorLoop` 是另一条入口。`runner.py:121-141` 的 `PIPELINE` 常量是同一批节点的 Python 副本（`prepare()` 会写出来）。
+2026-11-27 之前这里是 15 个：另外十个（`limbus_team`、`limbus_star_proof`、`limbus_initial_gift_proof`、`limbus_initial_receipt_proof`、`limbus_difficulty_proof`、`limbus_preflight`、`limbus_theme_observe`、`limbus_deployment_proof`、`limbus_battle_plan_observe`、`limbus_global_settings`）只被纯管线的旧镜牢层节点引用，随那一层一起删除，见[第 9 章的清理记录](9-execution-plan.md#legacy-pipeline-layer-removed)。`InputPreflight` 与 `GlobalSettingsAction` 两个类还在，由 `MainTaskAction` 直接调用，不再作为管线动作注册。
+
+Pipeline 侧的对应节点（`assets/resource/base/pipeline/mirror.json`）：`WindowMapObserve`（`:108-115`，`custom_action: limbus_map_observe`）、`WindowBattleObserve`（`:116-123`）、`MirrorLoop`（`:124-150`，`custom_action: limbus_mirror_loop`，参数含 `steps: 400`/`interval: 4.0`/`rounds: 3`/`run_store: config/user-run-ledger.json`）、`MirrorLoopDone`（`:151-156`，`DoNothing`）。`MirrorDrive`（`:2-22`）是循环按名字投递的唯一一个点击节点，`next` 与 `on_error` 都是空表。`runner.py:135-156` 的 `PIPELINE` 常量是同一批节点的 Python 副本（`prepare()` 会写出来）。
 
 ### 3.4.2 Agent 侧注册与回调
 
@@ -516,6 +508,7 @@ sequenceDiagram
 - `-Locale` 只接受 `en` / `jp`（默认 `en`）；`-Seconds` 取值范围 1..3600（默认 180）（`tools/start_native.ps1:5-6`）。
 - 它用 `-Verb RunAs` 走标准 Windows UAC，不替用户批准（`tools/start_native.ps1:32-33`）；若已经有一个控制器在跑（`MaaLimbusAgent.exe` / `MaaLimbus.exe`，或命令行指向本仓库 `run_native.py` 的 python 进程），脚本会在启动前抛出 `MaaLimbus already has a running controller; inspect its session first`（`tools/start_native.ps1:12-16`）。
 - 真正的进程由 `tools/native_session.ps1` 拉起：`python -u tools/run_native.py --binary <dir> --locale <en|jp> --seconds <n> --live`（`tools/native_session.ps1:18-19`）；它在 `Seconds + 45` 秒后强杀子进程，超时退出码固定为 `124`（`tools/native_session.ps1:22-28`）。
+- 这条命令不带 `--entry`，所以跑的是 `run_native.py` 的默认入口。2026-11-27 起默认入口是 `MirrorTask`（界面上的镜牢任务：按已保存的设置跑循环，仍受 `-Seconds` 限时）；此前是只做入口导航的 `MirrorHard`，已随纯管线的旧镜牢层删除（[清理记录](9-execution-plan.md#legacy-pipeline-layer-removed)）。改动后尚未在实机上通过这个启动器跑过。
 
 **产物落点**（每一条都能在脚本里查到）：
 
@@ -525,7 +518,7 @@ sequenceDiagram
 | 包装进程记录 | `build/native-launch.json` | `tools/start_native.ps1:45-47` |
 | 退出码与是否超时 | `build/native-launch-result.json` | `tools/native_session.ps1:29-31` |
 | 实时 stdout / stderr | `build/native-live.stdout.log` / `build/native-live.stderr.log` | `tools/native_session.ps1:11-12` |
-| 当前会话描述 | `build/live-session.json` | `tools/run_native.py:153` |
+| 当前会话描述 | `build/live-session.json` | `tools/run_native.py:148` |
 | 运行证据目录 | `evidence/runtime/`（Agent 侧目录名形如 `pi-<yyyymmdd-hhmmss>`） | `README.md:64`；`agent/recognition.py:1337-1347` |
 
 **入口二：`tools/window_step.py`**（419 行，自带设备、证据目录与账本的一次性窗口工具）：

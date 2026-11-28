@@ -1,5 +1,9 @@
 # 实验性原生战斗准备
 
+> **已移除（2026-11-27）。** 本页描述的 `BattlePlanStart` 管线任务、`limbus_battle_plan_observe` 动作以及
+> `tools/verify_battle_plan_replay.py`、`tools/verify_packaged_battle_replay.py` 两个回放工具已随纯管线的旧镜牢层删除，
+> 下面的命令不能再运行。战斗现在由镜牢循环自己处理。本页作为当时的记录保留；见 [Wiki 第 9 章的清理记录](wiki/zh_cn/9-execution-plan.md#legacy-pipeline-layer-removed)。
+
 单独的 `BattlePlanStart` / PI 任务 **Prepare battle plan (development)** 默认不勾选。
 它只在英语战斗规划页尝试一次 Maa `ClickKey`（虚拟键 80，即 P），等待并保存新图，
 随后在待验收边界停止。不按 Enter、不选择 E.G.O、不循环战斗、不更新通关账本。

@@ -283,9 +283,6 @@ erDiagram
     }
     user-mirror-settings {
         int version
-        array graces
-        bool enhance
-        int max_starlight
         int max_reward_modules
         bool module_budget_pending
         int max_floor
@@ -293,7 +290,6 @@ erDiagram
         int refill_lunacy
         int convert_modules
         string source
-        bool convert_remaining_starlight
         string reward_budget_scope
         string reward_budget_authorization
     }
@@ -393,29 +389,6 @@ erDiagram
         int failures
         object payload
         string status
-    }
-    difficulty-switch-progress {
-        object pending
-        string confirmed
-        string proof
-    }
-    initial-gift-progress {
-        array selected
-        object pending
-        string proof
-        object commit_pending
-        object receipt_pending
-        array acknowledged
-        array receipt_evidence
-        object search_refuse_pending
-        object search_confirm_pending
-    }
-    star-selection-progress {
-        array selected
-        object pending
-        int available_after
-        object entry_pending
-        object confirmation_pending
     }
 
     user-team-profiles ||--o{ user-run-ledger : "team_slots 就是 teams.slot 的顺序"
@@ -527,7 +500,7 @@ erDiagram
 | `user-launch` | `config/user-launch.json` | 用户/启动器 |
 | `user-mirror-settings` | `config/user-mirror-settings.json` | 用户；`module_budget_pending` 与资源侧的 `budget.json.status` 一起构成「不许花钱」的约束 |
 | `user-difficulty-transaction` | `config/user-difficulty-transaction.json` | 难度证据事务（`hard=true`，账号级） |
-| `difficulty-switch-progress` / `initial-gift-progress` / `star-selection-progress` | `config/*.json` | 三个进度文件，记录账号级的既有选择与 `pending` 中断点 |
+| `difficulty-switch-progress` / `initial-gift-progress` / `star-selection-progress` | `config/*.json` | 已无读者（2026-11-27）。这三个进度文件只被纯管线的旧镜牢层读写，那一层删除后程序不再读它们，也不会删除用户目录里已有的文件。`user-mirror-settings.json` 里的 `graces` / `enhance` / `max_starlight` / `convert_remaining_starlight` 四个字段同理；星光购买现在由队伍设置或任务选项决定，由循环自己读 |
 | `user-*-transaction` × 4 | `config/user-{deployment,floor-gift,grace,initial,theme}-transaction.json` | 见 5.2 表 |
 | `user-reward-claim-transaction` | `config/user-reward-claim-transaction.json` | `src/maalimbus/reward_claim_transaction.py`；原生奖励任务也会直接写（`src/maalimbus/reward_task.py:47-48`） |
 | `user-shop-*` / `user-exploration-*` | `config/user-shop-<scope>.json` 等 | 一局一个文件，文件名里的 `<scope>` 与 `scope` 字段同值 |

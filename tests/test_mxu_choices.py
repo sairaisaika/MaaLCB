@@ -6,7 +6,7 @@ import pytest
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
-from verify_mxu_deployment_replay import resolve_choices
+from mxu_choices import resolve_choices
 
 
 def task(mode):

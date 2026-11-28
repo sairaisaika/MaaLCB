@@ -41,6 +41,10 @@ Agent 和 Runner 从自身可执行文件的安装位置定位包根目录，不
 
 ## 离线验证
 
+> **已移除（2026-11-27）。** 下面四个 `verify_packaged_*_replay.py` 回放的是纯管线的旧镜牢层（`MirrorHard` 入口链与
+> 主题包、出战、战斗规划三个独立任务），已随那一层删除，命令不能再运行。本节以下的结果是当时的记录；见 [Wiki 第 9 章的清理记录](wiki/zh_cn/9-execution-plan.md#legacy-pipeline-layer-removed)。
+> 现在对开发包的检查见 `tools/verify_packaged_mirror_loop.py`。
+
 ```powershell
 python tools/verify_packaged_replay.py --app <开发包目录> --references <本地参考截图目录>
 python tools/verify_packaged_theme_replay.py --app <开发包目录>

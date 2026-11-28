@@ -28,8 +28,8 @@ journal instead of the pipeline.
 
 `WindowMapObserve` and `WindowBattleObserve` are the two nodes `MaaObserver` runs. They
 are published in `assets/resource/base/pipeline/mirror.json` because a packaged app only
-loads what is under `assets/`; the isolated `MapObserve`/`BattleObserve` nodes and the
-`MirrorHard` entry chain are untouched. `MirrorLoopDone` is the terminal node the task
+loads what is under `assets/`; the isolated `MapObserve`/`BattleObserve` nodes are
+untouched (the `MirrorHard` entry chain this sentence used to name was removed on 2026-11-27). `MirrorLoopDone` is the terminal node the task
 ends on, so the task ends the way every other task in this pipeline ends.
 
 ## What the action reads
@@ -122,8 +122,9 @@ python tools/run_native.py --live --entry MirrorLoop --seconds 3600 \
 `--seconds` is the outer bound -- at most one hour -- and the run also bounds itself with
 `budget`, so both stop cleanly. `run_native.py` registers the same hooks, so
 `--entry MirrorLoop` runs the loop in this process with no agent socket involved; that is
-also the closest thing to the packaged app short of running it. The default
-`--entry MirrorHard` chain is unchanged.
+also the closest thing to the packaged app short of running it. Without `--entry` the
+runner starts `MirrorTask`, the interface's own Mirror entry; the `MirrorHard` chain that
+used to be the default was removed on 2026-11-27.
 
 ## Verifying on a real device
 
